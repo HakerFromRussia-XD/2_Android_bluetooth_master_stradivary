@@ -59,6 +59,7 @@ internal object AchievementsColors {
     val Gold = Color(0xFFFFD700)
 }
 
+
 internal val AchievementsFontFamily = FontFamily(
     Font(R.font.sf_pro_display_light, weight = FontWeight.Normal),
     Font(R.font.sf_pro_text_bold, weight = FontWeight.Bold)
@@ -72,6 +73,7 @@ fun AchievementsScreen(
     pendingCelebration: AchievementCelebration? = null,
     onCelebrationAcknowledged: (AchievementCelebration) -> Unit = {}
 ) {
+
     val gridState = rememberLazyGridState()
     var selectedAchievementId by rememberSaveable {
         mutableStateOf<AchievementId?>(null)
@@ -82,7 +84,9 @@ fun AchievementsScreen(
     var showCupAnimation by remember {
         mutableStateOf(false)
     }
-    val selectedAchievement = achievements.firstOrNull { it.id == selectedAchievementId }
+    val selectedAchievement by remember(achievements) {
+        mutableStateOf(achievements.firstOrNull { it.id == selectedAchievementId })
+    }
 
     LaunchedEffect(pendingCelebration) {
         val celebration = pendingCelebration ?: return@LaunchedEffect

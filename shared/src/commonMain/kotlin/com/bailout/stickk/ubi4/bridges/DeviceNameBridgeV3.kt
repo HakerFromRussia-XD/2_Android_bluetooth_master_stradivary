@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.device.DeviceSerialClassifier
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 
 /**
@@ -7,30 +10,39 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
  * UI can show stripped name, while storage/transport keeps full name.
  */
 object DeviceNameBridgeV3 {
-    private val prefix = ConstantManagerUBI4.DEVICE_NAME_PREFIX
+    private val defaultPrefix = ConstantManagerUBI4.DEVICE_NAME_PREFIX
+    private const val INDY3_PREFIX = "INDY3-"
 
     fun displayName(deviceName: String?): String {
         val normalized = deviceName?.trim().orEmpty()
         if (normalized.isEmpty()) return ""
 
-        return if (normalized.startsWith(prefix, ignoreCase = true)) {
-            normalized.removePrefix(prefix)
-        } else {
-            normalized
-        }
+        val prefix = DeviceSerialClassifier.v3TransportPrefix(normalized) ?: return normalized
+        return normalized.substring(prefix.length)
     }
 
     fun applyPrefixForTransport(rawName: String?): String {
         val normalized = rawName?.trim().orEmpty()
+        val prefix = activeTransportPrefix()
         if (normalized.isEmpty()) return prefix
-        if (normalized.startsWith(prefix, ignoreCase = true)) return normalized
-        return prefix + normalized.removePrefix("-")
+        val enteredPrefix = DeviceSerialClassifier.v3TransportPrefix(normalized)
+        val normalizedSuffix = enteredPrefix
+            ?.let { normalized.substring(it.length) }
+            ?: normalized.removePrefix("-")
+        return prefix + normalizedSuffix.removePrefix("-")
     }
 
     fun hasTransportPrefix(deviceName: String?): Boolean {
         val normalized = deviceName?.trim().orEmpty()
-        return normalized.startsWith(prefix, ignoreCase = true)
+        return DeviceSerialClassifier.v3TransportPrefix(normalized) != null
     }
 
-    fun transportPrefix(): String = prefix
+    fun transportPrefix(): String = activeTransportPrefix()
+
+    private fun activeTransportPrefix(): String =
+        if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
+            INDY3_PREFIX
+        } else {
+            defaultPrefix
+        }
 }

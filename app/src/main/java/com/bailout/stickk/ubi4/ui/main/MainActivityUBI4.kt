@@ -31,8 +31,8 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
@@ -64,6 +64,9 @@ import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiInterfaceModeBridgeV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -183,9 +186,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
-        bottomNavigationController.applyVisibility(computeVisibleDisplays())
         setupImeBottomNavBehavior()
         refreshBottomNavVisibility()
+        lifecycleScope.launch {
+            updateFlow.collect { refreshBottomNavVisibility() }
+        }
         observeBattery()
         // инициализация блютуз
 
@@ -310,6 +315,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }.start()
             // показать или скрыть секретный пункт
             bottomNavigationController.toggleSecretItem()
+            refreshBottomNavVisibility()
             true
         }
 
@@ -645,6 +651,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
+        mDeviceName = connectedDeviceName
+        mDeviceAddress = connectedDeviceAddress
+        mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
+        val selectedProfile = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_PROFILE)
+            ?.let { runCatching { V3DeviceProfile.valueOf(it) }.getOrNull() }
+        if (selectedProfile != null) {
+            UiInterfaceModeBridgeV3.setActiveProfile(selectedProfile)
+        } else {
+            UiInterfaceModeBridgeV3.updateFromDeviceName(connectedDeviceName)
+        }
         setStaticVariables()
         updateSerialNumberV3()
 
@@ -787,7 +803,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
-            val displayName = NameUtil.getDisplayName(connectedDeviceName)
+            val displayName = DeviceNameBridgeV3.displayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
         }
@@ -800,7 +816,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mDeviceName = serial
         currentSerial = mDeviceName
         SettingsProfileManager.setCurrentSerial(currentSerial)
-        val displayName = NameUtil.getDisplayName(serial)
+        val displayName = DeviceNameBridgeV3.displayName(serial)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
@@ -811,7 +827,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
 
-        val displayName = NameUtil.getDisplayName(fullDeviceName)
+        val displayName = DeviceNameBridgeV3.displayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
@@ -890,9 +906,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun refreshBottomNavVisibility() {
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        syncBottomNavigationContainerVisibility()
+    }
+
+    private fun syncBottomNavigationContainerVisibility() {
+        if (!bottomNavigationController.hasVisibleItems()) {
+            binding.bottomNavigation.visibility = View.GONE
+            return
+        }
+        if (canRestoreBottomNavigationAfterIme() && !isImeVisible) {
+            showBottomNavigationAnimated()
+        }
     }
 
     fun showBottomNavigation() {
+        if (!bottomNavigationController.hasVisibleItems()) {
+            binding.bottomNavigation.visibility = View.GONE
+            return
+        }
         if (isImeVisible) {
             bottomNavHiddenByIme = true
             binding.bottomNavigation.visibility = View.GONE
@@ -933,7 +964,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun setChromeVisible(visible: Boolean) {
         val v = if (visible) View.VISIBLE else View.INVISIBLE
         binding.statusBar.visibility = v
-        binding.bottomNavigation.visibility = if (visible && !isImeVisible) View.VISIBLE else View.INVISIBLE
+        binding.bottomNavigation.visibility = if (
+            visible && !isImeVisible && bottomNavigationController.hasVisibleItems()
+        ) View.VISIBLE else View.INVISIBLE
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
@@ -997,7 +1030,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun canRestoreBottomNavigationAfterIme(): Boolean {
         return binding.statusBar.visibility == View.VISIBLE &&
             binding.statusBackContainer.visibility != View.VISIBLE &&
-            !UiState.startupInProgress.value
+            !UiState.startupInProgress.value &&
+            bottomNavigationController.hasVisibleItems()
     }
 
     private fun showBottomNavigationAnimated(nav: View = binding.bottomNavigation) {

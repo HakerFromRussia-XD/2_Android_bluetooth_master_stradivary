@@ -52,6 +52,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
@@ -254,7 +255,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
-                                mBLEParserV3?.generatedHardcodeWidgets()
+                                if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
+                                    mBLEParserV3?.generatedHardcodeWidgetsINDY3()
+                                } else {
+                                    mBLEParserV3?.generatedHardcodeWidgets()
+                                }
                                 initRequestsV3()
                             } else {
                                 //ветка инициализации протокола UBIv4
@@ -801,7 +806,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
-            val initRequests = buildV3InitRequests()
+            val initRequests = if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
+                buildINDY3InitRequests()
+            } else {
+                buildV3InitRequests()
+            }
             startV3InitProgressTracking(initRequests)
 
             if (initRequests.isEmpty()) {
@@ -987,6 +996,66 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_SPEED_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_FORCE_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = getSerialNumberPacket,
+                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
+                expectedResponseSubcommand = GET_SERIAL_NUMBER.number
+            )
+        )
+    }
+
+    private fun buildINDY3InitRequests(): List<V3InitRequest> {
+        val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
+            DEVICE_INFORMATION.number.toInt(),
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
+
+        return listOf(
+            V3InitRequest(
+                packet = request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_THRESHOLD_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_BATTERY.number.toInt()),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_BATTERY.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
             ),
             V3InitRequest(
                 packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),

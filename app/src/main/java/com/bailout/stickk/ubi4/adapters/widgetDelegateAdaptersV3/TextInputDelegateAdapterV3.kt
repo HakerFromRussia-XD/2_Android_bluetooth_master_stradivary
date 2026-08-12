@@ -8,7 +8,6 @@ import android.widget.EditText
 import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTextInputBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -21,9 +20,9 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DEVICE_NAME_PREFIX
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
@@ -41,10 +40,6 @@ class TextInputDelegateAdapterV3(
 ) : ViewBindingDelegateAdapter<TextInputItemV3, Ubi4WidgetTextInputBinding>(
     Ubi4WidgetTextInputBinding::inflate
 ) {
-    companion object {
-        private const val MAX_INPUT_BYTES = 10
-    }
-
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
@@ -102,10 +97,7 @@ class TextInputDelegateAdapterV3(
             val isDeviceName = isDeviceNameParameter(parameterInfo)
             val isSerialNumber = isSerialNumberParameter(parameterInfo)
             val transportText = if (isDeviceName) {
-                val normalizedSuffix = enteredText
-                    .removePrefix(DEVICE_NAME_PREFIX)
-                    .removePrefix("-")
-                DEVICE_NAME_PREFIX + normalizedSuffix
+                DeviceNameBridgeV3.applyPrefixForTransport(enteredText)
             } else {
                 enteredText
             }
@@ -219,7 +211,7 @@ class TextInputDelegateAdapterV3(
                 if (isInternalChange || s == null) return
 
                 val currentText = s.toString()
-                val trimmed = trimToUtf8ByteLimit(currentText, MAX_INPUT_BYTES)
+                val trimmed = TextInputNameLimitV3.trimToLimit(currentText)
                 if (trimmed == currentText) return
 
                 isInternalChange = true
@@ -244,18 +236,13 @@ class TextInputDelegateAdapterV3(
 
     private fun setupCurrentDeviceNamePrefill(input: EditText) {
         fun fillCurrentName() {
-            val rawDeviceName = main.getCurrentSerial()
-                ?.takeUnless { it.isBlank() }
-                ?: main.mDeviceName?.takeUnless { it.isBlank() }
-                ?: runCatching { connectedDeviceName }.getOrNull()?.takeUnless { it.isBlank() }
-                ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
-                ?: return
+            val rawDeviceName = resolveCurrentDeviceName() ?: return
 
-            val displayName = NameUtil.getDisplayName(rawDeviceName)
+            val displayName = TextInputPrefillFormatterV3.deviceName(rawDeviceName)
             if (displayName.isBlank()) return
 
             input.setText(displayName)
-            input.setSelection(displayName.length)
+            input.setSelection(input.text?.length ?: 0)
         }
 
         input.setOnClickListener { fillCurrentName() }
@@ -281,11 +268,11 @@ class TextInputDelegateAdapterV3(
                 ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
                 ?: return
 
-            val displaySerialNumber = NameUtil.getDisplayName(rawSerialNumber)
+            val displaySerialNumber = TextInputPrefillFormatterV3.serialNumber(rawSerialNumber)
             if (displaySerialNumber.isBlank()) return
 
             input.setText(displaySerialNumber)
-            input.setSelection(displaySerialNumber.length)
+            input.setSelection(input.text?.length ?: 0)
         }
 
         input.setOnClickListener { fillCurrentSerialNumber() }
@@ -297,22 +284,12 @@ class TextInputDelegateAdapterV3(
         }
     }
 
-    private fun trimToUtf8ByteLimit(value: String, maxBytes: Int): String {
-        var charIndex = 0
-        var bytesUsed = 0
-
-        while (charIndex < value.length) {
-            val codePoint = Character.codePointAt(value, charIndex)
-            val codePointChars = String(Character.toChars(codePoint))
-            val codePointBytes = codePointChars.toByteArray(StandardCharsets.UTF_8).size
-            if (bytesUsed + codePointBytes > maxBytes) break
-
-            bytesUsed += codePointBytes
-            charIndex += Character.charCount(codePoint)
-        }
-
-        return if (charIndex == value.length) value else value.substring(0, charIndex)
-    }
+    private fun resolveCurrentDeviceName(): String? =
+        main.getCurrentSerial()
+            ?.takeUnless { it.isBlank() }
+            ?: main.mDeviceName?.takeUnless { it.isBlank() }
+            ?: runCatching { connectedDeviceName }.getOrNull()?.takeUnless { it.isBlank() }
+            ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
 
     private fun onDestroy() {
         overlayViews.clear()
@@ -320,4 +297,31 @@ class TextInputDelegateAdapterV3(
         interactionJob?.cancel()
         interactionJob = null
     }
+}
+
+internal object TextInputNameLimitV3 {
+    const val MAX_INPUT_BYTES_WITHOUT_PREFIX = 13
+
+    fun trimToLimit(value: String): String {
+        var charIndex = 0
+        var bytesUsed = 0
+
+        while (charIndex < value.length) {
+            val codePoint = Character.codePointAt(value, charIndex)
+            val codePointChars = String(Character.toChars(codePoint))
+            val codePointBytes = codePointChars.toByteArray(StandardCharsets.UTF_8).size
+            if (bytesUsed + codePointBytes > MAX_INPUT_BYTES_WITHOUT_PREFIX) break
+
+            bytesUsed += codePointBytes
+            charIndex += Character.charCount(codePoint)
+        }
+
+        return if (charIndex == value.length) value else value.substring(0, charIndex)
+    }
+}
+
+internal object TextInputPrefillFormatterV3 {
+    fun deviceName(rawValue: String): String = DeviceNameBridgeV3.displayName(rawValue)
+
+    fun serialNumber(rawValue: String): String = rawValue
 }

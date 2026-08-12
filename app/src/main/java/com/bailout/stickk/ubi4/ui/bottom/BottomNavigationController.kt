@@ -5,23 +5,25 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.IdRes
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.KEY_SECRET_ITEM_VISIBLE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.NAME
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.android.material.navigation.NavigationBarView.LABEL_VISIBILITY_LABELED
 
 @SuppressLint("ResourceType")
 class BottomNavigationController(private val bottomNavigation: BottomNavigationView) {
 
     private var isNavigationEnabled = true
+    private var visibleDisplays: Set<Int> = emptySet()
 
-    // — новое:
-    private var pendingReturnItemId: Int? = null
-    private var autoRedirectedToFallback = false
-
+    private val itemDisplayMapping = linkedMapOf(
+        R.id.page_1 to DisplayIds.GESTURES,
+        R.id.page_2 to DisplayIds.SENSORS,
+        R.id.page_4 to DisplayIds.SPECIAL,
+        R.id.page_3 to DisplayIds.TRAINING,
+        R.id.page_secret to DisplayIds.SERVICE
+    )
 
     private val prefs: SharedPreferences by lazy {
         bottomNavigation.context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -29,12 +31,8 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
 
     init {
         bottomNavigation.isSaveEnabled = false
-        val isSecretVisible = prefs.getBoolean(KEY_SECRET_ITEM_VISIBLE, false)
-        bottomNavigation.menu.findItem(R.id.page_secret).isVisible = isSecretVisible
         setupOnClickPages(bottomNavigation)
         bottomNavigation.labelVisibilityMode = LABEL_VISIBILITY_LABELED
-        // Стартовая вкладка:
-        bottomNavigation.post { safeSelect(R.id.page_2) }
     }
 
     private fun setupOnClickPages(bottomNavigation: BottomNavigationView) {
@@ -42,55 +40,49 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
         bottomNavigation.setOnItemSelectedListener { item ->
             if (!isNavigationEnabled) return@setOnItemSelectedListener false
 
-            // Любой осознанный выбор пользователя отменяет авторестор
-            autoRedirectedToFallback = false
-
-            when (item.itemId) {
-                R.id.page_1 -> { main.showOpticGesturesScreen(); return@setOnItemSelectedListener true }
-                R.id.page_2 -> { main.showSensorsScreen();         return@setOnItemSelectedListener true }
-                R.id.page_3 -> { main.showOpticTrainingGesturesScreen(); return@setOnItemSelectedListener true }
-                R.id.page_4 -> { main.showSpecialScreen();         return@setOnItemSelectedListener true }
-                R.id.page_secret -> { main.showSecretScreen();     return@setOnItemSelectedListener true }
-            }
-            false
+            routeTo(item.itemId)
         }
     }
 
-    // Безопасный выбор пункта без вызова listener
-    private fun safeSelect(@androidx.annotation.IdRes id: Int) {
+    private fun selectAndRoute(@IdRes id: Int) {
         isNavigationEnabled = false
         bottomNavigation.selectedItemId = id
         isNavigationEnabled = true
+        routeTo(id)
+    }
+
+    private fun routeTo(@IdRes id: Int): Boolean {
+        return when (id) {
+            R.id.page_1 -> { main.showOpticGesturesScreen(); true }
+            R.id.page_2 -> { main.showSensorsScreen(); true }
+            R.id.page_3 -> { main.showOpticTrainingGesturesScreen(); true }
+            R.id.page_4 -> { main.showSpecialScreen(); true }
+            R.id.page_secret -> { main.showSecretScreen(); true }
+            else -> false
+        }
     }
 
     fun applyVisibility(visibleDisplays: Set<Int>) {
+        this.visibleDisplays = visibleDisplays
         val menu = bottomNavigation.menu
+        val secretAccessEnabled = prefs.getBoolean(KEY_SECRET_ITEM_VISIBLE, false)
+        val resolution = BottomNavigationVisibilityPolicy.resolve(
+            itemDisplayMapping = itemDisplayMapping,
+            visibleDisplays = visibleDisplays,
+            secretItemId = R.id.page_secret,
+            secretAccessEnabled = secretAccessEnabled,
+            currentItemId = bottomNavigation.selectedItemId,
+            sensorsItemId = R.id.page_2
+        )
 
-        menu.findItem(R.id.page_3)?.isVisible = 3 in visibleDisplays
-
-        val current = bottomNavigation.selectedItemId
-        val currentVisible = menu.findItem(current)?.isVisible == true
-
-        // 1) Текущая вкладка стала невидимой → уходим на fallback и помним, куда вернуться
-        if (!currentVisible) {
-            pendingReturnItemId = current
-            autoRedirectedToFallback = true
-            safeSelect(R.id.page_2)
-            return
+        itemDisplayMapping.forEach { (itemId, display) ->
+            menu.findItem(itemId)?.isVisible = itemId in resolution.visibleItemIds
         }
 
-        // 2) Если мы ранее автоушли на fallback, и целевая вкладка снова видима → возвращаемся
-        pendingReturnItemId?.let { target ->
-            val targetVisible = menu.findItem(target)?.isVisible == true
-            val stillOnFallback = bottomNavigation.selectedItemId == R.id.page_2
-
-            if (autoRedirectedToFallback && targetVisible && stillOnFallback) {
-                safeSelect(target)
-                pendingReturnItemId = null
-                autoRedirectedToFallback = false
-            }
+        val targetItemId = resolution.selectedItemId ?: return
+        if (targetItemId != bottomNavigation.selectedItemId) {
+            selectAndRoute(targetItemId)
         }
-
     }
 
     fun refresh(computeVisibleDisplays: () -> Set<Int>) {
@@ -101,29 +93,55 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
         return bottomNavigation.menu.findItem(itemId)?.isVisible == true
     }
 
-    fun toggleSecretItem() {
-        val item = bottomNavigation.menu.findItem(R.id.page_secret)
-        val newVisible = !item.isVisible
-        item.isVisible = newVisible
-        prefs.edit().putBoolean(KEY_SECRET_ITEM_VISIBLE, newVisible).apply()
+    fun hasVisibleItems(): Boolean = itemDisplayMapping.keys.any(::isItemVisible)
 
-        if (!newVisible && bottomNavigation.selectedItemId == R.id.page_secret) {
-            // если спрятали активную секретную — уходим на fallback
-            pendingReturnItemId = R.id.page_secret
-            autoRedirectedToFallback = true
-            safeSelect(R.id.page_2)
-        }
+    fun toggleSecretItem() {
+        val newAccessEnabled = !prefs.getBoolean(KEY_SECRET_ITEM_VISIBLE, false)
+        prefs.edit().putBoolean(KEY_SECRET_ITEM_VISIBLE, newAccessEnabled).apply()
+        applyVisibility(visibleDisplays)
     }
 
     fun setNavigationEnabled(enabled: Boolean) {
         isNavigationEnabled = enabled
     }
 
-    object DisplayIds {
+object DisplayIds {
         const val GESTURES = 0
         const val SENSORS  = 1
         const val TRAINING = 3
         const val SPECIAL  = 2
-        val all = listOf(GESTURES, SENSORS, TRAINING, SPECIAL)
+        const val SERVICE  = 4
+        val all = listOf(GESTURES, SENSORS, SPECIAL, TRAINING, SERVICE)
+    }
+}
+
+internal data class BottomNavigationResolution(
+    val visibleItemIds: List<Int>,
+    val selectedItemId: Int?
+)
+
+internal object BottomNavigationVisibilityPolicy {
+    fun resolve(
+        itemDisplayMapping: Map<Int, Int>,
+        visibleDisplays: Set<Int>,
+        secretItemId: Int,
+        secretAccessEnabled: Boolean,
+        currentItemId: Int,
+        sensorsItemId: Int
+    ): BottomNavigationResolution {
+        val visibleItemIds = itemDisplayMapping
+            .filter { (itemId, display) ->
+                display in visibleDisplays &&
+                    (itemId != secretItemId || secretAccessEnabled)
+            }
+            .keys
+            .toList()
+
+        val selectedItemId = when {
+            currentItemId in visibleItemIds -> currentItemId
+            sensorsItemId in visibleItemIds -> sensorsItemId
+            else -> visibleItemIds.firstOrNull()
+        }
+        return BottomNavigationResolution(visibleItemIds, selectedItemId)
     }
 }

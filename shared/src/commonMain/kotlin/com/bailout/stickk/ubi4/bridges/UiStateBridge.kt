@@ -44,5 +44,6 @@ object UiStateBridge {
         UiState.resetWidgetRequests()
 //        UiState.widgetsLoadingProgressTotal = 0
         UiState.labelCodesByOffset.clear()
+        UiState.updateFlow.tryEmit(-1)
     }
 }

@@ -10,6 +10,7 @@ public interface ConstantManager {
 
     String DEVICE_NAME = "";
     String EXTRAS_DEVICE_TYPE = "EXTRAS_DEVICE_TYPE";
+    String EXTRAS_DEVICE_PROFILE = "EXTRAS_DEVICE_PROFILE";
     String DEVICE_TYPE_INDY = "INDY";
     String DEVICE_TYPE_FEST_A = "FEST-A";
     String DEVICE_TYPE_BT05 = "BT05";

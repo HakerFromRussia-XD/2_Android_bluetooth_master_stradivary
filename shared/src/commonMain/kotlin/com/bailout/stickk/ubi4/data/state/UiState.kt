@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.concurrent.Volatile
@@ -24,6 +25,7 @@ object UiState {
         WidgetsLoadingProgress(current = 0, total = 0)
     )
     var isInterfaceV3Activated: Boolean = false
+    var activeV3DeviceProfile: V3DeviceProfile = V3DeviceProfile.NOT_V3
 
 
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()

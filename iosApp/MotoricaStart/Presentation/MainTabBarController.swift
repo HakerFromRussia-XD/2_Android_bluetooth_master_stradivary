@@ -47,11 +47,22 @@ final class MainTabBarController: UITabBarController {
     private let iOS26TabIconVerticalOffset: CGFloat = -6
     private let tabBarContentOverlayView = UIView()
     private var tabBarContentDescriptors: [TabBarContentDescriptor] = []
+    private var allTabBarContentDescriptors: [TabBarContentDescriptor] = []
+    private var allTabViewControllers: [UIViewController] = []
     private var tabBarContentViews: [MainTabBarContentItemView] = []
+    private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
+    private var isKeyboardVisible = false
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
     private var pendingTabColorRefreshWorkItems: [DispatchWorkItem] = []
+    private let tabDisplayByTag: [Int: Int32] = [
+        TabTag.gestures: 0,
+        TabTag.sensors: 1,
+        TabTag.training: 3,
+        TabTag.specialSettings: 2,
+        TabTag.serviceSettings: 4
+    ]
     private var isSecretSettingsTabVisible: Bool {
         UserDefaults.standard.bool(forKey: secretSettingsVisibilityKey)
     }
@@ -104,12 +115,13 @@ final class MainTabBarController: UITabBarController {
         
         applyTabBarContentInsets(topPadding: tabItemTopPadding)
         
-        selectedIndex = 1 // Sensors tab by default
+        applyWidgetDrivenTabVisibility(preferredSelectionTag: TabTag.sensors)
         DispatchQueue.main.async { [weak self] in
             self?.forceUpdateTabBarItemColors()
         }
         registerKeyboardObservers()
         registerSynchronizationObservers()
+        registerWidgetUpdates()
         updateSynchronizationRestrictedTabAvailability()
 #if DEBUG
         configureTabBarColorProbeIfNeeded()
@@ -148,10 +160,12 @@ final class MainTabBarController: UITabBarController {
     private func setupTabs() {
         let widgetsDI = appDIContainer.makeWidgetsSceneDIContainer()
         let actions = makeWidgetsActions()
-        
+
         let gesturesTitle = SharedLocalizedText.text(SharedRes.strings().title_home)
         let sensorsTitle = SharedLocalizedText.text(SharedRes.strings().title_dashboard)
         let specialTitle = SharedLocalizedText.text(SharedRes.strings().special_settings)
+        let trainingTitle = SharedLocalizedText.text(SharedRes.strings().training)
+
         let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
         gesturesVC.tabBarItem = makeTabBarItem(
             title: gesturesTitle,
@@ -174,35 +188,24 @@ final class MainTabBarController: UITabBarController {
             tag: TabTag.specialSettings
         )
         specialVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabSpecialSettingsItem
+        let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
+        trainingVC.tabBarItem = makeTabBarItem(
+            title: trainingTitle,
+            imageName: "ic_trophy",
+            tag: TabTag.training
+        )
+        let serviceVC = makeServiceSettingsTabViewController()
 
-        var controllers: [UIViewController] = [gesturesVC, sensorsVC]
-        var descriptors: [TabBarContentDescriptor] = [
+        allTabViewControllers = [gesturesVC, sensorsVC, trainingVC, specialVC, serviceVC]
+        allTabBarContentDescriptors = [
             TabBarContentDescriptor(title: gesturesTitle, imageName: "ic_gestures", tag: TabTag.gestures),
-            TabBarContentDescriptor(title: sensorsTitle, imageName: "ic_sensors", tag: TabTag.sensors)
+            TabBarContentDescriptor(title: sensorsTitle, imageName: "ic_sensors", tag: TabTag.sensors),
+            TabBarContentDescriptor(title: trainingTitle, imageName: "ic_trophy", tag: TabTag.training),
+            TabBarContentDescriptor(title: specialTitle, imageName: "ic_mechanics", tag: TabTag.specialSettings),
+            makeServiceSettingsDescriptor()
         ]
-
-        let trainingWidgets = DataFactory().prepareData(display: 3)
-        if !trainingWidgets.isEmpty {
-            let trainingTitle = SharedLocalizedText.text(SharedRes.strings().training)
-            let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
-            trainingVC.tabBarItem = makeTabBarItem(
-                title: trainingTitle,
-                imageName: "ic_trophy",
-                tag: TabTag.training
-            )
-            controllers.append(trainingVC)
-            descriptors.append(TabBarContentDescriptor(title: trainingTitle, imageName: "ic_trophy", tag: TabTag.training))
-        }
-
-        controllers.append(specialVC)
-        descriptors.append(TabBarContentDescriptor(title: specialTitle, imageName: "ic_mechanics", tag: TabTag.specialSettings))
-        if isSecretSettingsTabVisible {
-            let serviceVC = makeServiceSettingsTabViewController()
-            controllers.append(serviceVC)
-            descriptors.append(makeServiceSettingsDescriptor())
-        }
-        tabBarContentDescriptors = descriptors
-        viewControllers = controllers
+        tabBarContentDescriptors = allTabBarContentDescriptors
+        viewControllers = allTabViewControllers
     }
 
     private func makeWidgetsActions() -> WidgetsListViewModelActions {
@@ -248,33 +251,49 @@ final class MainTabBarController: UITabBarController {
 
     private func setSecretSettingsTabVisible(_ isVisible: Bool, selectWhenShown: Bool) {
         UserDefaults.standard.set(isVisible, forKey: secretSettingsVisibilityKey)
-        var controllers = viewControllers ?? []
-        var descriptors = tabBarContentDescriptors
-        let selectedTag = selectedViewController?.tabBarItem.tag
+        let preferredTag = isVisible && selectWhenShown ? TabTag.serviceSettings : nil
+        applyWidgetDrivenTabVisibility(preferredSelectionTag: preferredTag)
+    }
 
-        if isVisible {
-            if !controllers.contains(where: { $0.tabBarItem.tag == TabTag.serviceSettings }) {
-                controllers.append(makeServiceSettingsTabViewController())
-                descriptors.append(makeServiceSettingsDescriptor())
-            }
-        } else {
-            controllers.removeAll { $0.tabBarItem.tag == TabTag.serviceSettings }
-            descriptors.removeAll { $0.tag == TabTag.serviceSettings }
+    private func applyWidgetDrivenTabVisibility(preferredSelectionTag: Int? = nil) {
+        let dataFactory = DataFactory()
+        let visibleDisplays = Set((0...4).compactMap { display -> Int32? in
+            dataFactory.prepareData(display: Int32(display)).isEmpty ? nil : Int32(display)
+        })
+        let previousSelectedTag = selectedViewController?.tabBarItem.tag
+
+        let permittedControllers = allTabViewControllers.filter { controller in
+            guard let display = tabDisplayByTag[controller.tabBarItem.tag] else { return false }
+            let hasWidgets = visibleDisplays.contains(display)
+            let hasAccess = controller.tabBarItem.tag != TabTag.serviceSettings || isSecretSettingsTabVisible
+            return hasWidgets && hasAccess
+        }
+        let permittedTags = Set(permittedControllers.map { $0.tabBarItem.tag })
+        tabBarContentDescriptors = allTabBarContentDescriptors.filter { permittedTags.contains($0.tag) }
+        viewControllers = permittedControllers
+
+        guard !permittedControllers.isEmpty else {
+            tabBar.isHidden = true
+            tabBarContentOverlayView.isHidden = true
+            refreshTabBarAfterContentChange()
+            return
         }
 
-        tabBarContentDescriptors = descriptors
-        viewControllers = controllers
-
-        let targetTag: Int?
-        if isVisible && selectWhenShown {
-            targetTag = TabTag.serviceSettings
-        } else if selectedTag == TabTag.serviceSettings {
+        tabBar.isHidden = false
+        tabBarContentOverlayView.isHidden = false
+        let targetTag: Int
+        if let preferredSelectionTag, permittedTags.contains(preferredSelectionTag) {
+            targetTag = preferredSelectionTag
+        } else if let previousSelectedTag, permittedTags.contains(previousSelectedTag) {
+            targetTag = previousSelectedTag
+        } else if permittedTags.contains(TabTag.sensors) {
             targetTag = TabTag.sensors
         } else {
-            targetTag = selectedTag
+            targetTag = permittedControllers[0].tabBarItem.tag
         }
         selectTab(withTag: targetTag)
         refreshTabBarAfterContentChange()
+        updateTabBarContainerForKeyboardState()
     }
 
     private func selectTab(withTag tag: Int?) {
@@ -958,6 +977,15 @@ final class MainTabBarController: UITabBarController {
         }
     }
 
+    private func registerWidgetUpdates() {
+        widgetsUpdateJob?.cancel(cause: nil)
+        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.applyWidgetDrivenTabVisibility()
+            }
+        }
+    }
+
     private func updateSynchronizationRestrictedTabAvailability() {
         guard let controllers = viewControllers else { return }
         let canOpenRestrictedTabs = WidgetsListViewController.isGlobalSynchronizationCompleted
@@ -973,6 +1001,12 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func setTabBar(hidden: Bool, notification: Notification) {
+        isKeyboardVisible = hidden
+        guard viewControllers?.isEmpty == false else {
+            tabBar.isHidden = true
+            return
+        }
+        tabBar.isHidden = false
         let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
         let rawCurve = (notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.intValue ?? UIView.AnimationCurve.easeInOut.rawValue
         let options = UIView.AnimationOptions(rawValue: UInt(rawCurve << 16))
@@ -985,8 +1019,19 @@ final class MainTabBarController: UITabBarController {
         }
     }
 
+    private func updateTabBarContainerForKeyboardState() {
+        let hasVisibleTabs = viewControllers?.isEmpty == false
+        tabBar.isHidden = !hasVisibleTabs
+        guard hasVisibleTabs else { return }
+        tabBar.alpha = isKeyboardVisible ? 0 : 1
+        tabBar.transform = isKeyboardVisible
+            ? CGAffineTransform(translationX: 0, y: tabBar.bounds.height)
+            : .identity
+    }
+
     deinit {
         pendingTabColorRefreshWorkItems.forEach { $0.cancel() }
+        widgetsUpdateJob?.cancel(cause: nil)
 #if DEBUG
         tabBarColorProbeDisplayLink?.invalidate()
 #endif

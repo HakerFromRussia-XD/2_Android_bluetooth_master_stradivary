@@ -11,11 +11,18 @@ import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.testing.RecordingBleCommandExecutor
 import com.bailout.stickk.ubi4.testing.ensureWidgetRepoInitializedForTests
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
@@ -31,6 +38,47 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ParserCoverageTest {
+
+    @Test
+    fun `INDY3 publishes exactly supported widgets and replaces standard state`() = runBlocking {
+        ensureWidgetRepoInitializedForTests()
+        val executor = RecordingBleCommandExecutor()
+        val manager = BleManagerKmm().also { it.setBleCommandExecutor(executor) }
+        val parser = BLEParserV3(
+            coroutineScope = CoroutineScope(Dispatchers.Default),
+            bleCommandExecutor = executor,
+            bleManager = manager
+        )
+
+        parser.generatedHardcodeWidgets()
+        assertEquals(21, UiState.listWidgets.size)
+
+        parser.generatedHardcodeWidgetsINDY3()
+
+        assertEquals(16, parser.baseParameterWidgetSStruct.size)
+        assertEquals(16, UiState.listWidgets.size)
+        val bases = parser.baseParameterWidgetSStruct.mapNotNull(::baseStruct)
+        assertTrue(bases.none { it.display == 0 })
+
+        val excludedParameters = setOf(
+            P_KEY_EMG_CHANGE_GESTURE,
+            P_KEY_SCREEN_TIMEOUT,
+            P_KEY_GESTURE_CHANGE_MODE,
+            P_KEY_LEFT_RIGHT_HAND
+        ).map(PreferenceKeysUbi4.ParameterInfoRegistry::require).toSet()
+        assertTrue(bases.flatMap { it.parameterInfoSet }.none { it in excludedParameters })
+        assertEquals(setOf(1, 2, 4), bases.map { it.display }.toSet())
+    }
+
+    private fun baseStruct(widget: Any): BaseParameterWidgetStruct? = when (widget) {
+        is BaseParameterWidgetSStruct -> widget.baseParameterWidgetStruct
+        is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is ToggleSliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is SpinnerParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        else -> null
+    }
 
     @Test
     fun `settings profiles and gesture change should use separate widgets`() = runBlocking {

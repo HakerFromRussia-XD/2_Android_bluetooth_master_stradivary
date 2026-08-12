@@ -979,8 +979,170 @@ class BLEParserV3(
             )
         ))
 
-        baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
+        publishHardcodedWidgets()
+    }
 
+    suspend fun generatedHardcodeWidgetsINDY3() {
+        baseParameterWidgetSStruct.clear()
+
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 1,
+            widgetCode = PWCE_PLOT_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_PLOT),
+                ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+            )
+        ), text(SharedRes.strings.ubi4_v3_widget_plots)))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 1,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
+        ), text(SharedRes.strings.ubi4_v3_widget_opening_sensor_sensitivity)))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 1,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
+        ), text(SharedRes.strings.ubi4_v3_widget_closing_sensor_sensitivity)))
+        baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
+            clickCommand = 0,
+            pressedCommand = 0,
+            releasedCommand = 0,
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetCode = PWCE_BUTTON_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
+                    ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_CLOSE_COMMAND.number.toInt(), 6, 1)
+                )
+            ), text(SharedRes.strings.ubi4_v3_widget_open_close))
+        ))
+
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = text(SharedRes.strings.ubi4_v3_unit_seconds),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK))
+            ), text(SharedRes.strings.ubi4_v3_widget_emg_movement_lock))
+        ))
+        baseParameterWidgetSStruct.add(SliderParameterWidgetSStruct(
+            minProgress = 0,
+            maxProgress = 250,
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
+            ), text(SharedRes.strings.ubi4_v3_widget_max_sensor_sensitivity))
+        ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_FORCE_SETTINGS))
+        ), text(SharedRes.strings.ubi4_v3_widget_force_setting)))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS))
+        ), text(SharedRes.strings.ubi4_v3_widget_speed_setting)))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                textList(
+                    SharedRes.strings.ubi4_v3_hand_control_normal,
+                    SharedRes.strings.ubi4_v3_hand_control_sport,
+                    SharedRes.strings.ubi4_v3_hand_control_smooth_force,
+                    SharedRes.strings.ubi4_v3_hand_control_smooth_speed,
+                    SharedRes.strings.ubi4_v3_hand_control_smooth_force_and_speed
+                ),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE))
+            ), text(SharedRes.strings.ubi4_v3_widget_prosthesis_work_mode))
+        ))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                textList(
+                    SharedRes.strings.ubi4_v3_settings_profile_1,
+                    SharedRes.strings.ubi4_v3_settings_profile_add
+                ),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE))
+            ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))
+        ))
+
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                textList(
+                    SharedRes.strings.ubi4_v3_emg_mode_4_0,
+                    SharedRes.strings.ubi4_v3_emg_mode_3_0,
+                    SharedRes.strings.ubi4_v3_emg_mode_first_start,
+                    SharedRes.strings.ubi4_v3_emg_mode_4_1
+                ),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_CONTROL_MODE))
+            ), text(SharedRes.strings.ubi4_v3_widget_emg_work_mode))
+        ))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                textList(
+                    SharedRes.strings.ubi4_v3_role_prosthetist,
+                    SharedRes.strings.ubi4_v3_role_service_engineer,
+                    SharedRes.strings.ubi4_v3_role_user
+                ),
+                2
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_DEVICE_ROLE))
+            ), text(SharedRes.strings.ubi4_v3_widget_role))
+        ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 4,
+            widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME))
+        ), text(SharedRes.strings.ubi4_v3_widget_device_name_write)))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 4,
+            widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER))
+        ), text(SharedRes.strings.ubi4_v3_widget_serial_number_write)))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 4,
+            widgetCode = PWCE_BUTTON_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
+        ), text(SharedRes.strings.ubi4_v3_widget_prosthesis_calibration)))
+        baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+                BaseParameterWidgetStruct(
+                    display = 4,
+                    widgetCode = PWCE_BUTTON_V3.number.toInt(),
+                    parameterInfoSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>(),
+                    keyMobileSettings = PreferenceKeysUbi4.MobileSettingsKey.BLE_LOG.key
+                ),
+                "BLE Log"
+            )
+        ))
+
+        publishHardcodedWidgets()
+    }
+
+    private suspend fun publishHardcodedWidgets() {
+        listWidgets.clear()
+        baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)

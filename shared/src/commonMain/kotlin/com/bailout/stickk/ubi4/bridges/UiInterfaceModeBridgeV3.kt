@@ -1,46 +1,43 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.device.DeviceSerialClassifier
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 
 /**
  * Separate bridge for V3 mode detection/activation from iOS.
  * Legacy UBI4 flow is kept intact.
  */
 object UiInterfaceModeBridgeV3 {
-    private const val legacyUbiMarker = "UBIv4"
-    private val v3NameMarkers = listOf(
-        "FTFS3",
-        "FTFO3",
-        "FTHS3",
-        "FTHO3",
-        "FTEP3",
-        "FTEB3"
-    )
-
     fun isEnabled(): Boolean = UiState.isInterfaceV3Activated
+
+    fun activeProfile(): V3DeviceProfile = UiState.activeV3DeviceProfile
+
+    fun setActiveProfile(profile: V3DeviceProfile) {
+        UiState.activeV3DeviceProfile = profile
+        UiState.isInterfaceV3Activated = profile != V3DeviceProfile.NOT_V3
+    }
 
     fun setEnabled(enabled: Boolean) {
         UiState.isInterfaceV3Activated = enabled
-    }
-
-    fun isV3DeviceName(deviceName: String?): Boolean {
-        val normalized = deviceName?.trim().orEmpty()
-        if (normalized.isEmpty()) return false
-        return v3NameMarkers.any { marker ->
-            normalized.contains(marker, ignoreCase = true)
+        UiState.activeV3DeviceProfile = when {
+            !enabled -> V3DeviceProfile.NOT_V3
+            UiState.activeV3DeviceProfile == V3DeviceProfile.NOT_V3 -> V3DeviceProfile.STANDARD_V3
+            else -> UiState.activeV3DeviceProfile
         }
     }
 
+    fun isV3DeviceName(deviceName: String?): Boolean {
+        return DeviceSerialClassifier.classifyV3(deviceName) != V3DeviceProfile.NOT_V3
+    }
+
     fun isUbiDeviceFamily(deviceName: String?): Boolean {
-        val normalized = deviceName?.trim().orEmpty()
-        if (normalized.isEmpty()) return false
-        return normalized.contains(legacyUbiMarker, ignoreCase = true) ||
-            isV3DeviceName(normalized)
+        return DeviceSerialClassifier.isUbiDeviceFamily(deviceName)
     }
 
     fun updateFromDeviceName(deviceName: String?): Boolean {
-        val isV3 = isV3DeviceName(deviceName)
-        UiState.isInterfaceV3Activated = isV3
-        return isV3
+        val profile = DeviceSerialClassifier.classifyV3(deviceName)
+        setActiveProfile(profile)
+        return UiState.isInterfaceV3Activated
     }
 }

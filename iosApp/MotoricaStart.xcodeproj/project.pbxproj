@@ -90,6 +90,8 @@
 		4C8C07FEA55112876C701D91 /* DataManger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB13250E9AD082075E3BD08 /* DataManger.swift */; };
 		4C8CD059C58294B7A3391512 /* TextInputListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */; };
 		4D1159A5E844285D28ACF33A /* TextInputViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */; };
+		D3E5A00130B4000100ABC001 /* TextInputNameLimitV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E5A00330B4000100ABC003 /* TextInputNameLimitV3.swift */; };
+		D3E5A00230B4000100ABC002 /* TextInputNameLimitV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E5A00330B4000100ABC003 /* TextInputNameLimitV3.swift */; };
 		4F4A8D563CA1FA3598255350 /* per_pixel_fragment_shader_general_new.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 12E6E6A147F10F37CF7FDCBE /* per_pixel_fragment_shader_general_new.glsl */; };
 		5B8E08EEA8917950E21479AC /* SpinnerViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */; };
 		5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
@@ -559,6 +561,7 @@
 		85FAAAFDF6B1179BFF0ECE15 /* festh3_test11.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11.v3bin; sourceTree = "<group>"; };
 		8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedSettinsFesthViewController.swift; path = ViewControllers/Main/AdvancedSettinsFesthViewController.swift; sourceTree = "<group>"; };
 		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
+		D3E5A00330B4000100ABC003 /* TextInputNameLimitV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputNameLimitV3.swift; sourceTree = "<group>"; };
 		8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProsthesisFamilyClassifier.swift; path = MotoricaStart/OldMotoricaStartIntegration/ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
 		8EB13250E9AD082075E3BD08 /* DataManger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataManger.swift; path = Utility/DataManger.swift; sourceTree = "<group>"; };
 		92ECA664C1220B2658F99A5A /* Solution.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Solution.swift; path = ViewControllers/Main/Solution.swift; sourceTree = "<group>"; };
@@ -1412,6 +1415,7 @@
 				05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */,
 				C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */,
 				8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */,
+				D3E5A00330B4000100ABC003 /* TextInputNameLimitV3.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -2059,6 +2063,7 @@
 				46214BAD4C6C41E5515B0D4F /* SwitcherListItemViewModelV3.swift in Sources */,
 				2504F9E1A3A7422D61CD66C0 /* ToggleSliderListItemViewModelV3.swift in Sources */,
 				4C8CD059C58294B7A3391512 /* TextInputListItemViewModelV3.swift in Sources */,
+				D3E5A00130B4000100ABC001 /* TextInputNameLimitV3.swift in Sources */,
 				5B8E08EEA8917950E21479AC /* SpinnerViewCellV3.swift in Sources */,
 				66D0A10130B3000100ABC001 /* SpinnerDropdownTapResolver.swift in Sources */,
 				F027CF7D36E3FDD6CE7D6703 /* SwitcherViewCellV3.swift in Sources */,
@@ -2082,6 +2087,7 @@
 				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
 				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
 				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+				D3E5A00230B4000100ABC002 /* TextInputNameLimitV3.swift in Sources */,
 				65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */,
 				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
 				66D0B10130B3000200ABC001 /* V3ModelResourceCacheTests.swift in Sources */,

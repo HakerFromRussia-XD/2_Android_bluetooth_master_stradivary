@@ -1,4 +1,5 @@
 @testable import MotoricaStart
+import shared
 import XCTest
 
 final class BluetoothStorageKeysTests: XCTestCase {
@@ -61,6 +62,91 @@ final class BluetoothScanDeviceNameFormatterTests: XCTestCase {
             BluetoothScanDeviceNameFormatter.displayName(nil),
             ""
         )
+    }
+}
+
+final class TextInputDeviceNameTransportV3Tests: XCTestCase {
+    private var userDefaults: UserDefaults!
+    private var storage: UserDefaultsKeyValueStorage!
+
+    override func setUp() {
+        super.setUp()
+        userDefaults = UserDefaults(suiteName: "TextInputDeviceNameTransportV3Tests")
+        userDefaults.removePersistentDomain(forName: "TextInputDeviceNameTransportV3Tests")
+        storage = UserDefaultsKeyValueStorage(userDefaults: userDefaults)
+    }
+
+    override func tearDown() {
+        UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: "UNKNOWN")
+        userDefaults.removePersistentDomain(forName: "TextInputDeviceNameTransportV3Tests")
+        storage = nil
+        userDefaults = nil
+        super.tearDown()
+    }
+
+    func testTransportName_preservesINDY3PrefixedMode() throws {
+        UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: "INDY3-0000000000")
+
+        let result = try XCTUnwrap(
+            DeviceNameBridgeV3.shared.transportName(
+                rawName: "MY-HAND",
+                currentFullName: "INDY3-0000000000"
+            )
+        )
+
+        XCTAssertEqual(result, "INDY3-MY-HAND")
+        try storage.save(result, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+        let stored = try XCTUnwrap(
+            try storage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+        )
+        XCTAssertEqual(stored, result)
+    }
+
+    func testTransportName_keepsPrefixFreeModeAcrossRepeatedEdits() {
+        UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: "INDY3-0000000000")
+
+        let first = DeviceNameBridgeV3.shared.transportName(
+            rawName: "1234567890",
+            currentFullName: "0000000000"
+        )
+        let second = DeviceNameBridgeV3.shared.transportName(
+            rawName: "9876543210",
+            currentFullName: first
+        )
+
+        XCTAssertEqual(first, "1234567890")
+        XCTAssertEqual(second, "9876543210")
+    }
+
+    func testTransportName_removesManualPrefixAccordingToCurrentMode() {
+        UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: "FTHS3-0000000000")
+
+        XCTAssertEqual(
+            DeviceNameBridgeV3.shared.transportName(
+                rawName: "indy3-MY-HAND",
+                currentFullName: "FTHS3-0000000000"
+            ),
+            "FTHS3-MY-HAND"
+        )
+        XCTAssertEqual(
+            DeviceNameBridgeV3.shared.transportName(
+                rawName: "fths3-MY-HAND",
+                currentFullName: "0000000000"
+            ),
+            "MY-HAND"
+        )
+        XCTAssertNil(
+            DeviceNameBridgeV3.shared.transportName(
+                rawName: "FTHS3-",
+                currentFullName: "FTHS3-0000000000"
+            )
+        )
+    }
+
+    func testEditableNameLimit_preservesCompleteUtf8Characters() {
+        XCTAssertEqual(TextInputNameLimitV3.maxBytes, 13)
+        XCTAssertEqual(TextInputNameLimitV3.trimToLimit("ПротезAB"), "ПротезA")
+        XCTAssertEqual(TextInputNameLimitV3.trimToLimit("ABC😀DEFGHIJ"), "ABC😀DEFGHI")
     }
 }
 

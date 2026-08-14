@@ -56,6 +56,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWid
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -231,6 +232,11 @@ class BLEParserV3(
                     handleFirmwareCommand(receivePacket, payload)
                 } else {
                     val responseSubcommand = payload.u8(0)
+                    logDeviceNameResponse(
+                        packet = receivePacket,
+                        responseSubcommand = responseSubcommand,
+                        rawPacketHex = receiveDataString
+                    )
                     if (receivePacket.command == GUI_CONTROL.number.toInt() &&
                         responseSubcommand == GMCE_GET_BATTERY.number.toInt()
                     ) {
@@ -495,6 +501,10 @@ class BLEParserV3(
 
         ParameterStoreV3.put(parameterInfo, typedValue)
 
+        if (route.parameterKey == P_KEY_SET_DEVICE_NAME && typedValue is ParameterTypedValueV3.Text) {
+            platformLog("DeviceNameV3", "RX current_name=\"${typedValue.value}\"")
+        }
+
         if (route.parameterKey == P_KEY_SET_SERIAL_NUMBER) {
             when (typedValue) {
                 is ParameterTypedValueV3.Text -> {
@@ -534,6 +544,40 @@ class BLEParserV3(
                 WidgetEmitTargetV3.NO_UI -> Unit
             }
         }
+    }
+
+    private fun logDeviceNameResponse(
+        packet: UbiPacketView,
+        responseSubcommand: Int,
+        rawPacketHex: String
+    ) {
+        if (packet.command != DEVICE_INFORMATION.number.toInt()) return
+
+        val payloadBytes = packet.payload.toByteArray()
+        if (responseSubcommand != GET_DEVICE_NAME.number.toInt()) {
+            platformLog(
+                "DeviceNameV3",
+                "RX DEVICE_INFORMATION expected=GET_DEVICE_NAME(0x${GET_DEVICE_NAME.number.toInt().toHexByte()}) " +
+                    "actualSubcommand=0x${responseSubcommand.toHexByte()} rawPacket=$rawPacketHex " +
+                    "payload=${payloadBytes.toHexLog()}"
+            )
+            return
+        }
+
+        val nameBytes = payloadBytes
+            .drop(1)
+            .takeWhile { byte -> byte.toInt() != 0 }
+            .toByteArray()
+        val decodedName = runCatching { nameBytes.decodeToString() }
+            .getOrElse { error -> "<decode-error:${error.message}>" }
+
+        platformLog(
+            "DeviceNameV3",
+            "RX GET_DEVICE_NAME address=0x${packet.address.toHexByte()} " +
+                "command=0x${packet.command.toHexByte()} subcommand=0x${responseSubcommand.toHexByte()} " +
+                "rawPacket=$rawPacketHex payload=${payloadBytes.toHexLog()} " +
+                "nameBytes=${nameBytes.toHexLog()} decodedName=${decodedName.toJsonString()}"
+        )
     }
 
     private fun logTelemetryData(

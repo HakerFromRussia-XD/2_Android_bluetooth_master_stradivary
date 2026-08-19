@@ -30,6 +30,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_S
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
@@ -813,6 +815,11 @@ object PreferenceKeysUbi4 {
         PWCE_GET_BINDING_DATA             (0x42),
         PWCE_SET_BINDING_DATA             (0x43),
 
+        PWCE_SET_PINCH_THUMB_POSITION      (0x44),
+        PWCE_GET_PINCH_THUMB_POSITION      (0x45),
+        PWCE_SET_PINCH_FINGER_POSITION     (0x46),
+        PWCE_GET_PINCH_FINGER_POSITION     (0x47),
+
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
 
     }
@@ -1023,6 +1030,18 @@ object PreferenceKeysUbi4 {
             ),
             P_KEY_FORCE_SETTINGS to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_FORCE_SETTINGS.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_GLOBAL_THUMB_CLOSED_POSITION to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_PINCH_THUMB_POSITION.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_PINCH_FINGER_POSITION.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.SLIDER,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "sliderValue"

@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.data.parser
 
+import android.content.Context
+import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -18,9 +20,12 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSS
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.testing.RecordingBleCommandExecutor
 import com.bailout.stickk.ubi4.testing.ensureWidgetRepoInitializedForTests
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
@@ -33,12 +38,58 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import java.lang.reflect.InvocationTargetException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ParserCoverageTest {
+
+    @Before
+    fun initializeLocalizedStringContext() {
+        val context = Mockito.mock(Context::class.java)
+        Mockito.`when`(context.getString(Mockito.anyInt())).thenAnswer { invocation ->
+            val resourceId = invocation.arguments.first() as Int
+            if (resourceId == SharedRes.strings.ubi4_v3_settings_profile_add.resourceId) {
+                "+"
+            } else {
+                "test-label-$resourceId"
+            }
+        }
+        AndroidContextProvider.init(context)
+    }
+
+    @Test
+    fun `time sliders should start from one second for all device profiles`() = runBlocking {
+        ensureWidgetRepoInitializedForTests()
+        val executor = RecordingBleCommandExecutor()
+        val manager = BleManagerKmm().also { it.setBleCommandExecutor(executor) }
+        val parser = BLEParserV3(
+            coroutineScope = CoroutineScope(Dispatchers.Default),
+            bleCommandExecutor = executor,
+            bleManager = manager
+        )
+
+        parser.generatedHardcodeWidgets()
+        assertTimeSliderRange(parser.baseParameterWidgetSStruct, expectedCount = 3)
+
+        parser.generatedHardcodeWidgetsINDY3()
+        assertTimeSliderRange(parser.baseParameterWidgetSStruct, expectedCount = 1)
+    }
+
+    private fun assertTimeSliderRange(widgets: Set<Any>, expectedCount: Int) {
+        val timeSliders = widgets.filterIsInstance<ToggleSliderParameterWidgetSStruct>()
+
+        assertEquals(expectedCount, timeSliders.size)
+        timeSliders.forEach { slider ->
+            assertEquals(10, slider.minProgress)
+            assertEquals(100, slider.maxProgress)
+            assertEquals(0.1f, slider.increment)
+            assertEquals(1.0f, slider.minProgress * slider.increment)
+        }
+    }
 
     @Test
     fun `INDY3 publishes exactly supported widgets and replaces standard state`() = runBlocking {
@@ -52,7 +103,7 @@ class ParserCoverageTest {
         )
 
         parser.generatedHardcodeWidgets()
-        assertEquals(21, UiState.listWidgets.size)
+        assertEquals(23, UiState.listWidgets.size)
 
         parser.generatedHardcodeWidgetsINDY3()
 
@@ -69,6 +120,49 @@ class ParserCoverageTest {
         ).map(PreferenceKeysUbi4.ParameterInfoRegistry::require).toSet()
         assertTrue(bases.flatMap { it.parameterInfoSet }.none { it in excludedParameters })
         assertEquals(setOf(1, 2, 4), bases.map { it.display }.toSet())
+    }
+
+    @Test
+    fun `standard V3 should publish global closed positions only in service settings`() = runBlocking {
+        ensureWidgetRepoInitializedForTests()
+        val executor = RecordingBleCommandExecutor()
+        val manager = BleManagerKmm().also { it.setBleCommandExecutor(executor) }
+        val parser = BLEParserV3(
+            coroutineScope = CoroutineScope(Dispatchers.Default),
+            bleCommandExecutor = executor,
+            bleManager = manager
+        )
+        val expectedInfos = setOf(
+            PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_GLOBAL_THUMB_CLOSED_POSITION),
+            PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION)
+        )
+
+        parser.generatedHardcodeWidgets()
+        val widgets = parser.baseParameterWidgetSStruct
+            .filterIsInstance<SliderParameterWidgetSStruct>()
+            .filter { widget ->
+                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                    .any { it in expectedInfos }
+            }
+
+        assertEquals(2, widgets.size)
+        assertEquals(expectedInfos, widgets.flatMap {
+            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+        }.toSet())
+        widgets.forEach { widget ->
+            assertEquals(4, widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display)
+            assertEquals(0, widget.minProgress)
+            assertEquals(100, widget.maxProgress)
+            assertEquals(1.0f, widget.increment)
+            assertTrue(!widget.baseParameterWidgetSStruct.label.contains("pinch", ignoreCase = true))
+        }
+
+        parser.generatedHardcodeWidgetsINDY3()
+        val indyInfos = parser.baseParameterWidgetSStruct
+            .mapNotNull(::baseStruct)
+            .flatMap { it.parameterInfoSet }
+            .toSet()
+        assertTrue(expectedInfos.none { it in indyInfos })
     }
 
     private fun baseStruct(widget: Any): BaseParameterWidgetStruct? = when (widget) {

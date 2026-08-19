@@ -32,8 +32,12 @@ import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +56,7 @@ class SliderDelegateAdapterV3(
 ) : ViewBindingDelegateAdapter<SliderItemV3, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
     private companion object {
         val requestedOnFirstShow = AtomicBoolean(false)
+        const val FINGER_POSITION_LOG_TAG = "V3_FINGER_POSITION"
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -423,24 +428,46 @@ class SliderDelegateAdapterV3(
             }
             is com.bailout.stickk.ubi4.data.parser.ParameterEncodedActionV3.IntValue -> {
                 val sliderValue = encodedAction.value
+                val packet = BLECommandsV3.sendCommand(
+                    command = parameterInfo.parameterID,
+                    subcommand = parameterInfo.dataCode,
+                    parameter = sliderValue
+                )
                 val newTyped = ParameterTypedValueV3.Slider(SliderV3(sliderValue = sliderValue))
                 ParameterStoreV3.put(parameterInfo, newTyped)
                 SettingsProfileManager.saveBleValue(parameterInfo, newTyped)
                 ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
                     ParameterProvider.getParameterV3(parameterInfo).data = encoded
                 }
+                logGlobalFingerPositionTx(parameterInfo, sliderValue, packet)
                 main.bleCommandWithQueue(
-                    BLECommandsV3.sendCommand(
-                        command = parameterInfo.parameterID,
-                        subcommand = parameterInfo.dataCode,
-                        parameter = sliderValue
-                    ),
+                    packet,
                     SERIALPORTCHAR_UUID, WRITE){}
                 platformLog("sendProgress", "sliderValue: $sliderValue")
             }
             else -> return
         }
     }
+
+    private fun logGlobalFingerPositionTx(
+        parameterInfo: ParameterInfo<Int, Int, Int, Int>,
+        value: Int,
+        packet: ByteArray
+    ) {
+        if (parameterInfo.parameterID != PROSTHESIS_MODULE_CONTROL.number.toInt()) return
+        val parameterName = when (parameterInfo.dataCode) {
+            PWCE_SET_PINCH_THUMB_POSITION.number.toInt() -> "thumb"
+            PWCE_SET_PINCH_FINGER_POSITION.number.toInt() -> "index_middle"
+            else -> return
+        }
+        platformLog(
+            FINGER_POSITION_LOG_TAG,
+            "TX platform=Android parameter=$parameterName " +
+                "set=0x${parameterInfo.dataCode.toString(16).padStart(2, '0')} " +
+                "value=$value packet=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+    }
+
     override fun isForViewType(item: Any): Boolean =
         item is SliderItemV3 && (
                 item.widget is SliderParameterWidgetEStruct ||

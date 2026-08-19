@@ -25,6 +25,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_S
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 
 data class WidgetResponseRouteV3(
@@ -137,6 +139,18 @@ object WidgetResponseRoutesV3 {
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
             responseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt(),
             parameterKey = P_KEY_FORCE_SETTINGS,
+            emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_PINCH_THUMB_POSITION.number.toInt(),
+            parameterKey = P_KEY_GLOBAL_THUMB_CLOSED_POSITION,
+            emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_PINCH_FINGER_POSITION.number.toInt(),
+            parameterKey = P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION,
             emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
         ),
         WidgetResponseRouteV3(

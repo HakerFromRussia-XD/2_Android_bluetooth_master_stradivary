@@ -826,6 +826,8 @@
 <string name="ubi4_v3_widget_max_sensor_sensitivity">Максимальная чувствительность датчиков</string>
 <string name="ubi4_v3_widget_force_setting">Настройка силы</string>
 <string name="ubi4_v3_widget_speed_setting">Настройка скорости</string>
+<string name="ubi4_v3_widget_thumb_closed_position">Закрытое положение большого пальца</string>
+<string name="ubi4_v3_widget_index_middle_closed_position">Закрытое положение указательного/среднего пальцев</string>
 <string name="ubi4_v3_hand_control_normal">Нормальный</string>
 <string name="ubi4_v3_hand_control_sport">Спортивный</string>
 <string name="ubi4_v3_hand_control_smooth_force">Плавное управление силой</string>

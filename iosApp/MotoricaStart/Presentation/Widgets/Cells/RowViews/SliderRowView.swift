@@ -34,6 +34,9 @@ struct SliderRowView: View {
                 Text(provider.title_1)
                     .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
                     .foregroundColor(Color("ubi4_white"))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .layoutPriority(1)
                     .padding(.top, 8) // отступ сверху
                     .padding(.leading, 10) // отступ слева
                 Spacer()
@@ -74,6 +77,9 @@ struct SliderRowView: View {
                     Text(provider.title_2)
                         .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
                         .foregroundColor(Color("ubi4_white"))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .layoutPriority(1)
                         .padding(.top, 12) // отступ сверху
                         .padding(.leading, 10) // отступ слева
                     Spacer()

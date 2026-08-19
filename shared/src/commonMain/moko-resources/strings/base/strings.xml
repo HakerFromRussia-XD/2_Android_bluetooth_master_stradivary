@@ -825,6 +825,8 @@
     <string name="ubi4_v3_widget_max_sensor_sensitivity">Maximum sensor sensitivity</string>
     <string name="ubi4_v3_widget_force_setting">Force setting</string>
     <string name="ubi4_v3_widget_speed_setting">Speed setting</string>
+    <string name="ubi4_v3_widget_thumb_closed_position">Thumb closed position</string>
+    <string name="ubi4_v3_widget_index_middle_closed_position">Index/middle finger closed position</string>
     <string name="ubi4_v3_hand_control_normal">Normal</string>
     <string name="ubi4_v3_hand_control_sport">Sport</string>
     <string name="ubi4_v3_hand_control_smooth_force">Smooth force control</string>

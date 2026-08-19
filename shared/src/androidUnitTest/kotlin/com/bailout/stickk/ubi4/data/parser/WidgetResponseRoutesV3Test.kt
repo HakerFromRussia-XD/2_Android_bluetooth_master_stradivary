@@ -5,6 +5,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
@@ -13,6 +17,25 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class WidgetResponseRoutesV3Test {
+
+    @Test
+    fun `global closed positions should map to independent slider routes`() {
+        val thumbRoute = WidgetResponseRoutesV3.find(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_PINCH_THUMB_POSITION.number.toInt()
+        )
+        val fingersRoute = WidgetResponseRoutesV3.find(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_PINCH_FINGER_POSITION.number.toInt()
+        )
+
+        assertNotNull(thumbRoute)
+        assertNotNull(fingersRoute)
+        assertEquals(P_KEY_GLOBAL_THUMB_CLOSED_POSITION, thumbRoute.parameterKey)
+        assertEquals(P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION, fingersRoute.parameterKey)
+        assertEquals(WidgetEmitTargetV3.SLIDER_FLOW, thumbRoute.emitTarget)
+        assertEquals(WidgetEmitTargetV3.SLIDER_FLOW, fingersRoute.emitTarget)
+    }
 
     @Test
     fun `gesture settings response should map to gesture settings event`() {

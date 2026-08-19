@@ -14,6 +14,8 @@ import com.bailout.stickk.ubi4.testing.InMemorySettingsProfileDao
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
@@ -306,12 +308,63 @@ class SettingsProfileRepositoryTest {
         assertEquals(12, gesture73.openPosition1)
         assertEquals(22, gesture73.closePosition1)
     }
+
+    @Test
+    fun `global finger positions round trip independently through settings profiles`() = runBlocking {
+        val thumbInfo = ParameterInfoRegistry.require(P_KEY_GLOBAL_THUMB_CLOSED_POSITION)
+        val indexMiddleInfo = ParameterInfoRegistry.require(P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION)
+
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = thumbInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 15))
+        )
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = indexMiddleInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 35))
+        )
+
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = thumbInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 55))
+        )
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = indexMiddleInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 75))
+        )
+
+        val profile1 = repository.switchToProfile("SERIAL-A", 1).second
+        val profile2 = repository.switchToProfile("SERIAL-A", 2).second
+
+        assertEquals(15, profile1.sliderValue(thumbInfo))
+        assertEquals(35, profile1.sliderValue(indexMiddleInfo))
+        assertEquals(55, profile2.sliderValue(thumbInfo))
+        assertEquals(75, profile2.sliderValue(indexMiddleInfo))
+        assertEquals(thumbInfo, profile2.single { it.parameterInfo == thumbInfo }.parameterInfo)
+        assertEquals(
+            indexMiddleInfo,
+            profile2.single { it.parameterInfo == indexMiddleInfo }.parameterInfo
+        )
+    }
 }
 
 private fun List<SettingsProfileApplyValue>.sliderValue(): Int? =
     filter { it.target == "BLE" }
         .mapNotNull { (it.typedValue as? ParameterTypedValueV3.Slider)?.value?.sliderValue }
         .firstOrNull()
+
+private fun List<SettingsProfileApplyValue>.sliderValue(
+    parameterInfo: com.bailout.stickk.ubi4.models.commonModels.ParameterInfo<Int, Int, Int, Int>
+): Int? =
+    firstOrNull { it.parameterInfo == parameterInfo }
+        ?.typedValue
+        ?.let { it as? ParameterTypedValueV3.Slider }
+        ?.value
+        ?.sliderValue
 
 private fun List<SettingsProfileApplyValue>.mobileBoolean(key: String): Boolean? =
     firstOrNull { it.target == "MOBILE" && it.mobileKey == key }?.mobileBoolean

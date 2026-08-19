@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
+import com.bailout.stickk.ubi4.models.device.GlobalFingerPositionInitPolicyV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
@@ -20,6 +21,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MODE
@@ -631,6 +634,18 @@ actual class BleManagerKmm actual constructor() {
             }
 
             initRequests.forEach { request ->
+                when (request.expectedResponseSubcommand) {
+                    PWCE_GET_PINCH_THUMB_POSITION.number.toInt() -> "thumb"
+                    PWCE_GET_PINCH_FINGER_POSITION.number.toInt() -> "index_middle"
+                    else -> null
+                }?.let { parameterName ->
+                    platformLog(
+                        "V3_FINGER_POSITION",
+                        "TX_GET platform=iOS parameter=$parameterName " +
+                            "get=0x${request.expectedResponseSubcommand.toString(16).padStart(2, '0')} " +
+                            "packet=${EncodeByteToHex.bytesToHexString(request.packet)}"
+                    )
+                }
                 sendBytesKmm(
                     data = request.packet,
                     command = SERIALPORTCHAR_UUID,
@@ -724,7 +739,15 @@ actual class BleManagerKmm actual constructor() {
                 expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
                 expectedResponseSubcommand = GET_DEVICE_NAME.number.toInt()
             )
-        )
+        ) + GlobalFingerPositionInitPolicyV3
+            .readSubcommands(V3DeviceProfile.STANDARD_V3)
+            .map { subcommand ->
+                InitRequestV3(
+                    packet = BLECommandsV3.request(subcommand),
+                    expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                    expectedResponseSubcommand = subcommand
+                )
+            }
     }
 
     private fun buildINDY3InitRequests(): List<InitRequestV3> {

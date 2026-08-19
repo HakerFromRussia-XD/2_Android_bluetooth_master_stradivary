@@ -53,6 +53,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.device.GlobalFingerPositionInitPolicyV3
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
@@ -824,6 +825,18 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
 
             initRequests.forEach { request ->
+                when (request.expectedResponseSubcommand) {
+                    PWCE_GET_PINCH_THUMB_POSITION.number.toInt() -> "thumb"
+                    PWCE_GET_PINCH_FINGER_POSITION.number.toInt() -> "index_middle"
+                    else -> null
+                }?.let { parameterName ->
+                    platformLog(
+                        "V3_FINGER_POSITION",
+                        "TX_GET platform=Android parameter=$parameterName " +
+                            "get=0x${request.expectedResponseSubcommand.toString(16).padStart(2, '0')} " +
+                            "packet=${EncodeByteToHex.bytesToHexString(request.packet)}"
+                    )
+                }
                 main.bleCommandWithQueue(
                     request.packet,
                     SERIALPORTCHAR_UUID,
@@ -1025,7 +1038,15 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
                 expectedResponseSubcommand = GET_SERIAL_NUMBER.number
             )
-        )
+        ) + GlobalFingerPositionInitPolicyV3
+            .readSubcommands(V3DeviceProfile.STANDARD_V3)
+            .map { subcommand ->
+                V3InitRequest(
+                    packet = request(subcommand),
+                    expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                    expectedResponseSubcommand = subcommand
+                )
+            }
     }
 
     private fun buildINDY3InitRequests(): List<V3InitRequest> {

@@ -192,6 +192,21 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
             .map(\.doubleValue) ?? []
     }
 
+    private func gestureKeyClipState(at milliseconds: Double) -> NSDictionary {
+        guard let rendererClass = NSClassFromString("AAPLOpenGLRendererV3") else {
+            XCTFail("AAPLOpenGLRendererV3 class not found in runtime")
+            return [:]
+        }
+        let selector = NSSelectorFromString("gestureKeyClipStateForTestingAtMilliseconds:")
+        guard let method = class_getClassMethod(rendererClass, selector) else {
+            XCTFail("Gesture Key clip sampler not found")
+            return [:]
+        }
+        typealias MethodType = @convention(c) (AnyClass, Selector, Double) -> NSDictionary
+        let function = unsafeBitCast(method_getImplementation(method), to: MethodType.self)
+        return function(rendererClass, selector, milliseconds)
+    }
+
     private typealias Matrix4 = [Double]
 
     private func identityMatrix() -> Matrix4 {
@@ -715,5 +730,27 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(bytes.count, 4)
         XCTAssertEqual(bytes[1], 0x10)
         XCTAssertEqual(bytes[2], 0x0F)
+    }
+
+    func testGestureKeyClip_closesHoldsAndReturnsAtConstantSpeed() {
+        func thumb(_ time: Double) -> Double {
+            let state = gestureKeyClipState(at: time)
+            return (state["fingers"] as? [NSNumber])?[4].doubleValue ?? .nan
+        }
+        func keyX(_ time: Double) -> Double {
+            let state = gestureKeyClipState(at: time)
+            return (state["object"] as? [NSNumber])?[0].doubleValue ?? .nan
+        }
+
+        XCTAssertEqual(thumb(0), -35, accuracy: 0.001)
+        XCTAssertEqual(thumb(300), 7, accuracy: 0.001)
+        XCTAssertEqual(thumb(600), 49, accuracy: 0.001)
+        XCTAssertEqual(thumb(1100), 49, accuracy: 0.001)
+        XCTAssertEqual(thumb(1600), 49, accuracy: 0.001)
+        XCTAssertEqual(thumb(1900), 7, accuracy: 0.001)
+        XCTAssertEqual(thumb(2200), -35, accuracy: 0.001)
+        XCTAssertEqual(keyX(0), keyX(2200), accuracy: 0.001)
+        XCTAssertEqual((gestureKeyClipState(at: 2199)["complete"] as? NSNumber)?.boolValue, false)
+        XCTAssertEqual((gestureKeyClipState(at: 2200)["complete"] as? NSNumber)?.boolValue, true)
     }
 }

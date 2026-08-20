@@ -93,6 +93,26 @@ struct V3TransitionState {
     std::array<CFTimeInterval, kV3FingerCount> delay{};
 };
 
+struct V3GestureObjectState {
+    bool cardMode = false;
+    bool editingKey = false;
+    bool clipActive = false;
+    CFTimeInterval clipStartedAt = 0.0;
+    GLuint vertexBuffer = 0;
+    GLsizei vertexCount = 0;
+    vector_float3 position = {21.17f, -26.50f, -32.22f};
+    vector_float3 rotation = {-9.56f, 171.56f, 199.94f};
+    float scale = 0.800f;
+    float cardRotationX = -18.0f;
+    float cardRotationY = -112.0f;
+    float cardRotationZ = -76.0f;
+    float cardScale = 1.510f;
+    float cardPositionX = -23.83f;
+    float cardPositionY = -39.33f;
+    matrix_float4x4 cardRotationMatrix = matrix_identity_float4x4;
+    bool cardRotationInitialized = false;
+};
+
 struct V3DigitMatrices {
     matrix_float4x4 proximal = matrix_identity_float4x4;
     matrix_float4x4 distal = matrix_identity_float4x4;
@@ -113,6 +133,7 @@ struct V3RendererState {
     std::vector<std::vector<float>> dynamicVertices;
     std::vector<std::unique_ptr<VolumeRodDeformer>> volumeRodDeformers;
     V3TransitionState transition;
+    V3GestureObjectState gestureObject;
     CGSize size = CGSizeZero;
     NSInteger handSide = 1;
     int selectedFinger = 0;
@@ -229,6 +250,28 @@ static float V3TransitionPosition(float start,
     if (complete && progress < 1.0f) *complete = false;
     float eased = (std::cos((progress + 1.0f) * static_cast<float>(M_PI)) * 0.5f) + 0.5f;
     return start + (target - start) * eased;
+}
+
+static float V3Linear(float start, float target, float progress) {
+    return start + (target - start) * V3Clamp(progress, 0.0f, 1.0f);
+}
+
+static NSDictionary<NSString *, id> *V3GestureKeyClipSample(double milliseconds) {
+    double t = std::max(0.0, std::min(2200.0, milliseconds));
+    float thumb = -35.0f;
+    if (t <= 600.0) {
+        thumb = V3Linear(-35.0f, 49.0f, t / 600.0);
+    } else if (t <= 1600.0) {
+        thumb = 49.0f;
+    } else {
+        thumb = V3Linear(49.0f, -35.0f, (t - 1600.0) / 600.0);
+    }
+    return @{
+        @"fingers": @[@100.0f, @100.0f, @100.0f, @100.0f, @(thumb), @22.0f],
+        @"hand": @[@0, @0, @0, @0, @0, @0, @1],
+        @"object": @[@(-60.0f), @(-22.0f), @(-30.0f), @0, @0, @180.0f, @1],
+        @"complete": @(t >= 2200.0)
+    };
 }
 
 static NSArray<NSNumber *> *V3MatrixNumbers(matrix_float4x4 matrix) {
@@ -417,8 +460,181 @@ static int V3SelectionCodeForInfluence(int influence) {
 }
 
 - (BOOL)isAnimating {
-    return _v3 && _v3->transition.active;
+    return _v3 && (_v3->transition.active || _v3->gestureObject.clipActive);
 }
+
+- (void)v3LoadGestureKeyMeshIfNeeded {
+    if (!_v3 || _v3->gestureObject.vertexBuffer != 0) return;
+    NSURL *url = [NSBundle.mainBundle URLForResource:@"gesture_key" withExtension:@"v3object" subdirectory:@"Meshes"];
+    if (url == nil) url = [NSBundle.mainBundle URLForResource:@"gesture_key" withExtension:@"v3object"];
+    NSData *data = url ? [NSData dataWithContentsOfURL:url] : nil;
+    if (data.length < 12 || memcmp(data.bytes, "V3OB", 4) != 0) {
+        os_log_error(V3RendererLog(), "Gesture key mesh is unavailable");
+        return;
+    }
+    const uint8_t *bytes = static_cast<const uint8_t *>(data.bytes);
+    uint32_t version = 0, vertexCount = 0;
+    memcpy(&version, bytes + 4, 4);
+    memcpy(&vertexCount, bytes + 8, 4);
+    size_t expected = 12 + static_cast<size_t>(vertexCount) * kV3VertexStride;
+    if (version != 1 || data.length != expected) return;
+    glGenBuffers(1, &_v3->gestureObject.vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _v3->gestureObject.vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, expected - 12, bytes + 12, GL_STATIC_DRAW);
+    _v3->gestureObject.vertexCount = static_cast<GLsizei>(vertexCount);
+}
+
+- (void)configureGestureKeyCardPreview {
+    if (!_v3) return;
+    _v3->gestureObject.cardMode = true;
+    if (!_v3->gestureObject.cardRotationInitialized) {
+        // Approved Gesture Key card calibration captured on the real iPhone.
+        // Matrix is stored column-major to match simd_float4x4.
+        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.93031f, -0.17699f, 0.32119f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.36322f, 0.32390f, -0.87357f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[2] = {0.05058f, -0.92938f, -0.36561f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+        _v3->gestureObject.cardRotationInitialized = true;
+    }
+    [self v3ApplyCardEditorTransform];
+    _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
+                                          (vector_float3){0.0f, 0.0f, 0.0f},
+                                          (vector_float3){0.0f, 1.0f, 0.0f});
+    _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
+    _v3->deformationDirty = true;
+    [self v3LoadGestureKeyMeshIfNeeded];
+}
+
+- (void)v3ApplyCardEditorTransform {
+    if (!_v3 || !_v3->gestureObject.cardMode) return;
+    float scale = _v3->gestureObject.cardScale;
+    matrix_float4x4 translation = matrix4x4_translation(_v3->gestureObject.cardPositionX,
+                                                        _v3->gestureObject.cardPositionY,
+                                                        0.0f);
+    _v3->generalRotation = V3Multiply(translation,
+                                      V3Multiply(_v3->gestureObject.cardRotationMatrix,
+                                                 matrix4x4_scale(scale, scale, scale)));
+    _v3->deformationDirty = true;
+}
+
+- (void)adjustCardPreviewScaleByFactor:(CGFloat)factor finished:(BOOL)finished {
+    if (!_v3 || !_v3->gestureObject.cardMode) return;
+    if (_v3->gestureObject.editingKey) {
+        _v3->gestureObject.scale = V3Clamp(_v3->gestureObject.scale * static_cast<float>(factor), 0.1f, 5.0f);
+        if (finished) NSLog(@"[GestureKeyEditor] target=key position=(%.2f,%.2f,%.2f) rotation=(%.2f,%.2f,%.2f) scale=%.3f",
+                            _v3->gestureObject.position.x, _v3->gestureObject.position.y, _v3->gestureObject.position.z,
+                            _v3->gestureObject.rotation.x, _v3->gestureObject.rotation.y, _v3->gestureObject.rotation.z,
+                            _v3->gestureObject.scale);
+        return;
+    }
+    _v3->gestureObject.cardScale = V3Clamp(_v3->gestureObject.cardScale * static_cast<float>(factor), 0.5f, 4.0f);
+    [self v3ApplyCardEditorTransform];
+    if (finished) {
+        NSLog(@"[GestureKeyEditor] rotation=(%.2f,%.2f,%.2f) scale=%.3f position=(%.2f,%.2f)",
+              _v3->gestureObject.cardRotationX, _v3->gestureObject.cardRotationY,
+              _v3->gestureObject.cardRotationZ, _v3->gestureObject.cardScale,
+              _v3->gestureObject.cardPositionX, _v3->gestureObject.cardPositionY);
+    }
+}
+
+- (void)adjustCardPreviewRotationByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished {
+    if (!_v3 || !_v3->gestureObject.cardMode) return;
+    if (_v3->gestureObject.editingKey) {
+        _v3->gestureObject.rotation.y += static_cast<float>(deltaX);
+        _v3->gestureObject.rotation.x += static_cast<float>(deltaY);
+        if (finished) NSLog(@"[GestureKeyEditor] target=key position=(%.2f,%.2f,%.2f) rotation=(%.2f,%.2f,%.2f) scale=%.3f",
+                            _v3->gestureObject.position.x, _v3->gestureObject.position.y, _v3->gestureObject.position.z,
+                            _v3->gestureObject.rotation.x, _v3->gestureObject.rotation.y, _v3->gestureObject.rotation.z,
+                            _v3->gestureObject.scale);
+        return;
+    }
+    // Apply rotations in view space, like a virtual trackball. Pre-multiplication
+    // keeps horizontal and vertical drags aligned with the screen after any turn.
+    matrix_float4x4 screenRotation =
+        V3Multiply(V3Rotation(static_cast<float>(deltaX), 0.0f, 1.0f, 0.0f),
+                   V3Rotation(static_cast<float>(deltaY), 1.0f, 0.0f, 0.0f));
+    _v3->gestureObject.cardRotationMatrix =
+        V3Multiply(screenRotation, _v3->gestureObject.cardRotationMatrix);
+    [self v3ApplyCardEditorTransform];
+    if (finished) {
+        matrix_float4x4 m = _v3->gestureObject.cardRotationMatrix;
+        NSLog(@"[GestureKeyEditor] matrix=[%.5f,%.5f,%.5f; %.5f,%.5f,%.5f; %.5f,%.5f,%.5f] scale=%.3f position=(%.2f,%.2f)",
+              m.columns[0].x, m.columns[1].x, m.columns[2].x,
+              m.columns[0].y, m.columns[1].y, m.columns[2].y,
+              m.columns[0].z, m.columns[1].z, m.columns[2].z,
+              _v3->gestureObject.cardScale, _v3->gestureObject.cardPositionX,
+              _v3->gestureObject.cardPositionY);
+    }
+}
+
+- (void)adjustCardPreviewPositionByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished {
+    if (!_v3 || !_v3->gestureObject.cardMode) return;
+    if (_v3->gestureObject.editingKey) {
+        _v3->gestureObject.position.x += static_cast<float>(deltaX);
+        _v3->gestureObject.position.y -= static_cast<float>(deltaY);
+        if (finished) NSLog(@"[GestureKeyEditor] target=key position=(%.2f,%.2f,%.2f) rotation=(%.2f,%.2f,%.2f) scale=%.3f",
+                            _v3->gestureObject.position.x, _v3->gestureObject.position.y, _v3->gestureObject.position.z,
+                            _v3->gestureObject.rotation.x, _v3->gestureObject.rotation.y, _v3->gestureObject.rotation.z,
+                            _v3->gestureObject.scale);
+        return;
+    }
+    _v3->gestureObject.cardPositionX += static_cast<float>(deltaX);
+    _v3->gestureObject.cardPositionY -= static_cast<float>(deltaY);
+    [self v3ApplyCardEditorTransform];
+    if (finished) {
+        NSLog(@"[GestureKeyEditor] rotation=(%.2f,%.2f,%.2f) scale=%.3f position=(%.2f,%.2f)",
+              _v3->gestureObject.cardRotationX, _v3->gestureObject.cardRotationY,
+              _v3->gestureObject.cardRotationZ, _v3->gestureObject.cardScale,
+              _v3->gestureObject.cardPositionX, _v3->gestureObject.cardPositionY);
+    }
+}
+
+- (void)adjustCardPreviewRollByRadians:(CGFloat)radians finished:(BOOL)finished {
+    if (!_v3 || !_v3->gestureObject.cardMode || !_v3->gestureObject.editingKey) return;
+    _v3->gestureObject.rotation.z += static_cast<float>(radians * 180.0 / M_PI);
+    if (finished) NSLog(@"[GestureKeyEditor] target=key position=(%.2f,%.2f,%.2f) rotation=(%.2f,%.2f,%.2f) scale=%.3f",
+                        _v3->gestureObject.position.x, _v3->gestureObject.position.y, _v3->gestureObject.position.z,
+                        _v3->gestureObject.rotation.x, _v3->gestureObject.rotation.y, _v3->gestureObject.rotation.z,
+                        _v3->gestureObject.scale);
+}
+
+- (void)adjustCardPreviewDepthBy:(CGFloat)delta finished:(BOOL)finished {
+    if (!_v3 || !_v3->gestureObject.cardMode || !_v3->gestureObject.editingKey) return;
+    _v3->gestureObject.position.z += static_cast<float>(delta);
+    if (finished) NSLog(@"[GestureKeyEditor] target=key position=(%.2f,%.2f,%.2f) rotation=(%.2f,%.2f,%.2f) scale=%.3f",
+                        _v3->gestureObject.position.x, _v3->gestureObject.position.y, _v3->gestureObject.position.z,
+                        _v3->gestureObject.rotation.x, _v3->gestureObject.rotation.y, _v3->gestureObject.rotation.z,
+                        _v3->gestureObject.scale);
+}
+
+- (void)setCardPreviewEditingKey:(BOOL)editingKey {
+    if (!_v3) return;
+    _v3->gestureObject.editingKey = editingKey;
+    NSLog(@"[GestureKeyEditor] target=%@", editingKey ? @"key" : @"hand");
+    if (editingKey) {
+        matrix_float4x4 m = _v3->gestureObject.cardRotationMatrix;
+        NSLog(@"[GestureKeyEditor] target=hand-final matrix=[%.5f,%.5f,%.5f; %.5f,%.5f,%.5f; %.5f,%.5f,%.5f] scale=%.3f position=(%.2f,%.2f)",
+              m.columns[0].x, m.columns[1].x, m.columns[2].x,
+              m.columns[0].y, m.columns[1].y, m.columns[2].y,
+              m.columns[0].z, m.columns[1].z, m.columns[2].z,
+              _v3->gestureObject.cardScale, _v3->gestureObject.cardPositionX,
+              _v3->gestureObject.cardPositionY);
+    }
+}
+
+- (void)playGestureKeyClip {
+    if (!_v3) return;
+    NSLog(@"[GestureKeyTrace] event=rendererPlay vertexCount=%d", _v3->gestureObject.vertexCount);
+    [self configureGestureKeyCardPreview];
+    _v3->gestureObject.clipStartedAt = CACurrentMediaTime();
+    _v3->gestureObject.clipActive = true;
+}
+
+#if DEBUG
++ (NSDictionary<NSString *, id> *)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds {
+    return V3GestureKeyClipSample(milliseconds);
+}
+#endif
 
 - (matrix_float4x4)v3MirrorMatrix {
     return _v3->handSide == 0
@@ -747,6 +963,12 @@ static int V3SelectionCodeForInfluence(int influence) {
         ambient = 1.5f;
         materialMode = 1;
     }
+    if (_v3->gestureObject.cardMode) {
+        // Card previews need stronger shape separation at their small size.
+        // Keep this isolated from the full-screen editor renderer.
+        ambient = material == V3Material::chrome ? 0.86f : (material == V3Material::whitePlastic ? 0.48f : 0.52f);
+        lightPower *= 1.26f;
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     if (locations.texture >= 0) glUniform1i(locations.texture, 0);
@@ -803,7 +1025,10 @@ static int V3SelectionCodeForInfluence(int influence) {
     matrix_float4x4 mvp = V3Multiply(_v3->projection, mv);
     if (locations.mv >= 0) glUniformMatrix4fv(locations.mv, 1, GL_FALSE, reinterpret_cast<const GLfloat *>(&mv));
     if (locations.mvp >= 0) glUniformMatrix4fv(locations.mvp, 1, GL_FALSE, reinterpret_cast<const GLfloat *>(&mvp));
-    vector_float4 light = V3Multiply(_v3->view, (vector_float4){0.0f, 0.0f, 180.0f, 1.0f});
+    vector_float4 worldLight = _v3->gestureObject.cardMode
+        ? (vector_float4){-85.0f, 105.0f, 145.0f, 1.0f}
+        : (vector_float4){0.0f, 0.0f, 180.0f, 1.0f};
+    vector_float4 light = V3Multiply(_v3->view, worldLight);
     if (locations.light >= 0) glUniform3f(locations.light, light.x, light.y, light.z);
 }
 
@@ -895,7 +1120,11 @@ static int V3SelectionCodeForInfluence(int influence) {
     glDisable(GL_BLEND);
     glEnable(GL_DITHER);
     glDisable(GL_CULL_FACE);
-    glClearColor(42.0f / 255.0f, 42.0f / 255.0f, 42.0f / 255.0f, 1.0f);
+    if (_v3->gestureObject.cardMode) {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    } else {
+        glClearColor(42.0f / 255.0f, 42.0f / 255.0f, 42.0f / 255.0f, 1.0f);
+    }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     [self v3DrawRigidScenePicking:NO];
     matrix_float4x4 base = [self v3HandBaseMatrix];
@@ -903,6 +1132,28 @@ static int V3SelectionCodeForInfluence(int influence) {
     [self v3DrawGroup:"base_rubber" model:base material:V3Material::rubber fingerCode:-1 picking:NO];
     [self v3DrawGroup:"gofra_static" model:base material:V3Material::rubber fingerCode:-1 picking:NO];
     [self v3DrawDeformablePicking:NO];
+    if (_v3->gestureObject.cardMode && _v3->gestureObject.vertexBuffer != 0) {
+        matrix_float4x4 object = matrix4x4_translation(_v3->gestureObject.position);
+        object = V3Multiply(object, V3Rotation(_v3->gestureObject.rotation.x, 1, 0, 0));
+        object = V3Multiply(object, V3Rotation(_v3->gestureObject.rotation.y, 0, 1, 0));
+        object = V3Multiply(object, V3Rotation(_v3->gestureObject.rotation.z, 0, 0, 1));
+        object = V3Multiply(_v3->generalRotation, V3Multiply(object, matrix4x4_scale(_v3->gestureObject.scale, _v3->gestureObject.scale, _v3->gestureObject.scale)));
+        const V3ProgramLocations &locations = _v3->material;
+        glUseProgram(locations.program);
+        [self v3SetMatricesForModel:object locations:locations];
+        [self v3ApplyMaterial:V3Material::chrome locations:locations];
+        glBindBuffer(GL_ARRAY_BUFFER, _v3->gestureObject.vertexBuffer);
+        const GLint offsets[] = {0, 3, 6, 10, 12, 15};
+        const GLint sizes[] = {3, 3, 4, 2, 3, 3};
+        const GLint attributes[] = {locations.position, locations.normal, locations.color, locations.texcoord, locations.tangent, locations.bitangent};
+        for (int index = 0; index < 6; ++index) {
+            if (attributes[index] < 0) continue;
+            glVertexAttribPointer(attributes[index], sizes[index], GL_FLOAT, GL_FALSE, kV3VertexStride, reinterpret_cast<const GLvoid *>(offsets[index] * sizeof(float)));
+            glEnableVertexAttribArray(attributes[index]);
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDrawArrays(GL_TRIANGLES, 0, _v3->gestureObject.vertexCount);
+    }
 }
 
 - (BOOL)v3EnsurePickingFramebuffer {
@@ -982,7 +1233,30 @@ static int V3SelectionCodeForInfluence(int influence) {
 - (void)v3Draw {
     if (!_v3 || !_v3->resources) return;
     [self v3SynchronizeHandSideFromProvider];
-    [self v3AdvanceTransitionAtTime:CACurrentMediaTime()];
+    CFTimeInterval now = CACurrentMediaTime();
+    [self v3AdvanceTransitionAtTime:now];
+    if (_v3->gestureObject.clipActive) {
+        static int gestureKeyFrameLogCounter = 0;
+        if ((gestureKeyFrameLogCounter++ % 30) == 0) {
+            NSLog(@"[GestureKeyTrace] event=clipFrame elapsedMs=%.1f", (now - _v3->gestureObject.clipStartedAt) * 1000.0);
+        }
+        NSDictionary<NSString *, id> *sample = V3GestureKeyClipSample((now - _v3->gestureObject.clipStartedAt) * 1000.0);
+        NSArray<NSNumber *> *fingers = sample[@"fingers"];
+        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f,
+            (49.0f - fingers[4].floatValue) * 100.0f / 84.0f,
+            (22.0f - fingers[5].floatValue) * 100.0f / 90.0f};
+        // Gesture Key keeps the object fixed in the grasp. In card mode its
+        // transform may be interactively tuned, so playback must animate only
+        // the fingers and never overwrite the current key transform.
+        if (!_v3->gestureObject.cardMode) {
+            NSArray<NSNumber *> *object = sample[@"object"];
+            _v3->gestureObject.position = {object[0].floatValue, object[1].floatValue, object[2].floatValue};
+            _v3->gestureObject.rotation = {object[3].floatValue, object[4].floatValue, object[5].floatValue};
+            _v3->gestureObject.scale = object[6].floatValue;
+        }
+        _v3->deformationDirty = true;
+        if ([sample[@"complete"] boolValue]) _v3->gestureObject.clipActive = false;
+    }
     [self v3UpdateDeformablePartsIfNeeded];
     [self v3RenderVisibleScene];
     if (!_v3->firstFrameRendered) {
@@ -1011,6 +1285,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void) beginTouchIvent {
     if (!_v3) return;
+    if (_v3->gestureObject.cardMode) {
+        _v3->selectedFinger = 0;
+        return;
+    }
     _v3->selectedFinger = [self v3SelectObject];
 }
 
@@ -1018,6 +1296,13 @@ static int V3SelectionCodeForInfluence(int influence) {
     if (!_v3) return;
     _v3->touchX = static_cast<float>(X);
     _v3->touchY = static_cast<float>(Y);
+
+    if (_v3->gestureObject.cardMode) {
+        // Card mode is controlled by its gesture recognizers. Letting the
+        // legacy raw-touch path run as well makes the hand drift while the key
+        // is being edited.
+        return;
+    }
 
     if (_v3->selectedFinger >= 1 && _v3->selectedFinger <= 4) {
         int positionIndex = _v3->selectedFinger - 1;
@@ -1245,6 +1530,13 @@ static int V3SelectionCodeForInfluence(int influence) {
 }
 
 - (void)endTouchIvent {
+    if (_v3 && _v3->gestureObject.cardMode) {
+        NSLog(@"[GestureKeyEditor] rotation=(%.2f,%.2f,%.2f) scale=%.3f position=(%.2f,%.2f)",
+              _v3->gestureObject.cardRotationX, _v3->gestureObject.cardRotationY,
+              _v3->gestureObject.cardRotationZ, _v3->gestureObject.cardScale,
+              _v3->gestureObject.cardPositionX, _v3->gestureObject.cardPositionY);
+        return;
+    }
     [self v3CommitSelectedFinger];
 }
 
@@ -1397,6 +1689,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 }
 - (void)releaseGLResources {
     if (!_v3) return;
+    if (_v3->gestureObject.vertexBuffer) glDeleteBuffers(1, &_v3->gestureObject.vertexBuffer);
     if (_v3->pickingTexture) glDeleteTextures(1, &_v3->pickingTexture);
     if (_v3->pickingDepth) glDeleteRenderbuffers(1, &_v3->pickingDepth);
     if (_v3->pickingFramebuffer) glDeleteFramebuffers(1, &_v3->pickingFramebuffer);

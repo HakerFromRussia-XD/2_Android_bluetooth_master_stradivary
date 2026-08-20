@@ -252,6 +252,8 @@ struct GesturesWidgetView: View {
     @State private var previousRotationGroupCount: Int = 0
     @State private var segmentContentLockedHeight: CGFloat = 0
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
+    @State private var gestureKeyAnimationToken = 0
+    @State private var gestureKeyEditingKey = false
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
     @State private var isRotationGroupAddGesturesDialogVisible = false
@@ -484,10 +486,10 @@ struct GesturesWidgetView: View {
     }
     
     @ViewBuilder
-    private func segmentContent(for segment: GesturesProvider.Segment) -> some View {
+    private func segmentContent(for segment: GesturesProvider.Segment, rendersLiveContent: Bool = true) -> some View {
         switch segment {
         case .collection:
-            collectionView
+            collectionView(rendersLiveContent: rendersLiveContent)
         case .rotationGroup:
             rotationGroupView
         case .sprGroup:
@@ -525,7 +527,7 @@ struct GesturesWidgetView: View {
                 ZStack(alignment: .topLeading) {
                     hiddenCurrentSegmentMeasurementView
                     if shouldPremeasureCollectionHeight {
-                        segmentContent(for: .collection)
+                        segmentContent(for: .collection, rendersLiveContent: false)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .topLeading)
                             .opacity(0.001)
@@ -541,7 +543,7 @@ struct GesturesWidgetView: View {
                             )
                     }
                     if shouldPremeasureRotationHeight {
-                        segmentContent(for: .rotationGroup)
+                        segmentContent(for: .rotationGroup, rendersLiveContent: false)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .topLeading)
                             .opacity(0.001)
@@ -570,7 +572,7 @@ struct GesturesWidgetView: View {
     }
 
     private var hiddenCurrentSegmentMeasurementView: some View {
-        segmentContent(for: provider.selectedSegment)
+        segmentContent(for: provider.selectedSegment, rendersLiveContent: false)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .opacity(0.001)
@@ -679,7 +681,7 @@ struct GesturesWidgetView: View {
 
     
     // MARK: - Collection View
-    private var collectionView: some View {
+    private func collectionView(rendersLiveContent: Bool) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             collapsibleSection(
                 title: SharedLocalizedText.text(SharedRes.strings().collection_of_gestures),
@@ -693,6 +695,18 @@ struct GesturesWidgetView: View {
                             subtitle: item.subtitle,
                             image: item.image,
                             isActive: provider.activeGestureId == item.id,
+                            livePreview: item.id == 5 && rendersLiveContent
+                                ? AnyView(GestureKeyOpenGLPreview(animationToken: gestureKeyAnimationToken,
+                                                                  editingKey: gestureKeyEditingKey))
+                                : nil,
+                            onAnimationTap: item.id == 5 ? {
+                                gestureKeyAnimationToken &+= 1
+                                NSLog("[GestureKeyTrace] event=buttonTap token=%d", gestureKeyAnimationToken)
+                            } : nil,
+                            editingKey: item.id == 5 ? gestureKeyEditingKey : false,
+                            onEditorTargetTap: item.id == 5 ? {
+                                gestureKeyEditingKey.toggle()
+                            } : nil,
                             action: { onFactoryGestureTap(item) }
                         )
                         .aspectRatio(1, contentMode: .fit)
@@ -1281,6 +1295,10 @@ private struct GestureTile: View {
     let subtitle: String?
     let image: UIImage?
     let isActive: Bool
+    let livePreview: AnyView?
+    let onAnimationTap: (() -> Void)?
+    let editingKey: Bool
+    let onEditorTargetTap: (() -> Void)?
     let action: () -> Void
 
     private var borderColor: Color {
@@ -1288,19 +1306,37 @@ private struct GestureTile: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        ZStack(alignment: .topTrailing) {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("ubi4_gray"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(borderColor, lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+
+            if let livePreview {
+                livePreview
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.system(size: 12, weight: .light))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                 
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                if livePreview == nil, image != nil {
+                    ZStack {
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 if let subtitle, subtitle.isEmpty == false {
@@ -1313,17 +1349,166 @@ private struct GestureTile: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("ubi4_gray"))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(borderColor, lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-            )
+
+            if let onAnimationTap {
+                Button(action: onAnimationTap) {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(Color.black.opacity(0.48)))
+                        .overlay(Circle().stroke(Color.white.opacity(0.22), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .padding(8)
+                .accessibilityLabel("Запустить анимацию жеста")
+                .accessibilityIdentifier("GestureKeyAnimationButton")
+            }
+
+            if let onEditorTargetTap {
+                Button(action: onEditorTargetTap) {
+                    Text(editingKey ? "KEY" : "HAND")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(editingKey ? Color.black : Color.white)
+                        .padding(.horizontal, 8)
+                        .frame(height: 24)
+                        .background(Capsule().fill(editingKey ? Color("ubi4_active") : Color.black.opacity(0.52)))
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(8)
+                .accessibilityIdentifier("GestureKeyEditorTargetButton")
+            }
         }
-        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .onTapGesture(perform: action)
+    }
+}
+
+private final class GestureKeyPreviewHostView: UIView {
+    private var rendererController: AAPLOpenGLViewControllerV3?
+    private var pendingAnimation = false
+    private var pendingEditingKey = false
+    private var resourcesReady = false
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isOpaque = false
+        NSLog("[GestureKeyTrace] event=hostInit")
+        V3ModelResourceCache.shared().preload { [weak self] ready, error in
+            DispatchQueue.main.async {
+                NSLog("[GestureKeyTrace] event=preloadCallback ready=%d error=%@", ready, error?.localizedDescription ?? "none")
+                guard let self, ready, error == nil else { return }
+                self.resourcesReady = true
+                self.installRendererIfPossible()
+            }
+        }
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        NSLog("[GestureKeyTrace] event=didMoveToWindow attached=%d size=%.1fx%.1f", window != nil, bounds.width, bounds.height)
+        installRendererIfPossible()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        rendererController?.view.frame = bounds
+        installRendererIfPossible()
+    }
+
+    private var parentViewController: UIViewController? {
+        var responder: UIResponder? = self
+        while let current = responder?.next {
+            if let controller = current as? UIViewController { return controller }
+            responder = current
+        }
+        return nil
+    }
+
+    private func installRendererIfPossible() {
+        NSLog("[GestureKeyTrace] event=installAttempt ready=%d hasRenderer=%d attached=%d size=%.1fx%.1f hasParent=%d", resourcesReady, rendererController != nil, window != nil, bounds.width, bounds.height, parentViewController != nil)
+        guard resourcesReady,
+              rendererController == nil,
+              window != nil,
+              bounds.width > 1,
+              bounds.height > 1,
+              let parentViewController else { return }
+        let controller = AAPLOpenGLViewControllerV3()
+        controller.useV3Mode = true
+        controller.useV3GestureProtocol = false
+        controller.modelTestMode = true
+        controller.cardPreviewMode = true
+        controller.cardPreviewSize = bounds.size
+        controller.loadViewIfNeeded()
+        controller.view.frame = bounds
+        controller.view.backgroundColor = .clear
+        controller.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        parentViewController.addChild(controller)
+        addSubview(controller.view)
+        controller.didMove(toParent: parentViewController)
+        rendererController = controller
+        controller.setCardPreviewEditingKey(pendingEditingKey)
+        NSLog("[GestureKeyTrace] event=rendererInstalled size=%.1fx%.1f pending=%d", bounds.width, bounds.height, pendingAnimation)
+        if pendingAnimation {
+            pendingAnimation = false
+            controller.playGestureKeyClip()
+        }
+    }
+
+    func play() {
+        NSLog("[GestureKeyTrace] event=hostPlay hasRenderer=%d", rendererController != nil)
+        if let rendererController {
+            rendererController.playGestureKeyClip()
+        } else {
+            pendingAnimation = true
+        }
+    }
+
+    func setEditingKey(_ editingKey: Bool) {
+        pendingEditingKey = editingKey
+        rendererController?.setCardPreviewEditingKey(editingKey)
+    }
+
+    func stop() {
+        if let controller = rendererController {
+            controller.willMove(toParent: nil)
+            controller.stopCardPreview()
+            controller.view.removeFromSuperview()
+            controller.removeFromParent()
+            rendererController = nil
+        }
+    }
+
+    deinit { stop() }
+}
+
+private struct GestureKeyOpenGLPreview: UIViewRepresentable {
+    let animationToken: Int
+    let editingKey: Bool
+
+    final class Coordinator {
+        var lastAnimationToken = 0
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeUIView(context: Context) -> GestureKeyPreviewHostView {
+        GestureKeyPreviewHostView(frame: .zero)
+    }
+
+    func updateUIView(_ view: GestureKeyPreviewHostView, context: Context) {
+        view.setEditingKey(editingKey)
+        guard animationToken > 0, animationToken != context.coordinator.lastAnimationToken else { return }
+        context.coordinator.lastAnimationToken = animationToken
+        view.play()
+    }
+
+    static func dismantleUIView(_ view: GestureKeyPreviewHostView, coordinator: Coordinator) {
+        view.stop()
     }
 }
 

@@ -21,5 +21,10 @@ Header for the cross-platform view controller and cross-platform view that displ
 @property (nonatomic, assign) BOOL useV3Mode;
 @property (nonatomic, assign) BOOL useV3GestureProtocol;
 @property (nonatomic, assign) BOOL modelTestMode;
+@property (nonatomic, assign) BOOL cardPreviewMode;
+@property (nonatomic, assign) CGSize cardPreviewSize;
+- (void)playGestureKeyClip;
+- (void)setCardPreviewEditingKey:(BOOL)editingKey;
+- (void)stopCardPreview;
 
 @end

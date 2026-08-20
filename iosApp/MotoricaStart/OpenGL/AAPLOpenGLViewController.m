@@ -27,6 +27,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 @end
 
+@interface AAPLOpenGLViewControllerV3 () <UIGestureRecognizerDelegate>
+@end
+
 @implementation AAPLOpenGLViewControllerV3
 {
     AAPLOpenGLViewV3 *_view;
@@ -49,6 +52,10 @@ Implementation of the cross-platform view controller and cross-platform view tha
     BOOL _v3GestureSettingsReady;
     BOOL _v3FirstFrameReady;
     BOOL _v3InitialOpenSent;
+    UIPanGestureRecognizer *_cardRotationPan;
+    UIPanGestureRecognizer *_cardTranslationPan;
+    UIRotationGestureRecognizer *_cardRollGesture;
+    UIPanGestureRecognizer *_cardDepthPan;
     CGSize _lastDrawableBoundsSize;
     __weak IBOutlet UIButton *saveBtn;
     __weak IBOutlet UIButton *state_btn;
@@ -80,6 +87,16 @@ Implementation of the cross-platform view controller and cross-platform view tha
     BOOL _gestureSettingsObserverRegistered;
     BOOL _didInjectGestureSettingsV3ForUITest;
     BOOL _gestureNameTextFieldLayoutConfigured;
+}
+
+- (void)loadView {
+    if (self.cardPreviewMode) {
+        CGSize size = self.cardPreviewSize;
+        if (size.width <= 1.0 || size.height <= 1.0) size = UIScreen.mainScreen.bounds.size;
+        self.view = [[AAPLOpenGLViewV3 alloc] initWithFrame:(CGRect){CGPointZero, size}];
+        return;
+    }
+    [super loadView];
 }
 
 + (Class)rendererClassForV3Mode:(BOOL)useV3Mode {
@@ -522,6 +539,19 @@ static os_log_t V3FrameLog(void) {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    if (self.cardPreviewMode && _cardRotationPan != nil && _cardTranslationPan != nil) {
+        UIView *ancestor = self.view.superview;
+        while (ancestor != nil) {
+            if ([ancestor isKindOfClass:UIScrollView.class]) {
+                UIScrollView *scrollView = (UIScrollView *)ancestor;
+                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardRotationPan];
+                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardTranslationPan];
+                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardRollGesture];
+                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardDepthPan];
+            }
+            ancestor = ancestor.superview;
+        }
+    }
     if (!self.modelTestMode) {
         [self injectGestureSettingsV3ForUITestIfNeeded];
     }
@@ -573,6 +603,32 @@ static os_log_t V3FrameLog(void) {
     NSLog(@"Отсюда мы начинаем исполнение программы");
     if (self.modelTestMode) {
         NSLog(@"[V3TestMetrics] controllerViewDidLoad");
+    }
+    if (self.cardPreviewMode) {
+        _cardRotationPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewRotation:)];
+        _cardRotationPan.minimumNumberOfTouches = 1;
+        _cardRotationPan.maximumNumberOfTouches = 1;
+        _cardRotationPan.cancelsTouchesInView = YES;
+        _cardRotationPan.delegate = self;
+        [self.view addGestureRecognizer:_cardRotationPan];
+        UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewPinch:)];
+        pinch.delegate = self;
+        [self.view addGestureRecognizer:pinch];
+        _cardTranslationPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewPan:)];
+        _cardTranslationPan.minimumNumberOfTouches = 2;
+        _cardTranslationPan.maximumNumberOfTouches = 2;
+        _cardTranslationPan.cancelsTouchesInView = YES;
+        _cardTranslationPan.delegate = self;
+        [self.view addGestureRecognizer:_cardTranslationPan];
+        _cardRollGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewRoll:)];
+        _cardRollGesture.delegate = self;
+        [self.view addGestureRecognizer:_cardRollGesture];
+        _cardDepthPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewDepth:)];
+        _cardDepthPan.minimumNumberOfTouches = 3;
+        _cardDepthPan.maximumNumberOfTouches = 3;
+        _cardDepthPan.delegate = self;
+        [self.view addGestureRecognizer:_cardDepthPan];
+        self.view.multipleTouchEnabled = YES;
     }
     if (self.useV3Mode) {
         _v3RenderQueue = dispatch_queue_create("com.bailout.stickk.v3-render", DISPATCH_QUEUE_SERIAL);
@@ -667,9 +723,11 @@ static os_log_t V3FrameLog(void) {
         [self makeCurrentContext];
         Class rendererClass = [AAPLOpenGLViewControllerV3 rendererClassForV3Mode:self.useV3Mode];
         if (self.useV3Mode) {
-            NSInteger handSide = self.useV3GestureProtocol
+            NSInteger handSide = self.cardPreviewMode
+                ? 1
+                : (self.useV3GestureProtocol
                 ? [V3HandSideProvider shared].currentSide
-                : [gestureService getLegacyHandSide];
+                : [gestureService getLegacyHandSide]);
             self->_openGLRenderer = [[AAPLOpenGLRendererV3 alloc]
                 initWithDefaultFBOName:self->_defaultFBOName
                 gestureNumber:self->_gestureNumber
@@ -681,6 +739,9 @@ static os_log_t V3FrameLog(void) {
                 gestureNumber:self->_gestureNumber];
         }
         if (!self->_openGLRenderer) return;
+        if (self.cardPreviewMode && self.useV3Mode) {
+            [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureGestureKeyCardPreview];
+        }
         [self->_openGLRenderer resize:self.drawableSize];
         CGRect screenRect = UIScreen.mainScreen.bounds;
         [self->_openGLRenderer calculationOfCoefficients:screenRect.size.width :screenRect.size.height];
@@ -727,6 +788,100 @@ static os_log_t V3FrameLog(void) {
           self.useV3Mode,
           (CACurrentMediaTime() - viewDidLoadStartedAt) * 1000.0,
           (long)_gestureNumber);
+}
+
+- (void)handleCardPreviewPinch:(UIPinchGestureRecognizer *)recognizer {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    CGFloat factor = recognizer.scale;
+    recognizer.scale = 1.0;
+    BOOL finished = recognizer.state == UIGestureRecognizerStateEnded ||
+                    recognizer.state == UIGestureRecognizerStateCancelled;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer adjustCardPreviewScaleByFactor:factor finished:finished];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)handleCardPreviewRotation:(UIPanGestureRecognizer *)recognizer {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    CGPoint delta = [recognizer translationInView:self.view];
+    [recognizer setTranslation:CGPointZero inView:self.view];
+    BOOL finished = recognizer.state == UIGestureRecognizerStateEnded ||
+                    recognizer.state == UIGestureRecognizerStateCancelled;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer adjustCardPreviewRotationByX:delta.x / 3.0
+                                                                                y:delta.y / 3.0
+                                                                         finished:finished];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)handleCardPreviewPan:(UIPanGestureRecognizer *)recognizer {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    CGPoint delta = [recognizer translationInView:self.view];
+    [recognizer setTranslation:CGPointZero inView:self.view];
+    BOOL finished = recognizer.state == UIGestureRecognizerStateEnded ||
+                    recognizer.state == UIGestureRecognizerStateCancelled;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer adjustCardPreviewPositionByX:delta.x * 0.5
+                                                                                 y:delta.y * 0.5
+                                                                          finished:finished];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)handleCardPreviewRoll:(UIRotationGestureRecognizer *)recognizer {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    CGFloat radians = recognizer.rotation;
+    recognizer.rotation = 0.0;
+    BOOL finished = recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateCancelled;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer adjustCardPreviewRollByRadians:radians finished:finished];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)handleCardPreviewDepth:(UIPanGestureRecognizer *)recognizer {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    CGPoint delta = [recognizer translationInView:self.view];
+    [recognizer setTranslation:CGPointZero inView:self.view];
+    BOOL finished = recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateCancelled;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer adjustCardPreviewDepthBy:-delta.y * 0.5 finished:finished];
+    }];
+    [self requestV3Frame];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+        shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if (gestureRecognizer.view != self.view || otherGestureRecognizer.view != self.view) return NO;
+    return gestureRecognizer != _cardRotationPan && otherGestureRecognizer != _cardRotationPan;
+}
+
+- (void)setCardPreviewEditingKey:(BOOL)editingKey {
+    if (!self.cardPreviewMode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer setCardPreviewEditingKey:editingKey];
+    }];
+}
+
+- (void)playGestureKeyClip {
+    NSLog(@"[GestureKeyTrace] event=controllerPlay hasRenderer=%d useV3=%d stop=%d", _openGLRenderer != nil, self.useV3Mode, _stop);
+    if (!self.useV3Mode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playGestureKeyClip];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)stopCardPreview {
+    if (!_stop) [self stopRendererSavingData:NO];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -1014,7 +1169,7 @@ static os_log_t V3FrameLog(void) {
 
     eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking : @NO,
                                      kEAGLDrawablePropertyColorFormat     : colorFormat };
-    eaglLayer.opaque = YES;
+    eaglLayer.opaque = self.cardPreviewMode ? NO : YES;
     
 
     CFTimeInterval contextStartedAt = CACurrentMediaTime();

@@ -1,0 +1,12 @@
+{
+  "id": "gesture_key",
+  "durationMs": 2200,
+  "angularSpeedDegreesPerSecond": 140,
+  "linearSpeedUnitsPerSecond": 92,
+  "keyframes": [
+    {"timeMs": 0, "fingers": [100, 100, 100, 100, -35, 22], "hand": [0, 0, 0, 0, 0, 0, 1], "object": [-60, -22, -30, 0, 0, 180, 1], "delaysMs": [0, 0, 0, 0, 0, 0, 0, 0]},
+    {"timeMs": 600, "fingers": [100, 100, 100, 100, 49, 22], "hand": [0, 0, 0, 0, 0, 0, 1], "object": [-60, -22, -30, 0, 0, 180, 1], "delaysMs": [0, 0, 0, 0, 1000, 0, 0, 0]},
+    {"timeMs": 1600, "fingers": [100, 100, 100, 100, 49, 22], "hand": [0, 0, 0, 0, 0, 0, 1], "object": [-60, -22, -30, 0, 0, 180, 1], "delaysMs": [0, 0, 0, 0, 0, 0, 0, 0]},
+    {"timeMs": 2200, "fingers": [100, 100, 100, 100, -35, 22], "hand": [0, 0, 0, 0, 0, 0, 1], "object": [-60, -22, -30, 0, 0, 180, 1], "delaysMs": [0, 0, 0, 0, 0, 0, 0, 0]}
+  ]
+}

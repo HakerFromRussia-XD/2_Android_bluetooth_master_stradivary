@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "capturedOn": "2026-08-20T19:11:53+03:00",
+  "source": "real-iPhone GestureKeyEditor logs",
+  "hand": {
+    "rotationMatrixRows": [
+      [-0.93031, -0.36322, 0.05058],
+      [-0.17699, 0.32390, -0.92938],
+      [0.32119, -0.87357, -0.36561]
+    ],
+    "scale": 1.510,
+    "position": [-23.83, -39.33]
+  },
+  "key": {
+    "position": [21.17, -26.50, -32.22],
+    "rotationDegrees": [-9.56, 171.56, 199.94],
+    "scale": 0.800
+  }
+}

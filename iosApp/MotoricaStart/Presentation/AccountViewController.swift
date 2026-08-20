@@ -1040,10 +1040,10 @@ private extension UIFont {
 }
 
 extension UIViewController {
-    func showToast(_ message: String) {
+    func showToast(_ message: String, iconName: String = "motorica_launch_v2") {
         guard Thread.isMainThread else {
             DispatchQueue.main.async { [weak self] in
-                self?.showToast(message)
+                self?.showToast(message, iconName: iconName)
             }
             return
         }
@@ -1065,7 +1065,7 @@ extension UIViewController {
         container.transform = CGAffineTransform(translationX: 0, y: 12)
         container.translatesAutoresizingMaskIntoConstraints = false
 
-        let iconView = UIImageView(image: UIImage(named: "ic_logo"))
+        let iconView = UIImageView(image: UIImage(named: iconName))
         iconView.contentMode = .scaleAspectFit
         iconView.translatesAutoresizingMaskIntoConstraints = false
 

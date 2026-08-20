@@ -368,9 +368,19 @@ final class AccountGamesViewController: UIViewController {
             showToast(localized("game_launch_failed"))
             return
         }
+        let launchToken = MotoricaGameLaunchRequest.create(scheme: scheme)
         UIApplication.shared.open(url) { [weak self] opened in
             if !opened {
+                MotoricaGameLaunchRequest.clear(token: launchToken)
                 self?.showToast(self?.localized("game_launch_failed") ?? "")
+                return
+            }
+            // STK normally consumes the lease during cold startup or when the
+            // URL reaches a warm process. This cleanup prevents a failed or
+            // interrupted launch from leaving state that a later icon launch
+            // could observe.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                MotoricaGameLaunchRequest.clear(token: launchToken)
             }
         }
     }

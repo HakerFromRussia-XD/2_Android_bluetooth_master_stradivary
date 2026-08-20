@@ -15,6 +15,51 @@ enum MotoricaGameControlAppGroup {
     }()
 }
 
+enum MotoricaGameLaunchRequest {
+    private enum Keys {
+        static let storage = "launchRequest.stk.v1"
+        static let version = "version"
+        static let token = "token"
+        static let timestampMs = "timestampMs"
+        static let scheme = "scheme"
+    }
+
+    @discardableResult
+    static func create(scheme: String) -> String? {
+        guard scheme.caseInsensitiveCompare("motorica-stk") == .orderedSame,
+              let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
+            return nil
+        }
+
+        let token = UUID().uuidString
+        let request: [String: Any] = [
+            Keys.version: 1,
+            Keys.token: token,
+            Keys.timestampMs: Int64(Date().timeIntervalSince1970 * 1000.0),
+            Keys.scheme: scheme
+        ]
+        defaults.set(request, forKey: Keys.storage)
+        defaults.synchronize()
+        NSLog("[BLE stk-game debug] ios launch lease written token=\(token)")
+        return token
+    }
+
+    static func clear(token: String?) {
+        guard let token,
+              let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup),
+              let request = defaults.dictionary(forKey: Keys.storage),
+              request[Keys.token] as? String == token else {
+            return
+        }
+
+        defaults.removeObject(forKey: Keys.storage)
+        defaults.synchronize()
+        NSLog("[BLE stk-game debug] ios launch lease cleared token=\(token)")
+    }
+}
+
 final class GameControlBroadcaster {
     static let shared = GameControlBroadcaster()
 

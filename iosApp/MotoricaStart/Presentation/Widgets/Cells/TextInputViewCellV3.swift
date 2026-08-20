@@ -77,39 +77,13 @@ final class TextInputViewCellV3: UITableViewCell {
     }
 
     private func showToast(_ message: String) {
-        let hostView = window ?? contentView
-        let toast = UILabel()
-        toast.text = message
-        toast.textAlignment = .center
-        toast.font = UIFont.systemFont(ofSize: 14)
-        toast.textColor = .white
-        toast.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        toast.layer.cornerRadius = 10
-        toast.clipsToBounds = true
-        toast.alpha = 0
-
-        let padding: CGFloat = 24
-        let textWidth = toast.intrinsicContentSize.width + padding
-        let maxWidth = hostView.bounds.width - 32
-        let width = min(textWidth, maxWidth)
-        let height: CGFloat = 38
-        let y = hostView.bounds.height - 120
-        toast.frame = CGRect(
-            x: (hostView.bounds.width - width) / 2,
-            y: y,
-            width: width,
-            height: height
-        )
-
-        hostView.addSubview(toast)
-        UIView.animate(withDuration: 0.2, animations: {
-            toast.alpha = 1
-        }) { _ in
-            UIView.animate(withDuration: 0.25, delay: 1.2, options: .curveEaseOut, animations: {
-                toast.alpha = 0
-            }) { _ in
-                toast.removeFromSuperview()
+        var responder: UIResponder? = self
+        while let currentResponder = responder {
+            if let viewController = currentResponder as? UIViewController {
+                viewController.showToast(message)
+                return
             }
+            responder = currentResponder.next
         }
     }
 }

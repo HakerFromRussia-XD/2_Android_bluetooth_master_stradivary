@@ -253,7 +253,8 @@ struct GesturesWidgetView: View {
     @State private var segmentContentLockedHeight: CGFloat = 0
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
     @State private var gestureKeyAnimationToken = 0
-    @State private var gestureKeyEditingKey = false
+    @State private var cupGripAnimationToken = 0
+    @State private var cupGripEditingObject = false
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
     @State private var isRotationGroupAddGesturesDialogVisible = false
@@ -695,18 +696,29 @@ struct GesturesWidgetView: View {
                             subtitle: item.subtitle,
                             image: item.image,
                             isActive: provider.activeGestureId == item.id,
-                            livePreview: item.id == 5 && rendersLiveContent
-                                ? AnyView(GestureKeyOpenGLPreview(animationToken: gestureKeyAnimationToken,
-                                                                  editingKey: gestureKeyEditingKey))
-                                : nil,
+                            livePreview: rendersLiveContent ? {
+                                if item.id == 5 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .gestureKey,
+                                                                              animationToken: gestureKeyAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 8 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .cupGrip,
+                                                                              animationToken: cupGripAnimationToken,
+                                                                              editingObject: cupGripEditingObject))
+                                }
+                                return nil
+                            }() : nil,
                             onAnimationTap: item.id == 5 ? {
                                 gestureKeyAnimationToken &+= 1
                                 NSLog("[GestureKeyTrace] event=buttonTap token=%d", gestureKeyAnimationToken)
+                            } : item.id == 8 ? {
+                                cupGripAnimationToken &+= 1
+                                NSLog("[CupGripTrace] event=buttonTap token=%d", cupGripAnimationToken)
                             } : nil,
-                            editingKey: item.id == 5 ? gestureKeyEditingKey : false,
-                            onEditorTargetTap: item.id == 5 ? {
-                                gestureKeyEditingKey.toggle()
-                            } : nil,
+                            editingKey: item.id == 8 ? cupGripEditingObject : false,
+                            editorObjectTitle: item.id == 8 ? "CUP" : "KEY",
+                            onEditorTargetTap: item.id == 8 ? { cupGripEditingObject.toggle() } : nil,
                             action: { onFactoryGestureTap(item) }
                         )
                         .aspectRatio(1, contentMode: .fit)
@@ -1298,6 +1310,7 @@ private struct GestureTile: View {
     let livePreview: AnyView?
     let onAnimationTap: (() -> Void)?
     let editingKey: Bool
+    let editorObjectTitle: String
     let onEditorTargetTap: (() -> Void)?
     let action: () -> Void
 
@@ -1367,7 +1380,7 @@ private struct GestureTile: View {
 
             if let onEditorTargetTap {
                 Button(action: onEditorTargetTap) {
-                    Text(editingKey ? "KEY" : "HAND")
+                    Text(editingKey ? editorObjectTitle : "HAND")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundColor(editingKey ? Color.black : Color.white)
                         .padding(.horizontal, 8)
@@ -1385,13 +1398,20 @@ private struct GestureTile: View {
     }
 }
 
+private enum GestureObjectClipKind: Int {
+    case gestureKey = 0
+    case cupGrip = 1
+}
+
 private final class GestureKeyPreviewHostView: UIView {
+    let clipKind: GestureObjectClipKind
     private var rendererController: AAPLOpenGLViewControllerV3?
     private var pendingAnimation = false
     private var pendingEditingKey = false
     private var resourcesReady = false
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, clipKind: GestureObjectClipKind) {
+        self.clipKind = clipKind
         super.init(frame: frame)
         backgroundColor = .clear
         isOpaque = false
@@ -1442,6 +1462,8 @@ private final class GestureKeyPreviewHostView: UIView {
         controller.useV3GestureProtocol = false
         controller.modelTestMode = true
         controller.cardPreviewMode = true
+        controller.cardPreviewEditingEnabled = clipKind == .cupGrip
+        controller.cardPreviewClipKind = clipKind.rawValue
         controller.cardPreviewSize = bounds.size
         controller.loadViewIfNeeded()
         controller.view.frame = bounds
@@ -1455,14 +1477,22 @@ private final class GestureKeyPreviewHostView: UIView {
         NSLog("[GestureKeyTrace] event=rendererInstalled size=%.1fx%.1f pending=%d", bounds.width, bounds.height, pendingAnimation)
         if pendingAnimation {
             pendingAnimation = false
-            controller.playGestureKeyClip()
+            if clipKind == .cupGrip {
+                controller.playCupGripClip()
+            } else {
+                controller.playGestureKeyClip()
+            }
         }
     }
 
     func play() {
         NSLog("[GestureKeyTrace] event=hostPlay hasRenderer=%d", rendererController != nil)
         if let rendererController {
-            rendererController.playGestureKeyClip()
+            if clipKind == .cupGrip {
+                rendererController.playCupGripClip()
+            } else {
+                rendererController.playGestureKeyClip()
+            }
         } else {
             pendingAnimation = true
         }
@@ -1486,9 +1516,10 @@ private final class GestureKeyPreviewHostView: UIView {
     deinit { stop() }
 }
 
-private struct GestureKeyOpenGLPreview: UIViewRepresentable {
+private struct GestureObjectOpenGLPreview: UIViewRepresentable {
+    let clipKind: GestureObjectClipKind
     let animationToken: Int
-    let editingKey: Bool
+    let editingObject: Bool
 
     final class Coordinator {
         var lastAnimationToken = 0
@@ -1497,11 +1528,11 @@ private struct GestureKeyOpenGLPreview: UIViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeUIView(context: Context) -> GestureKeyPreviewHostView {
-        GestureKeyPreviewHostView(frame: .zero)
+        GestureKeyPreviewHostView(frame: .zero, clipKind: clipKind)
     }
 
     func updateUIView(_ view: GestureKeyPreviewHostView, context: Context) {
-        view.setEditingKey(editingKey)
+        view.setEditingKey(editingObject)
         guard animationToken > 0, animationToken != context.coordinator.lastAnimationToken else { return }
         context.coordinator.lastAnimationToken = animationToken
         view.play()

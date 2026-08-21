@@ -539,7 +539,8 @@ static os_log_t V3FrameLog(void) {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (self.cardPreviewMode && _cardRotationPan != nil && _cardTranslationPan != nil) {
+    if (self.cardPreviewMode && self.cardPreviewEditingEnabled &&
+        _cardRotationPan != nil && _cardTranslationPan != nil) {
         UIView *ancestor = self.view.superview;
         while (ancestor != nil) {
             if ([ancestor isKindOfClass:UIScrollView.class]) {
@@ -604,7 +605,7 @@ static os_log_t V3FrameLog(void) {
     if (self.modelTestMode) {
         NSLog(@"[V3TestMetrics] controllerViewDidLoad");
     }
-    if (self.cardPreviewMode) {
+    if (self.cardPreviewMode && self.cardPreviewEditingEnabled) {
         _cardRotationPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewRotation:)];
         _cardRotationPan.minimumNumberOfTouches = 1;
         _cardRotationPan.maximumNumberOfTouches = 1;
@@ -740,7 +741,11 @@ static os_log_t V3FrameLog(void) {
         }
         if (!self->_openGLRenderer) return;
         if (self.cardPreviewMode && self.useV3Mode) {
-            [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureGestureKeyCardPreview];
+            if (self.cardPreviewClipKind == 1) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureCupGripCardPreview];
+            } else {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureGestureKeyCardPreview];
+            }
         }
         [self->_openGLRenderer resize:self.drawableSize];
         CGRect screenRect = UIScreen.mainScreen.bounds;
@@ -876,6 +881,16 @@ static os_log_t V3FrameLog(void) {
     [self performV3RenderAsync:^{
         [EAGLContext setCurrentContext:self->_context];
         [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playGestureKeyClip];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)playCupGripClip {
+    NSLog(@"[CupGripTrace] event=controllerPlay hasRenderer=%d useV3=%d stop=%d", _openGLRenderer != nil, self.useV3Mode, _stop);
+    if (!self.useV3Mode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playCupGripClip];
     }];
     [self requestV3Frame];
 }

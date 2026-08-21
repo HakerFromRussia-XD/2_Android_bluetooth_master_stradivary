@@ -207,6 +207,21 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
         return function(rendererClass, selector, milliseconds)
     }
 
+    private func cupGripClipState(at milliseconds: Double) -> NSDictionary {
+        guard let rendererClass = NSClassFromString("AAPLOpenGLRendererV3") else {
+            XCTFail("AAPLOpenGLRendererV3 class not found in runtime")
+            return [:]
+        }
+        let selector = NSSelectorFromString("cupGripClipStateForTestingAtMilliseconds:")
+        guard let method = class_getClassMethod(rendererClass, selector) else {
+            XCTFail("Cup Grip clip sampler not found")
+            return [:]
+        }
+        typealias MethodType = @convention(c) (AnyClass, Selector, Double) -> NSDictionary
+        let function = unsafeBitCast(method_getImplementation(method), to: MethodType.self)
+        return function(rendererClass, selector, milliseconds)
+    }
+
     private typealias Matrix4 = [Double]
 
     private func identityMatrix() -> Matrix4 {
@@ -743,14 +758,30 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
         }
 
         XCTAssertEqual(thumb(0), -35, accuracy: 0.001)
+        XCTAssertEqual(thumb(150), -14, accuracy: 0.001)
         XCTAssertEqual(thumb(300), 7, accuracy: 0.001)
-        XCTAssertEqual(thumb(600), 49, accuracy: 0.001)
-        XCTAssertEqual(thumb(1100), 49, accuracy: 0.001)
-        XCTAssertEqual(thumb(1600), 49, accuracy: 0.001)
-        XCTAssertEqual(thumb(1900), 7, accuracy: 0.001)
-        XCTAssertEqual(thumb(2200), -35, accuracy: 0.001)
-        XCTAssertEqual(keyX(0), keyX(2200), accuracy: 0.001)
-        XCTAssertEqual((gestureKeyClipState(at: 2199)["complete"] as? NSNumber)?.boolValue, false)
-        XCTAssertEqual((gestureKeyClipState(at: 2200)["complete"] as? NSNumber)?.boolValue, true)
+        XCTAssertEqual(thumb(450), 7, accuracy: 0.001)
+        XCTAssertEqual(thumb(600), 7, accuracy: 0.001)
+        XCTAssertEqual(thumb(750), -14, accuracy: 0.001)
+        XCTAssertEqual(thumb(900), -35, accuracy: 0.001)
+        XCTAssertEqual(keyX(0), keyX(900), accuracy: 0.001)
+        XCTAssertEqual((gestureKeyClipState(at: 899)["complete"] as? NSNumber)?.boolValue, false)
+        XCTAssertEqual((gestureKeyClipState(at: 900)["complete"] as? NSNumber)?.boolValue, true)
+    }
+
+    func testCupGripClip_opensHoldsAndReturnsWithLittleFingerFixed() {
+        func fingers(_ time: Double) -> [Double] {
+            ((cupGripClipState(at: time)["fingers"] as? [NSNumber]) ?? []).map(\.doubleValue)
+        }
+
+        XCTAssertEqual(fingers(0), [100, 60, 58, 55, 50, 100])
+        XCTAssertEqual(fingers(150), [100, 30, 29, 27.5, 25, 100])
+        XCTAssertEqual(fingers(300), [100, 0, 0, 0, 0, 100])
+        XCTAssertEqual(fingers(450), [100, 0, 0, 0, 0, 100])
+        XCTAssertEqual(fingers(600), [100, 0, 0, 0, 0, 100])
+        XCTAssertEqual(fingers(750), [100, 30, 29, 27.5, 25, 100])
+        XCTAssertEqual(fingers(900), [100, 60, 58, 55, 50, 100])
+        XCTAssertEqual((cupGripClipState(at: 899)["complete"] as? NSNumber)?.boolValue, false)
+        XCTAssertEqual((cupGripClipState(at: 900)["complete"] as? NSNumber)?.boolValue, true)
     }
 }

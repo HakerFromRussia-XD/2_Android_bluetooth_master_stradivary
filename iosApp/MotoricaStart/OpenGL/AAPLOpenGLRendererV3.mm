@@ -51,6 +51,12 @@ enum class V3Material {
     whitePlastic,
     rubber,
     chrome,
+    gestureObject,
+};
+
+enum class V3CardClip {
+    gestureKey,
+    cupGrip,
 };
 
 struct V3ProgramLocations {
@@ -64,6 +70,8 @@ struct V3ProgramLocations {
     GLint specular = -1;
     GLint lightPower = -1;
     GLint ambient = -1;
+    GLint cardContrast = -1;
+    GLint baseColorMultiplier = -1;
     GLint materialMode = -1;
     GLint chromeStrength = -1;
     GLint fillDirection = -1;
@@ -74,6 +82,7 @@ struct V3ProgramLocations {
     GLint mirrored = -1;
     GLint useSolidColor = -1;
     GLint solidColor = -1;
+    GLint useVertexColor = -1;
     GLint useBlueSelection = -1;
     GLint code = -1;
     GLint position = -1;
@@ -106,11 +115,12 @@ struct V3GestureObjectState {
     float cardRotationX = -18.0f;
     float cardRotationY = -112.0f;
     float cardRotationZ = -76.0f;
-    float cardScale = 1.510f;
-    float cardPositionX = -23.83f;
-    float cardPositionY = -39.33f;
+    float cardScale = 1.405f;
+    float cardPositionX = -25.00f;
+    float cardPositionY = -40.66f;
     matrix_float4x4 cardRotationMatrix = matrix_identity_float4x4;
     bool cardRotationInitialized = false;
+    V3CardClip cardClip = V3CardClip::gestureKey;
 };
 
 struct V3DigitMatrices {
@@ -210,6 +220,8 @@ static V3ProgramLocations V3LoadProgramLocations(GLuint program) {
     locations.specular = glGetUniformLocation(program, "u_specularFactor");
     locations.lightPower = glGetUniformLocation(program, "u_lightPower");
     locations.ambient = glGetUniformLocation(program, "u_ambientFactor");
+    locations.cardContrast = glGetUniformLocation(program, "u_CardContrast");
+    locations.baseColorMultiplier = glGetUniformLocation(program, "u_BaseColorMultiplier");
     locations.materialMode = glGetUniformLocation(program, "u_MaterialMode");
     locations.chromeStrength = glGetUniformLocation(program, "u_ChromeStrength");
     locations.fillDirection = glGetUniformLocation(program, "u_MetalFillLightDirection");
@@ -220,6 +232,7 @@ static V3ProgramLocations V3LoadProgramLocations(GLuint program) {
     locations.mirrored = glGetUniformLocation(program, "u_FrontFaceMirrored");
     locations.useSolidColor = glGetUniformLocation(program, "u_UseSolidColor");
     locations.solidColor = glGetUniformLocation(program, "u_SolidColor");
+    locations.useVertexColor = glGetUniformLocation(program, "u_UseVertexColor");
     locations.useBlueSelection = glGetUniformLocation(program, "u_UseBlueSelection");
     locations.code = glGetUniformLocation(program, "u_Code");
     locations.position = glGetAttribLocation(program, "a_Position");
@@ -257,20 +270,37 @@ static float V3Linear(float start, float target, float progress) {
 }
 
 static NSDictionary<NSString *, id> *V3GestureKeyClipSample(double milliseconds) {
-    double t = std::max(0.0, std::min(2200.0, milliseconds));
+    double t = std::max(0.0, std::min(900.0, milliseconds));
     float thumb = -35.0f;
-    if (t <= 600.0) {
-        thumb = V3Linear(-35.0f, 49.0f, t / 600.0);
-    } else if (t <= 1600.0) {
-        thumb = 49.0f;
+    if (t <= 300.0) {
+        thumb = V3Linear(-35.0f, 7.0f, t / 300.0);
+    } else if (t <= 600.0) {
+        thumb = 7.0f;
     } else {
-        thumb = V3Linear(49.0f, -35.0f, (t - 1600.0) / 600.0);
+        thumb = V3Linear(7.0f, -35.0f, (t - 600.0) / 300.0);
     }
     return @{
         @"fingers": @[@100.0f, @100.0f, @100.0f, @100.0f, @(thumb), @22.0f],
         @"hand": @[@0, @0, @0, @0, @0, @0, @1],
         @"object": @[@(-60.0f), @(-22.0f), @(-30.0f), @0, @0, @180.0f, @1],
-        @"complete": @(t >= 2200.0)
+        @"complete": @(t >= 900.0)
+    };
+}
+
+static NSDictionary<NSString *, id> *V3CupGripClipSample(double milliseconds) {
+    double t = std::max(0.0, std::min(900.0, milliseconds));
+    float progress = t <= 300.0 ? static_cast<float>(t / 300.0)
+        : (t <= 600.0 ? 1.0f : static_cast<float>(1.0 - (t - 600.0) / 300.0));
+    float index = V3Linear(55.0f, 0.0f, progress);
+    float middle = V3Linear(58.0f, 0.0f, progress);
+    float ring = V3Linear(60.0f, 0.0f, progress);
+    float thumb = V3Linear(50.0f, 0.0f, progress);
+    return @{
+        // Internal order: little, ring, middle, index, thumb flex, thumb rotation.
+        @"fingers": @[@100.0f, @(ring), @(middle), @(index), @(thumb), @100.0f],
+        @"hand": @[@0, @0, @0, @0, @0, @0, @1],
+        @"object": @[@0, @0, @0, @0, @0, @0, @1],
+        @"complete": @(t >= 900.0)
     };
 }
 
@@ -463,13 +493,13 @@ static int V3SelectionCodeForInfluence(int influence) {
     return _v3 && (_v3->transition.active || _v3->gestureObject.clipActive);
 }
 
-- (void)v3LoadGestureKeyMeshIfNeeded {
+- (void)v3LoadGestureObjectMeshNamed:(NSString *)resourceName {
     if (!_v3 || _v3->gestureObject.vertexBuffer != 0) return;
-    NSURL *url = [NSBundle.mainBundle URLForResource:@"gesture_key" withExtension:@"v3object" subdirectory:@"Meshes"];
-    if (url == nil) url = [NSBundle.mainBundle URLForResource:@"gesture_key" withExtension:@"v3object"];
+    NSURL *url = [NSBundle.mainBundle URLForResource:resourceName withExtension:@"v3object" subdirectory:@"Meshes"];
+    if (url == nil) url = [NSBundle.mainBundle URLForResource:resourceName withExtension:@"v3object"];
     NSData *data = url ? [NSData dataWithContentsOfURL:url] : nil;
     if (data.length < 12 || memcmp(data.bytes, "V3OB", 4) != 0) {
-        os_log_error(V3RendererLog(), "Gesture key mesh is unavailable");
+        os_log_error(V3RendererLog(), "Gesture object mesh is unavailable: %{public}@", resourceName);
         return;
     }
     const uint8_t *bytes = static_cast<const uint8_t *>(data.bytes);
@@ -502,7 +532,35 @@ static int V3SelectionCodeForInfluence(int influence) {
                                           (vector_float3){0.0f, 1.0f, 0.0f});
     _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
     _v3->deformationDirty = true;
-    [self v3LoadGestureKeyMeshIfNeeded];
+    _v3->gestureObject.cardClip = V3CardClip::gestureKey;
+    [self v3LoadGestureObjectMeshNamed:@"gesture_key"];
+}
+
+- (void)configureCupGripCardPreview {
+    if (!_v3) return;
+    _v3->gestureObject.cardMode = true;
+    _v3->gestureObject.cardClip = V3CardClip::cupGrip;
+    if (!_v3->gestureObject.cardRotationInitialized) {
+        // Approved Cup Grip calibration captured from the Xcode device console.
+        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.96502f, -0.10436f, 0.24028f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.24496f, 0.03430f, -0.96886f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[2] = {0.09287f, -0.99390f, -0.05867f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+        _v3->gestureObject.cardRotationInitialized = true;
+    }
+    _v3->gestureObject.cardScale = 1.291f;
+    _v3->gestureObject.cardPositionX = -18.58f;
+    _v3->gestureObject.cardPositionY = -36.74f;
+    _v3->gestureObject.position = {-1.42f, -30.17f, -30.28f};
+    _v3->gestureObject.rotation = {-92.67f, 143.44f, 7.71f};
+    _v3->gestureObject.scale = 1.154f;
+    [self v3ApplyCardEditorTransform];
+    _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
+                                          (vector_float3){0.0f, 0.0f, 0.0f},
+                                          (vector_float3){0.0f, 1.0f, 0.0f});
+    _v3->positions = {100.0f, 60.0f, 58.0f, 55.0f, 50.0f, 100.0f};
+    _v3->deformationDirty = true;
+    [self v3LoadGestureObjectMeshNamed:@"gesture_cup"];
 }
 
 - (void)v3ApplyCardEditorTransform {
@@ -630,9 +688,22 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.clipActive = true;
 }
 
+- (void)playCupGripClip {
+    if (!_v3) return;
+    NSLog(@"[CupGripTrace] event=rendererPlay vertexCount=%d", _v3->gestureObject.vertexCount);
+    // Do not call configureCupGripCardPreview here: playback must preserve the
+    // hand and cup transforms currently being calibrated.
+    _v3->gestureObject.clipStartedAt = CACurrentMediaTime();
+    _v3->gestureObject.clipActive = true;
+}
+
 #if DEBUG
 + (NSDictionary<NSString *, id> *)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds {
     return V3GestureKeyClipSample(milliseconds);
+}
+
++ (NSDictionary<NSString *, id> *)cupGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds {
+    return V3CupGripClipSample(milliseconds);
 }
 #endif
 
@@ -950,6 +1021,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     float ambient = 0.92f;
     GLint materialMode = 0;
     GLint solid = 0;
+    GLint vertexColor = 0;
     vector_float4 solidColor = {1.0f, 1.0f, 1.0f, 1.0f};
     if (material == V3Material::whitePlastic) {
         specular = 8.0f;
@@ -962,12 +1034,28 @@ static int V3SelectionCodeForInfluence(int influence) {
         lightPower = 3600.0f;
         ambient = 1.5f;
         materialMode = 1;
+    } else if (material == V3Material::gestureObject) {
+        specular = 1.0f;
+        lightPower = 760.0f;
+        ambient = 0.34f;
+        materialMode = 3;
+        vertexColor = 1;
     }
     if (_v3->gestureObject.cardMode) {
-        // Card previews need stronger shape separation at their small size.
-        // Keep this isolated from the full-screen editor renderer.
-        ambient = material == V3Material::chrome ? 0.86f : (material == V3Material::whitePlastic ? 0.48f : 0.52f);
-        lightPower *= 1.26f;
+        // Keep the original materials and change lighting only for the small
+        // collection preview. Lower fill preserves black; stronger side light
+        // makes the existing ribs readable through their normals.
+        if (material == V3Material::whitePlastic) {
+            ambient = 0.66f;
+            lightPower = 1180.0f;
+        } else if (material == V3Material::rubber) {
+            ambient = 0.24f;
+            lightPower = 1450.0f;
+            materialMode = 2;
+        } else {
+            ambient = 1.10f;
+            lightPower *= 1.08f;
+        }
     }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -977,16 +1065,22 @@ static int V3SelectionCodeForInfluence(int influence) {
     if (locations.specular >= 0) glUniform1f(locations.specular, specular);
     if (locations.lightPower >= 0) glUniform1f(locations.lightPower, lightPower);
     if (locations.ambient >= 0) glUniform1f(locations.ambient, ambient);
+    if (locations.cardContrast >= 0) glUniform1f(locations.cardContrast, _v3->gestureObject.cardMode ? 1.85f : 1.0f);
+    if (locations.baseColorMultiplier >= 0) {
+        float multiplier = (_v3->gestureObject.cardMode && material == V3Material::rubber) ? 0.42f : 1.0f;
+        glUniform3f(locations.baseColorMultiplier, multiplier, multiplier, multiplier);
+    }
     if (locations.materialMode >= 0) glUniform1i(locations.materialMode, materialMode);
     if (locations.chromeStrength >= 0) glUniform1f(locations.chromeStrength, materialMode == 1 ? 0.72f : 0.0f);
     if (locations.fillDirection >= 0) glUniform3f(locations.fillDirection, -0.74f, 0.46f, 0.49f);
     if (locations.rimDirection >= 0) glUniform3f(locations.rimDirection, 0.78f, 0.44f, -0.45f);
-    if (locations.fillStrength >= 0) glUniform1f(locations.fillStrength, materialMode == 1 ? 0.82f : 0.0f);
-    if (locations.rimStrength >= 0) glUniform1f(locations.rimStrength, materialMode == 1 ? 1.08f : 0.0f);
+    if (locations.fillStrength >= 0) glUniform1f(locations.fillStrength, materialMode == 1 ? 0.82f : (materialMode == 2 ? 1.0f : 0.0f));
+    if (locations.rimStrength >= 0) glUniform1f(locations.rimStrength, materialMode == 1 ? 1.08f : (materialMode == 2 ? 1.0f : 0.0f));
     if (locations.chromeToneMapStrength >= 0) glUniform1f(locations.chromeToneMapStrength, materialMode == 1 ? 1.0f : 0.0f);
     if (locations.mirrored >= 0) glUniform1i(locations.mirrored, _v3->handSide == 0 ? 1 : 0);
     if (locations.useSolidColor >= 0) glUniform1i(locations.useSolidColor, solid);
     if (locations.solidColor >= 0) glUniform4fv(locations.solidColor, 1, reinterpret_cast<const GLfloat *>(&solidColor));
+    if (locations.useVertexColor >= 0) glUniform1i(locations.useVertexColor, vertexColor);
 }
 
 - (void)v3BindAttributesForPart:(const ModelPart &)part
@@ -1141,7 +1235,10 @@ static int V3SelectionCodeForInfluence(int influence) {
         const V3ProgramLocations &locations = _v3->material;
         glUseProgram(locations.program);
         [self v3SetMatricesForModel:object locations:locations];
-        [self v3ApplyMaterial:V3Material::chrome locations:locations];
+        V3Material objectMaterial = _v3->gestureObject.cardClip == V3CardClip::gestureKey
+            ? V3Material::chrome
+            : V3Material::gestureObject;
+        [self v3ApplyMaterial:objectMaterial locations:locations];
         glBindBuffer(GL_ARRAY_BUFFER, _v3->gestureObject.vertexBuffer);
         const GLint offsets[] = {0, 3, 6, 10, 12, 15};
         const GLint sizes[] = {3, 3, 4, 2, 3, 3};
@@ -1240,11 +1337,19 @@ static int V3SelectionCodeForInfluence(int influence) {
         if ((gestureKeyFrameLogCounter++ % 30) == 0) {
             NSLog(@"[GestureKeyTrace] event=clipFrame elapsedMs=%.1f", (now - _v3->gestureObject.clipStartedAt) * 1000.0);
         }
-        NSDictionary<NSString *, id> *sample = V3GestureKeyClipSample((now - _v3->gestureObject.clipStartedAt) * 1000.0);
+        NSDictionary<NSString *, id> *sample = _v3->gestureObject.cardClip == V3CardClip::cupGrip
+            ? V3CupGripClipSample((now - _v3->gestureObject.clipStartedAt) * 1000.0)
+            : V3GestureKeyClipSample((now - _v3->gestureObject.clipStartedAt) * 1000.0);
         NSArray<NSNumber *> *fingers = sample[@"fingers"];
-        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f,
-            (49.0f - fingers[4].floatValue) * 100.0f / 84.0f,
-            (22.0f - fingers[5].floatValue) * 100.0f / 90.0f};
+        if (_v3->gestureObject.cardClip == V3CardClip::cupGrip) {
+            _v3->positions = {fingers[0].floatValue, fingers[1].floatValue,
+                fingers[2].floatValue, fingers[3].floatValue,
+                fingers[4].floatValue, fingers[5].floatValue};
+        } else {
+            _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f,
+                (49.0f - fingers[4].floatValue) * 100.0f / 84.0f,
+                (22.0f - fingers[5].floatValue) * 100.0f / 90.0f};
+        }
         // Gesture Key keeps the object fixed in the grasp. In card mode its
         // transform may be interactively tuned, so playback must animate only
         // the fingers and never overwrite the current key transform.

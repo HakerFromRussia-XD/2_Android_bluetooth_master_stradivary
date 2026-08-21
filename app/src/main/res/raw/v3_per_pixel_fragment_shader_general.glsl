@@ -7,6 +7,8 @@ uniform int u_isUsingNormalMap;
 uniform float u_specularFactor; // 30.0-metal      2.0   - plastic  1.0 - rubber
 uniform float u_lightPower; //   3600.0-metal      900.0 - plastic/rubber
 uniform float u_ambientFactor;
+uniform float u_CardContrast;
+uniform vec3 u_BaseColorMultiplier;
 uniform int u_MaterialMode;
 uniform float u_ChromeStrength;
 uniform vec3 u_MetalFillLightDirection;
@@ -17,6 +19,7 @@ uniform float u_ChromeToneMapStrength;
 uniform int u_FrontFaceMirrored;
 uniform int u_UseSolidColor;
 uniform vec4 u_SolidColor;
+uniform int u_UseVertexColor;
 
 
 varying vec3 v_Position;		// Interpolated position for this fragment.
@@ -40,6 +43,8 @@ void main()
     vec4 diffMatColor = u_UseSolidColor == 1
         ? u_SolidColor
         : texture2D(u_Texture, v_TexCoordinate); //+
+    if (u_UseVertexColor == 1) diffMatColor = v_Color;
+    diffMatColor.rgb *= u_BaseColorMultiplier;
     vec3 usingNormal = v_Normal;
     if (u_isUsingNormalMap == 1) usingNormal =  normalize(normalize(texture2D(u_normalMap, v_TexCoordinate).rgb * 2.0  - 1.0 ) + (v_Normal * 2.0 ) );//* 2.0
     vec3 eyeVect = normalize(v_Position - eyePosition);
@@ -53,7 +58,34 @@ void main()
     vec4 ambientColor = u_ambientFactor * diffMatColor;
     vec4 specularColor = vec4(0.9, 0.9, 1.0, 1.0) * u_lightPower * pow(max(0.0, dot(reflectLight, eyeVect)), u_specularFactor) / (1.0 + 0.25 * pow(distance, 2.0));
 
-    if (u_MaterialMode == 1 || u_specularFactor > 20.0) {
+    if (u_MaterialMode == 3) {
+        // Matte paper for collection props: preserve the baked color while
+        // avoiding the sharp white response that makes the cup look plastic.
+        vec3 paperNormal = normalize(usingNormal);
+        vec3 paperView = normalize(eyePosition - v_Position);
+        float paperMain = max(0.0, dot(paperNormal, lightVector));
+        float paperFill = max(0.0, dot(paperNormal, -normalize(u_MetalFillLightDirection)));
+        float paperWrap = clamp((dot(paperNormal, lightVector) + 0.42) / 1.42, 0.0, 1.0);
+        float paperEdge = pow(1.0 - max(0.0, dot(paperNormal, paperView)), 2.0);
+        float paperLight = 0.30 + paperWrap * 0.52 + paperFill * 0.12;
+        vec3 paperColor = diffMatColor.rgb * paperLight;
+        paperColor += diffMatColor.rgb * paperEdge * 0.035;
+        gl_FragColor = vec4(clamp(paperColor, 0.0, 0.82), diffMatColor.a);
+    } else if (u_MaterialMode == 2) {
+        vec3 viewDirection = normalize(eyePosition - v_Position);
+        vec3 rubberNormal = normalize(usingNormal);
+        vec3 fillDirection = normalize(u_MetalFillLightDirection);
+        vec3 rimDirection = normalize(u_MetalRimLightDirection);
+        float mainLight = max(0.0, dot(rubberNormal, lightVector));
+        float sideLight = max(0.0, dot(rubberNormal, -fillDirection));
+        float rimEdge = pow(1.0 - max(0.0, dot(rubberNormal, viewDirection)), 1.6);
+        float rimLight = max(0.0, dot(rubberNormal, -rimDirection));
+        float ridge = pow(mainLight, 1.80) * 0.25
+            + pow(sideLight, 2.00) * u_MetalFillLightStrength * 0.28
+            + pow(rimEdge * rimLight, 1.35) * u_MetalRimLightStrength * 0.34;
+        float rubberValue = 0.001 + clamp(ridge, 0.0, 0.419);
+        gl_FragColor = vec4(vec3(rubberValue), diffMatColor.a);
+    } else if (u_MaterialMode == 1 || u_specularFactor > 20.0) {
         vec3 viewToEye = normalize(eyePosition - v_Position);
         vec3 chromeNormal = -normalize(usingNormal);
         vec3 reflectedView = normalize(reflect(-viewToEye, chromeNormal));
@@ -173,7 +205,7 @@ void main()
         resultColor += diffColor;
         resultColor += ambientColor;
         resultColor += specularColor;
-
-        gl_FragColor = resultColor;
+        vec3 contrastedColor = clamp((resultColor.rgb - vec3(0.5)) * u_CardContrast + vec3(0.5), 0.0, 1.0);
+        gl_FragColor = vec4(contrastedColor, resultColor.a);
     }
 }

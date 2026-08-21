@@ -2,6 +2,6 @@
   "objects": [
     {"id": "yale_key", "source": "YALE_KEY_STL.STL", "runtime": "gesture_key.v3object", "status": "active"},
     {"id": "cutting_board", "source": "cutting_board.obj", "status": "registered"},
-    {"id": "paper_coffee_cup", "source": "Paper+coffee+cup.zip", "status": "registered"}
+    {"id": "paper_coffee_cup", "source": "Paper+coffee+cup.zip", "runtime": "gesture_cup.v3object", "status": "calibrating"}
   ]
 }

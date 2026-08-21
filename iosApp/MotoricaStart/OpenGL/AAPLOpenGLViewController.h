@@ -22,8 +22,14 @@ Header for the cross-platform view controller and cross-platform view that displ
 @property (nonatomic, assign) BOOL useV3GestureProtocol;
 @property (nonatomic, assign) BOOL modelTestMode;
 @property (nonatomic, assign) BOOL cardPreviewMode;
+/// Enables the temporary transform editor used while calibrating object cards.
+/// Keep disabled for approved production clips.
+@property (nonatomic, assign) BOOL cardPreviewEditingEnabled;
+/// 0 = Gesture Key, 1 = Cup Grip.
+@property (nonatomic, assign) NSInteger cardPreviewClipKind;
 @property (nonatomic, assign) CGSize cardPreviewSize;
 - (void)playGestureKeyClip;
+- (void)playCupGripClip;
 - (void)setCardPreviewEditingKey:(BOOL)editingKey;
 - (void)stopCardPreview;
 

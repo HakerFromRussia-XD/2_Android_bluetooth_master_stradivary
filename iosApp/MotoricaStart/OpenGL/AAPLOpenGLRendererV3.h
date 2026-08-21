@@ -27,8 +27,10 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 - (void)setUseV3GestureProtocol:(BOOL)useV3GestureProtocol;
 - (void)releaseGLResources;
 - (void)configureGestureKeyCardPreview;
+- (void)configureCupGripCardPreview;
 - (void)setCardPreviewEditingKey:(BOOL)editingKey;
 - (void)playGestureKeyClip;
+- (void)playCupGripClip;
 - (void)adjustCardPreviewScaleByFactor:(CGFloat)factor finished:(BOOL)finished;
 - (void)adjustCardPreviewRotationByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
 - (void)adjustCardPreviewPositionByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
@@ -56,6 +58,7 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 + (int32_t)saveGestureState;
 #if DEBUG
 + (NSDictionary<NSString *, id> *_Nonnull)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
++ (NSDictionary<NSString *, id> *_Nonnull)cupGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
 + (NSDictionary<NSString *, NSArray<NSNumber *> *> *_Nonnull)matrixSnapshotsForTestingWithHandSide:(NSInteger)handSide
                                                                                           positions:(NSArray<NSNumber *> *_Nonnull)positions;
 + (NSArray<NSNumber *> *_Nonnull)transitionPositionsForTestingFrom:(NSArray<NSNumber *> *_Nonnull)start

@@ -25,11 +25,16 @@ Header for the cross-platform view controller and cross-platform view that displ
 /// Enables the temporary transform editor used while calibrating object cards.
 /// Keep disabled for approved production clips.
 @property (nonatomic, assign) BOOL cardPreviewEditingEnabled;
-/// 0 = Gesture Key, 1 = Cup Grip.
+/// 0 = Key, 1 = Cup, 2 = Board, 3 = Natural, 4 = Fist, 5 = Pointing, 6 = Pinch.
 @property (nonatomic, assign) NSInteger cardPreviewClipKind;
 @property (nonatomic, assign) CGSize cardPreviewSize;
 - (void)playGestureKeyClip;
 - (void)playCupGripClip;
+- (void)playBoardGripClip;
+- (void)playNaturalPositionClip;
+- (void)playFistClip;
+- (void)playPointingClip;
+- (void)playPinchClip;
 - (void)setCardPreviewEditingKey:(BOOL)editingKey;
 - (void)stopCardPreview;
 

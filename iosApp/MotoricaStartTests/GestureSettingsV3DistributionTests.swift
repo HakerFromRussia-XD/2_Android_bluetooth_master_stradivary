@@ -222,6 +222,17 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
         return function(rendererClass, selector, milliseconds)
     }
 
+    private func boardGripClipState(at milliseconds: Double) -> NSDictionary {
+        guard let rendererClass = NSClassFromString("AAPLOpenGLRendererV3") else { return [:] }
+        let selector = NSSelectorFromString("boardGripClipStateForTestingAtMilliseconds:")
+        guard let method = class_getClassMethod(rendererClass, selector) else {
+            XCTFail("Board Grip clip sampler not found")
+            return [:]
+        }
+        typealias MethodType = @convention(c) (AnyClass, Selector, Double) -> NSDictionary
+        return unsafeBitCast(method_getImplementation(method), to: MethodType.self)(rendererClass, selector, milliseconds)
+    }
+
     private typealias Matrix4 = [Double]
 
     private func identityMatrix() -> Matrix4 {
@@ -783,5 +794,16 @@ final class GestureSettingsV3DistributionTests: XCTestCase {
         XCTAssertEqual(fingers(900), [100, 60, 58, 55, 50, 100])
         XCTAssertEqual((cupGripClipState(at: 899)["complete"] as? NSNumber)?.boolValue, false)
         XCTAssertEqual((cupGripClipState(at: 900)["complete"] as? NSNumber)?.boolValue, true)
+    }
+
+    func testBoardGripClip_opensFourFingersAndReturnsWithThumbFixed() {
+        func fingers(_ time: Double) -> [Double] {
+            ((boardGripClipState(at: time)["fingers"] as? [NSNumber]) ?? []).map(\.doubleValue)
+        }
+        XCTAssertEqual(fingers(0), [50, 55, 55, 50, 100, 0])
+        XCTAssertEqual(fingers(150), [25, 27.5, 27.5, 25, 100, 0])
+        XCTAssertEqual(fingers(300), [0, 0, 0, 0, 100, 0])
+        XCTAssertEqual(fingers(600), [0, 0, 0, 0, 100, 0])
+        XCTAssertEqual(fingers(900), [50, 55, 55, 50, 100, 0])
     }
 }

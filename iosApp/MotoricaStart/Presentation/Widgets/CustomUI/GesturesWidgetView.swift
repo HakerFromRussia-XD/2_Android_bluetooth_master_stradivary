@@ -254,7 +254,11 @@ struct GesturesWidgetView: View {
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
     @State private var gestureKeyAnimationToken = 0
     @State private var cupGripAnimationToken = 0
-    @State private var cupGripEditingObject = false
+    @State private var boardGripAnimationToken = 0
+    @State private var naturalPositionAnimationToken = 0
+    @State private var fistAnimationToken = 0
+    @State private var pointingAnimationToken = 0
+    @State private var pinchAnimationToken = 0
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
     @State private var isRotationGroupAddGesturesDialogVisible = false
@@ -697,6 +701,21 @@ struct GesturesWidgetView: View {
                             image: item.image,
                             isActive: provider.activeGestureId == item.id,
                             livePreview: rendersLiveContent ? {
+                                if item.id == 1 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .fist,
+                                                                              animationToken: fistAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 2 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .pointing,
+                                                                              animationToken: pointingAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 3 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .pinch,
+                                                                              animationToken: pinchAnimationToken,
+                                                                              editingObject: false))
+                                }
                                 if item.id == 5 {
                                     return AnyView(GestureObjectOpenGLPreview(clipKind: .gestureKey,
                                                                               animationToken: gestureKeyAnimationToken,
@@ -705,20 +724,42 @@ struct GesturesWidgetView: View {
                                 if item.id == 8 {
                                     return AnyView(GestureObjectOpenGLPreview(clipKind: .cupGrip,
                                                                               animationToken: cupGripAnimationToken,
-                                                                              editingObject: cupGripEditingObject))
+                                                                              editingObject: false))
+                                }
+                                if item.id == 9 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .boardGrip,
+                                                                              animationToken: boardGripAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 15 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .naturalPosition,
+                                                                              animationToken: naturalPositionAnimationToken,
+                                                                              editingObject: false))
                                 }
                                 return nil
                             }() : nil,
-                            onAnimationTap: item.id == 5 ? {
+                            onAnimationTap: item.id == 1 ? {
+                                fistAnimationToken &+= 1
+                            } : item.id == 2 ? {
+                                pointingAnimationToken &+= 1
+                            } : item.id == 3 ? {
+                                pinchAnimationToken &+= 1
+                            } : item.id == 5 ? {
                                 gestureKeyAnimationToken &+= 1
                                 NSLog("[GestureKeyTrace] event=buttonTap token=%d", gestureKeyAnimationToken)
                             } : item.id == 8 ? {
                                 cupGripAnimationToken &+= 1
                                 NSLog("[CupGripTrace] event=buttonTap token=%d", cupGripAnimationToken)
+                            } : item.id == 9 ? {
+                                boardGripAnimationToken &+= 1
+                                NSLog("[BoardGripTrace] event=buttonTap token=%d", boardGripAnimationToken)
+                            } : item.id == 15 ? {
+                                naturalPositionAnimationToken &+= 1
+                                NSLog("[NaturalPositionTrace] event=buttonTap token=%d", naturalPositionAnimationToken)
                             } : nil,
-                            editingKey: item.id == 8 ? cupGripEditingObject : false,
-                            editorObjectTitle: item.id == 8 ? "CUP" : "KEY",
-                            onEditorTargetTap: item.id == 8 ? { cupGripEditingObject.toggle() } : nil,
+                            editingKey: false,
+                            editorObjectTitle: item.id == 9 ? "BOARD" : "OBJECT",
+                            onEditorTargetTap: nil,
                             action: { onFactoryGestureTap(item) }
                         )
                         .aspectRatio(1, contentMode: .fit)
@@ -1364,18 +1405,38 @@ private struct GestureTile: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             if let onAnimationTap {
-                Button(action: onAnimationTap) {
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(Color.black.opacity(0.48)))
-                        .overlay(Circle().stroke(Color.white.opacity(0.22), lineWidth: 1))
+                GeometryReader { proxy in
+                    let referenceSide = min(proxy.size.width, proxy.size.height)
+                    let buttonSide = referenceSide * (36.0 / 166.0)
+                    let iconSide = referenceSide * (11.0 / 166.0)
+                    let edgeInset = referenceSide * (4.0 / 166.0)
+                    let cornerRadius = buttonSide * (10.0 / 36.0)
+
+                    Button(action: onAnimationTap) {
+                        Image("gesture_play")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: iconSide, height: iconSide)
+                            .frame(width: buttonSide, height: buttonSide)
+                            .background(
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .fill(Color("ubi4_gray"))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                    }
+                    .buttonStyle(.plain)
+                    .position(
+                        x: proxy.size.width - edgeInset - buttonSide / 2,
+                        y: edgeInset + buttonSide / 2
+                    )
+                    .accessibilityLabel("Запустить анимацию жеста")
+                    .accessibilityIdentifier("GestureKeyAnimationButton")
                 }
-                .buttonStyle(.plain)
-                .padding(8)
-                .accessibilityLabel("Запустить анимацию жеста")
-                .accessibilityIdentifier("GestureKeyAnimationButton")
             }
 
             if let onEditorTargetTap {
@@ -1401,6 +1462,11 @@ private struct GestureTile: View {
 private enum GestureObjectClipKind: Int {
     case gestureKey = 0
     case cupGrip = 1
+    case boardGrip = 2
+    case naturalPosition = 3
+    case fist = 4
+    case pointing = 5
+    case pinch = 6
 }
 
 private final class GestureKeyPreviewHostView: UIView {
@@ -1462,7 +1528,7 @@ private final class GestureKeyPreviewHostView: UIView {
         controller.useV3GestureProtocol = false
         controller.modelTestMode = true
         controller.cardPreviewMode = true
-        controller.cardPreviewEditingEnabled = clipKind == .cupGrip
+        controller.cardPreviewEditingEnabled = false
         controller.cardPreviewClipKind = clipKind.rawValue
         controller.cardPreviewSize = bounds.size
         controller.loadViewIfNeeded()
@@ -1477,7 +1543,17 @@ private final class GestureKeyPreviewHostView: UIView {
         NSLog("[GestureKeyTrace] event=rendererInstalled size=%.1fx%.1f pending=%d", bounds.width, bounds.height, pendingAnimation)
         if pendingAnimation {
             pendingAnimation = false
-            if clipKind == .cupGrip {
+            if clipKind == .pinch {
+                controller.playPinchClip()
+            } else if clipKind == .pointing {
+                controller.playPointingClip()
+            } else if clipKind == .fist {
+                controller.playFistClip()
+            } else if clipKind == .naturalPosition {
+                controller.playNaturalPositionClip()
+            } else if clipKind == .boardGrip {
+                controller.playBoardGripClip()
+            } else if clipKind == .cupGrip {
                 controller.playCupGripClip()
             } else {
                 controller.playGestureKeyClip()
@@ -1488,7 +1564,17 @@ private final class GestureKeyPreviewHostView: UIView {
     func play() {
         NSLog("[GestureKeyTrace] event=hostPlay hasRenderer=%d", rendererController != nil)
         if let rendererController {
-            if clipKind == .cupGrip {
+            if clipKind == .pinch {
+                rendererController.playPinchClip()
+            } else if clipKind == .pointing {
+                rendererController.playPointingClip()
+            } else if clipKind == .fist {
+                rendererController.playFistClip()
+            } else if clipKind == .naturalPosition {
+                rendererController.playNaturalPositionClip()
+            } else if clipKind == .boardGrip {
+                rendererController.playBoardGripClip()
+            } else if clipKind == .cupGrip {
                 rendererController.playCupGripClip()
             } else {
                 rendererController.playGestureKeyClip()

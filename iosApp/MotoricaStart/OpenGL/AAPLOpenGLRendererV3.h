@@ -28,9 +28,19 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 - (void)releaseGLResources;
 - (void)configureGestureKeyCardPreview;
 - (void)configureCupGripCardPreview;
+- (void)configureBoardGripCardPreview;
+- (void)configureNaturalPositionCardPreview;
+- (void)configureFistCardPreview;
+- (void)configurePointingCardPreview;
+- (void)configurePinchCardPreview;
 - (void)setCardPreviewEditingKey:(BOOL)editingKey;
 - (void)playGestureKeyClip;
 - (void)playCupGripClip;
+- (void)playBoardGripClip;
+- (void)playNaturalPositionClip;
+- (void)playFistClip;
+- (void)playPointingClip;
+- (void)playPinchClip;
 - (void)adjustCardPreviewScaleByFactor:(CGFloat)factor finished:(BOOL)finished;
 - (void)adjustCardPreviewRotationByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
 - (void)adjustCardPreviewPositionByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
@@ -59,6 +69,7 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 #if DEBUG
 + (NSDictionary<NSString *, id> *_Nonnull)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
 + (NSDictionary<NSString *, id> *_Nonnull)cupGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
++ (NSDictionary<NSString *, id> *_Nonnull)boardGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
 + (NSDictionary<NSString *, NSArray<NSNumber *> *> *_Nonnull)matrixSnapshotsForTestingWithHandSide:(NSInteger)handSide
                                                                                           positions:(NSArray<NSNumber *> *_Nonnull)positions;
 + (NSArray<NSNumber *> *_Nonnull)transitionPositionsForTestingFrom:(NSArray<NSNumber *> *_Nonnull)start

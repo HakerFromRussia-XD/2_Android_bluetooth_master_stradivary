@@ -58,7 +58,21 @@ void main()
     vec4 ambientColor = u_ambientFactor * diffMatColor;
     vec4 specularColor = vec4(0.9, 0.9, 1.0, 1.0) * u_lightPower * pow(max(0.0, dot(reflectLight, eyeVect)), u_specularFactor) / (1.0 + 0.25 * pow(distance, 2.0));
 
-    if (u_MaterialMode == 3) {
+    if (u_MaterialMode == 4) {
+        // Oiled wood: grain comes from baked vertex colors. Broad highlights
+        // keep the board matte instead of making it look like plastic.
+        vec3 woodNormal = normalize(usingNormal);
+        vec3 woodView = normalize(eyePosition - v_Position);
+        float woodMain = max(0.0, dot(woodNormal, lightVector));
+        float woodFill = max(0.0, dot(woodNormal, -normalize(u_MetalFillLightDirection)));
+        float woodWrap = clamp((dot(woodNormal, lightVector) + 0.30) / 1.30, 0.0, 1.0);
+        float woodFresnel = pow(1.0 - max(0.0, dot(woodNormal, woodView)), 3.0);
+        float woodLight = 0.34 + woodWrap * 0.52 + woodFill * 0.10;
+        vec3 woodColor = diffMatColor.rgb * woodLight;
+        woodColor += vec3(0.10, 0.045, 0.012) * pow(woodMain, 9.0) * 0.30;
+        woodColor *= 1.0 - woodFresnel * 0.10;
+        gl_FragColor = vec4(clamp(woodColor, 0.0, 0.78), diffMatColor.a);
+    } else if (u_MaterialMode == 3) {
         // Matte paper for collection props: preserve the baked color while
         // avoiding the sharp white response that makes the cup look plastic.
         vec3 paperNormal = normalize(usingNormal);

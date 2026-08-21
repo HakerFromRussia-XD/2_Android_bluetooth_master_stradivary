@@ -741,7 +741,17 @@ static os_log_t V3FrameLog(void) {
         }
         if (!self->_openGLRenderer) return;
         if (self.cardPreviewMode && self.useV3Mode) {
-            if (self.cardPreviewClipKind == 1) {
+            if (self.cardPreviewClipKind == 6) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configurePinchCardPreview];
+            } else if (self.cardPreviewClipKind == 5) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configurePointingCardPreview];
+            } else if (self.cardPreviewClipKind == 4) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureFistCardPreview];
+            } else if (self.cardPreviewClipKind == 3) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureNaturalPositionCardPreview];
+            } else if (self.cardPreviewClipKind == 2) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureBoardGripCardPreview];
+            } else if (self.cardPreviewClipKind == 1) {
                 [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureCupGripCardPreview];
             } else {
                 [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureGestureKeyCardPreview];
@@ -894,6 +904,40 @@ static os_log_t V3FrameLog(void) {
     }];
     [self requestV3Frame];
 }
+
+- (void)playBoardGripClip {
+    NSLog(@"[BoardGripTrace] event=controllerPlay hasRenderer=%d useV3=%d stop=%d", _openGLRenderer != nil, self.useV3Mode, _stop);
+    if (!self.useV3Mode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playBoardGripClip];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)playNaturalPositionClip {
+    NSLog(@"[NaturalPositionTrace] event=controllerPlay hasRenderer=%d useV3=%d stop=%d", _openGLRenderer != nil, self.useV3Mode, _stop);
+    if (!self.useV3Mode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playNaturalPositionClip];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)v3PlayFixedHandClip:(SEL)selector {
+    if (!self.useV3Mode || _openGLRenderer == nil) return;
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        IMP implementation = [self->_openGLRenderer methodForSelector:selector];
+        ((void (*)(id, SEL))implementation)(self->_openGLRenderer, selector);
+    }];
+    [self requestV3Frame];
+}
+
+- (void)playFistClip { [self v3PlayFixedHandClip:@selector(playFistClip)]; }
+- (void)playPointingClip { [self v3PlayFixedHandClip:@selector(playPointingClip)]; }
+- (void)playPinchClip { [self v3PlayFixedHandClip:@selector(playPinchClip)]; }
 
 - (void)stopCardPreview {
     if (!_stop) [self stopRendererSavingData:NO];

@@ -118,6 +118,24 @@ static NSString *const GestureSettingsUITestGesture70Payload =
      "\"closeToOpenTimeShift1\":0,\"closeToOpenTimeShift2\":0,\"closeToOpenTimeShift3\":0,\"closeToOpenTimeShift4\":0,\"closeToOpenTimeShift5\":0,\"closeToOpenTimeShift6\":0}";
 static const void *V3RenderQueueSpecificKey = &V3RenderQueueSpecificKey;
 
+// All collection previews share one EAGLSharegroup.  Rendering them on a
+// separate serial queue per card still allows concurrent GL calls against the
+// shared objects, which leaves a nondeterministic subset of the first-frame
+// deformable meshes in a stale buffer.  Keep the sharegroup access serialized
+// for the whole process instead.
+static dispatch_queue_t V3SharedRenderQueue(void) {
+    static dispatch_queue_t queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = dispatch_queue_create("com.bailout.stickk.v3-render.shared", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(queue,
+                                    V3RenderQueueSpecificKey,
+                                    (void *)V3RenderQueueSpecificKey,
+                                    NULL);
+    });
+    return queue;
+}
+
 static os_log_t V3FrameLog(void) {
     static os_log_t log;
     static dispatch_once_t onceToken;
@@ -632,11 +650,7 @@ static os_log_t V3FrameLog(void) {
         self.view.multipleTouchEnabled = YES;
     }
     if (self.useV3Mode) {
-        _v3RenderQueue = dispatch_queue_create("com.bailout.stickk.v3-render", DISPATCH_QUEUE_SERIAL);
-        dispatch_queue_set_specific(_v3RenderQueue,
-                                    V3RenderQueueSpecificKey,
-                                    (void *)V3RenderQueueSpecificKey,
-                                    NULL);
+        _v3RenderQueue = V3SharedRenderQueue();
         _v3FramePending = NO;
         _v3TouchActive = NO;
         _v3GestureSettingsReady = NO;
@@ -741,7 +755,9 @@ static os_log_t V3FrameLog(void) {
         }
         if (!self->_openGLRenderer) return;
         if (self.cardPreviewMode && self.useV3Mode) {
-            if (self.cardPreviewClipKind == 6) {
+            if (self.cardPreviewClipKind >= 7) {
+                [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureAdditionalFixedCardPreview:self.cardPreviewClipKind];
+            } else if (self.cardPreviewClipKind == 6) {
                 [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configurePinchCardPreview];
             } else if (self.cardPreviewClipKind == 5) {
                 [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configurePointingCardPreview];
@@ -938,6 +954,12 @@ static os_log_t V3FrameLog(void) {
 - (void)playFistClip { [self v3PlayFixedHandClip:@selector(playFistClip)]; }
 - (void)playPointingClip { [self v3PlayFixedHandClip:@selector(playPointingClip)]; }
 - (void)playPinchClip { [self v3PlayFixedHandClip:@selector(playPinchClip)]; }
+- (void)configureAdditionalFixedCardPreview:(NSInteger)kind { [(AAPLOpenGLRendererV3 *)self->_openGLRenderer configureAdditionalFixedCardPreview:kind]; }
+- (void)playAdditionalFixedClip:(NSInteger)kind {
+    if (!self.useV3Mode || !_openGLRenderer) return;
+    [self performV3RenderAsync:^{ [(AAPLOpenGLRendererV3 *)self->_openGLRenderer playAdditionalFixedClip:kind]; }];
+    [self requestV3Frame];
+}
 
 - (void)stopCardPreview {
     if (!_stop) [self stopRendererSavingData:NO];

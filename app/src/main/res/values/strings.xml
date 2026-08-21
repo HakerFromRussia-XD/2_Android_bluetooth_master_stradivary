@@ -619,7 +619,7 @@
     <string name="gesture_ok">OK</string>
     <string name="gesture_thumb_up">Thumbs Up</string>
     <string name="gesture_middle_finger">Middle Finger</string>
-    <string name="gesture_double_point">Pistol</string>
+    <string name="gesture_double_point">Pinch 2</string>
     <string name="gesture_call_me">Call Me</string>
     <string name="gesture_natural_position">Natural Position</string>
     <string name="pwle_unknow">unknow</string>

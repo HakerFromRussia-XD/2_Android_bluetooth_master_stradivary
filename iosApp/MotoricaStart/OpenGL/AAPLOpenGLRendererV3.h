@@ -41,6 +41,8 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 - (void)playFistClip;
 - (void)playPointingClip;
 - (void)playPinchClip;
+- (void)configureAdditionalFixedCardPreview:(NSInteger)kind;
+- (void)playAdditionalFixedClip:(NSInteger)kind;
 - (void)adjustCardPreviewScaleByFactor:(CGFloat)factor finished:(BOOL)finished;
 - (void)adjustCardPreviewRotationByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
 - (void)adjustCardPreviewPositionByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;

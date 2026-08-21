@@ -35,6 +35,8 @@ Header for the cross-platform view controller and cross-platform view that displ
 - (void)playFistClip;
 - (void)playPointingClip;
 - (void)playPinchClip;
+- (void)configureAdditionalFixedCardPreview:(NSInteger)kind;
+- (void)playAdditionalFixedClip:(NSInteger)kind;
 - (void)setCardPreviewEditingKey:(BOOL)editingKey;
 - (void)stopCardPreview;
 

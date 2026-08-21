@@ -16,6 +16,10 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 #import <CoreData/CoreData.h>
 #import <QuartzCore/QuartzCore.h>
 #import <os/log.h>
+
+#ifndef V3_VERBOSE_FRAME_LOGGING
+#define V3_VERBOSE_FRAME_LOGGING 0
+#endif
 #import <os/signpost.h>
 #import <simd/simd.h>
 #import "MotoricaStart-Swift.h"
@@ -155,6 +159,7 @@ struct V3RendererState {
     std::array<float, kV3FingerCount> positions{};
     std::vector<std::vector<float>> dynamicVertices;
     std::vector<std::unique_ptr<VolumeRodDeformer>> volumeRodDeformers;
+    std::unordered_map<const ModelPart *, GLuint> dynamicBuffers;
     V3TransitionState transition;
     V3GestureObjectState gestureObject;
     CGSize size = CGSizeZero;
@@ -352,35 +357,57 @@ static NSDictionary<NSString *, id> *V3NaturalPositionClipSample(double millisec
     };
 }
 
+static NSDictionary<NSString *, id> *V3FixedHandClipSampleWithDelays(
+    double milliseconds,
+    const std::array<float, 6> &start,
+    const std::array<float, 6> &target,
+    const std::array<double, 6> &openToCloseDelays,
+    const std::array<double, 6> &closeToOpenDelays);
+
 static NSDictionary<NSString *, id> *V3FixedHandClipSample(
     double milliseconds,
     const std::array<float, 6> &start,
     const std::array<float, 6> &target) {
-    double t = std::max(0.0, std::min(900.0, milliseconds));
-    float progress = t <= 300.0 ? static_cast<float>(t / 300.0)
-        : (t <= 600.0 ? 1.0f : static_cast<float>(1.0 - (t - 600.0) / 300.0));
+    return V3FixedHandClipSampleWithDelays(milliseconds, start, target,
+        {0,0,0,0,0,0}, {0,0,0,0,0,0});
+}
+
+static NSDictionary<NSString *, id> *V3FixedHandClipSampleWithDelays(
+    double milliseconds,
+    const std::array<float, 6> &start,
+    const std::array<float, 6> &target,
+    const std::array<double, 6> &openToCloseDelays,
+    const std::array<double, 6> &closeToOpenDelays) {
+    double t = std::max(0.0, std::min(1200.0, milliseconds));
+    double completionMs = 900.0;
+    for (int index = 0; index < 6; ++index) {
+        completionMs = std::max(completionMs, 900.0 + closeToOpenDelays[index] * 10.0);
+    }
     NSMutableArray<NSNumber *> *fingers = [NSMutableArray arrayWithCapacity:6];
     for (int index = 0; index < 6; ++index) {
+        double closeProgress = V3Clamp(static_cast<float>((t - openToCloseDelays[index] * 10.0) / 300.0), 0.0f, 1.0f);
+        double openProgress = V3Clamp(static_cast<float>((t - 600.0 - closeToOpenDelays[index] * 10.0) / 300.0), 0.0f, 1.0f);
+        float progress = t < 600.0 ? static_cast<float>(closeProgress) : static_cast<float>(1.0 - openProgress);
         [fingers addObject:@(V3Linear(start[index], target[index], progress))];
     }
     return @{
         @"fingers": [fingers copy],
         @"hand": @[@0, @0, @0, @0, @0, @0, @1],
         @"object": @[@0, @0, @0, @0, @0, @0, @1],
-        @"complete": @(t >= 900.0)
+        @"complete": @(t >= completionMs)
     };
 }
 
 static NSDictionary<NSString *, id> *V3FistClipSample(double milliseconds) {
-    return V3FixedHandClipSample(milliseconds,
-        {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+    return V3FixedHandClipSampleWithDelays(milliseconds,
+        {100,100,100,100,100,0}, {0,0,0,0,0,0},
+        {15,15,15,15,0,0}, {0,0,0,0,15,0});
 }
 
 static NSDictionary<NSString *, id> *V3PointingClipSample(double milliseconds) {
     // Internal order: little, ring, middle, index, thumb flex, thumb rotation.
     return V3FixedHandClipSample(milliseconds,
-        {100.0f, 100.0f, 100.0f, 0.0f, 60.0f, 67.0f},
+        {100.0f, 100.0f, 100.0f, 0.0f, 100.0f, 0.0f},
         {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f});
 }
 
@@ -391,19 +418,26 @@ static NSDictionary<NSString *, id> *V3PinchClipSample(double milliseconds) {
 }
 
 static NSDictionary<NSString *, id> *V3AdditionalFixedClipSample(double milliseconds, const float start[6], const float target[6]) {
-    return V3FixedHandClipSample(milliseconds, start, target);
+    return V3FixedHandClipSample(milliseconds,
+        std::array<float, 6>{start[0], start[1], start[2], start[3], start[4], start[5]},
+        std::array<float, 6>{target[0], target[1], target[2], target[3], target[4], target[5]});
 }
 
 static NSDictionary<NSString *, id> *V3ExtraClipSample(V3CardClip clip, double ms) {
     const float *s = nullptr; const float *t = nullptr;
     static const float fist2s[] = {100,100,100,100,100,100}, fist2t[] = {0,0,0,0,0,100};
     static const float goats[] = {0,100,100,0,60,67}, goatst[] = {0,0,0,0,100,0};
-    static const float tweezerss[] = {100,100,100,50,75,0}, tweezerst[] = {0,0,0,0,0,0};
-    static const float oks[] = {0,0,0,50,75,0}, okt[] = {0,0,0,0,0,0};
-    static const float classics[] = {100,100,100,100,100,100}, classict[] = {100,100,100,100,0,100};
-    static const float pinch2s[] = {100,100,0,0,0,0}, pinch2t[] = {100,100,55,50,75,0};
-    static const float calls[] = {0,100,100,100,0,100}, callt[] = {100,100,100,100,100,100};
-    switch (clip) { case V3CardClip::fist2:s=fist2s;t=fist2t;break; case V3CardClip::goat:s=goats;t=goatst;break; case V3CardClip::tweezers:s=tweezerss;t=tweezerst;break; case V3CardClip::ok:s=oks;t=okt;break; case V3CardClip::classic:s=classics;t=classict;break; case V3CardClip::pinch2:s=pinch2s;t=pinch2t;break; case V3CardClip::callMe:s=calls;t=callt;break; default: return V3GestureKeyClipSample(ms); }
+    static const float tweezerss[] = {100,100,100,50,75,100}, tweezerst[] = {100,100,100,0,75,100};
+    static const float oks[] = {0,0,0,50,75,100}, okt[] = {0,0,0,0,0,100};
+    static const float classics[] = {100,100,100,100,100,0}, classict[] = {100,100,100,100,0,0};
+    static const float pinch2s[] = {100,100,0,0,75,100}, pinch2t[] = {100,100,55,50,75,100};
+    static const float calls[] = {0,100,100,100,0,0}, callt[] = {100,100,100,100,100,0};
+    if (clip == V3CardClip::fist2) {
+        return V3FixedHandClipSampleWithDelays(ms,
+            {100,100,100,100,100,100}, {0,0,0,0,0,100},
+            {10,10,10,10,0,0}, {0,0,0,0,10,0});
+    }
+    switch (clip) { case V3CardClip::goat:s=goats;t=goatst;break; case V3CardClip::tweezers:s=tweezerss;t=tweezerst;break; case V3CardClip::ok:s=oks;t=okt;break; case V3CardClip::classic:s=classics;t=classict;break; case V3CardClip::pinch2:s=pinch2s;t=pinch2t;break; case V3CardClip::callMe:s=calls;t=callt;break; default: return V3GestureKeyClipSample(ms); }
     return V3AdditionalFixedClipSample(ms, s, t);
 }
 
@@ -535,8 +569,18 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->volumeRodDeformers.resize(_v3->resources->parts.size());
     for (size_t index = 0; index < _v3->resources->parts.size(); ++index) {
         ModelPart &part = _v3->resources->parts[index];
+        if (part.deformation) {
+            NSLog(@"[V3PartInit] index=%zu id=%s dynamic=%d vertices=%zu deformation=%d vertexBuffer=%u",
+                  index, part.id.c_str(), part.dynamic ? 1 : 0, part.vertexCount(),
+                  part.deformation ? 1 : 0, part.vertexBuffer);
+        }
         if (part.dynamic) {
             _v3->dynamicVertices[index] = part.vertices;
+            GLuint buffer = 0;
+            glGenBuffers(1, &buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(part.vertices.size() * sizeof(float)), part.vertices.data(), GL_DYNAMIC_DRAW);
+            _v3->dynamicBuffers.emplace(&part, buffer);
         }
         if (part.deformation && part.deformation->kind == DeformationKind::volumeRod) {
             std::unique_ptr<VolumeRodDeformer> deformer(new VolumeRodDeformer(part));
@@ -619,6 +663,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)configureGestureKeyCardPreview {
     if (!_v3) return;
+    _v3->firstFrameRendered = false;
+    _v3->bindCaptured = false;
+    _v3->transition.active = false;
+    _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     if (!_v3->gestureObject.cardRotationInitialized) {
         // Approved Gesture Key card calibration captured on the real iPhone.
@@ -641,6 +689,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)configureCupGripCardPreview {
     if (!_v3) return;
+    _v3->firstFrameRendered = false;
+    _v3->bindCaptured = false;
+    _v3->transition.active = false;
+    _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::cupGrip;
     if (!_v3->gestureObject.cardRotationInitialized) {
@@ -741,6 +793,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)configureBoardGripCardPreview {
     if (!_v3) return;
+    _v3->firstFrameRendered = false;
+    _v3->bindCaptured = false;
+    _v3->transition.active = false;
+    _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::boardGrip;
     // Board Grip is approved and must always start from its own calibration.
@@ -767,6 +823,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)configureNaturalPositionCardPreview {
     if (!_v3) return;
+    _v3->firstFrameRendered = false;
+    _v3->bindCaptured = false;
+    _v3->transition.active = false;
+    _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::naturalPosition;
     _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.13039173f, 0.98521471f, -0.11089332f, 0.0f};
@@ -787,6 +847,14 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)v3ConfigureFixedHandCardPreview:(V3CardClip)clip {
     if (!_v3) return;
+    // A renderer can be reused by a recycled collection cell.  Treat every
+    // configuration as a fresh preview: otherwise the first frame keeps the
+    // previous cell's captured bind pose/animation state and parts can appear
+    // at stale (or uninitialised) transforms until the next interaction.
+    _v3->firstFrameRendered = false;
+    _v3->bindCaptured = false;
+    _v3->transition.active = false;
+    _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = clip;
     _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.13039173f, 0.98521471f, -0.11089332f, 0.0f};
@@ -797,6 +865,18 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.cardScale = 1.29046917f;
     _v3->gestureObject.cardPositionX = -25.50000381f;
     _v3->gestureObject.cardPositionY = -1.32666779f;
+    // Thumbs Up was calibrated directly in the card editor.  Keep this
+    // approved pose as its immutable preview baseline rather than falling
+    // back to the shared Natural Position transform.
+    if (clip == V3CardClip::classic) {
+        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.91219f, -0.07417f,  0.40292f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.40968f,  0.16607f, -0.89694f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.00039f, -0.98330f, -0.18187f, 0.0f};
+        _v3->gestureObject.cardRotationMatrix.columns[3] = { 0.0f,      0.0f,      0.0f,     1.0f};
+        _v3->gestureObject.cardScale = 1.324f;
+        _v3->gestureObject.cardPositionX = -31.25f;
+        _v3->gestureObject.cardPositionY = -45.91f;
+    }
     [self v3ApplyCardEditorTransform];
     _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
                                           (vector_float3){0.0f, 0.0f, 0.0f},
@@ -804,9 +884,25 @@ static int V3SelectionCodeForInfluence(int influence) {
     if (clip == V3CardClip::fist) {
         _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
     } else if (clip == V3CardClip::pointing) {
-        _v3->positions = {100.0f, 100.0f, 100.0f, 0.0f, 60.0f, 67.0f};
+        _v3->positions = {100.0f, 100.0f, 100.0f, 0.0f, 100.0f, 0.0f};
+    } else if (clip == V3CardClip::fist2) {
+        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
+    } else if (clip == V3CardClip::goat) {
+        _v3->positions = {0.0f, 100.0f, 100.0f, 0.0f, 60.0f, 67.0f};
+    } else if (clip == V3CardClip::tweezers) {
+        _v3->positions = {100.0f, 100.0f, 100.0f, 50.0f, 75.0f, 100.0f};
+    } else if (clip == V3CardClip::ok) {
+        _v3->positions = {0.0f, 0.0f, 0.0f, 50.0f, 75.0f, 100.0f};
+    } else if (clip == V3CardClip::classic) {
+        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
+    } else if (clip == V3CardClip::pinch2) {
+        _v3->positions = {100.0f, 100.0f, 0.0f, 0.0f, 75.0f, 100.0f};
+    } else if (clip == V3CardClip::callMe) {
+        _v3->positions = {0.0f, 100.0f, 100.0f, 100.0f, 0.0f, 0.0f};
+    } else if (clip == V3CardClip::pinch) {
+        _v3->positions = {0.0f, 0.0f, 55.0f, 50.0f, 75.0f, 100.0f};
     } else {
-        _v3->positions = {0.0f, 0.0f, 50.0f, 50.0f, 60.0f, 100.0f};
+        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
     }
     _v3->deformationDirty = true;
 }
@@ -814,6 +910,11 @@ static int V3SelectionCodeForInfluence(int influence) {
 - (void)configureFistCardPreview { [self v3ConfigureFixedHandCardPreview:V3CardClip::fist]; }
 - (void)configurePointingCardPreview { [self v3ConfigureFixedHandCardPreview:V3CardClip::pointing]; }
 - (void)configurePinchCardPreview { [self v3ConfigureFixedHandCardPreview:V3CardClip::pinch]; }
+
+- (void)configureAdditionalFixedCardPreview:(NSInteger)kind {
+    V3CardClip clip = static_cast<V3CardClip>(kind);
+    [self v3ConfigureFixedHandCardPreview:clip];
+}
 
 - (void)v3ApplyCardEditorTransform {
     if (!_v3 || !_v3->gestureObject.cardMode) return;
@@ -994,6 +1095,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 - (void)playFistClip { [self v3PlayFixedHandClipNamed:@"fist"]; }
 - (void)playPointingClip { [self v3PlayFixedHandClipNamed:@"pointing"]; }
 - (void)playPinchClip { [self v3PlayFixedHandClipNamed:@"pinch"]; }
+- (void)playAdditionalFixedClip:(NSInteger)kind { [self v3PlayFixedHandClipNamed:[NSString stringWithFormat:@"extra-%ld", (long)kind]]; }
 
 #if DEBUG
 + (NSDictionary<NSString *, id> *)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds {
@@ -1304,15 +1406,23 @@ static int V3SelectionCodeForInfluence(int influence) {
         } else {
             [self v3UpdateLinearPart:part target:target];
         }
-        glBindBuffer(GL_ARRAY_BUFFER, part.vertexBuffer);
+        GLuint buffer = part.vertexBuffer;
+        auto dynamicBuffer = _v3->dynamicBuffers.find(&part);
+        if (dynamicBuffer != _v3->dynamicBuffers.end()) buffer = dynamicBuffer->second;
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferSubData(GL_ARRAY_BUFFER,
                         0,
                         static_cast<GLsizeiptr>(target.size() * sizeof(float)),
                         target.data());
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (_v3->gestureObject.cardMode && !_v3->firstFrameRendered) {
+        glFinish();
+    }
     _v3->deformationDirty = false;
+#if V3_VERBOSE_FRAME_LOGGING
     NSLog(@"[V3Metrics] deformationMs=%.3f", (CACurrentMediaTime() - startedAt) * 1000.0);
+#endif
 }
 
 - (void)v3ApplyMaterial:(V3Material)material
@@ -1393,7 +1503,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)v3BindAttributesForPart:(const ModelPart &)part
                       locations:(const V3ProgramLocations &)locations {
-    glBindBuffer(GL_ARRAY_BUFFER, part.vertexBuffer);
+    GLuint buffer = part.vertexBuffer;
+    auto dynamicBuffer = _v3->dynamicBuffers.find(&part);
+    if (dynamicBuffer != _v3->dynamicBuffers.end()) buffer = dynamicBuffer->second;
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
     if (locations.position >= 0) {
         glVertexAttribPointer(locations.position, 3, GL_FLOAT, GL_FALSE, kV3VertexStride, reinterpret_cast<const GLvoid *>(0));
         glEnableVertexAttribArray(locations.position);
@@ -1640,15 +1753,33 @@ static int V3SelectionCodeForInfluence(int influence) {
 - (void)v3Draw {
     if (!_v3 || !_v3->resources) return;
     [self v3SynchronizeHandSideFromProvider];
+    if (_v3->gestureObject.cardMode && !_v3->firstFrameRendered) {
+        switch (_v3->gestureObject.cardClip) {
+            case V3CardClip::fist: _v3->positions = {100,100,100,100,100,0}; break;
+            case V3CardClip::pointing: _v3->positions = {100,100,100,0,100,0}; break;
+            case V3CardClip::pinch: _v3->positions = {0,0,55,50,75,100}; break;
+            case V3CardClip::fist2: _v3->positions = {100,100,100,100,100,100}; break;
+            case V3CardClip::goat: _v3->positions = {0,100,100,0,60,67}; break;
+            case V3CardClip::tweezers: _v3->positions = {100,100,100,50,75,100}; break;
+            case V3CardClip::ok: _v3->positions = {0,0,0,50,75,100}; break;
+            case V3CardClip::classic: _v3->positions = {100,100,100,100,100,0}; break;
+            case V3CardClip::pinch2: _v3->positions = {100,100,0,0,75,100}; break;
+            case V3CardClip::callMe: _v3->positions = {0,100,100,100,0,0}; break;
+            default: break;
+        }
+        _v3->deformationDirty = true;
+    }
     CFTimeInterval now = CACurrentMediaTime();
     [self v3AdvanceTransitionAtTime:now];
     if (_v3->gestureObject.clipActive) {
         static int gestureKeyFrameLogCounter = 0;
-        if ((gestureKeyFrameLogCounter++ % 30) == 0) {
+        if (V3_VERBOSE_FRAME_LOGGING && (gestureKeyFrameLogCounter++ % 30) == 0) {
             NSLog(@"[GestureKeyTrace] event=clipFrame elapsedMs=%.1f", (now - _v3->gestureObject.clipStartedAt) * 1000.0);
         }
         double elapsedMs = (now - _v3->gestureObject.clipStartedAt) * 1000.0;
-        NSDictionary<NSString *, id> *sample = _v3->gestureObject.cardClip == V3CardClip::cupGrip
+        NSDictionary<NSString *, id> *sample = (_v3->gestureObject.cardClip >= V3CardClip::fist2)
+            ? V3ExtraClipSample(_v3->gestureObject.cardClip, elapsedMs)
+            : (_v3->gestureObject.cardClip == V3CardClip::cupGrip
             ? V3CupGripClipSample(elapsedMs)
             : (_v3->gestureObject.cardClip == V3CardClip::boardGrip
                 ? V3BoardGripClipSample(elapsedMs)
@@ -1660,7 +1791,7 @@ static int V3SelectionCodeForInfluence(int influence) {
                             ? V3PointingClipSample(elapsedMs)
                             : (_v3->gestureObject.cardClip == V3CardClip::pinch
                                 ? V3PinchClipSample(elapsedMs)
-                                : V3GestureKeyClipSample(elapsedMs))))));
+                                : V3GestureKeyClipSample(elapsedMs)))))));
         NSArray<NSNumber *> *fingers = sample[@"fingers"];
         if (_v3->gestureObject.cardClip != V3CardClip::gestureKey) {
             _v3->positions = {fingers[0].floatValue, fingers[1].floatValue,
@@ -2115,6 +2246,10 @@ static int V3SelectionCodeForInfluence(int influence) {
 }
 - (void)releaseGLResources {
     if (!_v3) return;
+    for (auto &entry : _v3->dynamicBuffers) {
+        if (entry.second) glDeleteBuffers(1, &entry.second);
+    }
+    _v3->dynamicBuffers.clear();
     if (_v3->gestureObject.vertexBuffer) glDeleteBuffers(1, &_v3->gestureObject.vertexBuffer);
     if (_v3->pickingTexture) glDeleteTextures(1, &_v3->pickingTexture);
     if (_v3->pickingDepth) glDeleteRenderbuffers(1, &_v3->pickingDepth);

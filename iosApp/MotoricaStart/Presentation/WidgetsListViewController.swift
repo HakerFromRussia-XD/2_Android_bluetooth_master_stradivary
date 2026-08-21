@@ -792,7 +792,7 @@ private extension WidgetsListViewController {
         case 12:
             return SharedLocalizedText.text(SharedRes.strings().gesture_middle_finger)
         case 13:
-            return SharedLocalizedText.text(SharedRes.strings().gesture_double_point)
+            return Locale.current.language.languageCode?.identifier == "ru" ? "Щёпоть 2" : "Pinch 2"
         case 14:
             return SharedLocalizedText.text(SharedRes.strings().gesture_call_me)
         case 15:

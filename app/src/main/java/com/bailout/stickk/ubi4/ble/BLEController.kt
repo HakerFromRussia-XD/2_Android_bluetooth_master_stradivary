@@ -47,7 +47,6 @@ import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
-import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
@@ -56,9 +55,7 @@ import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.models.device.GlobalFingerPositionInitPolicyV3
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
@@ -259,7 +256,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
-                                ParameterStoreV3.clear()
                                 if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
                                     mBLEParserV3?.generatedHardcodeWidgetsINDY3()
                                 } else {
@@ -935,10 +931,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     private fun buildV3InitRequests(): List<V3InitRequest> {
-        val getDeviceNamePacket = WidgetCommandBridgeV3.buildReadRequest(
-            DEVICE_INFORMATION.number.toInt(),
-            SET_DEVICE_NAME.number
-        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_DEVICE_NAME.number)
         val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
             DEVICE_INFORMATION.number.toInt(),
             SET_SERIAL_NUMBER.number
@@ -1029,11 +1021,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
             ),
             V3InitRequest(
-                packet = getDeviceNamePacket,
-                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
-                expectedResponseSubcommand = GET_DEVICE_NAME.number
-            ),
-            V3InitRequest(
                 packet = getSerialNumberPacket,
                 expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
                 expectedResponseSubcommand = GET_SERIAL_NUMBER.number
@@ -1050,10 +1037,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     private fun buildINDY3InitRequests(): List<V3InitRequest> {
-        val getDeviceNamePacket = WidgetCommandBridgeV3.buildReadRequest(
-            DEVICE_INFORMATION.number.toInt(),
-            SET_DEVICE_NAME.number
-        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_DEVICE_NAME.number)
         val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
             DEVICE_INFORMATION.number.toInt(),
             SET_SERIAL_NUMBER.number
@@ -1104,11 +1087,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_FORCE_SETTINGS.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
-            ),
-            V3InitRequest(
-                packet = getDeviceNamePacket,
-                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
-                expectedResponseSubcommand = GET_DEVICE_NAME.number
             ),
             V3InitRequest(
                 packet = getSerialNumberPacket,

@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import kotlinx.coroutines.CoroutineScope
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
@@ -41,7 +40,6 @@ object UiStateBridge {
         }
 
     fun resetWidgetsState() {
-        ParameterStoreV3.clear()
         UiState.listWidgets.clear()
         UiState.resetWidgetRequests()
 //        UiState.widgetsLoadingProgressTotal = 0

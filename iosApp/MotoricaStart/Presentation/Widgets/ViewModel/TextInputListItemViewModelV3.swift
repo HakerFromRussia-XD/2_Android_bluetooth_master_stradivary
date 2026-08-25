@@ -2,7 +2,7 @@ import Foundation
 import shared
 
 struct TextInputListItemViewModelV3: Equatable, Hashable {
-    static let maxInputBytesWithoutPrefix = TextInputNameLimitV3.maxBytes
+    static let maxInputBytesWithoutPrefix = 13
 
     private let identifier: String
     let title: String
@@ -32,16 +32,12 @@ extension TextInputListItemViewModelV3 {
         self.buttonTitle = split.buttonTitle
     }
 
-    func sendInput(_ input: String, currentFullName: String?) -> String? {
+    func sendInput(_ input: String) -> String? {
         guard let binding else { return nil }
         let cleaned = trimToByteLimit(input.trimmingCharacters(in: .whitespacesAndNewlines))
         guard !cleaned.isEmpty else { return nil }
-        let resolvedCurrentFullName = resolveCurrentFullName(fallback: currentFullName)
 
-        guard let transportName = DeviceNameBridgeV3.shared.transportName(
-            rawName: cleaned,
-            currentFullName: resolvedCurrentFullName
-        ) else { return nil }
+        let transportName = DeviceNameBridgeV3.shared.applyPrefixForTransport(rawName: cleaned)
         guard let data = WidgetCommandBridgeV3.shared.buildSetText(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
@@ -49,29 +45,8 @@ extension TextInputListItemViewModelV3 {
             text: transportName
         ) else { return nil }
 
-        NSLog(
-            "[DeviceNameV3] TX current=\"%@\" input=\"%@\" transport=\"%@\"",
-            resolvedCurrentFullName ?? "nil",
-            cleaned,
-            transportName
-        )
-        WidgetStateBridgeV3.shared.setTextValue(
-            addressDevice: Int32(binding.deviceAddress),
-            parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode),
-            value: transportName
-        )
         sendBytes(data)
         return transportName
-    }
-
-    func resolveCurrentFullName(fallback: String?) -> String? {
-        guard let binding else { return fallback?.nilIfBlank }
-        return WidgetStateBridgeV3.shared.getTextValue(
-            addressDevice: Int32(binding.deviceAddress),
-            parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode)
-        ) ?? fallback?.nilIfBlank
     }
 
     func prefillDisplayName(storedFullName: String?) -> String {
@@ -79,11 +54,23 @@ extension TextInputListItemViewModelV3 {
     }
 
     func trimToByteLimit(_ value: String) -> String {
-        TextInputNameLimitV3.trimToLimit(value)
+        trimToUtf8ByteLimit(value, maxBytes: Self.maxInputBytesWithoutPrefix)
     }
 
     func isWithinLimit(_ value: String) -> Bool {
         value.utf8.count <= Self.maxInputBytesWithoutPrefix
+    }
+
+    private func trimToUtf8ByteLimit(_ value: String, maxBytes: Int) -> String {
+        var result = ""
+        for scalar in value {
+            let candidate = result + String(scalar)
+            if candidate.utf8.count > maxBytes {
+                break
+            }
+            result = candidate
+        }
+        return result
     }
 
     private func sendBytes(_ data: KotlinByteArray) {
@@ -103,12 +90,5 @@ extension TextInputListItemViewModelV3 {
 
     static func == (lhs: TextInputListItemViewModelV3, rhs: TextInputListItemViewModelV3) -> Bool {
         lhs.identifier == rhs.identifier && lhs.title == rhs.title
-    }
-}
-
-private extension String {
-    var nilIfBlank: String? {
-        let normalized = trimmingCharacters(in: .whitespacesAndNewlines)
-        return normalized.isEmpty ? nil : normalized
     }
 }

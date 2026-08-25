@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.data.parser
 
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
@@ -10,7 +9,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,18 +56,6 @@ class WidgetResponseRoutesV3Test {
 
         assertNotNull(route)
         assertEquals(P_KEY_SET_SERIAL_NUMBER, route.parameterKey)
-        assertEquals(WidgetEmitTargetV3.NO_UI, route.emitTarget)
-    }
-
-    @Test
-    fun `device name response should be stored without ui emit`() {
-        val route = WidgetResponseRoutesV3.find(
-            command = DEVICE_INFORMATION.number.toInt(),
-            responseSubcommand = GET_DEVICE_NAME.number
-        )
-
-        assertNotNull(route)
-        assertEquals(P_KEY_SET_DEVICE_NAME, route.parameterKey)
         assertEquals(WidgetEmitTargetV3.NO_UI, route.emitTarget)
     }
 }

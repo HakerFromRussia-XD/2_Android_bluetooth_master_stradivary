@@ -7,8 +7,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 
 /**
  * V3 device-name display/transport rules.
- * UI shows the editable part, while transport preserves the prefix mode of the
- * current full device name.
+ * UI can show stripped name, while storage/transport keeps full name.
  */
 object DeviceNameBridgeV3 {
     private val defaultPrefix = ConstantManagerUBI4.DEVICE_NAME_PREFIX
@@ -22,20 +21,15 @@ object DeviceNameBridgeV3 {
         return normalized.substring(prefix.length)
     }
 
-    fun transportName(rawName: String?, currentFullName: String?): String? {
+    fun applyPrefixForTransport(rawName: String?): String {
         val normalized = rawName?.trim().orEmpty()
+        val prefix = activeTransportPrefix()
+        if (normalized.isEmpty()) return prefix
         val enteredPrefix = DeviceSerialClassifier.v3TransportPrefix(normalized)
-        val editableName = enteredPrefix
+        val normalizedSuffix = enteredPrefix
             ?.let { normalized.substring(it.length) }
             ?: normalized.removePrefix("-")
-        val normalizedEditableName = editableName.removePrefix("-").trim()
-        if (normalizedEditableName.isEmpty()) return null
-
-        return if (hasTransportPrefix(currentFullName)) {
-            activeTransportPrefix() + normalizedEditableName
-        } else {
-            normalizedEditableName
-        }
+        return prefix + normalizedSuffix.removePrefix("-")
     }
 
     fun hasTransportPrefix(deviceName: String?): Boolean {

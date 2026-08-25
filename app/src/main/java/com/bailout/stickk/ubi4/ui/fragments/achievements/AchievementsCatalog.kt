@@ -129,10 +129,28 @@ object AchievementsCatalog {
             AchievementStageUiModel(AchievementTier.SILVER, silverRes),
             AchievementStageUiModel(AchievementTier.GOLD, goldRes)
         ),
-        iconRes = R.drawable.trophy,
+        iconRes = iconRes(id),
         progress = AchievementProgressCalculator.calculate(
             currentValue = 0L,
             definition = AchievementDefinitions[id]
         )
     )
+
+    private fun iconRes(id: AchievementId): Int = when (id) {
+        AchievementId.BIONIC -> R.drawable.ic_achievement_bionic
+        AchievementId.CYBORG -> R.drawable.ic_achievement_cyborg
+        AchievementId.STREAK -> R.drawable.ic_achievement_streak
+        AchievementId.LONG_HAUL -> R.drawable.ic_achievement_long_haul
+        AchievementId.SCIENTIST -> R.drawable.ic_achievement_scientist
+        AchievementId.DAILY_CHALLENGE -> R.drawable.ic_achievement_daily_challenge
+        AchievementId.PRECISION -> R.drawable.ic_achievement_precision
+        AchievementId.POWER -> R.drawable.ic_achievement_power
+        AchievementId.GET_A_GRIP -> R.drawable.ic_achievement_get_a_grip
+        AchievementId.ALTER_EGO -> R.drawable.ic_achievement_alter_ego
+        AchievementId.ANNIVERSARY -> R.drawable.ic_achievement_anniversary
+        AchievementId.PERSONALISATION -> R.drawable.ic_achievement_personalisation
+        AchievementId.ALWAYS_CONNECTED -> R.drawable.ic_achievement_always_connected
+        AchievementId.CHAMPION -> R.drawable.ic_achievement_champion
+        AchievementId.SQUARE_EYES -> R.drawable.trophy
+    }
 }

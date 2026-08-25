@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.EditText
 import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
@@ -20,7 +21,6 @@ import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetStateBridgeV3
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
@@ -64,7 +64,7 @@ class TextInputDelegateAdapterV3(
         when {
             parameterInfo != null && isDeviceNameParameter(parameterInfo) -> {
                 setupByteLimitWatcher(widgetInputEt)
-                setupCurrentDeviceNamePrefill(widgetInputEt, parameterInfo)
+                setupCurrentDeviceNamePrefill(widgetInputEt)
             }
             parameterInfo != null && isSerialNumberParameter(parameterInfo) -> {
                 removeByteLimitWatcher(widgetInputEt)
@@ -96,15 +96,8 @@ class TextInputDelegateAdapterV3(
 
             val isDeviceName = isDeviceNameParameter(parameterInfo)
             val isSerialNumber = isSerialNumberParameter(parameterInfo)
-            val currentFullName = if (isDeviceName) resolveCurrentDeviceName(parameterInfo) else null
             val transportText = if (isDeviceName) {
-                TextInputTransportFormatterV3.deviceName(
-                    enteredText = enteredText,
-                    currentFullName = currentFullName
-                ) ?: run {
-                    main.showToast(main.getString(SharedRes.strings.enter_text.resourceId))
-                    return@setOnClickListener
-                }
+                DeviceNameBridgeV3.applyPrefixForTransport(enteredText)
             } else {
                 enteredText
             }
@@ -138,13 +131,6 @@ class TextInputDelegateAdapterV3(
                     "TX set_serial input=\"$enteredText\" packet=${EncodeByteToHex.bytesToHexString(payload)}"
                 )
             }
-            if (isDeviceName) {
-                Log.d(
-                    "DeviceNameV3",
-                    "TX current=\"$currentFullName\" input=\"$enteredText\" transport=\"$transportText\" " +
-                        "packet=${EncodeByteToHex.bytesToHexString(payload)}"
-                )
-            }
 
             main.bleCommandWithQueue(payload, SERIALPORTCHAR_UUID, WRITE) {
                 if (isSerialNumber && readAfterSetPayload != null) {
@@ -157,12 +143,6 @@ class TextInputDelegateAdapterV3(
             }
             when {
                 isDeviceName -> {
-                    WidgetStateBridgeV3.setTextValue(
-                        addressDevice = parameterInfo.deviceAddress,
-                        parameterID = parameterInfo.parameterID,
-                        dataCode = parameterInfo.dataCode,
-                        value = transportText
-                    )
                     main.applyDeviceNameImmediately(transportText)
                     main.showToast(main.getString(SharedRes.strings.name_set.resourceId))
                 }
@@ -254,56 +234,62 @@ class TextInputDelegateAdapterV3(
         }
     }/**/
 
-    private fun setupCurrentDeviceNamePrefill(
-        input: EditText,
-        parameterInfo: ParameterInfo<Int, Int, Int, Int>
-    ) {
-        input.setOnClickListener(null)
-        input.setOnTouchListener(null)
+    private fun setupCurrentDeviceNamePrefill(input: EditText) {
+        fun fillCurrentName() {
+            val rawDeviceName = resolveCurrentDeviceName() ?: return
 
-        val displayName = resolveCurrentDeviceName(parameterInfo)
-            ?.let(TextInputPrefillFormatterV3::deviceName)
-            .orEmpty()
+            val displayName = TextInputPrefillFormatterV3.deviceName(rawDeviceName)
+            if (displayName.isBlank()) return
 
-        input.setText(displayName)
-        input.setSelection(input.text?.length ?: 0)
+            input.setText(displayName)
+            input.setSelection(input.text?.length ?: 0)
+        }
+
+        input.setOnClickListener { fillCurrentName() }
+        input.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                fillCurrentName()
+            }
+            false
+        }
     }
 
     private fun setupCurrentSerialNumberPrefill(
         input: EditText,
         parameterInfo: ParameterInfo<Int, Int, Int, Int>
     ) {
-        input.setOnClickListener(null)
-        input.setOnTouchListener(null)
+        fun fillCurrentSerialNumber() {
+            val rawSerialNumber = (ParameterStoreV3.get(parameterInfo) as? ParameterTypedValueV3.Text)
+                ?.value
+                ?.takeUnless { it.isBlank() }
+                ?: main.getCurrentSerial()?.takeUnless { it.isBlank() }
+                ?: main.mDeviceName?.takeUnless { it.isBlank() }
+                ?: runCatching { connectedDeviceName }.getOrNull()?.takeUnless { it.isBlank() }
+                ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
+                ?: return
 
-        val rawSerialNumber = (ParameterStoreV3.get(parameterInfo) as? ParameterTypedValueV3.Text)
-            ?.value
+            val displaySerialNumber = TextInputPrefillFormatterV3.serialNumber(rawSerialNumber)
+            if (displaySerialNumber.isBlank()) return
+
+            input.setText(displaySerialNumber)
+            input.setSelection(input.text?.length ?: 0)
+        }
+
+        input.setOnClickListener { fillCurrentSerialNumber() }
+        input.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                fillCurrentSerialNumber()
+            }
+            false
+        }
+    }
+
+    private fun resolveCurrentDeviceName(): String? =
+        main.getCurrentSerial()
             ?.takeUnless { it.isBlank() }
-            ?: main.getCurrentSerial()?.takeUnless { it.isBlank() }
             ?: main.mDeviceName?.takeUnless { it.isBlank() }
             ?: runCatching { connectedDeviceName }.getOrNull()?.takeUnless { it.isBlank() }
             ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
-
-        val displaySerialNumber = rawSerialNumber
-            ?.let(TextInputPrefillFormatterV3::serialNumber)
-            .orEmpty()
-
-        input.setText(displaySerialNumber)
-        input.setSelection(input.text?.length ?: 0)
-    }
-
-    private fun resolveCurrentDeviceName(
-        parameterInfo: ParameterInfo<Int, Int, Int, Int>
-    ): String? = TextInputCurrentNameResolverV3.resolve(
-        receivedName = WidgetStateBridgeV3.getTextValue(
-            addressDevice = parameterInfo.deviceAddress,
-            parameterID = parameterInfo.parameterID,
-            dataCode = parameterInfo.dataCode
-        ),
-        connectedName = runCatching { connectedDeviceName }.getOrNull(),
-        activityName = main.mDeviceName,
-        intentName = main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)
-    )
 
     private fun onDestroy() {
         overlayViews.clear()
@@ -338,20 +324,4 @@ internal object TextInputPrefillFormatterV3 {
     fun deviceName(rawValue: String): String = DeviceNameBridgeV3.displayName(rawValue)
 
     fun serialNumber(rawValue: String): String = rawValue
-}
-
-internal object TextInputTransportFormatterV3 {
-    fun deviceName(enteredText: String, currentFullName: String?): String? =
-        DeviceNameBridgeV3.transportName(enteredText, currentFullName)
-}
-
-internal object TextInputCurrentNameResolverV3 {
-    fun resolve(
-        receivedName: String?,
-        connectedName: String?,
-        activityName: String?,
-        intentName: String?
-    ): String? = sequenceOf(receivedName, connectedName, activityName, intentName)
-        .mapNotNull { it?.trim()?.takeUnless(String::isBlank) }
-        .firstOrNull()
 }

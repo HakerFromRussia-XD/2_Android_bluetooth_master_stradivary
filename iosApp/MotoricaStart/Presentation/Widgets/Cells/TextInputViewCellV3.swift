@@ -48,13 +48,8 @@ final class TextInputViewCellV3: UITableViewCell {
     }
 
     private func prefilledText() -> String {
-        let storedName = currentStoredFullName()
-        return viewModel?.prefillDisplayName(storedFullName: storedName) ?? ""
-    }
-
-    private func currentStoredFullName() -> String {
         let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
-        return viewModel?.resolveCurrentFullName(fallback: storedName) ?? storedName
+        return viewModel?.prefillDisplayName(storedFullName: storedName) ?? ""
     }
 
     private func handleSend(_ input: String) {
@@ -64,10 +59,7 @@ final class TextInputViewCellV3: UITableViewCell {
             return
         }
 
-        guard let fullName = viewModel?.sendInput(
-            normalizedInput,
-            currentFullName: currentStoredFullName()
-        ) else {
+        guard let fullName = viewModel?.sendInput(normalizedInput) else {
             showToast(SharedLocalizedText.text(SharedRes.strings().send_error))
             return
         }

@@ -29,7 +29,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import kotlinx.coroutines.CoroutineScope
@@ -322,19 +321,6 @@ class ParserCoverageTest {
         val serialInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
         val serialValue = ParameterStoreV3.get(serialInfo) as? ParameterTypedValueV3.Text
         assertEquals("FEST-FO-0000008", serialValue?.value)
-
-        parser.parseReceivedData(
-            longPacket(
-                address = 1,
-                command = PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION.number.toInt(),
-                payload = byteArrayOf(
-                    PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME.number.toByte()
-                ) + "0000000000".encodeToByteArray() + byteArrayOf(0x00)
-            )
-        )
-        val deviceNameInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME)
-        val deviceNameValue = ParameterStoreV3.get(deviceNameInfo) as? ParameterTypedValueV3.Text
-        assertEquals("0000000000", deviceNameValue?.value)
 
         runCatching { parser.generatedHardcodeWidgets() }
 

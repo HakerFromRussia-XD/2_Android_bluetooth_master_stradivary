@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,7 +40,6 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsCatalog
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
-import com.bailout.stickk.ubi4.ui.fragments.achievements.color
 import java.text.NumberFormat
 
 @Composable
@@ -98,10 +96,7 @@ internal fun AchievementCard(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(88.dp),
-                colorFilter = ColorFilter.tint(
-                    achievement.achievedTier?.color() ?: AchievementsColors.White
-                )
+                    .size(88.dp)
             )
 
             AchievementStageProgress(

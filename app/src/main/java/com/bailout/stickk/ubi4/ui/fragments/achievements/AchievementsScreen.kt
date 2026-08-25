@@ -84,8 +84,8 @@ fun AchievementsScreen(
     var showCupAnimation by remember {
         mutableStateOf(false)
     }
-    val selectedAchievement by remember(achievements) {
-        mutableStateOf(achievements.firstOrNull { it.id == selectedAchievementId })
+    val selectedAchievement = achievements.firstOrNull {
+        it.id == selectedAchievementId
     }
 
     LaunchedEffect(pendingCelebration) {
@@ -134,9 +134,7 @@ fun AchievementsScreen(
                 AchievementCard(
                     achievement = achievement,
                     onInfoClick = {
-                        if (activeCelebration == null) {
-                            selectedAchievementId = achievement.id
-                        }
+                        selectedAchievementId = achievement.id
                     }
                 )
             }

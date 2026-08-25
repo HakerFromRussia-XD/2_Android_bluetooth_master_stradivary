@@ -14,17 +14,10 @@ class DeviceNameBridgeV3AndroidTest {
     }
 
     @Test
-    fun `INDY3 rename preserves received prefix mode`() {
+    fun `INDY3 rename keeps INDY3 prefix`() {
         UiState.activeV3DeviceProfile = V3DeviceProfile.INDY3
 
         assertEquals("MY-HAND", DeviceNameBridgeV3.displayName("INDY3-MY-HAND"))
-        assertEquals(
-            "INDY3-MY-HAND",
-            DeviceNameBridgeV3.transportName("MY-HAND", "INDY3-0000000000")
-        )
-        assertEquals(
-            "MY-HAND",
-            DeviceNameBridgeV3.transportName("MY-HAND", "0000000000")
-        )
+        assertEquals("INDY3-MY-HAND", DeviceNameBridgeV3.applyPrefixForTransport("MY-HAND"))
     }
 }

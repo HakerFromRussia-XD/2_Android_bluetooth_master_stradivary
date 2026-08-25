@@ -68,42 +68,6 @@ object WidgetStateBridgeV3 {
             ?: defaultValue
     }
 
-    fun getTextValue(
-        addressDevice: Int,
-        parameterID: Int,
-        dataCode: Int
-    ): String? {
-        val parameterInfo = ParameterInfo(
-            parameterID = parameterID,
-            dataCode = dataCode,
-            deviceAddress = addressDevice,
-            dataOffsets = 0
-        )
-        return (ParameterStoreV3.get(parameterInfo) as? ParameterTypedValueV3.Text)
-            ?.value
-            ?.takeUnless { it.isBlank() }
-    }
-
-    fun setTextValue(
-        addressDevice: Int,
-        parameterID: Int,
-        dataCode: Int,
-        value: String
-    ) {
-        val normalized = value.trim()
-        if (normalized.isEmpty()) return
-
-        ParameterStoreV3.put(
-            ParameterInfo(
-                parameterID = parameterID,
-                dataCode = dataCode,
-                deviceAddress = addressDevice,
-                dataOffsets = 0
-            ),
-            ParameterTypedValueV3.Text(normalized)
-        )
-    }
-
     fun setSpinnerValue(
         addressDevice: Int,
         parameterID: Int,

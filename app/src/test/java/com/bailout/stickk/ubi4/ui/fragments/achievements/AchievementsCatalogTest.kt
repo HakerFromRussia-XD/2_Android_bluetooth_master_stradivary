@@ -12,10 +12,29 @@ class AchievementsCatalogTest {
     @Test
     fun `catalog contains every achievement once and in declared order`() {
         val items = AchievementsCatalog.items
+        val enabledAchievementIds = AchievementId.entries - AchievementId.SQUARE_EYES
 
-        assertEquals(AchievementId.entries, items.map(AchievementUiModel::id))
+        assertEquals(enabledAchievementIds, items.map(AchievementUiModel::id))
         assertEquals(items.size, items.map(AchievementUiModel::id).distinct().size)
-        assertTrue(items.all { it.iconRes == R.drawable.trophy })
+        assertEquals(
+            listOf(
+                R.drawable.ic_achievement_bionic,
+                R.drawable.ic_achievement_cyborg,
+                R.drawable.ic_achievement_streak,
+                R.drawable.ic_achievement_long_haul,
+                R.drawable.ic_achievement_scientist,
+                R.drawable.ic_achievement_daily_challenge,
+                R.drawable.ic_achievement_precision,
+                R.drawable.ic_achievement_power,
+                R.drawable.ic_achievement_get_a_grip,
+                R.drawable.ic_achievement_alter_ego,
+                R.drawable.ic_achievement_anniversary,
+                R.drawable.ic_achievement_personalisation,
+                R.drawable.ic_achievement_always_connected,
+                R.drawable.ic_achievement_champion
+            ),
+            items.map(AchievementUiModel::iconRes)
+        )
         assertTrue(items.all { it.achievedTier == null })
         assertTrue(items.all { it.progress.nextTarget > 0L })
         assertTrue(

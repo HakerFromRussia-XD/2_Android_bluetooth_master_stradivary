@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.data.parser
 
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_ROLE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
@@ -20,7 +19,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
@@ -158,12 +156,6 @@ object WidgetResponseRoutesV3 {
             responseSubcommand = GMCE_GET_LEFT_RIGHT_HAND.number.toInt(),
             parameterKey = P_KEY_LEFT_RIGHT_HAND,
             emitTarget = WidgetEmitTargetV3.SPINNER_FLOW
-        ),
-        WidgetResponseRouteV3(
-            command = DEVICE_INFORMATION.number.toInt(),
-            responseSubcommand = GET_DEVICE_NAME.number,
-            parameterKey = P_KEY_SET_DEVICE_NAME,
-            emitTarget = WidgetEmitTargetV3.NO_UI
         ),
         WidgetResponseRouteV3(
             command = DEVICE_INFORMATION.number.toInt(),

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1180" viewBox="0 0 960 1180">
+  <rect width="960" height="1180" fill="#212121"/>
+  <style>
+    .label { fill: #FCFCFC; font: 600 14px Arial, sans-serif; text-anchor: middle; }
+  </style>
+  <g transform="translate(35 20)"><image href="vectors/achievement_bionic.svg" width="160" height="160"/><text class="label" x="80" y="185">Бионик</text></g>
+  <g transform="translate(265 20)"><image href="vectors/achievement_cyborg.svg" width="160" height="160"/><text class="label" x="80" y="185">Киборг</text></g>
+  <g transform="translate(495 20)"><image href="vectors/achievement_streak.svg" width="160" height="160"/><text class="label" x="80" y="185">Серия</text></g>
+  <g transform="translate(725 20)"><image href="vectors/achievement_long_haul.svg" width="160" height="160"/><text class="label" x="80" y="185">Марафон</text></g>
+  <g transform="translate(35 250)"><image href="vectors/achievement_scientist.svg" width="160" height="160"/><text class="label" x="80" y="185">Исследователь</text></g>
+  <g transform="translate(265 250)"><image href="vectors/achievement_daily_challenge.svg" width="160" height="160"/><text class="label" x="80" y="179">Ежедневное</text><text class="label" x="80" y="197">испытание</text></g>
+  <g transform="translate(495 250)"><image href="vectors/achievement_precision.svg" width="160" height="160"/><text class="label" x="80" y="185">Точность</text></g>
+  <g transform="translate(725 250)"><image href="vectors/achievement_power.svg" width="160" height="160"/><text class="label" x="80" y="185">Сила</text></g>
+  <g transform="translate(35 480)"><image href="vectors/achievement_get_a_grip.svg" width="160" height="160"/><text class="label" x="80" y="185">Настройка хватов</text></g>
+  <g transform="translate(265 480)"><image href="vectors/achievement_alter_ego.svg" width="160" height="160"/><text class="label" x="80" y="185">Новое имя</text></g>
+  <g transform="translate(495 480)"><image href="vectors/achievement_ninja.svg" width="160" height="160"/><text class="label" x="80" y="185">Ниндзя</text></g>
+  <g transform="translate(725 480)"><image href="vectors/achievement_anniversary.svg" width="160" height="160"/><text class="label" x="80" y="185">Годовщина</text></g>
+  <g transform="translate(265 710)"><image href="vectors/achievement_basic_training.svg" width="160" height="160"/><text class="label" x="80" y="179">Базовая</text><text class="label" x="80" y="197">подготовка</text></g>
+  <g transform="translate(495 710)"><image href="vectors/achievement_graduation.svg" width="160" height="160"/><text class="label" x="80" y="185">Выпускник</text></g>
+  <g transform="translate(150 940)"><image href="vectors/achievement_personalisation.svg" width="160" height="160"/><text class="label" x="80" y="185">Персонализация</text></g>
+  <g transform="translate(400 940)"><image href="vectors/achievement_always_connected.svg" width="160" height="160"/><text class="label" x="80" y="185">Всегда на связи</text></g>
+  <g transform="translate(650 940)"><image href="vectors/achievement_champion.svg" width="160" height="160"/><text class="label" x="80" y="185">Чемпион</text></g>
+</svg>

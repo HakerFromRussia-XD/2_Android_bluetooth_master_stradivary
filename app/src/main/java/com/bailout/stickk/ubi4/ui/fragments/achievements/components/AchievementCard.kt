@@ -19,6 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -97,6 +101,7 @@ internal fun AchievementCard(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(88.dp)
+                    .achievementTierOutline(achievement.achievedTier)
             )
 
             AchievementStageProgress(
@@ -108,6 +113,61 @@ internal fun AchievementCard(
             )
         }
     }
+}
+
+private fun Modifier.achievementTierOutline(tier: AchievementTier?): Modifier {
+    val achievedTier = tier ?: return this
+    val outlineColors = achievedTier.outlineColors()
+    val highlightColor = achievedTier.outlineHighlightColor()
+
+    return drawWithContent {
+        drawContent()
+
+        val strokeWidth = 4.dp.toPx()
+        val radius = (size.minDimension - strokeWidth) / 2f
+        drawCircle(
+            brush = Brush.sweepGradient(outlineColors),
+            radius = radius,
+            style = Stroke(width = strokeWidth)
+        )
+        drawCircle(
+            color = highlightColor.copy(alpha = 0.9f),
+            radius = radius - 1.5.dp.toPx(),
+            style = Stroke(width = 0.75.dp.toPx())
+        )
+    }
+}
+
+private fun AchievementTier.outlineColors(): List<Color> = when (this) {
+    AchievementTier.BRONZE -> listOf(
+        Color(0xFFFFD19A),
+        Color(0xFF7A3E12),
+        Color(0xFFDC8A3D),
+        Color(0xFFA75C24),
+        Color(0xFFFFD19A)
+    )
+
+    AchievementTier.SILVER -> listOf(
+        Color(0xFFFFFFFF),
+        Color(0xFF8E8E8E),
+        Color(0xFFF5F5F5),
+        Color(0xFFB8B8B8),
+        Color(0xFFFFFFFF)
+    )
+
+    AchievementTier.GOLD -> listOf(
+        Color(0xFFFFF2A8),
+        Color(0xFFB57900),
+        Color(0xFFFFD700),
+        Color(0xFFD69A00),
+        Color(0xFFFFF2A8)
+    )
+}
+
+private fun AchievementTier.outlineHighlightColor(): Color = when (this) {
+    AchievementTier.BRONZE -> Color(0xFFFFE1BD)
+    AchievementTier.SILVER -> AchievementsColors.White
+    AchievementTier.GOLD -> Color(0xFFFFF6C7)
 }
 
 @Composable

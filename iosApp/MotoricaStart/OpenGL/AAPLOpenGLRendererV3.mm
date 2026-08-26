@@ -163,6 +163,13 @@ struct V3RendererState {
     V3TransitionState transition;
     V3GestureObjectState gestureObject;
     CGSize size = CGSizeZero;
+    // Fixed collection-camera FOV. Kept in renderer state so the ordinary
+    // configurator continues to use its original projection.
+    float cardPreviewFieldOfViewDegrees = 33.0f;
+    float configuratorFieldOfViewDegrees = 88.0f;
+    float configuratorScale = 1.020f;
+    float configuratorPositionX = 6.0f;
+    float configuratorPositionY = 9.0f;
     NSInteger handSide = 1;
     int selectedFinger = 0;
     float touchX = 0.0f;
@@ -413,7 +420,7 @@ static NSDictionary<NSString *, id> *V3PointingClipSample(double milliseconds) {
 
 static NSDictionary<NSString *, id> *V3PinchClipSample(double milliseconds) {
     return V3FixedHandClipSample(milliseconds,
-        {0.0f, 0.0f, 55.0f, 50.0f, 75.0f, 100.0f},
+        {0.0f, 0.0f, 55.0f, 50.0f, 70.0f, 100.0f},
         {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f});
 }
 
@@ -425,16 +432,16 @@ static NSDictionary<NSString *, id> *V3AdditionalFixedClipSample(double millisec
 
 static NSDictionary<NSString *, id> *V3ExtraClipSample(V3CardClip clip, double ms) {
     const float *s = nullptr; const float *t = nullptr;
-    static const float fist2s[] = {100,100,100,100,100,100}, fist2t[] = {0,0,0,0,0,100};
+    static const float fist2s[] = {100,100,100,100,80,100}, fist2t[] = {0,0,0,0,0,100};
     static const float goats[] = {0,100,100,0,60,67}, goatst[] = {0,0,0,0,100,0};
-    static const float tweezerss[] = {100,100,100,50,75,100}, tweezerst[] = {100,100,100,0,75,100};
-    static const float oks[] = {0,0,0,50,75,100}, okt[] = {0,0,0,0,0,100};
+    static const float tweezerss[] = {100,100,100,50,70,100}, tweezerst[] = {100,100,100,0,70,100};
+    static const float oks[] = {0,0,0,50,70,100}, okt[] = {0,0,0,0,0,100};
     static const float classics[] = {100,100,100,100,100,0}, classict[] = {100,100,100,100,0,0};
-    static const float pinch2s[] = {100,100,0,0,75,100}, pinch2t[] = {100,100,55,50,75,100};
+    static const float pinch2s[] = {100,100,0,0,70,100}, pinch2t[] = {100,100,55,50,70,100};
     static const float calls[] = {0,100,100,100,0,0}, callt[] = {100,100,100,100,100,0};
     if (clip == V3CardClip::fist2) {
         return V3FixedHandClipSampleWithDelays(ms,
-            {100,100,100,100,100,100}, {0,0,0,0,0,100},
+            {100,100,100,100,80,100}, {0,0,0,0,0,100},
             {10,10,10,10,0,0}, {0,0,0,0,10,0});
     }
     switch (clip) { case V3CardClip::goat:s=goats;t=goatst;break; case V3CardClip::tweezers:s=tweezerss;t=tweezerst;break; case V3CardClip::ok:s=oks;t=okt;break; case V3CardClip::classic:s=classics;t=classict;break; case V3CardClip::pinch2:s=pinch2s;t=pinch2t;break; case V3CardClip::callMe:s=calls;t=callt;break; default: return V3GestureKeyClipSample(ms); }
@@ -661,6 +668,53 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.vertexCount = static_cast<GLsizei>(vertexCount);
 }
 
+- (void)v3ApplyApprovedCollectionHandPlacement {
+    if (!_v3) return;
+    // Final collection framing calibrated on the Natural Position card.
+    _v3->gestureObject.cardScale = 0.4654335f;
+    _v3->gestureObject.cardPositionX = -4.250008f;
+    _v3->gestureObject.cardPositionY = -4.410004f;
+}
+
+- (void)v3ApplyApprovedCollectionHandTransform {
+    if (!_v3) return;
+    // Default rotation calibrated on Natural Position. Gesture Key, Cup Grip,
+    // Half Grab and Thumbs Up retain their own approved rotations.
+    _v3->gestureObject.cardRotationMatrix.columns[0] = { 0.02396739f,  0.98753860f,  0.15519880f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[1] = { 0.40552100f,  0.13228750f, -0.90438340f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.91372660f,  0.08462486f, -0.39731100f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[3] = { 0.0f,         0.0f,         0.0f,        1.0f};
+    _v3->gestureObject.cardRotationInitialized = true;
+    [self v3ApplyApprovedCollectionHandPlacement];
+}
+
+- (void)v3ApplyApprovedKeyGroupTransform {
+    if (!_v3) return;
+    // Final Gesture Key scene transform calibrated on the real iPhone. Cup
+    // Grip and Thumbs Up share it completely; Half Grab shares its placement.
+    _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.95077740f, -0.17839470f,  0.25330290f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.29913490f,  0.31576530f, -0.90043010f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[2] = { 0.08064778f, -0.93190720f, -0.35358260f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[3] = { 0.0f,         0.0f,         0.0f,        1.0f};
+    _v3->gestureObject.cardRotationInitialized = true;
+    _v3->gestureObject.cardScale = 0.5f;
+    _v3->gestureObject.cardPositionX = -13.66667f;
+    _v3->gestureObject.cardPositionY = -15.82666f;
+}
+
+- (void)v3ApplyApprovedBoardGripTransform {
+    if (!_v3) return;
+    // Final Half Grab hand framing calibrated on the real iPhone.
+    _v3->gestureObject.cardRotationMatrix.columns[0] = { 0.02144533f, -0.96454210f,  0.26282900f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.45556490f,  0.22457320f,  0.86132560f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.88986420f, -0.13822900f, -0.43464840f, 0.0f};
+    _v3->gestureObject.cardRotationMatrix.columns[3] = { 0.0f,         0.0f,         0.0f,        1.0f};
+    _v3->gestureObject.cardRotationInitialized = true;
+    _v3->gestureObject.cardScale = 0.4059688f;
+    _v3->gestureObject.cardPositionX = -15.0f;
+    _v3->gestureObject.cardPositionY = -12.82666f;
+}
+
 - (void)configureGestureKeyCardPreview {
     if (!_v3) return;
     _v3->firstFrameRendered = false;
@@ -668,15 +722,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->transition.active = false;
     _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
-    if (!_v3->gestureObject.cardRotationInitialized) {
-        // Approved Gesture Key card calibration captured on the real iPhone.
-        // Matrix is stored column-major to match simd_float4x4.
-        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.93031f, -0.17699f, 0.32119f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.36322f, 0.32390f, -0.87357f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[2] = {0.05058f, -0.92938f, -0.36561f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
-        _v3->gestureObject.cardRotationInitialized = true;
-    }
+    [self v3ApplyApprovedKeyGroupTransform];
     [self v3ApplyCardEditorTransform];
     _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
                                           (vector_float3){0.0f, 0.0f, 0.0f},
@@ -695,17 +741,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::cupGrip;
-    if (!_v3->gestureObject.cardRotationInitialized) {
-        // Approved Cup Grip calibration captured from the Xcode device console.
-        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.96502f, -0.10436f, 0.24028f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.24496f, 0.03430f, -0.96886f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[2] = {0.09287f, -0.99390f, -0.05867f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
-        _v3->gestureObject.cardRotationInitialized = true;
-    }
-    _v3->gestureObject.cardScale = 1.291f;
-    _v3->gestureObject.cardPositionX = -18.58f;
-    _v3->gestureObject.cardPositionY = -36.74f;
+    [self v3ApplyApprovedKeyGroupTransform];
     _v3->gestureObject.position = {-1.42f, -30.17f, -30.28f};
     _v3->gestureObject.rotation = {-92.67f, 143.44f, 7.71f};
     _v3->gestureObject.scale = 1.154f;
@@ -728,7 +764,7 @@ static int V3SelectionCodeForInfluence(int influence) {
             @"cardPositionX": @(_v3->gestureObject.cardPositionX),
             @"cardPositionY": @(_v3->gestureObject.cardPositionY),
         };
-        [[NSUserDefaults standardUserDefaults] setObject:calibration forKey:@"V3NaturalPositionCalibrationV1"];
+        [[NSUserDefaults standardUserDefaults] setObject:calibration forKey:@"V3NaturalPositionCalibrationV2"];
         NSLog(@"[NaturalCalibration] matrix=[%.5f,%.5f,%.5f; %.5f,%.5f,%.5f; %.5f,%.5f,%.5f] scale=%.3f position=(%.2f,%.2f)",
               matrix.columns[0].x, matrix.columns[1].x, matrix.columns[2].x,
               matrix.columns[0].y, matrix.columns[1].y, matrix.columns[2].y,
@@ -759,7 +795,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 }
 
 - (void)v3RestoreNaturalCalibrationIfAvailable {
-    NSDictionary *calibration = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"V3NaturalPositionCalibrationV1"];
+    NSDictionary *calibration = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"V3NaturalPositionCalibrationV2"];
     if (!calibration) return;
     NSArray<NSNumber *> *matrixValues = calibration[@"matrix"];
     if (matrixValues.count == 16) {
@@ -799,16 +835,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::boardGrip;
-    // Board Grip is approved and must always start from its own calibration.
-    // Do not inherit a matrix left by another card renderer configuration.
-    _v3->gestureObject.cardRotationMatrix.columns[0] = {0.15785858f, -0.98728758f, -0.01507142f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[1] = {0.30507889f, 0.03425055f, 0.95163691f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.93909848f, -0.15484019f, 0.30660513f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
-    _v3->gestureObject.cardRotationInitialized = true;
-    _v3->gestureObject.cardScale = 1.53305185f;
-    _v3->gestureObject.cardPositionX = 29.66664886f;
-    _v3->gestureObject.cardPositionY = -52.32666779f;
+    [self v3ApplyApprovedBoardGripTransform];
     _v3->gestureObject.position = {-32.41667938f, -31.66667557f, -7.33333158f};
     _v3->gestureObject.rotation = {-13.88885307f, 83.99994659f, 18.99203110f};
     _v3->gestureObject.scale = 2.14293671f;
@@ -829,14 +856,8 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = V3CardClip::naturalPosition;
-    _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.13039173f, 0.98521471f, -0.11089332f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.35133705f, -0.15051003f, -0.92403454f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.92709583f, -0.08152037f, 0.36578980f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
-    _v3->gestureObject.cardRotationInitialized = true;
-    _v3->gestureObject.cardScale = 1.29046917f;
-    _v3->gestureObject.cardPositionX = -25.50000381f;
-    _v3->gestureObject.cardPositionY = -1.32666779f;
+    [self v3ApplyApprovedCollectionHandTransform];
+    [self v3RestoreNaturalCalibrationIfAvailable];
     [self v3ApplyCardEditorTransform];
     _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
                                           (vector_float3){0.0f, 0.0f, 0.0f},
@@ -857,25 +878,9 @@ static int V3SelectionCodeForInfluence(int influence) {
     _v3->gestureObject.clipActive = false;
     _v3->gestureObject.cardMode = true;
     _v3->gestureObject.cardClip = clip;
-    _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.13039173f, 0.98521471f, -0.11089332f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.35133705f, -0.15051003f, -0.92403454f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.92709583f, -0.08152037f, 0.36578980f, 0.0f};
-    _v3->gestureObject.cardRotationMatrix.columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
-    _v3->gestureObject.cardRotationInitialized = true;
-    _v3->gestureObject.cardScale = 1.29046917f;
-    _v3->gestureObject.cardPositionX = -25.50000381f;
-    _v3->gestureObject.cardPositionY = -1.32666779f;
-    // Thumbs Up was calibrated directly in the card editor.  Keep this
-    // approved pose as its immutable preview baseline rather than falling
-    // back to the shared Natural Position transform.
+    [self v3ApplyApprovedCollectionHandTransform];
     if (clip == V3CardClip::classic) {
-        _v3->gestureObject.cardRotationMatrix.columns[0] = {-0.91219f, -0.07417f,  0.40292f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[1] = {-0.40968f,  0.16607f, -0.89694f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[2] = {-0.00039f, -0.98330f, -0.18187f, 0.0f};
-        _v3->gestureObject.cardRotationMatrix.columns[3] = { 0.0f,      0.0f,      0.0f,     1.0f};
-        _v3->gestureObject.cardScale = 1.324f;
-        _v3->gestureObject.cardPositionX = -31.25f;
-        _v3->gestureObject.cardPositionY = -45.91f;
+        [self v3ApplyApprovedKeyGroupTransform];
     }
     [self v3ApplyCardEditorTransform];
     _v3->view = matrix_look_at_right_hand((vector_float3){0.0f, 0.0f, 160.0f},
@@ -886,21 +891,21 @@ static int V3SelectionCodeForInfluence(int influence) {
     } else if (clip == V3CardClip::pointing) {
         _v3->positions = {100.0f, 100.0f, 100.0f, 0.0f, 100.0f, 0.0f};
     } else if (clip == V3CardClip::fist2) {
-        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
+        _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 80.0f, 100.0f};
     } else if (clip == V3CardClip::goat) {
         _v3->positions = {0.0f, 100.0f, 100.0f, 0.0f, 60.0f, 67.0f};
     } else if (clip == V3CardClip::tweezers) {
-        _v3->positions = {100.0f, 100.0f, 100.0f, 50.0f, 75.0f, 100.0f};
+        _v3->positions = {100.0f, 100.0f, 100.0f, 50.0f, 70.0f, 100.0f};
     } else if (clip == V3CardClip::ok) {
-        _v3->positions = {0.0f, 0.0f, 0.0f, 50.0f, 75.0f, 100.0f};
+        _v3->positions = {0.0f, 0.0f, 0.0f, 50.0f, 70.0f, 100.0f};
     } else if (clip == V3CardClip::classic) {
         _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
     } else if (clip == V3CardClip::pinch2) {
-        _v3->positions = {100.0f, 100.0f, 0.0f, 0.0f, 75.0f, 100.0f};
+        _v3->positions = {100.0f, 100.0f, 0.0f, 0.0f, 70.0f, 100.0f};
     } else if (clip == V3CardClip::callMe) {
         _v3->positions = {0.0f, 100.0f, 100.0f, 100.0f, 0.0f, 0.0f};
     } else if (clip == V3CardClip::pinch) {
-        _v3->positions = {0.0f, 0.0f, 55.0f, 50.0f, 75.0f, 100.0f};
+        _v3->positions = {0.0f, 0.0f, 55.0f, 50.0f, 70.0f, 100.0f};
     } else {
         _v3->positions = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 0.0f};
     }
@@ -941,7 +946,7 @@ static int V3SelectionCodeForInfluence(int influence) {
         }
         return;
     }
-    _v3->gestureObject.cardScale = V3Clamp(_v3->gestureObject.cardScale * static_cast<float>(factor), 0.5f, 4.0f);
+    _v3->gestureObject.cardScale = V3Clamp(_v3->gestureObject.cardScale * static_cast<float>(factor), 0.4f, 4.0f);
     [self v3ApplyCardEditorTransform];
     if (finished) {
         NSLog(@"[GestureKeyEditor] rotation=(%.2f,%.2f,%.2f) scale=%.3f position=(%.2f,%.2f)",
@@ -1051,6 +1056,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     }
     [self v3PersistBoardCalibrationIfNeeded];
 }
+
 
 - (void)playGestureKeyClip {
     if (!_v3) return;
@@ -1536,6 +1542,12 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)v3SetMatricesForModel:(matrix_float4x4)model
                     locations:(const V3ProgramLocations &)locations {
+    if (!_v3->gestureObject.cardMode) {
+        matrix_float4x4 editorTransform = V3Multiply(
+            matrix4x4_translation(_v3->configuratorPositionX, _v3->configuratorPositionY, 0.0f),
+            matrix4x4_scale(_v3->configuratorScale, _v3->configuratorScale, _v3->configuratorScale));
+        model = V3Multiply(editorTransform, model);
+    }
     matrix_float4x4 mv = V3Multiply(_v3->view, model);
     matrix_float4x4 mvp = V3Multiply(_v3->projection, mv);
     if (locations.mv >= 0) glUniformMatrix4fv(locations.mv, 1, GL_FALSE, reinterpret_cast<const GLfloat *>(&mv));
@@ -1757,13 +1769,13 @@ static int V3SelectionCodeForInfluence(int influence) {
         switch (_v3->gestureObject.cardClip) {
             case V3CardClip::fist: _v3->positions = {100,100,100,100,100,0}; break;
             case V3CardClip::pointing: _v3->positions = {100,100,100,0,100,0}; break;
-            case V3CardClip::pinch: _v3->positions = {0,0,55,50,75,100}; break;
-            case V3CardClip::fist2: _v3->positions = {100,100,100,100,100,100}; break;
+            case V3CardClip::pinch: _v3->positions = {0,0,55,50,70,100}; break;
+            case V3CardClip::fist2: _v3->positions = {100,100,100,100,80,100}; break;
             case V3CardClip::goat: _v3->positions = {0,100,100,0,60,67}; break;
-            case V3CardClip::tweezers: _v3->positions = {100,100,100,50,75,100}; break;
-            case V3CardClip::ok: _v3->positions = {0,0,0,50,75,100}; break;
+            case V3CardClip::tweezers: _v3->positions = {100,100,100,50,70,100}; break;
+            case V3CardClip::ok: _v3->positions = {0,0,0,50,70,100}; break;
             case V3CardClip::classic: _v3->positions = {100,100,100,100,100,0}; break;
-            case V3CardClip::pinch2: _v3->positions = {100,100,0,0,75,100}; break;
+            case V3CardClip::pinch2: _v3->positions = {100,100,0,0,70,100}; break;
             case V3CardClip::callMe: _v3->positions = {0,100,100,100,0,0}; break;
             default: break;
         }
@@ -1829,7 +1841,29 @@ static int V3SelectionCodeForInfluence(int influence) {
     _viewSize = size;
     _v3->size = size;
     float aspect = size.height > 0.0 ? static_cast<float>(size.width / size.height) : 1.0f;
-    _v3->projection = matrix_perspective_frustum_right_hand(-aspect, aspect, -1.0f, 1.0f, 1.0f, 300.0f);
+    if (_v3->gestureObject.cardMode) {
+        const float nearZ = 1.0f;
+        // A literal 0 degree perspective projection is undefined. The UI may
+        // show 0, while the renderer uses a tiny positive FOV for that end.
+        const float fovRadians = V3Radians(V3Clamp(_v3->cardPreviewFieldOfViewDegrees, 0.1f, 45.0f));
+        const float halfHeight = tanf(fovRadians * 0.5f) * nearZ;
+        _v3->projection = matrix_perspective_frustum_right_hand(-aspect * halfHeight,
+                                                                  aspect * halfHeight,
+                                                                  -halfHeight,
+                                                                  halfHeight,
+                                                                  nearZ,
+                                                                  300.0f);
+    } else {
+        const float nearZ = 1.0f;
+        const float fovRadians = V3Radians(V3Clamp(_v3->configuratorFieldOfViewDegrees, 5.0f, 120.0f));
+        const float halfHeight = tanf(fovRadians * 0.5f) * nearZ;
+        _v3->projection = matrix_perspective_frustum_right_hand(-aspect * halfHeight,
+                                                                  aspect * halfHeight,
+                                                                  -halfHeight,
+                                                                  halfHeight,
+                                                                  nearZ,
+                                                                  300.0f);
+    }
 }
 
 - (void)setDefaultFBOName:(GLuint)defaultFBOName {

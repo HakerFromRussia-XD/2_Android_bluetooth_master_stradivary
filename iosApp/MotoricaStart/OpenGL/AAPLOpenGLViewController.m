@@ -565,8 +565,6 @@ static os_log_t V3FrameLog(void) {
                 UIScrollView *scrollView = (UIScrollView *)ancestor;
                 [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardRotationPan];
                 [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardTranslationPan];
-                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardRollGesture];
-                [scrollView.panGestureRecognizer requireGestureRecognizerToFail:_cardDepthPan];
             }
             ancestor = ancestor.superview;
         }
@@ -589,12 +587,13 @@ static os_log_t V3FrameLog(void) {
 //    SharedParameterRef *latestParameterRef = viewModel.latestParameterRef;
 //    if (latestParameterRef != nil) {
 //        NSDictionary *userInfo = @{@"data": latestParameterRef};
+}
+
 //        NSNotification *notification = [NSNotification notificationWithName:GestureSettingsViewModelDidUpdateNotification
 //                                                                      object:viewModel
 //                                                                    userInfo:userInfo];
 //        [self handleGestureSettingsUpdate:notification];
 //    }
-}
 - (void)viewDidLoad {
     CFTimeInterval viewDidLoadStartedAt = CACurrentMediaTime();
     [super viewDidLoad];
@@ -639,14 +638,6 @@ static os_log_t V3FrameLog(void) {
         _cardTranslationPan.cancelsTouchesInView = YES;
         _cardTranslationPan.delegate = self;
         [self.view addGestureRecognizer:_cardTranslationPan];
-        _cardRollGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewRoll:)];
-        _cardRollGesture.delegate = self;
-        [self.view addGestureRecognizer:_cardRollGesture];
-        _cardDepthPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardPreviewDepth:)];
-        _cardDepthPan.minimumNumberOfTouches = 3;
-        _cardDepthPan.maximumNumberOfTouches = 3;
-        _cardDepthPan.delegate = self;
-        [self.view addGestureRecognizer:_cardDepthPan];
         self.view.multipleTouchEnabled = YES;
     }
     if (self.useV3Mode) {
@@ -887,6 +878,7 @@ static os_log_t V3FrameLog(void) {
     }];
     [self requestV3Frame];
 }
+
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
         shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

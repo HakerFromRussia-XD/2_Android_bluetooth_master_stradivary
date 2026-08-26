@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGestureCardGLSurfaceViewV3
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:elevation="3.5dp"
+    android:importantForAccessibility="no" />

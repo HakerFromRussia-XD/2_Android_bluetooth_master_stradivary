@@ -18,6 +18,17 @@ class V3FingerPositionMappingTest {
     }
 
     @Test
+    fun `collection thumb axes reproduce the original direct Android mapping`() {
+        // Collection previews currently render the non-mirrored (side=1) mesh.
+        assertEquals(49f, V3FingerPositionMapping.collectionThumbFirstAxisRotation(0, 1))
+        assertEquals(-35f, V3FingerPositionMapping.collectionThumbFirstAxisRotation(100, 1))
+        assertEquals(20f, V3FingerPositionMapping.collectionThumbSecondPhalanxRotation(0, 1))
+        assertEquals(-25f, V3FingerPositionMapping.collectionThumbSecondPhalanxRotation(100, 1))
+        assertEquals(56f, V3FingerPositionMapping.collectionThumbSecondAxisRotation(0, 1))
+        assertEquals(-34f, V3FingerPositionMapping.collectionThumbSecondAxisRotation(100, 1))
+    }
+
+    @Test
     fun `neutral renderer angles map back to themselves`() {
         val firstNeutral = V3FingerPositionMapping.thumbFirstAxisPercent(0)
         val secondNeutral = V3FingerPositionMapping.thumbSecondAxisPercent(

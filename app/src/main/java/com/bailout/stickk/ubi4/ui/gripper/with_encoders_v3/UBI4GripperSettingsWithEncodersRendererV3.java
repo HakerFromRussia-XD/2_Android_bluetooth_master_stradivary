@@ -162,6 +162,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String AMBIENT_FACTOR_UNIFORM = "u_ambientFactor";
 	private static final String MATERIAL_MODE_UNIFORM = "u_MaterialMode";
 	private static final String CHROME_STRENGTH_UNIFORM = "u_ChromeStrength";
+	private static final String CHROME_TONE_MAP_STRENGTH_UNIFORM = "u_ChromeToneMapStrength";
 	private static final String METAL_FILL_LIGHT_DIRECTION_UNIFORM = "u_MetalFillLightDirection";
 	private static final String METAL_RIM_LIGHT_DIRECTION_UNIFORM = "u_MetalRimLightDirection";
 	private static final String METAL_FILL_LIGHT_STRENGTH_UNIFORM = "u_MetalFillLightStrength";
@@ -170,6 +171,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String FRONT_FACE_MIRRORED_UNIFORM = "u_FrontFaceMirrored";
 	private static final String USE_SOLID_COLOR_UNIFORM = "u_UseSolidColor";
 	private static final String SOLID_COLOR_UNIFORM = "u_SolidColor";
+	private static final String USE_VERTEX_COLOR_UNIFORM = "u_UseVertexColor";
+	private static final String BASE_COLOR_MULTIPLIER_UNIFORM = "u_BaseColorMultiplier";
+	private static final String CARD_CONTRAST_UNIFORM = "u_CardContrast";
 	private static final String USE_BLUE_SELECTION_UNIFORM = "u_UseBlueSelection";
 
 	private static final String POSITION_ATTRIBUTE = "a_Position";
@@ -198,6 +202,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	private static final int MATERIAL_MODE_DEFAULT = 0;
 	private static final int MATERIAL_MODE_CHROME = 1;
+	private static final int MATERIAL_MODE_RUBBER = 2;
+	private static final int MATERIAL_MODE_PAPER = 3;
+	private static final int MATERIAL_MODE_WOOD = 4;
 	private static final float CHROME_STRENGTH = 0.72f;
 	private static final float METAL_FILL_LIGHT_STRENGTH = 0.82f;
 	private static final float METAL_RIM_LIGHT_STRENGTH = 1.08f;
@@ -278,6 +285,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private final int[] programReference = new int[1];
 	private final int[] programWithColorReference = new int[1];
 	private final int[] programSelectReference = new int[1];
+	private final int[] collectionTextureHandles = new int[17];
 
 
 	/** Retain the most recent delta for touch events. */
@@ -345,6 +353,55 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float BIG_FINGER_SECOND_PHALANX_PIVOT_Y = -52.430767f;
 	private static final float BIG_FINGER_SECOND_PHALANX_PIVOT_Z = -49.062533f;
 	private final boolean emitFingerAngleUpdates;
+	/**
+	 * Full-screen editor pose or an isolated collection-card pose.  The latter
+	 * deliberately lives in the renderer instance: a collection grid may draw
+	 * several hands simultaneously and must never read another card's angles.
+	 */
+	public interface FingerPoseSource {
+		int fingerPosition(int channel);
+		boolean isAnimating(int channel);
+		int side();
+	}
+
+	private static final FingerPoseSource ACTIVITY_FINGER_POSE_SOURCE = new FingerPoseSource() {
+		@Override public int fingerPosition(int channel) {
+			switch (channel) {
+				case 0: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger1();
+				case 1: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger2();
+				case 2: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger3();
+				case 3: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger4();
+				case 4: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5();
+				case 5: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6();
+				default: return 0;
+			}
+		}
+		@Override public boolean isAnimating(int channel) {
+			switch (channel) {
+				case 0: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress1();
+				case 1: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2();
+				case 2: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress3();
+				case 3: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress4();
+				case 4: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5();
+				case 5: return UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6();
+				default: return false;
+			}
+		}
+		@Override public int side() { return UBI4GripperScreenWithEncodersActivityV3.Companion.getSide(); }
+	};
+
+	private final FingerPoseSource fingerPoseSource;
+	/* False for the regular configurator.  Collection-only surface settings
+	 * must never change the renderer used by the connected-hand screen. */
+	private volatile boolean collectionPreviewMode;
+	private volatile float[] collectionCardTransform;
+	private boolean collectionCardTransformApplied;
+	private volatile String collectionObjectAssetName;
+	private volatile float[] collectionObjectTransform;
+	private int collectionObjectVertexBuffer;
+	private int collectionObjectVertexCount;
+	private boolean collectionBindPosePrimed;
+	private boolean primingCollectionBindPose;
 	private final long rendererCreatedAtMs;
 	private Boolean astcSupported;
 	private long surfaceCreatedStartedAtMs;
@@ -365,14 +422,191 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			UBI4ErrorHandlerV3 errorHandlerV3,
 			boolean emitFingerAngleUpdates
 	) {
+			this(fragmentGripperSettings, errorHandlerV3, emitFingerAngleUpdates, ACTIVITY_FINGER_POSE_SOURCE);
+	}
+
+	public UBI4GripperSettingsWithEncodersRendererV3(
+			final Context fragmentGripperSettings,
+			UBI4ErrorHandlerV3 errorHandlerV3,
+			boolean emitFingerAngleUpdates,
+			FingerPoseSource fingerPoseSource
+	) {
 			this.fragmentGripperSettings = fragmentGripperSettings;
 			this.errorHandler = errorHandlerV3;
 			this.emitFingerAngleUpdates = emitFingerAngleUpdates;
+			this.fingerPoseSource = fingerPoseSource == null ? ACTIVITY_FINGER_POSE_SOURCE : fingerPoseSource;
 			this.rendererCreatedAtMs = SystemClock.elapsedRealtime();
 			resetDeformationAnchorMatrices();
 			V3ModelLoadMetrics.init(fragmentGripperSettings);
 			V3ModelLoadMetrics.log("renderer created emitFingerAngleUpdates=" + emitFingerAngleUpdates);
 		}
+
+	private int fingerPosition(int channel) { return fingerPoseSource.fingerPosition(channel); }
+	private boolean isFingerAnimating(int channel) { return fingerPoseSource.isAnimating(channel); }
+	private int handSide() { return fingerPoseSource.side(); }
+
+	/** Enables transparent clearing only for a collection-card surface. */
+	public void setCollectionPreviewMode(boolean enabled) {
+		collectionPreviewMode = enabled;
+	}
+
+	/** Called before attaching a card surface; input is a column-major V3 matrix. */
+	public void setCollectionCardTransform(float[] transform) {
+		if (transform == null || transform.length != 16) {
+			throw new IllegalArgumentException("Collection card transform must be a 4x4 matrix");
+		}
+		collectionCardTransform = transform.clone();
+		collectionCardTransformApplied = false;
+	}
+
+	/** Registers one optional prop for a collection card; it is uploaded on the GL thread. */
+	public void setCollectionObject(String assetName, float[] transform) {
+		if (assetName == null || transform == null || transform.length != 16) {
+			throw new IllegalArgumentException("Collection object requires an asset and a 4x4 transform");
+		}
+		collectionObjectAssetName = assetName;
+		collectionObjectTransform = transform.clone();
+	}
+
+	/**
+	 * GPU objects shared by all collection-card EGL contexts. The preload
+	 * context owns their lifetime; card renderers keep only their own pose and
+	 * deformation scratch arrays.
+	 */
+	public static final class CollectionSharedResources {
+		private final int[] vbo;
+		private final int[] ibo;
+		private final int[] indexCounts;
+		private final int program;
+		private final int programWithColor;
+		private final int programSelect;
+		private final int[] textureHandles;
+
+		private CollectionSharedResources(
+				int[] vbo,
+				int[] ibo,
+				int[] indexCounts,
+				int program,
+				int programWithColor,
+				int programSelect,
+				int[] textureHandles
+		) {
+			this.vbo = vbo.clone();
+			this.ibo = ibo.clone();
+			this.indexCounts = indexCounts.clone();
+			this.program = program;
+			this.programWithColor = programWithColor;
+			this.programSelect = programSelect;
+			this.textureHandles = textureHandles.clone();
+		}
+	}
+
+	/** Must be called while the preload EGL context is current. */
+	public CollectionSharedResources captureCollectionSharedResources() {
+		if (!collectionPreviewMode || heightMap == null || heightMap.vbo == null || heightMap.ibo == null) {
+			throw new IllegalStateException("Collection renderer GPU resources are not ready");
+		}
+		return new CollectionSharedResources(
+				heightMap.vbo,
+				heightMap.ibo,
+				heightMap.indexCounts,
+				program,
+				programWithColor,
+				programSelect,
+				collectionTextureHandles
+		);
+	}
+
+	/**
+	 * Fast card path matching iOS: reuse the process-wide GPU resource cache
+	 * instead of compiling shaders and uploading the complete hand fourteen
+	 * times whenever the gestures screen is opened.
+	 */
+	public void onSurfaceCreatedWithSharedCollectionResources(CollectionSharedResources shared) {
+		if (!collectionPreviewMode || shared == null) {
+			throw new IllegalArgumentException("Shared resources require collection preview mode");
+		}
+		surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
+		deformationBindMatricesCaptured = false;
+		if (heightMap == null) {
+			heightMap = new HeightMap();
+			heightMap.attachShared(shared);
+		}
+		program = shared.program;
+		programWithColor = shared.programWithColor;
+		programSelect = shared.programSelect;
+		programReference[0] = program;
+		programWithColorReference[0] = programWithColor;
+		programSelectReference[0] = programSelect;
+		System.arraycopy(shared.textureHandles, 0, collectionTextureHandles, 0,
+				Math.min(shared.textureHandles.length, collectionTextureHandles.length));
+		for (int unit = 0; unit < collectionTextureHandles.length; unit++) {
+			int handle = collectionTextureHandles[unit];
+			if (handle == 0) continue;
+			GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
+			GLES20.glBindTexture(GL_TEXTURE_2D, handle);
+		}
+		loadCollectionObjectIfNeeded();
+		initializeCollectionSurfaceState();
+		V3ModelLoadMetrics.log("surfaceCreated shared totalMs=" + elapsedSince(surfaceCreatedStartedAtMs));
+	}
+
+	private void initializeCollectionSurfaceState() {
+		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		GLES20.glDisable(GLES20.GL_CULL_FACE);
+		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
+		Matrix.setLookAtM(viewMatrix, 0,
+				0.0f, 0.0f, 160.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f);
+		Matrix.setIdentityM(accumulatedRotation, 0);
+		Matrix.setIdentityM(accumulatedRotation2, 0);
+		Matrix.setIdentityM(accumulatedRotationForeFinger, 0);
+		Matrix.setIdentityM(accumulatedRotationForeFinger2, 0);
+		Matrix.setIdentityM(accumulatedRotationMiddleFinger, 0);
+		Matrix.setIdentityM(accumulatedRotationMiddleFinger2, 0);
+		Matrix.setIdentityM(accumulatedRotationRingFinger, 0);
+		Matrix.setIdentityM(accumulatedRotationRingFinger2, 0);
+		Matrix.setIdentityM(accumulatedRotationLittleFinger, 0);
+		Matrix.setIdentityM(accumulatedRotationLittleFinger2, 0);
+		Matrix.setIdentityM(accumulatedRotationBigFingerSecondPhalanx, 0);
+		Matrix.setIdentityM(accumulatedRotationGeneral, 0);
+		resetCollectionPoseTrackingToModelBindPose();
+		collectionBindPosePrimed = false;
+		primingCollectionBindPose = false;
+		collectionCardTransformApplied = false;
+		selectStation = SelectStation.UNSELECTED_OBJECT;
+	}
+
+	private void loadCollectionObjectIfNeeded() {
+		if (collectionObjectVertexBuffer != 0 || collectionObjectAssetName == null) return;
+		try {
+			byte[] bytes = readAssetBytes("gesture_objects/" + collectionObjectAssetName);
+			if (bytes.length < 12 || bytes[0] != 'V' || bytes[1] != '3' || bytes[2] != 'O' || bytes[3] != 'B') {
+				throw new IOException("Invalid gesture object header");
+			}
+			ByteBuffer header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+			int version = header.getInt(4);
+			int vertexCount = header.getInt(8);
+			long expectedBytes = 12L + (long) vertexCount * STRIDE;
+			if (version != 1 || vertexCount <= 0 || expectedBytes != bytes.length) {
+				throw new IOException("Invalid gesture object layout");
+			}
+			ByteBuffer vertexData = ByteBuffer.allocateDirect(bytes.length - 12).order(ByteOrder.nativeOrder());
+			vertexData.put(bytes, 12, bytes.length - 12).position(0);
+			int[] buffer = new int[1];
+			GLES20.glGenBuffers(1, buffer, 0);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buffer[0]);
+			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.capacity(), vertexData, GLES20.GL_STATIC_DRAW);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+			collectionObjectVertexBuffer = buffer[0];
+			collectionObjectVertexCount = vertexCount;
+			V3ModelLoadMetrics.log("collectionObjectLoaded asset=" + collectionObjectAssetName + " vertices=" + vertexCount);
+		} catch (Throwable error) {
+			V3ModelLoadMetrics.logError("collectionObjectLoadFailed asset=" + collectionObjectAssetName, error);
+		}
+	}
 
 	private int[] modelParts(String groupName) {
 		return cachedModelParts(groupName, EMPTY_MODEL_PARTS);
@@ -448,7 +682,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	private void buildCurrentHandBaseMatrix(float[] target) {
 		Matrix.setIdentityM(target, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(target, 0, 1, -1, 1);
 		}
 		Matrix.multiplyMM(deformationScratchMatrix, 0,
@@ -533,7 +767,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	heightMap.loader();
 	long buffersMs = elapsedSince(buffersStartedAtMs);
 
-	//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
+		// Keep the configurator's original GL state intact.  Transparent clearing
+		// is a collection-card requirement only.
+		if (collectionPreviewMode) {
+			GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		}
 
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glDisable(GLES20.GL_CULL_FACE);
@@ -564,8 +802,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		long shaderStartedAtMs = SystemClock.elapsedRealtime();
 		final String vertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_vertex_shader_tex_and_light);
-		final String fragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_general);
-		final String fragmentShaderWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_selection);
+		final String fragmentShader = collectionFragmentPrecision(
+				RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_general));
+		final String fragmentShaderWithColor = collectionFragmentPrecision(
+				RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_selection));
 		final String fragmentShaderRubber = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_rubber);
 		final String fragmentShaderRubberWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_rubber_selection);
 		final String selectVertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_select_vertex_shader);
@@ -587,6 +827,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		program = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, new String[] {
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE, TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+		// The fragment shader is shared by the regular configurator and collection
+		// props.  Collection-specific uniforms default to zero after linking; set
+		// the neutral values here so the original configurator material path is
+		// bit-for-bit independent from whether a collection preview exists.
+		setDefaultGeneralMaterialUniforms(program);
 		programWithColor = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderWithColorHandle, new String[] {
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE, TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
 		GLES20.glUseProgram(programWithColor);
@@ -626,6 +871,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		textureCount += loadTextureUnit(15, R.drawable.str2_mizinec_part12_new_material_normal, "str2_mizinec_part12_new_material_normal");
 		textureCount += loadTextureUnit(16, R.drawable.str2_big_finger_part18_new_material_normal, "str2_big_finger_part18_new_material_normal");
 		long textureMs = elapsedSince(textureStartedAtMs);
+		loadCollectionObjectIfNeeded();
 		V3ModelLoadMetrics.log("texturesLoaded totalMs=" + textureMs
 				+ " count=" + textureCount
 				+ " astcSupported=" + useAstcTextures
@@ -647,12 +893,153 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.setIdentityM(accumulatedRotationLittleFinger2, 0);
 		Matrix.setIdentityM(accumulatedRotationBigFingerSecondPhalanx, 0);
 			Matrix.setIdentityM(accumulatedRotationGeneral, 0);
+			if (collectionPreviewMode) {
+				resetCollectionPoseTrackingToModelBindPose();
+				collectionBindPosePrimed = false;
+				primingCollectionBindPose = false;
+			}
+			collectionCardTransformApplied = false;
 			selectStation = SelectStation.UNSELECTED_OBJECT;
 			V3ModelLoadMetrics.log("surfaceCreated end totalMs=" + elapsedSince(surfaceCreatedStartedAtMs)
 					+ " modelBufferMs=" + buffersMs
 					+ " shaderProgramMs=" + shaderMs
 					+ " textureUploadMs=" + textureMs);
 		}
+
+	/**
+	 * The legacy editor applies an absolute pose as a delta on the following
+	 * frame.  Collection cards already know their complete initial pose, so
+	 * build the accumulated matrices directly before the first draw.  This is
+	 * deliberately calculation-only: using the finger rendering methods as a
+	 * warm-up leaves every intermediate finger in the same color/depth buffer.
+	 */
+	private void initializeCollectionPoseMatrices() {
+		int little = V3FingerPositionMapping.clampPercent(fingerPosition(0));
+		int ring = V3FingerPositionMapping.clampPercent(fingerPosition(1));
+		int middle = V3FingerPositionMapping.clampPercent(fingerPosition(2));
+		int index = V3FingerPositionMapping.clampPercent(fingerPosition(3));
+
+		setDirectTiltedFingerRotation(accumulatedRotationLittleFinger, -little, 16.0f, -8.0f);
+		setDirectTiltedFingerRotation(accumulatedRotationLittleFinger2, -little, 16.0f, -8.0f);
+		setDirectTiltedFingerRotation(accumulatedRotationRingFinger, -ring, 7.0f, -6.0f);
+		setDirectTiltedFingerRotation(accumulatedRotationRingFinger2, -ring, 6.0f, -3.0f);
+		setDirectMiddleFingerRotation(accumulatedRotationMiddleFinger, -middle);
+		setDirectMiddleFingerRotation(accumulatedRotationMiddleFinger2, -middle);
+		setDirectTiltedFingerRotation(accumulatedRotationForeFinger, -index, -4.0f, 4.0f);
+		setDirectTiltedFingerRotation(accumulatedRotationForeFinger2, -index, -4.0f, 4.0f);
+
+		angleLittleFingerFloat = little;
+		angleLittleFingerInt = 0;
+		lastAngleLittleFingerInt = little;
+		angleLittleFingerTransfer = little;
+		angleRingFingerFloat = ring;
+		angleRingFingerInt = 0;
+		lastAngleRingFingerInt = ring;
+		angleRingFingerTransfer = ring;
+		angleMiddleFingerFloat = middle;
+		angleMiddleFingerInt = 0;
+		lastAngleMiddleFingerInt = middle;
+		angleMiddleFingerTransfer = middle;
+		angleForeFingerFloat = index;
+		angleForeFingerInt = 0;
+		lastAngleForeFingerInt = index;
+		angleForeFingerTransfer = index;
+
+		int thumbPercent = V3FingerPositionMapping.clampPercent(fingerPosition(4));
+		int thumbRotationPercent = V3FingerPositionMapping.clampPercent(fingerPosition(5));
+		int thumbFirstAxis = V3FingerPositionMapping.thumbFirstAxisAngle(thumbPercent);
+		int thumbSecondPhalanx = V3FingerPositionMapping.thumbSecondPhalanxAngle(thumbPercent);
+		int thumbSecondAxis = V3FingerPositionMapping.thumbSecondAxisAngle(thumbRotationPercent);
+
+		Matrix.setIdentityM(accumulatedRotation, 0);
+		rotateBigFingerFirstAxis(
+				accumulatedRotation,
+				V3FingerPositionMapping.collectionThumbFirstAxisRotation(thumbPercent, handSide())
+		);
+		Matrix.setIdentityM(accumulatedRotationBigFingerSecondPhalanx, 0);
+		rotateBigFingerSecondPhalanx(
+				accumulatedRotationBigFingerSecondPhalanx,
+				V3FingerPositionMapping.collectionThumbSecondPhalanxRotation(thumbPercent, handSide())
+		);
+		Matrix.setIdentityM(accumulatedRotation2, 0);
+		rotateBigFingerSecondAxis(
+				accumulatedRotation2,
+				V3FingerPositionMapping.collectionThumbSecondAxisRotation(
+						thumbRotationPercent,
+						handSide()
+				)
+		);
+
+		angleBigFingerFloat1 = thumbFirstAxis;
+		angleBigFingerInt1 = 0;
+		lastAngleBigFingerInt1 = thumbFirstAxis;
+		angleBigFingerTransfer1 = thumbFirstAxis;
+		angleBigFingerFloat2 = thumbSecondAxis;
+		angleBigFingerInt2 = 0;
+		lastAngleBigFingerInt2 = thumbSecondAxis;
+		angleBigFingerTransfer2 = thumbSecondAxis;
+		angleBigFingerSecondPhalanxFloat = thumbSecondPhalanx;
+		angleBigFingerSecondPhalanxInt = 0;
+		lastAngleBigFingerSecondPhalanxInt = thumbSecondPhalanx;
+		angleBigFingerSecondPhalanxTransfer = thumbSecondPhalanx;
+		firstInit = false;
+	}
+
+	private void resetCollectionPoseTrackingToModelBindPose() {
+		angleForeFingerFloat = 0;
+		angleForeFingerInt = 0;
+		lastAngleForeFingerInt = 0;
+		angleForeFingerTransfer = 0;
+		angleMiddleFingerFloat = 0;
+		angleMiddleFingerInt = 0;
+		lastAngleMiddleFingerInt = 0;
+		angleMiddleFingerTransfer = 0;
+		angleRingFingerFloat = 0;
+		angleRingFingerInt = 0;
+		lastAngleRingFingerInt = 0;
+		angleRingFingerTransfer = 0;
+		angleLittleFingerFloat = 0;
+		angleLittleFingerInt = 0;
+		lastAngleLittleFingerInt = 0;
+		angleLittleFingerTransfer = 0;
+		angleBigFingerFloat1 = 0;
+		angleBigFingerInt1 = 0;
+		lastAngleBigFingerInt1 = 0;
+		angleBigFingerTransfer1 = 0;
+		angleBigFingerFloat2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
+		angleBigFingerInt2 = 0;
+		lastAngleBigFingerInt2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
+		angleBigFingerTransfer2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
+		angleBigFingerSecondPhalanxFloat = 0;
+		angleBigFingerSecondPhalanxInt = 0;
+		lastAngleBigFingerSecondPhalanxInt = 0;
+		angleBigFingerSecondPhalanxTransfer = 0;
+		firstInit = false;
+	}
+
+	private void setDirectTiltedFingerRotation(
+			float[] target,
+			float angle,
+			float tiltX,
+			float tiltY
+	) {
+		Matrix.setIdentityM(target, 0);
+		rotateFingerAroundTiltedZ(target, angle, tiltX, tiltY);
+	}
+
+	private void setDirectMiddleFingerRotation(float[] target, float deltaAngle) {
+		Matrix.setIdentityM(target, 0);
+		Matrix.rotateM(target, 0, -1.0f, 0.0f, 1.0f, 0.0f);
+		Matrix.rotateM(
+				target,
+				0,
+				handSide() == 0 ? -deltaAngle : deltaAngle,
+				0.0f,
+				0.0f,
+				1.0f
+		);
+		Matrix.rotateM(target, 0, 1.0f, 0.0f, 1.0f, 0.0f);
+	}
 
 	private int loadTextureUnit(int textureUnit, int resourceId, String name) {
 		if (isAstcSupported()) {
@@ -666,10 +1053,20 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		return loadPngTextureUnit(textureUnit, resourceId, name);
 	}
 
+	/** iOS promotes the card fragment programs to high precision. Keep the
+	 * ordinary Android configurator byte-for-byte unchanged. */
+	private String collectionFragmentPrecision(String source) {
+		if (!collectionPreviewMode || source == null) return source;
+		return source.replace("precision mediump float;", "precision highp float;");
+	}
+
 	private int loadPngTextureUnit(int textureUnit, int resourceId, String name) {
 		long startedAtMs = SystemClock.elapsedRealtime();
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + textureUnit);
 		int texture = TextureHelper.loadTexture(fragmentGripperSettings, resourceId);
+		if (textureUnit >= 0 && textureUnit < collectionTextureHandles.length) {
+			collectionTextureHandles[textureUnit] = texture;
+		}
 		GLES20.glBindTexture(GL_TEXTURE_2D, texture);
 		glTexParameteri(GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -694,6 +1091,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + textureUnit);
 		GLES20.glBindTexture(GL_TEXTURE_2D, textureHandle[0]);
+		if (textureUnit >= 0 && textureUnit < collectionTextureHandles.length) {
+			collectionTextureHandles[textureUnit] = textureHandle[0];
+		}
 		glTexParameteri(GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		int setupGlError = drainGlErrors();
@@ -826,17 +1226,40 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		// Create a new perspective projection matrix. The height will stay the
 		// same while the width will vary as per aspect ratio.
 		final float ratio = (float) width / height;
-		final float left = -ratio;
-		final float bottom = -1.0f;
-		final float top = 1.0f;
+		final float halfHeight = collectionPreviewMode
+				? (float) Math.tan(Math.toRadians(33.0 * 0.5))
+				: 1.0f;
+		final float left = -ratio * halfHeight;
+		final float bottom = -halfHeight;
+		final float top = halfHeight;
 		final float near = 1.0f;
 		final float far = 300.0f;//2000
 
-		Matrix.frustumM(projectionMatrix, 0, left, ratio, bottom, top, near, far);
+		Matrix.frustumM(projectionMatrix, 0, left, ratio * halfHeight, bottom, top, near, far);
 	}
 
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
+		if (collectionPreviewMode && !primingCollectionBindPose && !collectionBindPosePrimed) {
+			// Capture deformation inverse-bind matrices from the undeformed model.
+			// This complete pass is never swapped: the outer pass clears both
+			// buffers before drawing the actual initial gesture pose.
+			primingCollectionBindPose = true;
+			try {
+				onDrawFrame(glUnused);
+			} finally {
+				primingCollectionBindPose = false;
+				collectionBindPosePrimed = true;
+			}
+		}
+		// Collection samples are complete absolute poses.  Apply them before the
+		// draw instead of feeding them through the editor's one-frame-late delta
+		// accumulator.  This also guarantees the final clip sample is visible
+		// even though no animation frame is scheduled after completion.
+		if (collectionPreviewMode && !primingCollectionBindPose) {
+			initializeCollectionPoseMatrices();
+		}
+		applyCollectionCardTransformIfNeeded();
 		if (selectFlag){
 			int selectTemp = selectObject();
 			if (selectTemp == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
@@ -860,19 +1283,30 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** вращающийся источник света */
 		Matrix.setIdentityM(lightModelMatrix, 0);
-		Matrix.translateM(lightModelMatrix, 0, 0.0f, 0.0f, 180.0f);
+		if (collectionPreviewMode) {
+			// Exact iOS collection-card key light. The ordinary configurator keeps
+			// its original frontal light below.
+			Matrix.translateM(lightModelMatrix, 0, -85.0f, 105.0f, 145.0f);
+		} else {
+			Matrix.translateM(lightModelMatrix, 0, 0.0f, 0.0f, 180.0f);
+		}
 		Matrix.multiplyMV(lightPosInWorldSpace, 0, lightModelMatrix, 0, lightPosInModelSpace, 0);
 		Matrix.multiplyMV(lightPosInEyeSpace, 0, viewMatrix, 0, lightPosInWorldSpace, 0);
 
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")) {
 			/** поворот всей сборки */
 			Matrix.setIdentityM(currentRotation, 0);
-			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, angle95, 0.0f, 1.0f, 0.0f);//angle230
-				Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);//angle110
-			} else  {
-				Matrix.rotateM(currentRotation, 0, angle95, 0.0f, -1.0f, 0.0f);//angle130
-				Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);//angle75
+			// Collection transforms already contain the complete calibrated iOS
+			// orientation. Keep the legacy 95°/90° start rotation exclusively in
+			// the ordinary full-screen configurator.
+			if (!collectionPreviewMode) {
+				if (handSide() == 0) {
+					Matrix.rotateM(currentRotation, 0, angle95, 0.0f, 1.0f, 0.0f);//angle230
+					Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);//angle110
+				} else  {
+					Matrix.rotateM(currentRotation, 0, angle95, 0.0f, -1.0f, 0.0f);//angle130
+					Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);//angle75
+				}
 			}
 
 			angle90 = 0;
@@ -933,7 +1367,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** код загрузки всех деталей руки в начальные координаты для возвращения большого пальца в начальное положение в конструкции*/
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);
@@ -977,10 +1411,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		setChromeMaterial(program, true);
+		setCollectionMaterialUniforms(program, MATERIAL_MODE_CHROME, 1.0f, false);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 40.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
+		GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 3888.0f : 3600.0f);
+		GLES20.glUniform1f(ambientFactorUniform, collectionPreviewMode ? 1.10f : 1.5f);
 			glUniform1i(textureUniform, 12);
 				glUniform1i(normalMapUniform, 13);
 				heightMap.render(modelParts("base_chrome", 6));
@@ -992,6 +1427,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					renderRubberPart(program, 3, -1, modelParts("base_rubber", 5));
 					renderRubberPart(program, 3, -1, modelParts("gofra_static"));
 			renderDeformableRubberParts(false);
+			renderCollectionObjectIfNeeded();
 			if (!firstFrameMetricsLogged) {
 				firstFrameMetricsLogged = true;
 				V3ModelLoadMetrics.log("firstFrame rendered rendererAgeMs=" + elapsedSince(rendererCreatedAtMs)
@@ -1029,13 +1465,147 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (rimLightStrengthUniform >= 0) {
 			glUniform1f(rimLightStrengthUniform, enabled ? METAL_RIM_LIGHT_STRENGTH : 0.0f);
 		}
+		int chromeToneMapStrengthUniform = glGetUniformLocation(shaderProgram, CHROME_TONE_MAP_STRENGTH_UNIFORM);
+		if (chromeToneMapStrengthUniform >= 0) {
+			glUniform1f(chromeToneMapStrengthUniform, enabled && collectionPreviewMode ? 1.0f : 0.0f);
+		}
+	}
+
+	private void setCollectionMaterialUniforms(
+			int shaderProgram,
+			int materialMode,
+			float baseColorMultiplier,
+			boolean useVertexColor
+	) {
+		if (!collectionPreviewMode) return;
+		int cardContrastUniform = glGetUniformLocation(shaderProgram, CARD_CONTRAST_UNIFORM);
+		if (cardContrastUniform >= 0) glUniform1f(cardContrastUniform, 1.85f);
+		int baseColorMultiplierUniform = glGetUniformLocation(shaderProgram, BASE_COLOR_MULTIPLIER_UNIFORM);
+		if (baseColorMultiplierUniform >= 0) {
+			glUniform3f(baseColorMultiplierUniform, baseColorMultiplier, baseColorMultiplier, baseColorMultiplier);
+		}
+		int materialModeUniform = glGetUniformLocation(shaderProgram, MATERIAL_MODE_UNIFORM);
+		if (materialModeUniform >= 0) glUniform1i(materialModeUniform, materialMode);
+		int useVertexColorUniform = glGetUniformLocation(shaderProgram, USE_VERTEX_COLOR_UNIFORM);
+		if (useVertexColorUniform >= 0) glUniform1i(useVertexColorUniform, useVertexColor ? 1 : 0);
+		int chromeStrengthUniform = glGetUniformLocation(shaderProgram, CHROME_STRENGTH_UNIFORM);
+		if (chromeStrengthUniform >= 0) {
+			glUniform1f(chromeStrengthUniform, materialMode == MATERIAL_MODE_CHROME ? CHROME_STRENGTH : 0.0f);
+		}
+		int fillLightDirectionUniform = glGetUniformLocation(shaderProgram, METAL_FILL_LIGHT_DIRECTION_UNIFORM);
+		if (fillLightDirectionUniform >= 0) {
+			glUniform3f(fillLightDirectionUniform,
+					METAL_FILL_LIGHT_DIRECTION[0], METAL_FILL_LIGHT_DIRECTION[1], METAL_FILL_LIGHT_DIRECTION[2]);
+		}
+		int rimLightDirectionUniform = glGetUniformLocation(shaderProgram, METAL_RIM_LIGHT_DIRECTION_UNIFORM);
+		if (rimLightDirectionUniform >= 0) {
+			glUniform3f(rimLightDirectionUniform,
+					METAL_RIM_LIGHT_DIRECTION[0], METAL_RIM_LIGHT_DIRECTION[1], METAL_RIM_LIGHT_DIRECTION[2]);
+		}
+		int fillStrengthUniform = glGetUniformLocation(shaderProgram, METAL_FILL_LIGHT_STRENGTH_UNIFORM);
+		if (fillStrengthUniform >= 0) {
+			glUniform1f(fillStrengthUniform, materialMode == MATERIAL_MODE_CHROME
+					? METAL_FILL_LIGHT_STRENGTH : (materialMode == MATERIAL_MODE_RUBBER ? 1.0f : 0.0f));
+		}
+		int rimStrengthUniform = glGetUniformLocation(shaderProgram, METAL_RIM_LIGHT_STRENGTH_UNIFORM);
+		if (rimStrengthUniform >= 0) {
+			glUniform1f(rimStrengthUniform, materialMode == MATERIAL_MODE_CHROME
+					? METAL_RIM_LIGHT_STRENGTH : (materialMode == MATERIAL_MODE_RUBBER ? 1.0f : 0.0f));
+		}
+		int toneMapStrengthUniform = glGetUniformLocation(shaderProgram, CHROME_TONE_MAP_STRENGTH_UNIFORM);
+		if (toneMapStrengthUniform >= 0) {
+			glUniform1f(toneMapStrengthUniform, materialMode == MATERIAL_MODE_CHROME ? 1.0f : 0.0f);
+		}
+	}
+
+	/** Restores the ordinary hand material defaults after a GL program is linked. */
+	private void setDefaultGeneralMaterialUniforms(int shaderProgram) {
+		GLES20.glUseProgram(shaderProgram);
+		int baseColorMultiplierUniform = glGetUniformLocation(shaderProgram, BASE_COLOR_MULTIPLIER_UNIFORM);
+		if (baseColorMultiplierUniform >= 0) {
+			glUniform3f(baseColorMultiplierUniform, 1.0f, 1.0f, 1.0f);
+		}
+		int cardContrastUniform = glGetUniformLocation(shaderProgram, CARD_CONTRAST_UNIFORM);
+		if (cardContrastUniform >= 0) {
+			glUniform1f(cardContrastUniform, 1.0f);
+		}
+		int useVertexColorUniform = glGetUniformLocation(shaderProgram, USE_VERTEX_COLOR_UNIFORM);
+		if (useVertexColorUniform >= 0) {
+			glUniform1i(useVertexColorUniform, 0);
+		}
+		GLES20.glUseProgram(0);
+	}
+
+	private void applyCollectionCardTransformIfNeeded() {
+		float[] transform = collectionCardTransform;
+		if (transform == null || collectionCardTransformApplied) return;
+		Matrix.multiplyMM(temporaryMatrix, 0, transform, 0, accumulatedRotationGeneral, 0);
+		System.arraycopy(temporaryMatrix, 0, accumulatedRotationGeneral, 0, 16);
+		collectionCardTransformApplied = true;
+	}
+
+	private void renderCollectionObjectIfNeeded() {
+		if (collectionObjectVertexBuffer == 0 || collectionObjectVertexCount == 0 || collectionObjectTransform == null) return;
+		glUseProgram(program);
+		mvpMatrixUniform = glGetUniformLocation(program, MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(program, MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(program, POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(program, NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(program, COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(program, TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(program, TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(program, BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(program, LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(program, TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(program, NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(program, IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(program, SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
+
+		Matrix.multiplyMM(modelMatrix, 0, accumulatedRotationGeneral, 0, collectionObjectTransform, 0);
+		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+
+		boolean key = "gesture_key.v3object".equals(collectionObjectAssetName);
+		int materialMode = key ? MATERIAL_MODE_CHROME
+				: ("gesture_board.v3object".equals(collectionObjectAssetName) ? MATERIAL_MODE_WOOD : MATERIAL_MODE_PAPER);
+		setFrontFaceMirroredUniform(program);
+		setChromeMaterial(program, key);
+		setCollectionMaterialUniforms(program, materialMode, 1.0f, true);
+		int useVertexColorUniform = glGetUniformLocation(program, USE_VERTEX_COLOR_UNIFORM);
+		setSolidWhiteColorOverride(program, false);
+		glUniform1i(isUsingNormalMap, 0);
+		GLES20.glUniform1f(specularFactorUniform, key ? 40.0f : (materialMode == MATERIAL_MODE_WOOD ? 5.0f : 1.0f));
+		GLES20.glUniform1f(lightPowerUniform, key ? 3888.0f : (materialMode == MATERIAL_MODE_WOOD ? 972.0f : 820.8f));
+		GLES20.glUniform1f(ambientFactorUniform, 1.10f);
+		glUniform1i(textureUniform, 3);
+		glUniform1i(normalMapUniform, 13);
+
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, collectionObjectVertexBuffer);
+		int[] offsets = {0, 3, 6, 10, 12, 15};
+		int[] sizes = {3, 3, 4, 2, 3, 3};
+		int[] attributes = {positionAttribute, normalAttribute, colorAttribute, texturesAttribute, tangentAttribute, bitangentAttribute};
+		for (int index = 0; index < attributes.length; index++) {
+			if (attributes[index] < 0) continue;
+			GLES20.glVertexAttribPointer(attributes[index], sizes[index], GLES20.GL_FLOAT, false, STRIDE, offsets[index] * BYTES_PER_FLOAT);
+			GLES20.glEnableVertexAttribArray(attributes[index]);
+		}
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, collectionObjectVertexCount);
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+		if (useVertexColorUniform >= 0) glUniform1i(useVertexColorUniform, 0);
+		setChromeMaterial(program, false);
 	}
 
 	private void setFrontFaceMirroredUniform(int shaderProgram) {
 		int frontFaceMirroredUniform = glGetUniformLocation(shaderProgram, FRONT_FACE_MIRRORED_UNIFORM);
 		if (frontFaceMirroredUniform >= 0) {
 			glUniform1i(frontFaceMirroredUniform,
-					UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? 1 : 0);
+					handSide() == 0 ? 1 : 0);
 		}
 	}
 
@@ -1048,24 +1618,27 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private void setV3PlasticMaterial(int shaderProgram) {
 		setFrontFaceMirroredUniform(shaderProgram);
 		setChromeMaterialForMainProgram(shaderProgram, false);
+		setCollectionMaterialUniforms(shaderProgram, MATERIAL_MODE_DEFAULT, 1.0f, false);
 		glUniform1i(isUsingNormalMap, 1);
 		GLES20.glUniform1f(specularFactorUniform, 2.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.95f);
+		GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 1180.0f : 700.0f);
+		glUniform1f(ambientFactorUniform, collectionPreviewMode ? 0.66f : 0.95f);
 	}
 
 	private void setV3RubberMaterial(int shaderProgram) {
 		setFrontFaceMirroredUniform(shaderProgram);
 		setChromeMaterialForMainProgram(shaderProgram, false);
+		setCollectionMaterialUniforms(shaderProgram, MATERIAL_MODE_RUBBER, 0.42f, false);
 		glUniform1i(isUsingNormalMap, 1);
 		GLES20.glUniform1f(specularFactorUniform, RUBBER_SPECULAR_FACTOR);
-		GLES20.glUniform1f(lightPowerUniform, RUBBER_LIGHT_POWER);
-		GLES20.glUniform1f(ambientFactorUniform, RUBBER_AMBIENT_FACTOR);
+		GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 1450.0f : RUBBER_LIGHT_POWER);
+		GLES20.glUniform1f(ambientFactorUniform, collectionPreviewMode ? 0.24f : RUBBER_AMBIENT_FACTOR);
 	}
 
 		private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
 			setFrontFaceMirroredUniform(shaderProgram);
 			setChromeMaterialForMainProgram(shaderProgram, false);
+			setCollectionMaterialUniforms(shaderProgram, MATERIAL_MODE_DEFAULT, 1.0f, false);
 			glUniform1i(isUsingNormalMap, 0);
 			GLES20.glUniform1f(specularFactorUniform, 1.0f);
 			GLES20.glUniform1f(lightPowerUniform, 900.0f);
@@ -1077,10 +1650,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		private void renderChromeMetalPart(int shaderProgram, int[] indexesOfBuffer) {
 			setFrontFaceMirroredUniform(shaderProgram);
 			setChromeMaterialForMainProgram(shaderProgram, true);
+			setCollectionMaterialUniforms(shaderProgram, MATERIAL_MODE_CHROME, 1.0f, false);
 			glUniform1i(isUsingNormalMap, 0);
 			GLES20.glUniform1f(specularFactorUniform, 40.0f);
-			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-			GLES20.glUniform1f(ambientFactorUniform, 1.5f);
+			GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 3888.0f : 3600.0f);
+			GLES20.glUniform1f(ambientFactorUniform, collectionPreviewMode ? 1.10f : 1.5f);
 			glUniform1i(textureUniform, 12);
 			glUniform1i(normalMapUniform, 13);
 			heightMap.render(indexesOfBuffer);
@@ -1101,8 +1675,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			setV3PlasticMaterial(shaderProgram);
 			glUniform1i(isUsingNormalMap, 0);
 			GLES20.glUniform1f(specularFactorUniform, WHITE_PLASTIC_SPECULAR_FACTOR);
-			GLES20.glUniform1f(lightPowerUniform, WHITE_PLASTIC_LIGHT_POWER);
-			GLES20.glUniform1f(ambientFactorUniform, WHITE_PLASTIC_AMBIENT_FACTOR);
+			GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 1180.0f : WHITE_PLASTIC_LIGHT_POWER);
+			GLES20.glUniform1f(ambientFactorUniform, collectionPreviewMode ? 0.66f : WHITE_PLASTIC_AMBIENT_FACTOR);
 			setSolidWhiteColorOverride(shaderProgram, true);
 			heightMap.render(indexesOfBuffer);
 			setSolidWhiteColorOverride(shaderProgram, false);
@@ -1127,11 +1701,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		private void renderRubberPart(int shaderProgram, int textureUnit, int normalMapUnit, int[] indexesOfBuffer) {
-			setChromeMaterialForMainProgram(shaderProgram, false);
+			setV3RubberMaterial(shaderProgram);
 			glUniform1i(isUsingNormalMap, normalMapUnit >= 0 ? 1 : 0);
-			GLES20.glUniform1f(specularFactorUniform, RUBBER_SPECULAR_FACTOR);
-			GLES20.glUniform1f(lightPowerUniform, RUBBER_LIGHT_POWER);
-			GLES20.glUniform1f(ambientFactorUniform, RUBBER_AMBIENT_FACTOR);
 			glUniform1i(textureUniform, textureUnit);
 			if (normalMapUnit >= 0) {
 				glUniform1i(normalMapUniform, normalMapUnit);
@@ -1193,7 +1764,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void rotateFingerAroundTiltedZ(float[] targetMatrix, float angle, float tiltX, float tiltY) {
-		boolean mirrored = UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0;
+		boolean mirrored = handSide() == 0;
 		float transformedTiltX = mirrored ? -tiltX : tiltX;
 		float transformedAngle = mirrored ? -angle : angle;
 
@@ -1228,13 +1799,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -41.0f, 2.0f, 29.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress4()) {
+		if (isFingerAnimating(3)) {
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleForeFingerInt, -4.0f, 4.0f);
 
@@ -1268,7 +1839,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		Matrix.translateM(temporaryMatrix, 0, 10.0f,
-				UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? 2.0f : -2.0f,
+				handSide() == 0 ? 2.0f : -2.0f,
 				-29.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1302,14 +1873,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0,-10.0f, 2.0f, 29.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress4()) {
-			angleForeFingerTransfer = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger4();
+		if (isFingerAnimating(3)) {
+			angleForeFingerTransfer = fingerPosition(3);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleForeFingerInt, -4.0f, 4.0f);
@@ -1346,7 +1917,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		Matrix.translateM(temporaryMatrix, 0, 10.0f,
-				UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? 2.0f : -2.0f,
+				handSide() == 0 ? 2.0f : -2.0f,
 				-29.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1392,16 +1963,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -46.5f, 0.0f, -11.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress3()) {
+		if (isFingerAnimating(2)) {
 			Matrix.setIdentityM(currentRotation, 0);
 			Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
-			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			if (handSide() == 0) {
 				Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			} else  {
 				Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
@@ -1415,7 +1986,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					if((angleMiddleFingerTransfer >= 0 && angleMiddleFingerTransfer <= 100)) {
 						Matrix.setIdentityM(currentRotation, 0);
 						Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
-						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+						if (handSide() == 0) {
 							Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 						} else  {
 							Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
@@ -1476,18 +2047,18 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -12.0f, 0.0f, -11.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress3()) {
-			angleMiddleFingerTransfer = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger3();
+		if (isFingerAnimating(2)) {
+			angleMiddleFingerTransfer = fingerPosition(2);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
-			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			if (handSide() == 0) {
 				Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			} else  {
 				Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
@@ -1510,7 +2081,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if((angleMiddleFingerTransfer >= 0 && angleMiddleFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
 					Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+					if (handSide() == 0) {
 						Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 					} else  {
 						Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
@@ -1575,13 +2146,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -43f, -0.0f, 8f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2()) {
+		if (isFingerAnimating(1)) {
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleRingFingerInt, 6.0f, -3.0f);
 
@@ -1650,14 +2221,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -9.0f, -0.0f, 8f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2()) {
-			angleRingFingerTransfer = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger2();
+		if (isFingerAnimating(1)) {
+			angleRingFingerTransfer = fingerPosition(1);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleRingFingerInt, 7.0f, -6.0f);
@@ -1742,13 +2313,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -39.0f, -10.0f, 25.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress1()) {
+		if (isFingerAnimating(0)) {
 
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleLittleFingerInt, 16.0f, -8.0f);
@@ -1784,7 +2355,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		Matrix.translateM(temporaryMatrix, 0, 6.0f,
-				UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? -10.0f : 10.0f,
+				handSide() == 0 ? -10.0f : 10.0f,
 				-25.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1819,14 +2390,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, -6.0f,  -10.0f, 25.0f);
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress1()) {
-			angleLittleFingerTransfer = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger1();
+		if (isFingerAnimating(0)) {
+			angleLittleFingerTransfer = fingerPosition(0);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			rotateFingerAroundTiltedZ(currentRotation, angleLittleFingerInt, 16.0f, -8.0f);
@@ -1864,7 +2435,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		Matrix.translateM(temporaryMatrix, 0, 6.0f,
-				UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? -10.0f : 10.0f,
+				handSide() == 0 ? -10.0f : 10.0f,
 				-25.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1909,15 +2480,15 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 
 		/** поворот вокруг первой оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
+		if (isFingerAnimating(4)) {
 			int firstAxisPercent = V3FingerPositionMapping.clampPercent(
-					UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5()
+					fingerPosition(4)
 			);
 			angleBigFingerTransfer1 = V3FingerPositionMapping.thumbFirstAxisAngle(firstAxisPercent);
 			angleBigFingerSecondPhalanxTransfer = V3FingerPositionMapping.thumbSecondPhalanxAngle(firstAxisPercent);
 
 			Matrix.setIdentityM(currentRotation, 0);
-			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			if (handSide() == 0) {
 				rotateBigFingerFirstAxis(currentRotation, angleBigFingerInt1);
 			} else  {
 				rotateBigFingerFirstAxis(currentRotation, -angleBigFingerInt1);
@@ -1942,7 +2513,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					angleBigFingerTransfer1 = (int) angleBigFingerFloat1;
 				}
 					if((angleBigFingerTransfer1 >= BIG_FINGER_FIRST_AXIS_MIN && angleBigFingerTransfer1 <= BIG_FINGER_FIRST_AXIS_MAX)) {
-						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+						if (handSide() == 0) {
 							rotateBigFingerFirstAxis(currentRotation, angleBigFingerInt1);
 						} else  {
 							rotateBigFingerFirstAxis(currentRotation, -angleBigFingerInt1);
@@ -1961,13 +2532,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		/** поворот вокруг второй оси */
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6()) {
+		if (isFingerAnimating(5)) {
 			angleBigFingerTransfer2 = V3FingerPositionMapping.thumbSecondAxisAngle(
-					UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6()
+					fingerPosition(5)
 			);
 
 			Matrix.setIdentityM(currentRotation, 0);
-			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			if (handSide() == 0) {
 				rotateBigFingerSecondAxis(currentRotation, angleBigFingerInt2);
 			} else  {
 				rotateBigFingerSecondAxis(currentRotation, -angleBigFingerInt2);
@@ -1981,13 +2552,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		} else {
 			Matrix.setIdentityM(currentRotation, 0);
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-				if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+				if (handSide() == 0) {
 					angleBigFingerFloat2 -= deltaX;
 				} else {
 					angleBigFingerFloat2 += deltaX;
 				}
 				if((angleBigFingerFloat2 < BIG_FINGER_SECOND_AXIS_MIN || angleBigFingerFloat2 > BIG_FINGER_SECOND_AXIS_MAX)) {
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+					if (handSide() == 0) {
 						angleBigFingerFloat2 += deltaX;
 					} else {
 						angleBigFingerFloat2 -= deltaX;
@@ -1995,7 +2566,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					angleBigFingerTransfer2 = (int) angleBigFingerFloat2;
 				}
 					if((angleBigFingerTransfer2 >= BIG_FINGER_SECOND_AXIS_MIN && angleBigFingerTransfer2 <= BIG_FINGER_SECOND_AXIS_MAX)) {
-						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+						if (handSide() == 0) {
 							rotateBigFingerSecondAxis(currentRotation, angleBigFingerInt2);
 						} else  {
 							rotateBigFingerSecondAxis(currentRotation, -angleBigFingerInt2);
@@ -2086,7 +2657,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		littleFinger(programSelectReference,1);
 
 		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);
@@ -2176,7 +2747,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	private void accumulateBigFingerSecondPhalanxRotation() {
 		Matrix.setIdentityM(currentRotation, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+		if (handSide() == 0) {
 			rotateBigFingerSecondPhalanx(currentRotation, angleBigFingerSecondPhalanxInt);
 		} else {
 			rotateBigFingerSecondPhalanx(currentRotation, -angleBigFingerSecondPhalanxInt);
@@ -2186,7 +2757,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void buildBigFingerModelMatrix(boolean includeSecondPhalanxRotation) {
-		boolean mirrored = UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0;
+		boolean mirrored = handSide() == 0;
 		Matrix.setIdentityM(modelMatrix, 0);
 		if (mirrored) {
 			Matrix.scaleM(modelMatrix, 0, 1.0f, -1.0f, 1.0f);
@@ -2258,7 +2829,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void rotateBigFingerFirstAxis(float[] targetMatrix, float angle) {
-		float correction = UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0
+		float correction = handSide() == 0
 				? -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES
 				: BIG_FINGER_TOUCH_X_CORRECTION_DEGREES;
 		Matrix.rotateM(targetMatrix, 0, correction, 1.0f, 0.0f, 0.0f);
@@ -2273,7 +2844,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void rotateBigFingerSecondPhalanx(float[] targetMatrix, float angle) {
-		float correction = UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0
+		float correction = handSide() == 0
 				? -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES
 				: BIG_FINGER_TOUCH_X_CORRECTION_DEGREES;
 		Matrix.rotateM(targetMatrix, 0, correction, 1.0f, 0.0f, 0.0f);
@@ -2372,6 +2943,43 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						data.volumeRodCenterline[endOffset + 1] - data.volumeRodCenterline[1],
 						data.volumeRodCenterline[endOffset + 2] - data.volumeRodCenterline[2]
 				);
+			}
+		}
+
+		void attachShared(CollectionSharedResources shared) {
+			Load3DModelFesth3.ensureLoaded(fragmentGripperSettings);
+			partCount = shared.vbo.length;
+			vbo = shared.vbo.clone();
+			ibo = shared.ibo.clone();
+			indexCounts = shared.indexCounts.clone();
+			deformableParts = new boolean[partCount];
+			bindVertices = new float[partCount][];
+			dynamicVertices = new float[partCount][];
+			deformableIndices = new int[partCount][];
+			dynamicVertexBuffers = new FloatBuffer[partCount];
+			deformationData = new Load3DModelFesth3.DeformationData[partCount];
+			volumeRodRuntimes = new VolumeRodRuntime[partCount];
+
+			for (int partIndex = 0; partIndex < partCount; partIndex++) {
+				float[] vertices = Load3DModelFesth3.getVertexArray(partIndex);
+				Load3DModelFesth3.DeformationData partDeformationData =
+						Load3DModelFesth3.getDeformationData(partIndex);
+				if (partDeformationData == null) continue;
+				deformableParts[partIndex] = true;
+				bindVertices[partIndex] = vertices;
+				dynamicVertices[partIndex] = vertices.clone();
+				deformationData[partIndex] = partDeformationData;
+				FloatBuffer dynamicBuffer = ByteBuffer
+						.allocateDirect(vertices.length * BYTES_PER_FLOAT)
+						.order(ByteOrder.nativeOrder())
+						.asFloatBuffer();
+				dynamicBuffer.put(vertices).position(0);
+				dynamicVertexBuffers[partIndex] = dynamicBuffer;
+				if (DEFORMATION_TYPE_VOLUME_ROD.equals(partDeformationData.type)
+						&& partDeformationData.volumeRodCenterline != null) {
+					volumeRodRuntimes[partIndex] = new VolumeRodRuntime(partDeformationData);
+					deformableIndices[partIndex] = Load3DModelFesth3.getIndicesArray(partIndex);
+				}
 			}
 		}
 

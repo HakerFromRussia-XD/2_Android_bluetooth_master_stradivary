@@ -33,6 +33,7 @@ import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
@@ -127,6 +128,7 @@ class GesturesOpticDelegateAdapter(
 
     private var currentActiveGestureId: Int? = null
     private var lastRenderedFilter: Int? = null
+    private val collectionPreviewController = CollectionGesturePreviewController()
 
     private var collectJob: Job? = null
     private var selectModeJob: Job? = null // >>> changed <<<
@@ -180,6 +182,7 @@ class GesturesOpticDelegateAdapter(
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
+        collectionPreviewController.release()
 
         // >>> changed <<< Инициализируем scope для RetryUtils / корутин
         scope = coroutineScope ?: main.lifecycleScope
@@ -354,7 +357,7 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         }
-
+        collectionPreviewController.bind(root, { true }) { card -> card.performClick() }
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
@@ -975,6 +978,7 @@ class GesturesOpticDelegateAdapter(
         collectJob?.cancel()
         selectModeJob?.cancel() // >>> changed <<<
         borderAnimator?.destroyCoroutines()
+        collectionPreviewController.release()
     }
 
     override fun onRotationGestureClick(

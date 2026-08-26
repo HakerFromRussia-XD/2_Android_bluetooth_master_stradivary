@@ -731,19 +731,21 @@ struct GesturesWidgetView: View {
                                 if item.id == 9 {
                                     return AnyView(GestureObjectOpenGLPreview(clipKind: .boardGrip,
                                                                               animationToken: boardGripAnimationToken,
-                                                                              editingObject: false))
+                                                                              editingObject: false,
+                                                                              enablesHandEditing: false))
                                 }
                                 if item.id == 15 {
                                     return AnyView(GestureObjectOpenGLPreview(clipKind: .naturalPosition,
                                                                               animationToken: naturalPositionAnimationToken,
-                                                                              editingObject: false))
+                                                                              editingObject: false,
+                                                                              enablesHandEditing: false))
                                 }
                                 let additionalKind: Int? = [4: 7, 6: 8, 7: 9, 10: 10, 11: 11, 13: 12, 14: 13][item.id]
                                 if let additionalKind, let kind = GestureObjectClipKind(rawValue: additionalKind) {
                                     return AnyView(GestureObjectOpenGLPreview(clipKind: kind,
                                                                               animationToken: additionalToken,
                                                                               editingObject: false,
-                                                                              enablesHandEditing: item.id == 11))
+                                                                              enablesHandEditing: false))
                                 }
                                 return nil
                             }() : nil,
@@ -1493,7 +1495,9 @@ private final class GestureKeyPreviewHostView: UIView {
     private var pendingEditingKey = false
     private var resourcesReady = false
 
-    init(frame: CGRect, clipKind: GestureObjectClipKind, enablesHandEditing: Bool) {
+    init(frame: CGRect,
+         clipKind: GestureObjectClipKind,
+         enablesHandEditing: Bool) {
         self.clipKind = clipKind
         self.enablesHandEditing = enablesHandEditing
         super.init(frame: frame)

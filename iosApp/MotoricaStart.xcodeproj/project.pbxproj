@@ -2368,10 +2368,9 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 17;
-				DEVELOPMENT_TEAM = WWLXR9V94H;
+				DEVELOPMENT_TEAM = R7M384QD5A;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
-				MOTORICA_GAME_CONTROL_APP_GROUP = group.com.motorica.start.gamecontroll;
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -2380,12 +2379,13 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.3.15;
+				MOTORICA_GAME_CONTROL_APP_GROUP = group.com.motorica.start.gamecontrolll;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2404,10 +2404,9 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 17;
-				DEVELOPMENT_TEAM = WWLXR9V94H;
+				DEVELOPMENT_TEAM = R7M384QD5A;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
-				MOTORICA_GAME_CONTROL_APP_GROUP = group.com.motorica.start.gamecontroll;
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -2416,12 +2415,13 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.3.15;
+				MOTORICA_GAME_CONTROL_APP_GROUP = group.com.motorica.start.gamecontrolll;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2482,6 +2482,7 @@
 		C4F40CBDED32F24D3573862B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -2526,6 +2527,7 @@
 		F30DB6F4D80B03429389BCFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";

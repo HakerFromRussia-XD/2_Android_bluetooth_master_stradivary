@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
@@ -95,10 +96,12 @@ class GesturesDelegateAdapter(
     private var currentActiveGestureId: Int? = null
     private var isRotationGroupResponseReceived = false
     private var lastRenderedFilter: Int? = null
+    private val collectionPreviewController = CollectionGesturePreviewController()
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
+        collectionPreviewController.release()
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
 
@@ -259,6 +262,7 @@ class GesturesDelegateAdapter(
                 }
             }
         }
+        collectionPreviewController.bind(root, { true }) { card -> card.performClick() }
 
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
@@ -656,6 +660,7 @@ class GesturesDelegateAdapter(
     fun onDestroy() {
         Log.d("LifeCycele", "stopCollectingGestureFlow")
         collectJob?.cancel()
+        collectionPreviewController.release()
     }
 
     override fun onRotationGestureClick(position: Int, gestureName: String?, gestureId: Int) {

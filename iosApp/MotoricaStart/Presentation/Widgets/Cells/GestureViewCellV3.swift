@@ -209,7 +209,7 @@ final class GestureViewCellV3: UITableViewCell {
         }
     }
 
-    private func refreshGestureNames() {
+    func refreshGestureNames() {
         guard let viewModel, let provider else { return }
         var transaction = Transaction(animation: nil)
         transaction.disablesAnimations = true

@@ -15,10 +15,23 @@ import shared
     var viewModel: WidgetsListViewModel!
 
     // MARK: - Lifecycle
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        refreshVisibleGestureNames()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         print("[Lifecycle]  viewDidAppear")
         // отключаем переход на предыдущий экран свайпом влево
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+    }
+
+    private func refreshVisibleGestureNames() {
+        tableView.visibleCells.forEach { cell in
+            (cell as? GestureViewCell)?.refreshGestureNames()
+            (cell as? GestureViewCellV3)?.refreshGestureNames()
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()

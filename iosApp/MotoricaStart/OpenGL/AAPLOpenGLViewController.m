@@ -979,21 +979,25 @@ static os_log_t V3FrameLog(void) {
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
 
-- (IBAction)perehod:(UIButton *)sender {
-    [self stopRendererSavingData:NO];
-    
-    if (showRenameTextField) {
-        NSString *result = @"";
-        result = [result stringByAppendingString:[self resolvedTextField].text];
-        if ([self isLegacyOpenGLStoryboard]) {
-            NSString *legacyResult = [@"    " stringByAppendingString:result];
-            [self legacySetGestureName:legacyResult number:_gestureNumber];
-        } else {
-            [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
-        }
+- (void)saveGestureNameIfEditing {
+    if (!showRenameTextField) return;
+
+    UITextField *editableTextField = [self resolvedTextField];
+    NSString *result = editableTextField.text ?: @"";
+    if ([self isLegacyOpenGLStoryboard]) {
+        NSString *legacyResult = [@"    " stringByAppendingString:result];
+        [self legacySetGestureName:legacyResult number:_gestureNumber];
+    } else {
+        [gestureService setNameGestureWithNumberGesture:_gestureNumber name:result];
     }
 }
+
+- (IBAction)perehod:(UIButton *)sender {
+    [self stopRendererSavingData:NO];
+    [self saveGestureNameIfEditing];
+}
 - (IBAction)perehodWithSaveData:(UIButton *)sender {
+    [self saveGestureNameIfEditing];
     [self stopRendererSavingData:YES];
 }
 

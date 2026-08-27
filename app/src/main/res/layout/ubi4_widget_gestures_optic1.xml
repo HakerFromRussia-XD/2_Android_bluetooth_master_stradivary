@@ -195,6 +195,34 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
+        <TextView
+            android:id="@+id/collectionSectionTitleTv"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:gravity="center_vertical"
+            android:text="@string/collection_of_gestures"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/hideCollectionBtn"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ubi4_view_with_corners_gray_outside"
+            android:contentDescription="@string/collapse_gesture_collection"
+            android:elevation="3dp"
+            android:padding="6dp"
+            android:src="@drawable/baseline_keyboard_arrow_down_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/collectionFactoryGesturesCl"
             android:layout_width="match_parent"
@@ -205,7 +233,7 @@
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/hideCollectionBtn">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidline_mid_33"
@@ -838,55 +866,31 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.8" />
 
-            <View
-                android:id="@+id/dividerV"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginStart="18dp"
-                android:layout_marginTop="17dp"
-                android:layout_marginEnd="50dp"
-                android:background="@color/ubi4_gray_border"
-                app:layout_constraintEnd_toEndOf="parent"
+            <TextView
+                android:id="@+id/customGesturesSectionTitleTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/custom_gestures_section"
+                android:textColor="@color/white"
+                android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="18dp"
-                android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
-                app:layout_constraintBottom_toBottomOf="@+id/dividerV"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/dividerV"
-                app:layout_constraintTop_toTopOf="@+id/dividerV" />
-
-            <View
-                android:id="@+id/hideCollectionBtn"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="18dp"
-                android:background="@drawable/baseline_keyboard_arrow_down_24"
-                android:elevation="3dp"
-                app:layout_constraintBottom_toBottomOf="@+id/dividerV"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/dividerV"
-                app:layout_constraintTop_toTopOf="@+id/dividerV" />
 
             <View
                 android:id="@+id/gestureCustom1Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="17dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
                 android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dividerV" />
+                app:layout_constraintTop_toBottomOf="@+id/customGesturesSectionTitleTv" />
 
             <FrameLayout
                 android:id="@+id/gesture1SettingsContainer"
@@ -930,13 +934,13 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="6dp"
-                android:layout_marginTop="17dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
                 android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
-                app:layout_constraintTop_toBottomOf="@+id/dividerV" />
+                app:layout_constraintTop_toBottomOf="@+id/customGesturesSectionTitleTv" />
 
             <FrameLayout
                 android:id="@+id/gesture2SettingsContainer"

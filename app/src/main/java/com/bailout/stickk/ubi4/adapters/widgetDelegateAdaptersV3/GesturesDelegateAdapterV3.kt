@@ -216,11 +216,11 @@ class GesturesDelegateAdapterV3(
         val savedHideState = main.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
         if (hideFactoryCollectionGestures) {
-            hideCollectionBtn.rotation = 0F
+            hideCollectionBtn.rotation = 180F
             collectionFactoryGesturesCl.visibility = View.VISIBLE
             collectionFactoryGesturesCl.alpha = 1.0f
         } else {
-            hideCollectionBtn.rotation = 180F
+            hideCollectionBtn.rotation = 0F
             collectionFactoryGesturesCl.visibility = View.GONE
             collectionFactoryGesturesCl.alpha = 0.0f
         }
@@ -268,7 +268,7 @@ class GesturesDelegateAdapterV3(
 
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
-                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration =
                     ANIMATION_DURATION.toLong()
@@ -281,7 +281,7 @@ class GesturesDelegateAdapterV3(
                 }, ANIMATION_DURATION.toLong())
             } else {
                 hideFactoryCollectionGestures = true
-                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = 0
                 collectionFactoryGesturesCl.visibility = View.VISIBLE

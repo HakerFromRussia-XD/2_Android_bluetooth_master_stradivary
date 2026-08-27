@@ -300,6 +300,16 @@ abstract class BaseWidgetsFragment : Fragment() {
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Gesture settings are edited in a separate Activity. The fragment and its
+        // delegates remain alive, so their shared list must be refreshed explicitly
+        // when that Activity finishes. Rebinding here covers both UBIv4/V3 gesture
+        // widgets and their two-/three-section layouts.
+        loadGestureNameList()
+        adapterWidgets.notifyDataSetChanged()
+    }
+
     private fun releaseDelegateResources() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()

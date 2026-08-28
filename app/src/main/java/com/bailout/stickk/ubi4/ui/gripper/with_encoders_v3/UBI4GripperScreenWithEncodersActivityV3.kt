@@ -334,8 +334,7 @@ class UBI4GripperScreenWithEncodersActivityV3
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 gestureState = States.GESTURE_SAVE_BUTTON.number
-                val savedGesture = compileBLEMassage()
-                recordCustomGripConfigurationIfChanged(savedGesture)
+                compileBLEMassage(::recordCustomGripConfigurationIfChanged)
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                     val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
@@ -806,7 +805,9 @@ class UBI4GripperScreenWithEncodersActivityV3
         }
     }
 
-    private fun compileBLEMassage(): Gesture {
+    private fun compileBLEMassage(
+        onWriteSuccess: (Gesture) -> Unit = {}
+    ): Gesture {
         val gesture = Gesture(gestureID, // проверить тут -2
             validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
             validationRange(fingerOpenState1), validationRange(fingerOpenState5), validationRange(fingerOpenState6),
@@ -825,7 +826,9 @@ class UBI4GripperScreenWithEncodersActivityV3
                 "close=${positionSummary(gesture.closePosition1, gesture.closePosition2, gesture.closePosition3, gesture.closePosition4, gesture.closePosition5, gesture.closePosition6)} " +
                 "hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
-        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
+        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE) {
+            onWriteSuccess(gesture)
+        }
         return gesture
     }
 

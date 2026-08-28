@@ -10,6 +10,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTextInputBinding
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
@@ -101,6 +102,11 @@ class TextInputDelegateAdapterV3(
             } else {
                 enteredText
             }
+            val hasDeviceNameChanged = isDeviceName &&
+                DeviceNameBridgeV3.hasDisplayNameChanged(
+                    currentDeviceName = resolveCurrentDeviceName(),
+                    newDeviceName = transportText
+                )
 
             val payload = WidgetCommandBridgeV3.buildSetText(
                 parameterID = parameterInfo.parameterID,
@@ -133,6 +139,9 @@ class TextInputDelegateAdapterV3(
             }
 
             main.bleCommandWithQueue(payload, SERIALPORTCHAR_UUID, WRITE) {
+                if (hasDeviceNameChanged) {
+                    AchievementEventManager.recordDeviceNameCustomization()
+                }
                 if (isSerialNumber && readAfterSetPayload != null) {
                     Log.d(
                         "DeviceSerialV3",

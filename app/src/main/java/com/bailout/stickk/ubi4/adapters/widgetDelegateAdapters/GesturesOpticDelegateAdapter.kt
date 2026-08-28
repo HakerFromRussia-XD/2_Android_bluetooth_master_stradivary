@@ -671,7 +671,7 @@ class GesturesOpticDelegateAdapter(
                             val gestureName = when {
                                 activeGestureId == null -> "Unknown"
                                 activeGestureId < 63 -> getCollectionGestures()
-                                    .getOrNull(activeGestureId - 1)
+                                    .firstOrNull { it.gestureId == activeGestureId }
                                     ?.gestureName ?: "Unknown"
                                 else -> gestureNameList.getOrNull(activeGestureId - 64)
                                     ?: "Unknown"

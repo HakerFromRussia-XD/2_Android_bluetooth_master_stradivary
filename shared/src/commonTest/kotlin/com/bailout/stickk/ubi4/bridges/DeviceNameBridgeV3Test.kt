@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceN
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class DeviceNameBridgeV3Test {
@@ -35,5 +36,21 @@ class DeviceNameBridgeV3Test {
 
         assertEquals("FTHS3-MY-HAND", DeviceNameBridgeV3.applyPrefixForTransport("MY-HAND"))
         assertEquals("MY-HAND", DeviceNameBridgeV3.displayName("FTHS3-MY-HAND"))
+    }
+
+    @Test
+    fun `device name change compares user-visible names`() {
+        assertTrue(
+            DeviceNameBridgeV3.hasDisplayNameChanged(
+                currentDeviceName = "FTHS3-OLD-NAME",
+                newDeviceName = "FTHS3-NEW-NAME"
+            )
+        )
+        assertFalse(
+            DeviceNameBridgeV3.hasDisplayNameChanged(
+                currentDeviceName = "INDY3-SAME-NAME",
+                newDeviceName = "FTHS3-SAME-NAME"
+            )
+        )
     }
 }

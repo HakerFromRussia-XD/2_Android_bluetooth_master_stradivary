@@ -15,7 +15,6 @@ class CollectionGesturesProvider {
             val ctx = applicationContext()
 
             val list = ArrayList<Gesture>()
-
             list.add(Gesture(GestureEnum.GESTURE_FIST.number, gestureName = ctx.getString(SharedRes.strings.fist.resourceId), gestureImage = SharedRes.images.collection_fist_1.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_POINT.number, gestureName = ctx.getString(SharedRes.strings.gesture_point.resourceId), gestureImage = SharedRes.images.collection_point.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_PINCH.number, gestureName = ctx.getString(SharedRes.strings.gesture_pinch.resourceId), gestureImage = SharedRes.images.collection_pinch.drawableResId))
@@ -27,7 +26,7 @@ class CollectionGesturesProvider {
             list.add(Gesture(GestureEnum.GESTURE_HALF_GRAB.number, gestureName = ctx.getString(SharedRes.strings.gesture_half_grab.resourceId), gestureImage = SharedRes.images.collect_half_grab.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_OK.number, gestureName = ctx.getString(SharedRes.strings.gesture_ok.resourceId), gestureImage = SharedRes.images.collection_ok.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_THUMB_UP.number, gestureName = ctx.getString(SharedRes.strings.gesture_thumb_up.resourceId), gestureImage = SharedRes.images.collection_thumb_up.drawableResId))
-            list.add(Gesture(GestureEnum.GESTURE_MIDDLE_FINGER.number, gestureName = ctx.getString(SharedRes.strings.gesture_middle_finger.resourceId), gestureImage = SharedRes.images.collection_middle_finger.drawableResId))
+//            list.add(Gesture(GestureEnum.GESTURE_MIDDLE_FINGER.number, gestureName = ctx.getString(SharedRes.strings.gesture_middle_finger.resourceId), gestureImage = SharedRes.images.collection_middle_finger.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_DOUBLE_POINT.number, gestureName = ctx.getString(SharedRes.strings.gesture_double_point.resourceId), gestureImage = SharedRes.images.collection_double_point.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_CALL_ME.number, gestureName = ctx.getString(SharedRes.strings.gesture_call_me.resourceId), gestureImage = SharedRes.images.collection_call_me.drawableResId))
             list.add(Gesture(GestureEnum.GESTURE_NATURAL_POSITION.number, gestureName = ctx.getString(SharedRes.strings.gesture_natural_position.resourceId), gestureImage = SharedRes.images.collection_natural_position.drawableResId))

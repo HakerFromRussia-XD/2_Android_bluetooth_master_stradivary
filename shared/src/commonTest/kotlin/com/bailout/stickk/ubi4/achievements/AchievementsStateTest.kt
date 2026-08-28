@@ -59,10 +59,10 @@ class AchievementsStateTest {
     }
 
     @Test
-    fun `get a grip accepts only custom gesture ids`() {
+    fun `get a grip accepts only eight visible custom gesture ids`() {
         assertTrue(GestureEnum.GESTURE_CUSTOM_0.number.isCustomGestureId())
-        assertTrue(GestureEnum.GESTURE_CUSTOM_13.number.isCustomGestureId())
+        assertTrue(GestureEnum.GESTURE_CUSTOM_7.number.isCustomGestureId())
         assertFalse(GestureEnum.GESTURE_NATURAL_POSITION.number.isCustomGestureId())
-        assertFalse((GestureEnum.GESTURE_CUSTOM_13.number + 1).isCustomGestureId())
+        assertFalse(GestureEnum.GESTURE_CUSTOM_8.number.isCustomGestureId())
     }
 }

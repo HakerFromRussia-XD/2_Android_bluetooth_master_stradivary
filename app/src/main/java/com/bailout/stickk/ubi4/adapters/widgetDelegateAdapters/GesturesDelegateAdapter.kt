@@ -359,7 +359,9 @@ class GesturesDelegateAdapter(
     private fun updateActiveGestureHeader(activeGestureId: Int?) {
         val name = when {
             activeGestureId == null -> "Unknown"
-            activeGestureId in 1..62 -> getCollectionGestures().getOrNull(activeGestureId - 1)?.gestureName ?: "Unknown"
+            activeGestureId in 1..62 -> getCollectionGestures()
+                .firstOrNull { it.gestureId == activeGestureId }
+                ?.gestureName ?: "Unknown"
             else -> gestureNameList.getOrNull(activeGestureId - 64) ?: "Unknown"
         }
         _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, name)

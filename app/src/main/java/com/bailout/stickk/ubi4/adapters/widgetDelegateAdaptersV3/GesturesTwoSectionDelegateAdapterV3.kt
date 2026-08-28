@@ -389,7 +389,9 @@ class GesturesTwoSectionDelegateAdapterV3(
     private fun updateActiveGestureHeader(activeGestureId: Int?) {
         val name = when {
             activeGestureId == null -> UNKNOWN_GESTURE_LABEL
-            activeGestureId in 1..62 -> getCollectionGestures().getOrNull(activeGestureId - 1)?.gestureName ?: UNKNOWN_GESTURE_LABEL
+            activeGestureId in 1..62 -> getCollectionGestures()
+                .firstOrNull { it.gestureId == activeGestureId }
+                ?.gestureName ?: UNKNOWN_GESTURE_LABEL
             else -> gestureNameList.getOrNull(activeGestureId - 64) ?: UNKNOWN_GESTURE_LABEL
         }
         _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, name)
@@ -875,4 +877,3 @@ private fun List<Gesture>.toRotationGroupV3(): RotationGroupV3 {
         gesture8ImageId = image(7)
     )
 }
-

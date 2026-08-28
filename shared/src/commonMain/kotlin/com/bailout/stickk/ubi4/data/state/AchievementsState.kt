@@ -37,12 +37,14 @@ object AchievementsState {
             WidgetState.telemetryGestureCountersFlow,
             AchievementEventManager.observeUniqueSubjectCount(AchievementId.GET_A_GRIP),
             AchievementEventManager.observeUniqueSubjectCount(AchievementId.ALWAYS_CONNECTED),
+            AchievementEventManager.observeUniqueSubjectCount(AchievementId.ALTER_EGO),
             anniversaryElapsedDays
-        ) { counters, configuredCustomGripCount, connectedDaysCount, elapsedDays ->
+        ) { counters, configuredCustomGripCount, connectedDaysCount, customNameSetCount, elapsedDays ->
             calculateProgressMap(
                 counters = counters,
                 configuredCustomGripCount = configuredCustomGripCount,
                 connectedDaysCount = connectedDaysCount,
+                customNameSetCount = customNameSetCount,
                 anniversaryElapsedDays = elapsedDays
             )
         }
@@ -54,6 +56,7 @@ object AchievementsState {
                     counters = WidgetState.telemetryGestureCountersFlow.value,
                     configuredCustomGripCount = 0L,
                     connectedDaysCount = 0L,
+                    customNameSetCount = 0L,
                     anniversaryElapsedDays = 0L
                 )
             )
@@ -95,6 +98,7 @@ object AchievementsState {
         counters: TelemetryGestureCounters,
         configuredCustomGripCount: Long,
         connectedDaysCount: Long,
+        customNameSetCount: Long,
         anniversaryElapsedDays: Long
     ): Map<AchievementId, AchievementProgress> {
         val progressWithoutChampion = calculateTelemetryProgress(counters) +
@@ -110,6 +114,10 @@ object AchievementsState {
                 AchievementId.ALWAYS_CONNECTED to calculateProgress(
                     AchievementId.ALWAYS_CONNECTED,
                     currentValue = connectedDaysCount
+                ),
+                AchievementId.ALTER_EGO to calculateProgress(
+                    AchievementId.ALTER_EGO,
+                    currentValue = customNameSetCount
                 )
             )
 

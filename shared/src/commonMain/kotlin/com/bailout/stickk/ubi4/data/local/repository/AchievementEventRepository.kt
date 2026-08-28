@@ -51,6 +51,7 @@ object AchievementEventRepositoryProvider {
 }
 
 object AchievementEventManager {
+    private const val CUSTOM_DEVICE_NAME_SUBJECT_ID = "custom-device-name-set"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun observeUniqueSubjectCount(achievementId: AchievementId): Flow<Long> =
@@ -69,6 +70,13 @@ object AchievementEventManager {
         recordUniqueInBackground(
             achievementId = AchievementId.ALWAYS_CONNECTED,
             subjectId = connectionDaySubjectId()
+        )
+    }
+
+    fun recordDeviceNameCustomization() {
+        recordUniqueInBackground(
+            achievementId = AchievementId.ALTER_EGO,
+            subjectId = CUSTOM_DEVICE_NAME_SUBJECT_ID
         )
     }
 
@@ -98,4 +106,4 @@ internal fun connectionDaySubjectId(
 ): String = instant.toLocalDateTime(timeZone).date.toString()
 
 internal fun Int.isCustomGestureId(): Boolean =
-    this in GestureEnum.GESTURE_CUSTOM_0.number..GestureEnum.GESTURE_CUSTOM_13.number
+    this in GestureEnum.GESTURE_CUSTOM_0.number..GestureEnum.GESTURE_CUSTOM_7.number

@@ -37,6 +37,15 @@ object DeviceNameBridgeV3 {
         return DeviceSerialClassifier.v3TransportPrefix(normalized) != null
     }
 
+    fun hasDisplayNameChanged(
+        currentDeviceName: String?,
+        newDeviceName: String?
+    ): Boolean {
+        val newDisplayName = displayName(newDeviceName)
+        return newDisplayName.isNotBlank() &&
+            newDisplayName != displayName(currentDeviceName)
+    }
+
     fun transportPrefix(): String = activeTransportPrefix()
 
     private fun activeTransportPrefix(): String =

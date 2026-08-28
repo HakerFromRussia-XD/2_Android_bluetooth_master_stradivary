@@ -69,6 +69,11 @@
     <string name="advanced_settings">Расширенные настройки</string>
     <string name="ok">ОК</string>
     <string name="cancel">отмена</string>
+    <string name="settings_profile_name_dialog_title">Переименовать профиль</string>
+    <string name="settings_profile_name_dialog_field_label">Название профиля</string>
+    <string name="settings_profile_name_dialog_cancel">Отмена</string>
+    <string name="settings_profile_name_dialog_save">Сохранить</string>
+    <string name="settings_profile_rename_action">Переименовать профиль</string>
     <string name="password">пароль</string>
     <string name="calibration">Калибровка:</string>
     <string name="number_of_channel">Номер канала:</string>

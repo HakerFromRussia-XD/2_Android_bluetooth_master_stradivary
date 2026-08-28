@@ -31,6 +31,7 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsProfileRepositoryTest {
@@ -68,6 +69,59 @@ class SettingsProfileRepositoryTest {
         assertEquals(1, valuesA.size)
         assertEquals(42, valuesA.sliderValue())
         assertTrue(valuesB.isEmpty())
+    }
+
+    @Test
+    fun `profile can be renamed and custom name is included in server payload`() = runBlocking {
+        repository.ensureState("SERIAL-A")
+
+        assertEquals(
+            listOf(SettingsProfileInfo(profileId = 1, customName = null, isActive = true)),
+            repository.getProfiles("SERIAL-A")
+        )
+
+        val renamed = requireNotNull(
+            repository.renameProfile(
+                serial = "SERIAL-A",
+                profileId = 1,
+                name = "  Everyday  "
+            )
+        )
+
+        assertEquals(
+            SettingsProfileInfo(profileId = 1, customName = "Everyday", isActive = true),
+            renamed
+        )
+        assertEquals(listOf(renamed), repository.getProfiles("SERIAL-A"))
+
+        val payload = repository.buildServerSettingsPayload("SERIAL-A")
+        val profileJson = Json.parseToJsonElement(
+            Json.parseToJsonElement(payload)
+                .jsonObject
+                .getValue("PROFILE1")
+                .jsonPrimitive
+                .content
+        ).jsonObject
+        assertEquals("Everyday", profileJson.getValue("name").jsonPrimitive.content)
+    }
+
+    @Test
+    fun `profile rename rejects blank and too long names`() = runBlocking {
+        repository.ensureState("SERIAL-A")
+
+        assertNull(repository.renameProfile("SERIAL-A", 1, "   "))
+        assertNull(repository.renameProfile("SERIAL-A", 4, "Invalid profile"))
+        assertNull(
+            repository.renameProfile(
+                "SERIAL-A",
+                1,
+                "x".repeat(SETTINGS_PROFILE_NAME_MAX_LENGTH + 1)
+            )
+        )
+        assertEquals(
+            listOf(SettingsProfileInfo(profileId = 1, customName = null, isActive = true)),
+            repository.getProfiles("SERIAL-A")
+        )
     }
 
     @Test

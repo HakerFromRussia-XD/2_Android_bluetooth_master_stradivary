@@ -68,6 +68,11 @@
     <string name="advanced_settings">Advanced settings</string>
     <string name="ok">OK</string>
     <string name="cancel" tools:ignore="ButtonCase">cancel</string>
+    <string name="settings_profile_name_dialog_title">Rename profile</string>
+    <string name="settings_profile_name_dialog_field_label">Profile name</string>
+    <string name="settings_profile_name_dialog_cancel">Cancel</string>
+    <string name="settings_profile_name_dialog_save">Save</string>
+    <string name="settings_profile_rename_action">Rename profile</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>
     <string name="number_of_channel">Number of channel:</string>

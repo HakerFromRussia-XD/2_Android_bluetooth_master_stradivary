@@ -38,6 +38,7 @@ import kotlinx.serialization.json.put
 import kotlin.concurrent.Volatile
 
 private const val MAX_SETTINGS_PROFILE_COUNT = 3
+const val SETTINGS_PROFILE_NAME_MAX_LENGTH = 30
 private const val TARGET_BLE = "BLE"
 private const val TARGET_MOBILE = "MOBILE"
 private const val EMPTY_PROFILE_JSON = "{}"
@@ -46,6 +47,12 @@ private val settingsProfileServerJson = Json { encodeDefaults = true }
 data class SettingsProfileState(
     val profileCount: Int,
     val activeProfileId: Int
+)
+
+data class SettingsProfileInfo(
+    val profileId: Int,
+    val customName: String?,
+    val isActive: Boolean
 )
 
 data class SettingsProfileApplyValue(
@@ -109,6 +116,36 @@ class SettingsProfileRepository(
             profileCount = profiles.size.coerceIn(1, MAX_SETTINGS_PROFILE_COUNT),
             activeProfileId = active.profile_id.coerceIn(1, MAX_SETTINGS_PROFILE_COUNT)
         )
+    }
+
+    suspend fun getProfiles(serial: String): List<SettingsProfileInfo> = withContext(Dispatchers.IO) {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withContext emptyList()
+        ensureDefaultProfile(normalizedSerial)
+        dao.getProfiles(normalizedSerial).map { it.toProfileInfo() }
+    }
+
+    suspend fun renameProfile(
+        serial: String,
+        profileId: Int,
+        name: String
+    ): SettingsProfileInfo? = withContext(Dispatchers.IO) {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withContext null
+        val normalizedName = name.trim()
+        if (normalizedName.isEmpty() || normalizedName.length > SETTINGS_PROFILE_NAME_MAX_LENGTH) {
+            return@withContext null
+        }
+        if (profileId !in 1..MAX_SETTINGS_PROFILE_COUNT) return@withContext null
+
+        ensureDefaultProfile(normalizedSerial)
+        val profile = dao.getProfile(normalizedSerial, profileId) ?: return@withContext null
+        if (profile.name == normalizedName) {
+            return@withContext profile.toProfileInfo()
+        }
+
+        profile.copy(
+            name = normalizedName,
+            updated_ts_ms = getTimeMillis()
+        ).also { dao.upsertProfile(it) }.toProfileInfo()
     }
 
     suspend fun createProfileFromActive(serial: String): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
@@ -389,6 +426,17 @@ class SettingsProfileRepository(
 
     private fun profileName(profileId: Int): String = "Профиль №$profileId"
 
+    private fun SettingsProfileEntity.toProfileInfo(): SettingsProfileInfo = SettingsProfileInfo(
+        profileId = profile_id,
+        customName = name.takeUnless { it.isDefaultProfileName(profile_id) },
+        isActive = is_active
+    )
+
+    private fun String.isDefaultProfileName(profileId: Int): Boolean {
+        val normalized = trim()
+        return normalized == "Профиль №$profileId" || normalized == "Profile #$profileId"
+    }
+
     private suspend fun buildServerProfileJson(serial: String, profileId: Int): String {
         val profile = dao.getProfile(serial, profileId) ?: return EMPTY_PROFILE_JSON
         val values = dao.getValues(serial, profileId)
@@ -589,6 +637,12 @@ object SettingsProfileManager {
     suspend fun getState(): SettingsProfileState =
         SettingsProfileRepositoryProvider.getOrNull()?.ensureState(currentSerial)
             ?: SettingsProfileState(1, 1)
+
+    suspend fun getProfiles(): List<SettingsProfileInfo> =
+        SettingsProfileRepositoryProvider.getOrNull()?.getProfiles(currentSerial).orEmpty()
+
+    suspend fun renameProfile(profileId: Int, name: String): SettingsProfileInfo? =
+        SettingsProfileRepositoryProvider.getOrNull()?.renameProfile(currentSerial, profileId, name)
 
     suspend fun createProfileFromActive(): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
         SettingsProfileRepositoryProvider.getOrNull()?.createProfileFromActive(currentSerial)

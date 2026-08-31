@@ -13,9 +13,18 @@ buildscript {
 }
 
 allprojects {
-    configurations.all {
+    configurations.configureEach {
         exclude(group = "com.android.support", module = "support-compat")
-        resolutionStrategy.force("com.google.guava:guava:33.1.0-android")
+        // Dagger kapt needs JRE Guava; Android variant on worker classpath → NoSuchMethodError
+        val guavaArtifact = if (
+            name.contains("kapt", ignoreCase = true) ||
+            name.contains("annotationProcessor", ignoreCase = true)
+        ) {
+            "com.google.guava:guava:33.1.0-jre"
+        } else {
+            "com.google.guava:guava:33.1.0-android"
+        }
+        resolutionStrategy.force(guavaArtifact)
     }
     repositories {
         mavenCentral()

@@ -905,172 +905,250 @@ class BLEParser(
         subDeviceCounter = 0
         subDeviceChankParametersCounter = 0
         subDeviceAdditionalCounter = 1
-        val parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
 
+        if (baseSubDevicesInfoStructSet.isNotEmpty()) {
+            platformLog(
+                "getNextSubDevice",
+                "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet"
+            )
+            requestNextSubDeviceParameters()
 
-        if (baseSubDevicesInfoStructSet.size != 0) {
-            platformLog("getNextSubDevice", "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet")
-            if (getNextSubDevice(subDeviceCounter) != -1) {
-                var numberCount = 10
-                if (subDeviceChankParametersCounter == (parametrsNum / 10)) {
-                    numberCount = parametrsNum - subDeviceChankParametersCounter * 10
-                }
-                if (numberCount != 0) {
-                    bleManager.sendBytesKmm(
-                        BLECommands.requestSubDeviceParametrs(
-                            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
-                            subDeviceChankParametersCounter * 10,
-                            numberCount
-                        ),
-                        MAIN_CHANNEL_CHARACTERISTIC,
-                        WRITE
-                    ) {}
-                }
+            bleManager.sendBytesKmm(
+                BLECommands.requestProductInfoType(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
 
-
+            baseSubDevicesInfoStructSet.forEach { sub ->
                 bleManager.sendBytesKmm(
-                    BLECommands.requestProductInfoType(),
-                    MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-
-                baseSubDevicesInfoStructSet.forEach { sub ->
-                    bleManager.sendBytesKmm(
-                        BLECommands.requestProductFWInfoType(sub.deviceAddress),
-                        MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-
-                }
-                bleCommandExecutor.bleCommandWithQueue(
-                    BLECommands.requestProductFWInfoType(0),
-                    MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-
-            } else {
-                showToast("Нет сабдевайсов с параметрами")
+                    BLECommands.requestProductFWInfoType(sub.deviceAddress),
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
             }
+            bleCommandExecutor.bleCommandWithQueue(
+                BLECommands.requestProductFWInfoType(0),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
         } else {
             showToast("Сабдевайсов нет")
         }
     }
 
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
-        var _deviceAddress = 0
-        var _parametrsNum = 0
-        var deviceAddress = 0
-        var startIndex = 0
-        var quantitiesReadParameters = 0
-        var numberCount = 10
-
-        if (subDeviceCounter < baseSubDevicesInfoStructSet.size) {
-            val listA: ArrayList<BaseParameterInfoStruct> = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList
-            if (receiveDataString.isEmpty() || receiveDataString.length < 22) return
-            _deviceAddress = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
-            _parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
-            deviceAddress = castUnsignedCharToInt(receiveDataString.substringSafe(16, 18).toInt(16).toByte())
-            startIndex = castUnsignedCharToInt(receiveDataString.substringSafe(18, 20).toInt(16).toByte())
-            quantitiesReadParameters = castUnsignedCharToInt(receiveDataString.substringSafe(20, 22).toInt(16).toByte())
-            platformLog("SubDeviceAdditionalParameters", "$_deviceAddress $_parametrsNum $deviceAddress $startIndex $quantitiesReadParameters")
-
-            if (subDeviceChankParametersCounter == (_parametrsNum / 10)) {
-                numberCount = _parametrsNum - subDeviceChankParametersCounter * 10
-            }
-
-            platformLog("listA", "listA=${listA.size}")
-            platformLog("listA", "deviceAddress = ${_deviceAddress}   0 <= i < $numberCount")
-            if (_deviceAddress == deviceAddress && subDeviceChankParametersCounter * 10 == startIndex && quantitiesReadParameters == numberCount) {
-                platformLog("SubDeviceAdditionalParameters", "FILTER $_deviceAddress $_parametrsNum $deviceAddress $startIndex $quantitiesReadParameters")
-
-                for (i in 0 until numberCount) {
-                    val start = 22 + (i) * BASE_PARAMETER_INFO_STRUCT_SIZE
-                    val end = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
-                    platformLog("SubDeviceAdditionalParameters", "start=$start   end=$end  receiveDataString=$receiveDataString")
-
-                    if (end <= receiveDataString.length) {
-                        try {
-                            val parameterJson = receiveDataString.substring(start, end)
-                            listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
-                        } catch (e: Exception) {}
-                    } else {
-                        platformLog("SubDeviceAdditionalParameters", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
-                        break
-                    }
-                }
-                baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList = listA
-            }
-            platformLog(
-                "SubDeviceAdditionalParameters",
-                "прочитали параметры из сабдевайса ${_deviceAddress} их ${baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.size} listA=${listA.size} subDeviceCounter=$subDeviceCounter из $numberSubDevice"
-            )
-
-            baseSubDevicesInfoStructSet.forEach {
-                println("READ_SUB_DEVICE_PARAMETRS $it")
-            }
-
-            platformLog("SubDeviceSubDevice2", "numerSubDevice=$numberSubDevice  _parametrsNum = ${_parametrsNum}")
+        if (receiveDataString.isEmpty() || receiveDataString.length < 22) return
+        if (subDeviceCounter >= baseSubDevicesInfoStructSet.size) {
+            finishSubDeviceParametersReading()
+            return
         }
 
-        if (getNextSubDevice(subDeviceCounter) != -1) {
-            numberCount = 10
-            if (subDeviceChankParametersCounter == (_parametrsNum / 10)) {
-                numberCount = _parametrsNum - subDeviceChankParametersCounter * 10
-            }
-            if (_deviceAddress == deviceAddress && subDeviceChankParametersCounter * 10 == startIndex && quantitiesReadParameters == numberCount) {
-                val localSubDeviceChankParametersCounter = subDeviceChankParametersCounter
-                if (_parametrsNum > 10) {
-                    subDeviceChankParametersCounter++
-                    if ((_parametrsNum - localSubDeviceChankParametersCounter * 10 <= 10)) {
-                        subDeviceChankParametersCounter = 0
-                    }
-                    platformLog("getNextSubDevice", "инкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter")
-                } else {
-                    platformLog("getNextSubDevice", "не проинкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter")
-                }
-                if ((_parametrsNum <= 10 || (_parametrsNum - localSubDeviceChankParametersCounter * 10 <= 10))) {
-                    platformLog("getNextSubDevice", "инкрементировали subDeviceCounter parametrsNum=${_parametrsNum}  parametrsNum-subDeviceChankParametersCounter*10 = ${_parametrsNum - subDeviceChankParametersCounter * 10}")
-                    this.subDeviceCounter++
-                } else {
-                    platformLog("getNextSubDevice", "не инкрементировали subDeviceCounter parametrsNum=${_parametrsNum}  parametrsNum-subDeviceChankParametersCounter*10 = ${_parametrsNum - subDeviceChankParametersCounter * 10}")
-                }
-            } else {
-                // здесь можно добавить отладочные сообщения, если нужно
-//                if (_deviceAddress != deviceAddress) showToast("обнаружено несоответствие deviceAddress ${_deviceAddress} != $deviceAddress")
-//                if (subDeviceChankParametersCounter*10 != startIndex) showToast("обнаружено несоответствие startIndex ${subDeviceChankParametersCounter*10} != $startIndex")
-//                if (quantitiesReadParameters != numberCount) showToast("обнаружено несоответствие numberCount $quantitiesReadParameters != $numberCount")
-            }
+        val deviceAddress = castUnsignedCharToInt(receiveDataString.substringSafe(16, 18).toInt(16).toByte())
+        val startIndex = castUnsignedCharToInt(receiveDataString.substringSafe(18, 20).toInt(16).toByte())
+        val quantitiesReadParameters = castUnsignedCharToInt(receiveDataString.substringSafe(20, 22).toInt(16).toByte())
 
-            if (numberCount != 0){
-                bleManager.sendBytesKmm(
-                    BLECommands.requestSubDeviceParametrs(_deviceAddress, subDeviceChankParametersCounter * 10, numberCount),
-                    MAIN_CHANNEL_CHARACTERISTIC,
-                    WRITE
-                ) {}
-            }
+        val expectedSubDevice = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter)
+        val expectedDeviceAddress = expectedSubDevice.deviceAddress
+        val expectedParametrsNum = expectedSubDevice.parametrsNum
+        var expectedNumberCount = 10
+        if (subDeviceChankParametersCounter == (expectedParametrsNum / 10)) {
+            expectedNumberCount = expectedParametrsNum - subDeviceChankParametersCounter * 10
+        }
 
-//            val test = subDeviceChankParametersCounter*10
-//            val test2 = numberCount
-//            val test3 = _deviceAddress
-//            platformLog("requestSubDeviceParametrs","")
-//            platformLog("requestSubDeviceParametrs", "startIndex = ${subDeviceChankParametersCounter*10}   numberCount = $numberCount  subDeviceCounter=$subDeviceCounter из $numberSubDevice  parametrsNum = ${_parametrsNum}")
-        } else {
-            platformLog("SubDeviceAdditionalParameterss", "закончили чтение всех параметров во всех сабдевайсах")
-            platformLog("SubDeviceAdditionalParameterss", "subDeviceCounter = $subDeviceCounter")
+        platformLog(
+            "SubDeviceAdditionalParameters",
+            "$expectedDeviceAddress $expectedParametrsNum $deviceAddress $startIndex $quantitiesReadParameters"
+        )
+
+        val filterMatches =
+            deviceAddress == expectedDeviceAddress &&
+                subDeviceChankParametersCounter * 10 == startIndex &&
+                quantitiesReadParameters == expectedNumberCount
+
+        if (filterMatches) {
             platformLog(
-                "SubDeviceAdditionalParameterss",
-                "10 = ${getSubDeviceParameterWithAdditionalParameters(1).first}  0 = ${getSubDeviceParameterWithAdditionalParameters(1).second}  1 = ${getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third}"
+                "SubDeviceAdditionalParameters",
+                "FILTER $expectedDeviceAddress $expectedParametrsNum $deviceAddress $startIndex $quantitiesReadParameters"
             )
-            if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third == 0) {
-                platformLog("SubDeviceAdditionalParameterss", "у сабдевайсов нет ни одного виджета")
-                platformLog("SubDeviceAdditionalParameterss", "конец запроса параметров сабдевайса")
-                subDeviceAdditionalCounter = 1
-            } else {
-                platformLog("SubDeviceAdditionalParameterss", "запроса адишнл параметра")
-                bleManager.sendBytesKmm(
-                    BLECommands.requestSubDeviceAdditionalParametrs(
-                        getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
-                        getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
-                    ),
-                    MAIN_CHANNEL_CHARACTERISTIC,
-                    WRITE
-                ) {}
-                subDeviceAdditionalCounter++
+
+            val listA = ArrayList(expectedSubDevice.parametersList)
+            platformLog("listA", "listA=${listA.size}")
+            platformLog("listA", "deviceAddress = $expectedDeviceAddress   0 <= i < $expectedNumberCount")
+
+            for (i in 0 until expectedNumberCount) {
+                val start = 22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE
+                val end = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
+                platformLog(
+                    "SubDeviceAdditionalParameters",
+                    "start=$start   end=$end  receiveDataString=$receiveDataString"
+                )
+
+                if (end <= receiveDataString.length) {
+                    try {
+                        val parameterJson = receiveDataString.substring(start, end)
+                        listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
+                    } catch (_: Exception) {
+                    }
+                } else {
+                    platformLog(
+                        "SubDeviceAdditionalParameters",
+                        "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}"
+                    )
+                    break
+                }
             }
+            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList = listA
+
+            val localSubDeviceChankParametersCounter = subDeviceChankParametersCounter
+            if (expectedParametrsNum > 10) {
+                subDeviceChankParametersCounter++
+                if (expectedParametrsNum - localSubDeviceChankParametersCounter * 10 <= 10) {
+                    subDeviceChankParametersCounter = 0
+                }
+                platformLog(
+                    "getNextSubDevice",
+                    "инкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter"
+                )
+            } else {
+                platformLog(
+                    "getNextSubDevice",
+                    "не проинкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter"
+                )
+            }
+            if (expectedParametrsNum <= 10 || expectedParametrsNum - localSubDeviceChankParametersCounter * 10 <= 10) {
+                platformLog(
+                    "getNextSubDevice",
+                    "инкрементировали subDeviceCounter parametrsNum=$expectedParametrsNum  parametrsNum-subDeviceChankParametersCounter*10 = ${expectedParametrsNum - subDeviceChankParametersCounter * 10}"
+                )
+                subDeviceCounter++
+            } else {
+                platformLog(
+                    "getNextSubDevice",
+                    "не инкрементировали subDeviceCounter parametrsNum=$expectedParametrsNum  parametrsNum-subDeviceChankParametersCounter*10 = ${expectedParametrsNum - subDeviceChankParametersCounter * 10}"
+                )
+            }
+        } else {
+            platformLog(
+                "SubDeviceAdditionalParameters",
+                "FILTER mismatch: expected addr=$expectedDeviceAddress chunk=$subDeviceChankParametersCounter count=$expectedNumberCount, got addr=$deviceAddress start=$startIndex count=$quantitiesReadParameters"
+            )
+        }
+
+        platformLog(
+            "SubDeviceAdditionalParameters",
+            "прочитали параметры из сабдевайса $expectedDeviceAddress их ${expectedSubDevice.parametersList.size} subDeviceCounter=$subDeviceCounter из $numberSubDevice"
+        )
+        baseSubDevicesInfoStructSet.forEach {
+            println("READ_SUB_DEVICE_PARAMETRS $it")
+        }
+        platformLog("SubDeviceSubDevice2", "numerSubDevice=$numberSubDevice  _parametrsNum = $expectedParametrsNum")
+
+        requestNextSubDeviceParameters()
+    }
+
+    private fun requestNextSubDeviceParameters() {
+        // subDeviceCounter всегда указывает на устройство, ответ которого мы ждём.
+        // Пустые сабдевайсы (parametrsNum == 0) пропускаем здесь, иначе фильтр в
+        // parseReadSubDeviceParameters будет ждать addr с 0 параметрами, а запрос
+        // уйдёт на следующий непустой — бесконечный FILTER mismatch.
+        while (subDeviceCounter < baseSubDevicesInfoStructSet.size) {
+            val nextSubDevice = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter)
+            val nextAddress = nextSubDevice.deviceAddress
+
+            if (nextSubDevice.parametrsNum <= 0) {
+                platformLog(
+                    "SubDeviceAdditionalParameters",
+                    "skip empty subdevice addr=$nextAddress parametrsNum=0 subDeviceCounter=$subDeviceCounter"
+                )
+                subDeviceCounter++
+                subDeviceChankParametersCounter = 0
+                continue
+            }
+
+            var numberCount = 10
+            if (subDeviceChankParametersCounter == (nextSubDevice.parametrsNum / 10)) {
+                numberCount = nextSubDevice.parametrsNum - subDeviceChankParametersCounter * 10
+            }
+
+            if (numberCount <= 0) {
+                platformLog(
+                    "SubDeviceAdditionalParameters",
+                    "skip subdevice addr=$nextAddress with empty chunk (parametrsNum=${nextSubDevice.parametrsNum})"
+                )
+                subDeviceCounter++
+                subDeviceChankParametersCounter = 0
+                continue
+            }
+
+            platformLog(
+                "requestSubDeviceParametrs",
+                "next addr=$nextAddress start=${subDeviceChankParametersCounter * 10} count=$numberCount subDeviceCounter=$subDeviceCounter"
+            )
+            bleManager.sendBytesKmm(
+                BLECommands.requestSubDeviceParametrs(
+                    nextAddress,
+                    subDeviceChankParametersCounter * 10,
+                    numberCount
+                ),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+            return
+        }
+
+        finishSubDeviceParametersReading()
+    }
+
+    private fun finishSubDeviceParametersReading() {
+        platformLog("SubDeviceAdditionalParameterss", "закончили чтение всех параметров во всех сабдевайсах")
+        platformLog("SubDeviceAdditionalParameterss", "subDeviceCounter = $subDeviceCounter")
+        platformLog(
+            "SubDeviceAdditionalParameterss",
+            "10 = ${getSubDeviceParameterWithAdditionalParameters(1).first}  0 = ${getSubDeviceParameterWithAdditionalParameters(1).second}  1 = ${getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third}"
+        )
+        if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third == 0) {
+            platformLog("SubDeviceAdditionalParameterss", "у сабдевайсов нет ни одного виджета")
+            platformLog("SubDeviceAdditionalParameterss", "конец запроса параметров сабдевайса")
+            completeSubDeviceWidgetsSync()
+        } else {
+            platformLog("SubDeviceAdditionalParameterss", "запроса адишнл параметра")
+            bleManager.sendBytesKmm(
+                BLECommands.requestSubDeviceAdditionalParametrs(
+                    getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
+                    getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
+                ),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+            subDeviceAdditionalCounter++
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun completeSubDeviceWidgetsSync() {
+        bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+        val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = safeTotal,
+            total = safeTotal
+        )
+        coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
+        subDeviceAdditionalCounter = 1
+        platformLog("SubDeviceAdditionalParameterss", "конец запроса адишнл параметров сабдевайса")
+
+        persistAllSubDevices(coroutineScope)
+        persisListWidgets(
+            scope = coroutineScope,
+            deviceAddr = fullInicializeConnectionStruct.deviceAddress,
+            listWidgets = listWidgets.toList()
+        )
+
+        WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+            bleManager.sendBytesKmm(
+                cmd,
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
         }
     }
 
@@ -1140,32 +1218,7 @@ class BLEParser(
             ) {}
             subDeviceAdditionalCounter++
         } else {
-            bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-            val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
-            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
-                current = safeTotal,
-                total = safeTotal
-            )
-            coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
-            subDeviceAdditionalCounter = 1
-            platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
-
-
-            persistAllSubDevices(coroutineScope)
-            persisListWidgets(
-                scope = coroutineScope,
-                deviceAddr = fullInicializeConnectionStruct.deviceAddress,
-                listWidgets = listWidgets.toList()
-            )
-
-            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
-                bleManager.sendBytesKmm(
-                    cmd,
-                    MAIN_CHANNEL_CHARACTERISTIC,
-                    WRITE
-                ) {}
-            }
-
+            completeSubDeviceWidgetsSync()
         }
     }
 
@@ -1315,38 +1368,6 @@ class BLEParser(
         return 0
     }
 
-
-    private fun getNextSubDevice(subDeviceCounter: Int): Int {
-        for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
-            platformLog("getNextSubDevice", "index=$index  subDeviceCounter=$subDeviceCounter из $numberSubDevice  subDeviceChankParametersCounter=$subDeviceChankParametersCounter  deviceAddress=${item.deviceAddress}")
-            if (index >= subDeviceCounter) {
-                if (item.parametrsNum > 10) {
-                    if (subDeviceChankParametersCounter == 0) {
-                        platformLog("getNextSubDevice", "1 subDeviceCounter=${this.subDeviceCounter} return=${item.deviceAddress}  subDeviceChankParametersCounter=$subDeviceChankParametersCounter  baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size}  parametrsNum=${item.parametrsNum}")
-                        return item.deviceAddress
-                    } else {
-                        if (subDeviceChankParametersCounter * 10 >= item.parametrsNum) {
-                            this.subDeviceCounter++
-                            this.subDeviceChankParametersCounter = 0
-                            platformLog("getNextSubDevice", "произвели сброс subDeviceChankParametersCounter=0")
-                        }
-                        platformLog("getNextSubDevice", "2 subDeviceCounter=${this.subDeviceCounter} return=${item.deviceAddress}  subDeviceChankParametersCounter=$subDeviceChankParametersCounter  baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size}  parametrsNum=${item.parametrsNum}")
-                        return item.deviceAddress
-                    }
-                } else {
-                    this.subDeviceChankParametersCounter = 0
-                    platformLog("getNextSubDevice", "произвели сброс subDeviceChankParametersCounter=0")
-                    if (item.parametrsNum != 0) {
-                        platformLog("getNextSubDevice", "3 subDeviceCounter=${this.subDeviceCounter} return=${item.deviceAddress}  subDeviceChankParametersCounter=$subDeviceChankParametersCounter  baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size}  parametrsNum=${item.parametrsNum}")
-                        return item.deviceAddress
-                    }
-                }
-            }
-        }
-        platformLog("getNextSubDevice", "return -1")
-        platformLog("getNextSubDevice", "4 subDeviceCounter=${this.subDeviceCounter} return=${-1}  subDeviceChankParametersCounter=$subDeviceChankParametersCounter  baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size}")
-        return -1
-    }
 
     private fun areEqualExcludingSetIdS(obj1: BaseParameterWidgetSStruct, obj2: BaseParameterWidgetSStruct): Boolean {
         val baseParameterWidgetStruct1 = obj1.baseParameterWidgetStruct.copy(parameterInfoSet = obj2.baseParameterWidgetStruct.parameterInfoSet)

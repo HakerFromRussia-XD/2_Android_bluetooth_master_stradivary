@@ -156,7 +156,7 @@ actual suspend fun uploadTrainingDataSsePlatform(
             boardName = opticsBoardHardwareInfo.boardName,
             boardCode = 4,  // opticsBoardHardwareInfo.boardCode,
             boardHardwareVersion = opticsBoardHardwareInfo.boardVersionString,
-            boardSoftwareVersion = firmwareInfo.fwVersion,
+            boardSoftwareVersion = "0.1.5",  // firmwareInfo.fwVersion,
             modelCode = mlModelSettings.modelCode,
             modelVersion = "${mlModelSettings.majorModelVersion}.${mlModelSettings.minorModelVersion}.${mlModelSettings.quickfixModelVersion}"
         )

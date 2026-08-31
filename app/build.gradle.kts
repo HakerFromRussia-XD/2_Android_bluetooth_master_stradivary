@@ -119,16 +119,11 @@ dependencies {
     // gson
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // dagger 2
-    implementation("com.google.dagger:dagger:2.56")
-    "kapt"("com.google.dagger:dagger-compiler:2.56"){
-        exclude(group = "com.google.guava", module = "guava")
-    }
-    "kapt"("com.google.dagger:dagger-android-processor:2.56"){
-        exclude(group = "com.google.guava", module = "guava")
-    }
-//    runtimeOnly("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
-//    implementation("com.google.guava:guava:33.1.0-android")
+    // dagger 2 (2.56.2 fixes NoSuchMethodError Graphs.reachableNodes / Guava on kapt)
+    implementation("com.google.dagger:dagger:2.56.2")
+    "kapt"("com.google.dagger:dagger-compiler:2.56.2")
+    "kapt"("com.google.dagger:dagger-android-processor:2.56.2")
+    "kapt"("com.google.guava:guava:33.1.0-jre")
 
     // rxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")
@@ -145,7 +140,7 @@ dependencies {
     implementation("com.github.jorgecastilloprz:fillableloaders:1.03@aar")
     implementation("com.github.paolorotolo:appintro:4.1.0")
     implementation("com.skyfishjy.ripplebackground:library:1.0.1")
-    implementation("com.github.skydoves:elasticviews:2.0.3")
+    implementation("com.github.skydoves:elasticviews:2.1.0")
     implementation("com.github.skydoves:colorpickerview:2.1.3")
     implementation("com.github.shchurov:horizontalwheelview:0.9.5")
     implementation("com.github.skydoves:powerspinner:1.2.7")

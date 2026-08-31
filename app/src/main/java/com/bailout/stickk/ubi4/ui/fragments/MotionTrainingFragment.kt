@@ -19,13 +19,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
+import com.bailout.stickk.ubi4.data.state.MLModelSettingsState
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -33,13 +39,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.seconds
 
 class MotionTrainingFragment(
     private val onFinishTraining: () -> Unit
@@ -726,6 +735,7 @@ class MotionTrainingFragment(
 
     private fun writeToFile(data: String) {
         if (isRecordingPaused) return
+        if (!::writer.isInitialized) return
 
         synchronized(fileLock) {
             try {
@@ -799,7 +809,7 @@ class MotionTrainingFragment(
     private fun loadConfigJson(): String {
         val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
         if (!extFile.exists()) {
-            main?.showToast("Файл не найден")
+            main.showToast("Файл не найден")
             throw IllegalStateException("config.json is missing")
         }
         return extFile.readText()

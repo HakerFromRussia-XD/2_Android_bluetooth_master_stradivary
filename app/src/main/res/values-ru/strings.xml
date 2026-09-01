@@ -74,4 +74,7 @@
     <string name="achievement_champion_gold">Получите золото во всех остальных достижениях.</string>
     <string name="achievement_celebration_animation">Достижение получено</string>
     <string name="achievement_celebration_message">Поздравляем! Вы получили достижение «%1$s»</string>
+    <string name="firmware_catalog_unavailable">Данные прошивок недоступны</string>
+    <string name="firmware_not_found_for_board">Для этой платы прошивки не найдены</string>
+    <string name="firmware_downloading">Загрузка прошивок…</string>
 </resources>

@@ -62,6 +62,15 @@ object FirmwareVersionCatalog {
         return false
     }
 
+    fun isZeroVersion(version: String?): Boolean {
+        val parts = version
+            ?.trim()
+            ?.split('.')
+            ?.takeIf { it.isNotEmpty() }
+            ?: return false
+        return parts.all { part -> part.isNotEmpty() && part.toIntOrNull() == 0 }
+    }
+
     fun parseVersionFromFileName(fileName: String): String? {
         val base = firmwareBaseName(fileName)
         val lower = base.lowercase()

@@ -14,7 +14,8 @@ import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 
 class BootloaderAdapterUBI4(
     private val listener: OnBootloaderClickListener,
-    private val showSettingsButtonProvider: () -> Boolean = { false }
+    private val showSettingsButtonProvider: () -> Boolean = { false },
+    private val showUpdateButtonProvider: () -> Boolean = { true }
 ) : ListAdapter<BootloaderBoardItemUBI4, BootloaderAdapterUBI4.BoardViewHolder>(Diff) {
 
 
@@ -53,15 +54,7 @@ class BootloaderAdapterUBI4(
         holder.versionTv.text = item.version
         Log.d("fw_version", "Плата: ${item.boardName} — Версия: ${item.version}")
 
-        if (localVersions == null) {                 // ленивый сбор каталога
-            localVersions = buildLocalVersionMap(holder.itemView.context)
-            Log.d("fw_local", "catalog=$localVersions")
-        }
-        val keys = aliasesOrNormalize(item.boardName) // "bms" -> ["bms", "bms_program"]
-        val local = keys
-            .mapNotNull { key -> localVersions?.get(key) }
-            .reduceOrNull(::maxVersion)
-        val highlight = isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
+        val highlight = item.isUpdateAvailable ?: shouldHighlightFromLocalFiles(holder, item)
 
         val defColor = (holder.updateBtn.tag as? Int)
             ?: holder.updateBtn.currentTextColor.also { holder.updateBtn.tag = it }
@@ -69,12 +62,28 @@ class BootloaderAdapterUBI4(
         holder.updateBtn.setTextColor(if (highlight) active else defColor)
 
         holder.updateBtn.isEnabled = item.canUpdate
+        holder.updateBtn.visibility = if (showUpdateButtonProvider()) View.VISIBLE else View.GONE
         holder.bootStatus.visibility = if (item.isInBootLoader) View.VISIBLE else View.INVISIBLE
         holder.settingsBtn.visibility = if (showSettingsButtonProvider()) View.VISIBLE else View.GONE
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
         holder.settingsBtn.setOnClickListener { listener.onSettingsClick(item) }
     }
     fun submitBoards(list: List<BootloaderBoardItemUBI4>) = submitList(list)
+
+    private fun shouldHighlightFromLocalFiles(
+        holder: BoardViewHolder,
+        item: BootloaderBoardItemUBI4
+    ): Boolean {
+        if (localVersions == null) {
+            localVersions = buildLocalVersionMap(holder.itemView.context)
+            Log.d("fw_local", "catalog=$localVersions")
+        }
+        val keys = aliasesOrNormalize(item.boardName)
+        val local = keys
+            .mapNotNull { key -> localVersions?.get(key) }
+            .reduceOrNull(::maxVersion)
+        return isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
+    }
 
 
 

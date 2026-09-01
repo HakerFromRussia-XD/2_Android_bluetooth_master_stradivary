@@ -697,6 +697,9 @@
     <string name="no_user_data_on_server">Нет данных пользователя на сервере</string>
     <string name="select_firmware_file">Выберите файл прошивки</string>
     <string name="update_firmware">Обновить</string>
+    <string name="firmware_catalog_unavailable">Данные прошивок недоступны</string>
+    <string name="firmware_not_found_for_board">Для этой платы прошивки не найдены</string>
+    <string name="firmware_downloading">Загрузка прошивок…</string>
     <string name="update_board" formatted="true">Обновить %1$s</string>
     <string name="unknown_board">Неизвестно</string>
 

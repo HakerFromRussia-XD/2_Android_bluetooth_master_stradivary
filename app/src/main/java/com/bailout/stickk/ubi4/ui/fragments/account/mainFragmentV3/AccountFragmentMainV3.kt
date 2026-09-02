@@ -24,9 +24,10 @@ import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.NetworkResult
+import com.bailout.stickk.ubi4.data.network.RemoteFirmwareFile
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
-import com.bailout.stickk.ubi4.data.repository.RemoteFirmwareFile
-import com.bailout.stickk.ubi4.data.repository.YandexDiskFirmwareRepository
+import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
+import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -663,12 +664,12 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
         Toast.makeText(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT).show()
         firmwareDownloadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val cacheDirectory = requireContext().cacheDir
+            val cacheDirectory = sharedFile(requireContext().cacheDir.absolutePath)
             try {
                 val items = candidates.map { remote ->
                     FirmwareFileItem(
                         name = remote.name,
-                        file = firmwareRepository.download(remote, cacheDirectory)
+                        file = java.io.File(firmwareRepository.download(remote, cacheDirectory).path)
                     )
                 }
                 if (isAdded && _binding != null) showDownloadedFirmwareDialog(boardItem, items)

@@ -22,6 +22,7 @@ actual class SharedFile internal constructor(private val url: NSURL) {
 
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun writeText(text: String) = withContext(Dispatchers.Default) {
+        ensureParentDirectoryExists()
         val nsStr = NSString.create(string = text)
         val success = nsStr.writeToURL(
             url,
@@ -35,6 +36,7 @@ actual class SharedFile internal constructor(private val url: NSURL) {
     }
 
     actual suspend fun writeBytes(bytes: ByteArray) = withContext(Dispatchers.Default) {
+        ensureParentDirectoryExists()
         val data = bytes.toNSData()
         val success = data.writeToURL(url, atomically = true)
         if (!success) {
@@ -50,6 +52,17 @@ actual class SharedFile internal constructor(private val url: NSURL) {
     actual fun exists(): Boolean {
         val fm = NSFileManager.defaultManager
         return fm.fileExistsAtPath(path)
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun ensureParentDirectoryExists() {
+        val parentPath = url.URLByDeletingLastPathComponent?.path ?: return
+        NSFileManager.defaultManager.createDirectoryAtPath(
+            path = parentPath,
+            withIntermediateDirectories = true,
+            attributes = null,
+            error = null
+        )
     }
 }
 

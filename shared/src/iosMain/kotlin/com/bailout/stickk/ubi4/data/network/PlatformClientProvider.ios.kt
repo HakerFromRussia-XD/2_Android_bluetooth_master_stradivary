@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -13,8 +14,27 @@ actual object PlatformClientProvider {
         }
     }
 
+    private val sharedFirmwareClient: HttpClient by lazy {
+        HttpClient(Darwin) {
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true; isLenient = true })
+            }
+            install(HttpTimeout) {
+                connectTimeoutMillis = FIRMWARE_CONNECT_TIMEOUT_MS
+                requestTimeoutMillis = FIRMWARE_REQUEST_TIMEOUT_MS
+                socketTimeoutMillis = FIRMWARE_SOCKET_TIMEOUT_MS
+            }
+        }
+    }
+
     actual val userClient: HttpClient
         get() = client()
     actual val passportClient: HttpClient
         get() = client()
+    actual val firmwareClient: HttpClient
+        get() = sharedFirmwareClient
+
+    private const val FIRMWARE_CONNECT_TIMEOUT_MS = 15_000L
+    private const val FIRMWARE_REQUEST_TIMEOUT_MS = 60_000L
+    private const val FIRMWARE_SOCKET_TIMEOUT_MS = 60_000L
 }

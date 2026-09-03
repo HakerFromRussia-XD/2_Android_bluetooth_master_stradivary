@@ -274,7 +274,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
                         val bootloaderV2Transport =
                             mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
-                        if (!dfuReconnectActive && !firmwareUpdateSessionActive && !bootloaderV2Transport) {
+                        if (firmwareUpdateSessionActive && !dfuReconnectActive) {
+                            main.lifecycleScope.launch {
+                                val ready = prepareFirmwareSessionNotifications()
+                                Log.i(
+                                    DFU_TRACE_TAG,
+                                    "firmware_session reconnect serial_notify_ready=$ready " +
+                                        "generation=$gattServicesGeneration"
+                                )
+                            }
+                        } else if (!dfuReconnectActive && !bootloaderV2Transport) {
                             main.lifecycleScope.launch {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации

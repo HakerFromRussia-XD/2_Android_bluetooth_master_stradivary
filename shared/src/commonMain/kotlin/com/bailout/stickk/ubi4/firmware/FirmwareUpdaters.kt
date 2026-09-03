@@ -305,11 +305,9 @@ class V3FirmwareUpdater(
         if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
             logger.info(TRACE_TAG, "boot_entry jump_to_bootloader TX")
             logger.debug(TAG, "TX JUMP_TO_BOOTLOADER")
-            sender.sendBootloaderJump(
-                BLECommandsV3.jumpToBootloaderFw(addr),
-                FirmwareTransportChannel.V3_SERIAL
-            )
+            sendForBootEntry(BLECommandsV3.jumpToBootloaderFw(addr))
 
+            delay(DEFAULT_RECONNECT_DELAY_MS)
             repeat(BOOTLOADER_CHECK_ATTEMPTS) { attempt ->
                 logger.debug(
                     TAG,

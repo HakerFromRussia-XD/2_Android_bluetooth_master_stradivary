@@ -129,11 +129,17 @@ class DialogManager(
                         }
                     }
                     try {
-                        main?.getBLEController()?.setFirmwareUpdateSessionActive(true)
+                        val bleController = main?.getBLEController()
+                        bleController?.setFirmwareUpdateSessionActive(true)
                         val protocol = if (UiState.isInterfaceV3Activated) {
                             FirmwareUpdateProtocol.V3
                         } else {
                             FirmwareUpdateProtocol.UBI4
+                        }
+                        if (protocol == FirmwareUpdateProtocol.V3) {
+                            check(bleController?.prepareFirmwareSessionNotifications() == true) {
+                                "Не удалось включить уведомления канала прошивки"
+                            }
                         }
                         val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(fileItem.file)
                         val result = firmwareUpdateCoordinator.runFirmwareUpdate(

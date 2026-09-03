@@ -98,6 +98,9 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private var isUploading = false
     private var onDisconnectedListener: (() -> Unit)? = null
     private var reconnectThreadFlag = false
+    @Volatile private var dfuReconnectActive = false
+    @Volatile private var firmwareUpdateSessionActive = false
+    @Volatile private var gattServicesGeneration = 0L
     private var scanWithoutConnectFlag = false
     private var mConnected = false
     private var endFlag = false
@@ -122,6 +125,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private var needReRequestTransferFlow = false
     private val pendingNotifyAcks = ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
     @Volatile
+    private var pendingFirmwareControlWrite: CompletableDeferred<Boolean>? = null
+    @Volatile
     private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
     private val v3InitProgressLock = Any()
     private val v3InitExpectedResponses = mutableSetOf<String>()
@@ -135,6 +140,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
                 if(state == WRITE) {
+                    pendingFirmwareControlWrite?.complete(true)
                     val currentMain = mainOrNull ?: return@setReceiverCallback
                     synchronized(currentMain.writeLock) {
                         canSendFlag = true
@@ -197,12 +203,22 @@ class BLEController(private val bleManager: BleManagerKmm) {
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+                    Log.i(
+                        DFU_TRACE_TAG,
+                        "controller event=GATT_CONNECTED connected=$mConnected generation=$gattServicesGeneration " +
+                            "reconnect_flag=$reconnectThreadFlag dfu_active=$dfuReconnectActive"
+                    )
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
                     settingsProfileDownloadedForConnection = false
                     SettingsProfileUploadWorkScheduler.onConnected(mContext)
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    Log.i(
+                        DFU_TRACE_TAG,
+                        "controller event=GATT_DISCONNECTED connected_before=$mConnected generation=$gattServicesGeneration " +
+                            "reconnect_flag=$reconnectThreadFlag dfu_active=$dfuReconnectActive intentional=$mDisconnected"
+                    )
                     isTransferFlowActive = false
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
@@ -236,6 +252,14 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    gattServicesGeneration++
+                    Log.i(
+                        DFU_TRACE_TAG,
+                        "controller event=SERVICES_DISCOVERED generation=$gattServicesGeneration " +
+                            "services=${mBluetoothLeService?.supportedGattServices?.size ?: 0} " +
+                            "serial_wwr=${mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID)} " +
+                            "max_wwr=${mBluetoothLeService?.maximumWriteWithoutResponseSize()} dfu_active=$dfuReconnectActive"
+                    )
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(
@@ -248,7 +272,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        main.lifecycleScope.launch {
+                        val bootloaderV2Transport =
+                            mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
+                        if (!dfuReconnectActive && !firmwareUpdateSessionActive && !bootloaderV2Transport) {
+                            main.lifecycleScope.launch {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
@@ -262,6 +289,14 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 requestProductInfoTypeOnceForUbiV4()
                                 smartInitWithCrc()
                             }
+                        }
+                        } else {
+                            Log.i(
+                                DFU_TRACE_TAG,
+                                "controller normal_init suppressed dfu_active=$dfuReconnectActive " +
+                                    "firmware_session=$firmwareUpdateSessionActive " +
+                                    "bootloader_v2_transport=$bootloaderV2Transport"
+                            )
                         }
                     }
                 }
@@ -311,9 +346,20 @@ class BLEController(private val bleManager: BleManagerKmm) {
             val attemptNo = index + 1
             val ack = CompletableDeferred<Boolean>()
             pendingNotifyAcks[key] = ack
+            if (uuid.equals(SERIALPORTCHAR_UUID, ignoreCase = true)) {
+                Log.d(
+                    DFU_TRACE_TAG,
+                    "notify subscribe attempt=$attemptNo/$attempts uuid=$uuid timeout_ms=$timeoutMs " +
+                        "connected=$mConnected generation=$gattServicesGeneration"
+                )
+            }
             bleCommand(null, uuid, NOTIFY)
             val success = withTimeoutOrNull(timeoutMs) { ack.await() } ?: false
             pendingNotifyAcks.remove(key, ack)
+
+            if (uuid.equals(SERIALPORTCHAR_UUID, ignoreCase = true)) {
+                Log.d(DFU_TRACE_TAG, "notify subscribe result attempt=$attemptNo success=$success uuid=$uuid")
+            }
 
             if (success) return true
             if (attemptNo < attempts) {
@@ -321,6 +367,17 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
         }
         return false
+    }
+
+    suspend fun prepareFirmwareSessionNotifications(): Boolean {
+        val ready = enableNotifyAndAwaitResponse(
+            uuid = SERIALPORTCHAR_UUID,
+            timeoutMs = 1_000L,
+            attempts = 3,
+            baseDelayMs = 100L
+        )
+        Log.i(DFU_TRACE_TAG, "firmware_session serial_notify_ready=$ready generation=$gattServicesGeneration")
+        return ready
     }
     private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
@@ -541,12 +598,28 @@ class BLEController(private val bleManager: BleManagerKmm) {
         reconnectThread()
     }
     fun reconnectThread() {
-        if (reconnectJob?.isActive == true) return
+        if (reconnectJob?.isActive == true) {
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller reconnect_worker reuse active=true flag=$reconnectThreadFlag connected=$mConnected " +
+                    "generation=$gattServicesGeneration"
+            )
+            return
+        }
 
+        Log.i(
+            DFU_TRACE_TAG,
+            "controller reconnect_worker start flag=$reconnectThreadFlag connected=$mConnected generation=$gattServicesGeneration"
+        )
         reconnectJob = bleScope.launch {
             var j = 1
             try {
                 while (reconnectThreadFlag) {
+                    Log.d(
+                        DFU_TRACE_TAG,
+                        "controller reconnect_attempt=$j via=${if (j % 5 == 0) "scan" else "direct"} " +
+                            "connected=$mConnected generation=$gattServicesGeneration"
+                    )
                     if (j % 5 == 0) {
                         scanLeDevice(true)
                     } else {
@@ -556,6 +629,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     delay(RECONNECT_BLE_PERIOD.toLong())
                 }
             } finally {
+                Log.i(
+                    DFU_TRACE_TAG,
+                    "controller reconnect_worker finish connected=$mConnected generation=$gattServicesGeneration flag=$reconnectThreadFlag"
+                )
                 Log.d("BLE_RECON", "reconnectThread() finished, connected=$mConnected")
             }
         }
@@ -571,6 +648,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
         val connectedViaExistingService = withContext(Dispatchers.Main) {
             mBluetoothLeService?.connect(targetAddress) ?: false
         }
+        Log.d(
+            DFU_TRACE_TAG,
+            "controller direct_connect dispatched=$connectedViaExistingService address=$targetAddress generation=$gattServicesGeneration"
+        )
         if (connectedViaExistingService) return
 
         // Fallback: поднимаем сервис заново, если предыдущая попытка не стартовала.
@@ -725,8 +806,15 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             }} на UUID: $uuid properties=$properties writeType=${mCharacteristic?.writeType}")
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
-                            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                            commandDispatched = true
+                            commandDispatched =
+                                mBluetoothLeService?.writeCharacteristic(mCharacteristic) == true
+                            if (!commandDispatched) {
+                                Log.w(
+                                    DFU_TRACE_TAG,
+                                    "controller control_write rejected bytes=${byteArray?.size ?: -1} " +
+                                        "connected=$mConnected generation=$gattServicesGeneration"
+                                )
+                            }
                         } else {
                             Log.w("bleCommand", "WRITE unsupported for UUID=$uuid properties=$properties")
                         }
@@ -897,10 +985,356 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }
+    internal fun setFirmwareUpdateSessionActive(state: Boolean) {
+        firmwareUpdateSessionActive = state
+        Log.i(DFU_TRACE_TAG, "firmware_session active=$state generation=$gattServicesGeneration")
+    }
     internal fun setProgressDialog(dialog: Dialog?) { progressDialog = dialog }
     internal fun getBluetoothLeService() : BluetoothLeService? { return mBluetoothLeService }
     internal fun getBluetoothAdapter() : BluetoothAdapter? { return mBluetoothAdapter }
     internal fun getStatusConnected() : Boolean { return mConnected }
+
+    internal fun dfuMaximumWriteWithoutResponseSize(): Int {
+        val size = mBluetoothLeService?.maximumWriteWithoutResponseSize() ?: 20
+        Log.i(DFU_TRACE_TAG, "controller maximum_wwr_size=$size connected=$mConnected generation=$gattServicesGeneration")
+        return size
+    }
+
+    internal fun dfuSupportsWriteWithoutResponse(): Boolean {
+        return mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
+    }
+
+    internal fun dfuSetHighPerformanceMode() {
+        Log.i(DFU_TRACE_TAG, "controller high_performance request connected=$mConnected generation=$gattServicesGeneration")
+        mBluetoothLeService?.requestDfuHighPerformanceMode()
+    }
+
+    internal fun dfuWriteWithoutResponse(packet: ByteArray): Boolean {
+        val accepted = mBluetoothLeService?.writeDfuWithoutResponse(SERIALPORTCHAR_UUID, packet) == true
+        if (!accepted) {
+            Log.w(
+                DFU_TRACE_TAG,
+                "controller wwr rejected bytes=${packet.size} connected=$mConnected generation=$gattServicesGeneration"
+            )
+        }
+        return accepted
+    }
+
+    internal suspend fun dfuWriteControlAndAwait(packet: ByteArray, timeoutMs: Long): Boolean {
+        check(pendingFirmwareControlWrite == null) { "Another DFU control write is pending" }
+        val completion = CompletableDeferred<Boolean>()
+        pendingFirmwareControlWrite = completion
+        return try {
+            val accepted = bleCommand(packet, SERIALPORTCHAR_UUID, WRITE)
+            Log.d(
+                DFU_TRACE_TAG,
+                "controller direct_control accepted=$accepted bytes=${packet.size} " +
+                    "connected=$mConnected generation=$gattServicesGeneration"
+            )
+            accepted && withTimeoutOrNull(timeoutMs) { completion.await() } == true
+        } finally {
+            if (pendingFirmwareControlWrite === completion) {
+                pendingFirmwareControlWrite = null
+            }
+        }
+    }
+
+    internal fun dfuWriteControlExpectDisconnect(packet: ByteArray): Boolean {
+        val dispatched = bleCommand(packet, SERIALPORTCHAR_UUID, WRITE)
+        Log.i(
+            DFU_TRACE_TAG,
+            "controller reset_write dispatched=$dispatched bytes=${packet.size} connected=$mConnected generation=$gattServicesGeneration"
+        )
+        return dispatched
+    }
+
+    /**
+     * A normal V3 connection sends SET_DATE_TIME, which starts an asynchronous
+     * DataTable save.  JUMP_TO_BOOTLOADER must not be layered over that save:
+     * the FAM can remain in the reserve-copy retry stage and never reset.
+     *
+     * Reset main first, reconnect with dfuReconnectActive (so the normal init
+     * writes are suppressed), then request a sparse connection interval before
+     * JUMP.  The actual v1 JUMP packet and bootloader protocol stay unchanged.
+     */
+    internal suspend fun prepareFirmwareBootloaderJump(): Boolean {
+        val startedAt = System.currentTimeMillis()
+        val initialGeneration = gattServicesGeneration
+        dfuReconnectActive = true
+
+        val resetPacket = requestWithCommand(POWER_CONTROL.number.toInt(), PCCE_RESET_DEVICE)
+        val resetDispatched = bleCommand(resetPacket, SERIALPORTCHAR_UUID, WRITE)
+        Log.i(
+            DFU_TRACE_TAG,
+            "firmware_switch preflight_reset dispatched=$resetDispatched connected=$mConnected " +
+                "generation=$initialGeneration"
+        )
+        check(resetDispatched) { "Android BLE preflight reset before bootloader jump was rejected" }
+
+        // The reset command is consumed immediately, but STM32WB may reset
+        // before returning the ATT write response.  Android otherwise reports
+        // the dead link only after its ~5 s GATT timeout.  Release that stale
+        // link after the command has had one connection interval to arrive.
+        delay(FIRMWARE_SWITCH_PREFLIGHT_COMMAND_SETTLE_MS)
+        if (mConnected) {
+            Log.i(DFU_TRACE_TAG, "firmware_switch preflight releasing stale reset GATT")
+            mBluetoothLeService?.disconnectForFirmwareProgramSwitch()
+        }
+        val disconnected = withTimeoutOrNull(FIRMWARE_SWITCH_PREFLIGHT_DISCONNECT_TIMEOUT_MS) {
+            while (mConnected) delay(20L)
+            true
+        } == true
+        Log.i(
+            DFU_TRACE_TAG,
+            "firmware_switch preflight_disconnect=$disconnected connected=$mConnected " +
+                "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        check(disconnected) { "FAM did not reset before clean bootloader handoff" }
+
+        if (!reconnectThreadFlag) {
+            reconnectThreadFlag = true
+            reconnectThread()
+        }
+        val reconnected = withTimeoutOrNull(FIRMWARE_SWITCH_PREFLIGHT_RECONNECT_TIMEOUT_MS) {
+            while (!mConnected || gattServicesGeneration <= initialGeneration) delay(20L)
+            true
+        } == true
+        Log.i(
+            DFU_TRACE_TAG,
+            "firmware_switch preflight_reconnect=$reconnected connected=$mConnected " +
+                "initial_generation=$initialGeneration current_generation=$gattServicesGeneration " +
+                "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        check(reconnected) { "Android BLE reconnect after FAM preflight reset timed out" }
+        requireDfuSerialNotifications()
+
+        val accepted = mBluetoothLeService?.requestFirmwareSwitchLowPowerMode() == true
+        Log.i(
+            DFU_TRACE_TAG,
+            "firmware_switch prepare_low_power accepted=$accepted connected=$mConnected " +
+                "generation=$gattServicesGeneration"
+        )
+        check(accepted) { "Android BLE low-power request before bootloader jump was rejected" }
+
+        val resetObserved = withTimeoutOrNull(FIRMWARE_SWITCH_FLASH_QUIET_WINDOW_MS) {
+            while (mConnected) delay(20L)
+            true
+        } == true
+        Log.i(
+            DFU_TRACE_TAG,
+            "firmware_switch prepare_complete reset_observed=$resetObserved connected=$mConnected " +
+                "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        return resetObserved
+    }
+
+    internal suspend fun firmwareReconnectAfterBootloaderJump() {
+        val startedAt = System.currentTimeMillis()
+        val initialGeneration = gattServicesGeneration
+        dfuReconnectActive = true
+        reconnectThreadFlag = true
+        try {
+            Log.i(
+                DFU_TRACE_TAG,
+                "firmware_switch start connected=$mConnected generation=$initialGeneration"
+            )
+            // Let the firmware command handler consume JUMP_TO_BOOTLOADER
+            // after Android reports the ATT write callback.
+            delay(FIRMWARE_SWITCH_COMMAND_SETTLE_MS)
+            Log.i(DFU_TRACE_TAG, "firmware_switch command_settle_complete")
+
+            // FAM persists BootloaderStart asynchronously and then resets
+            // itself.  Do not poll or reconnect to the still-running main
+            // program during that save window; the peripheral disconnect is
+            // the authoritative completion signal.
+            val peripheralDisconnected = withTimeoutOrNull(
+                FIRMWARE_SWITCH_DEVICE_RESET_TIMEOUT_MS
+            ) {
+                while (mConnected) delay(20L)
+                true
+            } == true
+            Log.i(
+                DFU_TRACE_TAG,
+                "firmware_switch peripheral_disconnect=$peripheralDisconnected connected=$mConnected " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+            if (!peripheralDisconnected) {
+                Log.w(
+                    DFU_TRACE_TAG,
+                    "firmware_switch peripheral reset timeout; releasing stale main GATT"
+                )
+                mBluetoothLeService?.disconnectForFirmwareProgramSwitch()
+                val hostDisconnected = withTimeoutOrNull(2_000L) {
+                    while (mConnected) delay(20L)
+                    true
+                } == true
+                Log.i(
+                    DFU_TRACE_TAG,
+                    "firmware_switch host_disconnect=$hostDisconnected connected=$mConnected"
+                )
+                check(hostDisconnected) { "Firmware program-switch disconnect timeout" }
+                delay(FIRMWARE_SWITCH_FALLBACK_QUIET_WINDOW_MS)
+            } else {
+                delay(FIRMWARE_SWITCH_POST_RESET_HANDOFF_MS)
+            }
+
+            reconnectThread()
+            val ready = withTimeoutOrNull(15_000L) {
+                while (!mConnected || gattServicesGeneration <= initialGeneration) delay(20L)
+                true
+            }
+            Log.i(
+                DFU_TRACE_TAG,
+                "firmware_switch reconnect_ready=$ready connected=$mConnected " +
+                    "initial_generation=$initialGeneration current_generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+            check(ready == true) { "Firmware bootloader reconnect timeout" }
+            requireDfuSerialNotifications()
+        } finally {
+            dfuReconnectActive = false
+            Log.i(
+                DFU_TRACE_TAG,
+                "firmware_switch finish connected=$mConnected generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+        }
+    }
+
+    internal suspend fun dfuReconnect() {
+        val startedAt = System.currentTimeMillis()
+        dfuReconnectActive = true
+        reconnectThreadFlag = true
+        try {
+            val hadWwr = dfuSupportsWriteWithoutResponse()
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller reconnect start connected=$mConnected generation=$gattServicesGeneration wwr=$hadWwr"
+            )
+            if (!hadWwr) {
+                Log.i("DFU_METRIC", "confirmed_v2_refreshing_stale_gatt_cache=true")
+                val refreshed = mBluetoothLeService?.refreshGattCache()
+                Log.i(DFU_TRACE_TAG, "controller reconnect cache_refresh=$refreshed")
+            }
+            mBluetoothLeService?.disconnect()
+            val disconnected = withTimeoutOrNull(2_000L) {
+                while (mConnected) delay(20L)
+                true
+            }
+            Log.i(DFU_TRACE_TAG, "controller reconnect disconnect_wait=$disconnected connected=$mConnected")
+            reconnectThread()
+            val ready = withTimeoutOrNull(15_000L) {
+                while (!mConnected || !dfuSupportsWriteWithoutResponse()) delay(20L)
+                true
+            }
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller reconnect ready=$ready connected=$mConnected generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+            check(ready == true) { "Android DFU reconnect timeout" }
+            requireDfuSerialNotifications()
+        } finally {
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller reconnect finish connected=$mConnected generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+            dfuReconnectActive = false
+        }
+    }
+
+    internal suspend fun dfuAwaitReconnect() {
+        val startedAt = System.currentTimeMillis()
+        dfuReconnectActive = true
+        val initialGeneration = gattServicesGeneration
+        try {
+            Log.i(
+                "DFU_METRIC",
+                "post_crc_reconnect_wait start connected=$mConnected generation=$initialGeneration"
+            )
+            if (!mConnected) {
+                reconnectThreadFlag = true
+                reconnectThread()
+            }
+            val automaticReconnectObserved = withTimeoutOrNull(6_000L) {
+                while (!mConnected || gattServicesGeneration <= initialGeneration) delay(20L)
+                true
+            } == true
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller post_crc automatic_observed=$automaticReconnectObserved connected=$mConnected " +
+                    "initial_generation=$initialGeneration current_generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+
+            if (!automaticReconnectObserved) {
+                // COMPLITE_CRC may reset and reconnect before this coroutine is
+                // entered. In that race the generation captured above already
+                // belongs to the main application, so waiting for a newer one
+                // can never succeed. Refresh the connection once in software;
+                // this also re-enables notifications on the new GATT database.
+                Log.i(
+                    "DFU_METRIC",
+                    "post_crc_reconnect_wait automatic_event_missed=true forcing_refresh=true"
+                )
+                val generationBeforeRefresh = gattServicesGeneration
+                Log.i(
+                    DFU_TRACE_TAG,
+                    "controller post_crc forced_refresh start connected=$mConnected generation=$generationBeforeRefresh"
+                )
+                mBluetoothLeService?.disconnect()
+                val disconnected = withTimeoutOrNull(2_000L) {
+                    while (mConnected) delay(20L)
+                    true
+                }
+                Log.i(DFU_TRACE_TAG, "controller post_crc forced_disconnect_wait=$disconnected connected=$mConnected")
+                reconnectThreadFlag = true
+                reconnectThread()
+                val refreshedConnection = withTimeoutOrNull(15_000L) {
+                    while (!mConnected || gattServicesGeneration <= generationBeforeRefresh) {
+                        delay(20L)
+                    }
+                    true
+                }
+                Log.i(
+                    DFU_TRACE_TAG,
+                    "controller post_crc forced_refresh result=$refreshedConnection connected=$mConnected " +
+                        "before_generation=$generationBeforeRefresh current_generation=$gattServicesGeneration " +
+                        "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+                )
+                check(refreshedConnection == true) { "Android DFU post-CRC reconnect timeout" }
+            }
+            requireDfuSerialNotifications()
+            Log.i(
+                "DFU_METRIC",
+                "post_crc_reconnect_wait complete connected=$mConnected generation=$gattServicesGeneration"
+            )
+        } finally {
+            Log.i(
+                DFU_TRACE_TAG,
+                "controller post_crc finish connected=$mConnected generation=$gattServicesGeneration " +
+                    "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+            )
+            dfuReconnectActive = false
+        }
+    }
+
+    private suspend fun requireDfuSerialNotifications() {
+        check(
+            enableNotifyAndAwaitResponse(
+                uuid = SERIALPORTCHAR_UUID,
+                timeoutMs = 500L,
+                attempts = 10,
+                baseDelayMs = 20L
+            )
+        ) { "Android DFU SERIALPORT notification subscription failed" }
+        Log.i("DFU_METRIC", "serial_notifications_ready=true")
+        Log.i(
+            DFU_TRACE_TAG,
+            "controller serial_notifications_ready connected=$mConnected generation=$gattServicesGeneration"
+        )
+    }
 
     internal fun setReconnectThreadFlag(reconnectThreadFlag: Boolean) {
         this.reconnectThreadFlag = reconnectThreadFlag
@@ -1117,5 +1551,15 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private companion object {
         private const val SETTINGS_PROFILE_DOWNLOAD_LOG_TAG = "SettingsProfileDownload"
+        private const val DFU_TRACE_TAG = "DFU_V2_TRACE"
+        private const val PCCE_RESET_DEVICE = 2
+        private const val FIRMWARE_SWITCH_PREFLIGHT_COMMAND_SETTLE_MS = 500L
+        private const val FIRMWARE_SWITCH_PREFLIGHT_DISCONNECT_TIMEOUT_MS = 2_000L
+        private const val FIRMWARE_SWITCH_PREFLIGHT_RECONNECT_TIMEOUT_MS = 15_000L
+        private const val FIRMWARE_SWITCH_FLASH_QUIET_WINDOW_MS = 1_500L
+        private const val FIRMWARE_SWITCH_COMMAND_SETTLE_MS = 100L
+        private const val FIRMWARE_SWITCH_DEVICE_RESET_TIMEOUT_MS = 7_000L
+        private const val FIRMWARE_SWITCH_POST_RESET_HANDOFF_MS = 250L
+        private const val FIRMWARE_SWITCH_FALLBACK_QUIET_WINDOW_MS = 1_500L
     }
 }

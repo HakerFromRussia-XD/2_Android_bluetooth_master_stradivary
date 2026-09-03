@@ -15,10 +15,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.scan.view.ScanActivity
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -45,6 +49,23 @@ class SplashScreen : AppCompatActivity() {
 
         backgroundRl = findViewById(R.id.background_rl)
         mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        val dfuTestAddress = intent.getStringExtra("DFU_TEST_DEVICE_ADDRESS")
+        if (BuildConfig.DEBUG && !dfuTestAddress.isNullOrBlank()) {
+            mSettings!!.edit()
+                .putBoolean(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED, true)
+                .putString(PreferenceKeysUbi4.CONNECTED_DEVICE, "FTHS3")
+                .putString(PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS, dfuTestAddress)
+                .apply()
+            UiState.isInterfaceV3Activated = true
+            startActivity(Intent(this, MainActivityUBI4::class.java).apply {
+                putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "FTHS3")
+                putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, dfuTestAddress)
+                putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "FTHS3")
+                putExtra("DFU_TEST_AUTO_UPDATE", true)
+            })
+            finish()
+            return
+        }
         if (loadBool(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED) == true) {
             window.statusBarColor = this.resources.getColor(R.color.color_primary, theme)
             runOnUiThread {

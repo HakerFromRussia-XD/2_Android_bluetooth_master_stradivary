@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ui.main
 
+import com.bailout.stickk.BuildConfig
+
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -35,6 +37,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -42,6 +45,7 @@ import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -55,6 +59,7 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
+import com.bailout.stickk.ubi4.firmware.DfuDiagnostics
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
@@ -66,6 +71,7 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -96,13 +102,17 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENA
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
+import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.jvm.java
@@ -156,6 +166,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         super.onCreate(savedInstanceState)
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
+        applyDfuDiagnostics(intent)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
@@ -271,6 +282,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
             mBLEController.disconnect()
         }
+        maybeStartDebugFirmwareUpdate()
         binding.nameTv.setOnClickListener {
             dialogManager?.showDisconnectDialog()
         }
@@ -321,6 +333,63 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             isBleConnected = { mBLEController.getStatusConnected() }
         )
         lifecycle.addObserver(bleStatusController)
+    }
+
+    private fun maybeStartDebugFirmwareUpdate() {
+        if (!BuildConfig.DEBUG || !intent.getBooleanExtra("DFU_TEST_AUTO_UPDATE", false)) return
+        UiState.startupInProgress.value = false
+        UiState.fullInitInProgress.value = false
+        syncDialog.dismiss()
+        lifecycleScope.launch {
+            repeat(2_400) {
+                if (mBLEController.getStatusConnected()) {
+                    delay(750)
+                    if (mBLEController.getStatusConnected()) {
+                        if (!mBLEController.prepareFirmwareSessionNotifications()) {
+                            Log.w("DFU_V2_TRACE", "debug_autorun serial notify unavailable; waiting for reconnect")
+                            delay(500)
+                            return@repeat
+                        }
+                        val firmwareFile = File(cacheDir, "FH_FAM_v0.1.29_.zip")
+                        assets.open("Firmware/FH_FAM_v0.1.29_.zip").use { input ->
+                            firmwareFile.outputStream().use(input::copyTo)
+                        }
+                        Log.i("DFU_V2_TRACE", "debug_autorun connected; dispatching firmware update")
+                        dialogManager?.runV3FirmwareUpdateForDebug(firmwareFile)
+                        return@launch
+                    }
+                }
+                delay(250)
+            }
+            Log.e("DFU_V2_TRACE", "debug_autorun connection timeout")
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        applyDfuDiagnostics(intent)
+    }
+
+    private fun applyDfuDiagnostics(intent: Intent) {
+        DfuDiagnostics.forceLegacy = BuildConfig.DFU_DIAGNOSTIC_FORCE_LEGACY
+        // Production keeps the proven v1-compatible boot-entry behavior.
+        // Requiring a main-app start remains an explicit diagnostics option.
+        DfuDiagnostics.requireMainStart = false
+        if (intent.hasExtra(EXTRA_DFU_FORCE_LEGACY)) {
+            DfuDiagnostics.forceLegacy = intent.getBooleanExtra(EXTRA_DFU_FORCE_LEGACY, false)
+            Log.i("DFU_METRIC", "diagnostic_force_legacy=${DfuDiagnostics.forceLegacy}")
+        }
+        if (intent.hasExtra(EXTRA_DFU_REQUIRE_MAIN_START)) {
+            DfuDiagnostics.requireMainStart =
+                intent.getBooleanExtra(EXTRA_DFU_REQUIRE_MAIN_START, false)
+            Log.i("DFU_METRIC", "diagnostic_require_main_start=${DfuDiagnostics.requireMainStart}")
+        }
+        Log.i(
+            "DFU_METRIC",
+            "diagnostics forceLegacy=${DfuDiagnostics.forceLegacy} " +
+                "requireMainStart=${DfuDiagnostics.requireMainStart}"
+        )
     }
 
 
@@ -645,6 +714,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
+        val deviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE).orEmpty()
+        UiState.isInterfaceV3Activated = ConstantManager.V3_TYPES.any { marker ->
+            connectedDeviceName.contains(marker, ignoreCase = true) ||
+                deviceType.contains(marker, ignoreCase = true)
+        }
         setStaticVariables()
         updateSerialNumberV3()
 
@@ -665,6 +739,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
         bleParserV3 = BLEParserV3(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        BleEnvironment.register(
+            manager = bleManager,
+            executor = this,
+            parser = bleParser,
+            parserV3 = bleParserV3
+        )
     }
 
     // сохранение и загрузка данных
@@ -739,6 +819,109 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
             remainingTasks.incrementAndGet()
         }
+    }
+
+    override suspend fun firmwareJumpToBootloader(packet: ByteArray) {
+        val startedAt = System.currentTimeMillis()
+        val resetAlreadyObserved = mBLEController.prepareFirmwareBootloaderJump()
+        if (resetAlreadyObserved) {
+            Log.i(
+                DFU_TRACE_TAG,
+                "legacy jump skipped because pending boot transition reset during flash quiet window"
+            )
+            mBLEController.firmwareReconnectAfterBootloaderJump()
+            return
+        }
+        Log.i(
+            DFU_TRACE_TAG,
+            "legacy jump enqueue bytes=${packet.size} remaining_before=${remainingTasks.get()}"
+        )
+        val sent = CompletableDeferred<Unit>()
+        bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {
+            sent.complete(Unit)
+        }
+        val completed = withTimeoutOrNull(DFU_CONTROL_WRITE_TIMEOUT_MS) {
+            sent.await()
+        } != null
+        Log.i(
+            DFU_TRACE_TAG,
+            "legacy jump write_complete=$completed remaining=${remainingTasks.get()} " +
+                "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        check(completed) { "Legacy JUMP_TO_BOOTLOADER write timeout" }
+        mBLEController.firmwareReconnectAfterBootloaderJump()
+    }
+
+    override suspend fun dfuMaximumWriteWithoutResponseSize(): Int =
+        mBLEController.dfuMaximumWriteWithoutResponseSize()
+
+    override suspend fun dfuSupportsWriteWithoutResponse(): Boolean =
+        mBLEController.dfuSupportsWriteWithoutResponse()
+
+    override suspend fun dfuSetHighPerformanceMode() {
+        val startedAt = System.currentTimeMillis()
+        Log.i(DFU_TRACE_TAG, "queue drain_before_high_performance start remaining=${remainingTasks.get()}")
+        while (remainingTasks.get() > 0) delay(5L)
+        Log.i(
+            DFU_TRACE_TAG,
+            "queue drain_before_high_performance complete elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        mBLEController.dfuSetHighPerformanceMode()
+    }
+
+    override suspend fun dfuWriteControl(packet: ByteArray) {
+        val startedAt = System.currentTimeMillis()
+        Log.d(
+            DFU_TRACE_TAG,
+            "direct control start bytes=${packet.size} remaining_before=${remainingTasks.get()}"
+        )
+        while (remainingTasks.get() > 0) delay(5L)
+        val completed = mBLEController.dfuWriteControlAndAwait(
+            packet = packet,
+            timeoutMs = DFU_CONTROL_WRITE_TIMEOUT_MS
+        )
+        Log.d(
+            DFU_TRACE_TAG,
+            "direct control result completed=$completed remaining=${remainingTasks.get()} " +
+                "elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        check(completed) {
+            "DFU control write was not completed in ${DFU_CONTROL_WRITE_TIMEOUT_MS}ms"
+        }
+    }
+
+    override suspend fun dfuWriteControlExpectDisconnect(packet: ByteArray) {
+        /* JUMP_TO_BOOTLOADER is acknowledged by the ensuing disconnect.  FAM
+         * resets quickly enough that Android often never receives
+         * onCharacteristicWrite, so this one command must not enter the
+         * callback-gated stop-and-wait queue. */
+        val startedAt = System.currentTimeMillis()
+        Log.i(DFU_TRACE_TAG, "queue reset_write drain start remaining=${remainingTasks.get()}")
+        while (remainingTasks.get() > 0) delay(5L)
+        val accepted = mBLEController.dfuWriteControlExpectDisconnect(packet)
+        Log.i(
+            DFU_TRACE_TAG,
+            "queue reset_write accepted=$accepted elapsed_ms=${System.currentTimeMillis() - startedAt}"
+        )
+        check(accepted) {
+            "DFU reset control write was not accepted by Android GATT"
+        }
+    }
+
+    override suspend fun dfuWriteWithoutResponse(packet: ByteArray): Boolean =
+        mBLEController.dfuWriteWithoutResponse(packet)
+
+    override suspend fun dfuAwaitWritable() {
+        // Android exposes immediate GATT busy as a rejected write. The common
+        // uploader retries it with a short delay and device credit window.
+    }
+
+    override suspend fun dfuReconnect() {
+        mBLEController.dfuReconnect()
+    }
+
+    override suspend fun dfuAwaitReconnect() {
+        mBLEController.dfuAwaitReconnect()
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
@@ -1018,6 +1201,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     companion object {
+        private const val DFU_TRACE_TAG = "DFU_V2_TRACE"
+        private const val DFU_CONTROL_WRITE_TIMEOUT_MS = 3_000L
+        const val EXTRA_DFU_FORCE_LEGACY = "com.bailout.stickk.extra.DFU_FORCE_LEGACY"
+        const val EXTRA_DFU_REQUIRE_MAIN_START =
+            "com.bailout.stickk.extra.DFU_REQUIRE_MAIN_START"
         private var mainRef: WeakReference<MainActivityUBI4>? = null
 
         val mainOrNull: MainActivityUBI4?

@@ -109,6 +109,8 @@ android {
         val motoricaGamesManifestUrl = providers.gradleProperty("motoricaGamesManifestUrl").orElse("").get()
         buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
+        buildConfigField("boolean", "DFU_DIAGNOSTIC_FORCE_LEGACY", "false")
+        buildConfigField("boolean", "ACCOUNT_LOAD_PROFILE_IN_BACKGROUND", "true")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

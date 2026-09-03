@@ -474,6 +474,13 @@ class BLEParserV3(
                 FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
                 FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
             }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_CAPS.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_BEGIN.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_STATUS.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_ABORT.number.toInt() -> {
+                FirmwareInfoState.dfuV2ResponseFlow.tryEmit(payload.toByteArray())
+            }
         }
     }
 

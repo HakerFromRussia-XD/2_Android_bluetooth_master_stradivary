@@ -43,6 +43,8 @@ import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
 import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
+import platform.CoreBluetooth.CBCharacteristicWriteWithoutResponse
+import platform.CoreBluetooth.CBCharacteristicPropertyWriteWithoutResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
@@ -55,6 +57,8 @@ import platform.darwin.NSObject
 import platform.posix.memcpy
 
 private const val EMG_GRAPH_STREAM_PACKET_SIZE = 12
+private const val DFU_AUTOMATIC_RECONNECT_TIMEOUT_MS = 6_000L
+private const val DFU_FORCED_RECONNECT_TIMEOUT_MS = 15_000L
 
 
 /** Информация об обнаруженном устройстве */
@@ -117,6 +121,10 @@ actual class BleManagerKmm actual constructor() {
     private var pendingManualConnectUuid: String? = null
     private var autoReconnectEnabled = true
     private var reconnectScanActive = false
+    private var pendingDfuControlWrite: CompletableDeferred<Boolean>? = null
+    private var pendingDfuWritable: CompletableDeferred<Unit>? = null
+    private var pendingDfuReconnect: CompletableDeferred<Unit>? = null
+    private var dfuReconnectActive = false
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -279,6 +287,13 @@ actual class BleManagerKmm actual constructor() {
             didWriteValueForCharacteristic: CBCharacteristic,
             error: NSError?
         ) {
+            if (didWriteValueForCharacteristic.UUID.UUIDString()
+                    .equals(SERIALPORTCHAR_UUID, ignoreCase = true)) {
+                pendingDfuControlWrite?.let {
+                    pendingDfuControlWrite = null
+                    it.complete(error == null)
+                }
+            }
             if (error != null) {
                 platformLog("[V3-SLIDER][BLE-WRITE]", "write error=${error.localizedDescription}")
             } else {
@@ -291,6 +306,13 @@ actual class BleManagerKmm actual constructor() {
                     if (onChunkSentQueue.isNotEmpty()) onChunkSentQueue.removeFirst() else null
                 }
                 callback?.invoke()
+            }
+        }
+
+        override fun peripheralIsReadyToSendWriteWithoutResponse(peripheral: CBPeripheral) {
+            pendingDfuWritable?.let {
+                pendingDfuWritable = null
+                it.complete(Unit)
             }
         }
 
@@ -492,6 +514,145 @@ actual class BleManagerKmm actual constructor() {
         }
     }
 
+    internal fun dfuMaximumWriteWithoutResponseSize(): Int =
+        selectedDevice?.maximumWriteValueLengthForType(CBCharacteristicWriteWithoutResponse)
+            ?.toInt() ?: 20
+
+    internal fun dfuSupportsWriteWithoutResponse(): Boolean {
+        val characteristic = dfuSerialCharacteristic() ?: return false
+        return characteristic.properties.toULong() and
+            CBCharacteristicPropertyWriteWithoutResponse != 0UL
+    }
+
+    internal suspend fun dfuWriteControl(packet: ByteArray) {
+        val peripheral = selectedDevice ?: error("DFU peripheral is disconnected")
+        val characteristic = dfuSerialCharacteristic()
+            ?: error("SERIALPORT characteristic is unavailable")
+        check(pendingDfuControlWrite == null) { "Another DFU control write is pending" }
+        val completed = CompletableDeferred<Boolean>()
+        pendingDfuControlWrite = completed
+        peripheral.writeValue(
+            packet.toNSData(),
+            forCharacteristic = characteristic,
+            type = CBCharacteristicWriteWithResponse
+        )
+        val ok = withTimeoutOrNull(1_000L) { completed.await() } == true
+        if (pendingDfuControlWrite === completed) pendingDfuControlWrite = null
+        check(ok) { "DFU control write failed or timed out" }
+    }
+
+    internal fun dfuWriteControlExpectDisconnect(packet: ByteArray) {
+        val peripheral = selectedDevice ?: error("DFU peripheral is disconnected")
+        val characteristic = dfuSerialCharacteristic()
+            ?: error("SERIALPORT characteristic is unavailable")
+        /* The peripheral reset/disconnect is the completion signal.  Waiting
+         * for didWriteValueForCharacteristic races that reset on both FAM
+         * main and bootloader. */
+        peripheral.writeValue(
+            packet.toNSData(),
+            forCharacteristic = characteristic,
+            type = CBCharacteristicWriteWithResponse
+        )
+    }
+
+    internal fun dfuWriteWithoutResponse(packet: ByteArray): Boolean {
+        val peripheral = selectedDevice ?: return false
+        if (!peripheral.canSendWriteWithoutResponse) return false
+        val characteristic = dfuSerialCharacteristic() ?: return false
+        peripheral.writeValue(
+            packet.toNSData(),
+            forCharacteristic = characteristic,
+            type = CBCharacteristicWriteWithoutResponse
+        )
+        return true
+    }
+
+    internal suspend fun dfuAwaitWritable() {
+        val peripheral = selectedDevice ?: error("DFU peripheral is disconnected")
+        if (peripheral.canSendWriteWithoutResponse) return
+        val ready = CompletableDeferred<Unit>()
+        pendingDfuWritable = ready
+        if (peripheral.canSendWriteWithoutResponse) {
+            pendingDfuWritable = null
+            return
+        }
+        check(withTimeoutOrNull(1_000L) { ready.await() } != null) {
+            "CoreBluetooth WWR backpressure timeout"
+        }
+    }
+
+    internal suspend fun dfuReconnect() {
+        val peripheral = selectedDevice ?: error("DFU peripheral is disconnected")
+        check(pendingDfuReconnect == null) { "DFU reconnect is already pending" }
+        val ready = CompletableDeferred<Unit>()
+        pendingDfuReconnect = ready
+        dfuReconnectActive = true
+        try {
+            autoReconnectEnabled = true
+            reconnectTargetUuid = peripheral.identifier.UUIDString()
+            manager.cancelPeripheralConnection(peripheral)
+            val reconnected = withTimeoutOrNull(DFU_FORCED_RECONNECT_TIMEOUT_MS) {
+                ready.await()
+            } != null
+            check(reconnected) { "DFU reconnect timeout" }
+        } finally {
+            if (pendingDfuReconnect === ready) pendingDfuReconnect = null
+            dfuReconnectActive = false
+        }
+    }
+
+    internal suspend fun dfuAwaitReconnect() {
+        check(pendingDfuReconnect == null) { "DFU reconnect is already pending" }
+        val targetUuid = selectedDevice?.identifier?.UUIDString() ?: reconnectTargetUuid
+        check(targetUuid != null) { "DFU reconnect target is unavailable" }
+
+        autoReconnectEnabled = true
+        reconnectTargetUuid = targetUuid
+        dfuReconnectActive = true
+        try {
+            val automaticReady = CompletableDeferred<Unit>()
+            pendingDfuReconnect = automaticReady
+            platformLog(
+                "DFU_METRIC",
+                "post_crc_reconnect_wait start connected=${selectedDevice != null} target=$targetUuid"
+            )
+            val automaticReconnectObserved =
+                withTimeoutOrNull(DFU_AUTOMATIC_RECONNECT_TIMEOUT_MS) {
+                    automaticReady.await()
+                } != null
+
+            if (!automaticReconnectObserved) {
+                // The reset may have completed before this waiter was installed.
+                // Force one fresh service discovery so the main application's
+                // characteristics and notifications become authoritative.
+                if (pendingDfuReconnect === automaticReady) pendingDfuReconnect = null
+                val forcedReady = CompletableDeferred<Unit>()
+                pendingDfuReconnect = forcedReady
+                platformLog(
+                    "DFU_METRIC",
+                    "post_crc_reconnect_wait automatic_event_missed=true forcing_refresh=true"
+                )
+                selectedDevice?.let { manager.cancelPeripheralConnection(it) }
+                    ?: startReconnectScan()
+                check(withTimeoutOrNull(DFU_FORCED_RECONNECT_TIMEOUT_MS) {
+                    forcedReady.await()
+                } != null) { "iOS DFU post-CRC reconnect timeout" }
+            }
+            platformLog(
+                "DFU_METRIC",
+                "post_crc_reconnect_wait complete connected=${selectedDevice != null}"
+            )
+        } finally {
+            pendingDfuReconnect = null
+            dfuReconnectActive = false
+        }
+    }
+
+    private fun dfuSerialCharacteristic(): CBCharacteristic? =
+        characteristicsMass.firstOrNull {
+            it.UUID.UUIDString().equals(SERIALPORTCHAR_UUID, ignoreCase = true)
+        }
+
     fun ByteArray.toNSData(): NSData {
         // Используем usePinned для создания указателя на массив байтов
         return this.usePinned { pinned ->
@@ -517,7 +678,23 @@ actual class BleManagerKmm actual constructor() {
         didNotifyCharacteristicsReady = true
         BLEState.publishReady()
 
-        if (UiState.isInterfaceV3Activated) {
+        if (dfuReconnectActive) {
+            pendingDfuReconnect?.let { reconnectReady ->
+                connectionScope.launch {
+                    val serialNotifyEnabled = enableNotifyAndAwaitResponse(
+                        uuid = SERIALPORTCHAR_UUID,
+                        timeoutMs = 500L,
+                        attempts = 10,
+                        baseDelayMs = 20L
+                    )
+                    if (serialNotifyEnabled && pendingDfuReconnect === reconnectReady) {
+                        pendingDfuReconnect = null
+                        platformLog("DFU_METRIC", "serial_notifications_ready=true")
+                        reconnectReady.complete(Unit)
+                    }
+                }
+            }
+        } else if (UiState.isInterfaceV3Activated) {
             launchV3SynchronizationPipeline()
         }
 

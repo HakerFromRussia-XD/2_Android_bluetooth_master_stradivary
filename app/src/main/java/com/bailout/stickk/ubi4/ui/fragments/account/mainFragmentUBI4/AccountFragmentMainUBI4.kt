@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
@@ -163,12 +164,14 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         systemBackCallback?.isEnabled = !isHidden
 
 
-        binding.refreshLayout.setLottieAnimation("loader_3.json")
-        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener {
-            System.err.println("Refreshing... requestToken()")
-            requestToken()
+        if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
+            binding.preloaderLav.cancelAnimation()
+            binding.refreshLayout.setOnRefreshListener {
+                System.err.println("Refreshing... requestToken()")
+                requestToken()
+            }
+        } else {
+            setupRefreshLayout()
         }
 
         accountMainList = ArrayList()
@@ -176,7 +179,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
         val hasCachedContent = applyCachedContentIfAvailable()
         if (hasCachedContent) {
-            canRenderBoards = true
+            canRenderBoards = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
+            binding.preloaderLav.visibility = View.GONE
+            binding.accountRv.visibility = View.VISIBLE
+        } else if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
             binding.preloaderLav.visibility = View.GONE
             binding.accountRv.visibility = View.VISIBLE
         } else {
@@ -190,7 +196,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             canRenderBoards = true
             refreshBoards()
             requestToken()
-        }, transitionDurationMs)
+        }, transitionDurationMs + if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) 80L else 0L)
 
         viewLifecycleOwner.lifecycleScope.launch {
              runProgramTypeFlow.collect { (addr, runType) ->
@@ -233,6 +239,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             versionSensors = sensorsVersion
         )
         updateAccountSafe(item)
+    }
+
+    private fun setupRefreshLayout() {
+        binding.refreshLayout.setLottieAnimation("loader_3.json")
+        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+        binding.refreshLayout.setOnRefreshListener {
+            System.err.println("Refreshing... requestToken()")
+            requestToken()
+        }
     }
 
     private val cleanSerialNumber = serialNumber.replace("\u0000", "").trim()
@@ -453,8 +469,26 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         // строки‑платы
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,
-            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation
+            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation,
+            loadLocalVersionsOnBind = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
         )
+
+        if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
+            accountAdapter.submitProfile(
+                cachedProfileItem ?: AccountMainUBI4Item(
+                    avatarUrl = "avatarUrl",
+                    name = fname,
+                    surname = sname,
+                    patronymic = "Ivanovich",
+                    versionDriver = driverVersion,
+                    versionBms = bmsVersion,
+                    versionSensors = sensorsVersion
+                )
+            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                bootloaderAdapter.preloadLocalVersions(requireContext())
+            }
+        }
 
         // карточка‑обёртка, которая содержит вложенный RecyclerView
         val bootloaderCardAdapter = BootloaderCardAdapter(bootloaderAdapter)
@@ -512,12 +546,14 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
         if (profile == null && boards.isNullOrEmpty()) return false
 
-        profile?.let { updateAccountSafe(it) }
+        profile?.let {
+            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateAccountSafe(it)
+        }
         if (!boards.isNullOrEmpty()) {
             val snapshot = boards.map { it.copy() }
             bootloaderBoardsList.clear()
             bootloaderBoardsList.addAll(snapshot)
-            updateBootloaderSafe(snapshot)
+            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateBootloaderSafe(snapshot)
         }
         return true
     }
@@ -800,7 +836,13 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
         val snapshot = list.map { it.copy() }
         cachedBootloaderBoards = snapshot
-        _binding?.accountRv?.post { bootloaderAdapter.submitBoards(snapshot) }
+        _binding?.accountRv?.post {
+            bootloaderAdapter.submitBoards(snapshot)
+            if (snapshot.isNotEmpty()) {
+                binding.preloaderLav.visibility = View.GONE
+                binding.accountRv.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =

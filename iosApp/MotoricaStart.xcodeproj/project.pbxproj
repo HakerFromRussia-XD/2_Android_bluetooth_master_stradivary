@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F4A001012F7A000100000001 /* FH_FAM_v0.1.29_.zip in Resources */ = {isa = PBXBuildFile; fileRef = F4A001022F7A000100000002 /* FH_FAM_v0.1.29_.zip */; };
 		024CD56B23ACECDDDD15333A /* festh3_test11_gofra_1.v3bin in Resources */ = {isa = PBXBuildFile; fileRef = C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */; };
 		03AC1AA39B113799F46BD962 /* DialogFingersDelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */; };
 		059524415962DA54885D8A4C /* DialogDisconnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */; };
@@ -318,6 +319,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F4A001022F7A000100000002 /* FH_FAM_v0.1.29_.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = FH_FAM_v0.1.29_.zip; sourceTree = "<group>"; };
 		0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSetSerialNumberViewController.swift; path = ViewControllers/Dialogs/DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
 		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
 		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
@@ -853,6 +855,7 @@
 		1FA533AD201E205000747E55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F4A001022F7A000100000002 /* FH_FAM_v0.1.29_.zip */,
 				65588FA12EA1206D005CF5BA /* Animations */,
 				655830392DBBAF4100744D5C /* Fontes */,
 				1FF082B5239438DC00876A22 /* Localizable.strings */,
@@ -1764,6 +1767,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4A001012F7A000100000001 /* FH_FAM_v0.1.29_.zip in Resources */,
 				655830362DBBAEB400744D5C /* DeviceCell.xib in Resources */,
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,

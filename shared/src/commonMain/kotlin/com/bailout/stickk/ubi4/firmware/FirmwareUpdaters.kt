@@ -15,8 +15,12 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CheckNe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.StartSystemUpdateStatus
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
+import com.bailout.stickk.ubi4.utility.currentTimeMillis
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -24,6 +28,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+
+private fun requireValidMeasuredStart(initial: PreferenceKeysUbi4.RunProgramType) {
+    if (DfuDiagnostics.requireMainStart && initial != PreferenceKeysUbi4.RunProgramType.MAIN_APP) {
+        throw IllegalStateException(
+            "Измеряемый DFU-тест должен начинаться из основной программы"
+        )
+    }
+}
+
+internal fun shouldJumpToBootloader(
+    reportedRunType: PreferenceKeysUbi4.RunProgramType
+): Boolean = reportedRunType != PreferenceKeysUbi4.RunProgramType.BOOTLOADER
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class Ubi4FirmwareUpdater(
@@ -53,7 +69,10 @@ class Ubi4FirmwareUpdater(
         val initial = readRunType()
         logger.debug(TAG, "RX initial status = $initial")
 
-        if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+        requireValidMeasuredStart(initial)
+        if (DfuDiagnostics.requireMainStart) logger.info("DFU_METRIC", "preflight=main_confirmed")
+
+        if (shouldJumpToBootloader(initial)) {
             logger.debug(TAG, "TX JUMP_TO_BOOTLOADER")
             send(BLECommands.jumpToBootloader(addr.toByte()))
             delay(BOOTLOADER_RECONNECT_DELAY_MS)
@@ -227,31 +246,84 @@ class Ubi4FirmwareUpdater(
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3FirmwareUpdater(
     private val sender: FirmwareCommandSender,
+    private val bulkTransport: FirmwareBulkTransport? = null,
     private val logger: FirmwareUpdateLogger = NoOpFirmwareUpdateLogger
 ) {
     private var lastMaxChunkInfo: MaxChunkSizeInfo? = null
+    private val fastUploader: FastDfuUploaderV2? by lazy {
+        bulkTransport?.let {
+            FastDfuUploaderV2(it, FirmwareInfoState.dfuV2ResponseFlow, logger)
+        }
+    }
+
+    suspend fun supportsFastDfuTransport(): Boolean =
+        bulkTransport?.supportsWriteWithoutResponse() == true
+
+    suspend fun negotiateFastDfu(addr: Int): DfuCapabilitiesV2? {
+        if (DfuDiagnostics.forceLegacy) {
+            logger.info(TAG, "forceLegacy enabled; skipping CAPS and using DFU v1")
+            return null
+        }
+        return fastUploader?.negotiate(addr)
+    }
+
+    suspend fun sendFirmwareFastWithProgress(
+        addr: Int,
+        firmware: FirmwareUpdatePackage,
+        capabilities: DfuCapabilitiesV2,
+        onProgress: (offset: Int, total: Int) -> Unit
+    ) {
+        val imageCrc = firmware.descriptorFirmwareCrc.takeIf { it != 0L }
+            ?: MotoricaCrc32.calculate(firmware.payload)
+        requireNotNull(fastUploader).upload(
+            address = addr,
+            firmware = firmware.payload,
+            expectedImageCrc32 = imageCrc,
+            capabilities = capabilities,
+            onProgress = onProgress
+        )
+    }
+
+    suspend fun abortFastDfu(addr: Int): Boolean =
+        fastUploader?.abortCurrent(addr) ?: true
+
+    fun completeFastDfu() {
+        fastUploader?.completeCurrent()
+    }
 
     // GET_RUN_PROGRAM_TYPE/JUMP_TO_BOOTLOADER: проверяет режим V3-платы и переводит ее в bootloader.
     suspend fun ensureBootloader(addr: Int) {
+        // Keep boot entry identical to the proven v1 implementation.  DFU v2
+        // is selected only after bootloader entry, when CAPS is negotiated.
+        logger.info(TRACE_TAG, "boot_entry start addr=$addr path=legacy_shared")
         logger.debug(TAG, "TX GET_RUN_PROGRAM_TYPE")
-        val initial = requestRunType(addr)
+        val initial = requestRunTypeForBootEntry(addr)
             ?: throw IllegalStateException("Не удалось прочитать режим платы")
         logger.debug(TAG, "RX initial status = $initial")
+        logger.info(TRACE_TAG, "boot_entry initial_run_type=$initial")
 
         if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+            logger.info(TRACE_TAG, "boot_entry jump_to_bootloader TX")
             logger.debug(TAG, "TX JUMP_TO_BOOTLOADER")
-            send(BLECommandsV3.jumpToBootloaderFw(addr))
+            sender.sendBootloaderJump(
+                BLECommandsV3.jumpToBootloaderFw(addr),
+                FirmwareTransportChannel.V3_SERIAL
+            )
 
-            delay(DEFAULT_RECONNECT_DELAY_MS)
             repeat(BOOTLOADER_CHECK_ATTEMPTS) { attempt ->
                 logger.debug(
                     TAG,
                     "TX GET_RUN_PROGRAM_TYPE after reboot attempt=${attempt + 1}/$BOOTLOADER_CHECK_ATTEMPTS"
                 )
-                val runType = requestRunType(addr)
+                val runType = requestRunTypeForBootEntry(addr)
                 logger.debug(TAG, "RX reboot status=$runType")
+                logger.info(
+                    TRACE_TAG,
+                    "boot_entry probe attempt=${attempt + 1}/$BOOTLOADER_CHECK_ATTEMPTS run_type=$runType"
+                )
                 if (runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
                     logger.debug(TAG, "BOOTLOADER ready")
+                    logger.info(TRACE_TAG, "boot_entry complete mode=bootloader")
                     return
                 }
                 delay(BOOTLOADER_CHECK_INTERVAL_MS)
@@ -260,17 +332,21 @@ class V3FirmwareUpdater(
             throw IllegalStateException("Плата не перешла в bootloader после перезапуска")
         } else {
             logger.debug(TAG, "Board already in bootloader")
+            logger.info(TRACE_TAG, "boot_entry complete mode=already_bootloader")
         }
     }
 
     // GET_UP_LOAD_ATRIBUTE: получает V3-размер чанка и тайминги записи прошивки.
     suspend fun getUploadAttribute(addr: Int): MaxChunkSizeInfo {
         logger.debug(TAG, "TX GET_UP_LOAD_ATRIBUTE")
-        send(BLECommandsV3.requestUploadAttributeFw(addr))
-
-        val (_, info) = maxChunkSizeFlow
-            .filter { it.first == addr || it.first == 0 }
-            .first()
+        val (_, info) = sendWhileListening(
+            request = { send(BLECommandsV3.requestUploadAttributeFw(addr)) },
+            response = {
+                maxChunkSizeFlow
+                    .filter { it.first == addr || it.first == 0 }
+                    .first()
+            }
+        )
 
         lastMaxChunkInfo = info
         logger.debug(TAG, "RX GET_UP_LOAD_ATRIBUTE $info")
@@ -292,9 +368,10 @@ class V3FirmwareUpdater(
                 "iniFwCrc=${firmware.descriptorFirmwareCrc}"
         )
         logger.debug(DESC_TAG, descriptor.toHexString())
-        send(BLECommandsV3.requestCheckNewFw(addr, descriptor))
-
-        val raw = FirmwareInfoState.checkNewFwFlow.first()
+        val raw = sendWhileListening(
+            request = { send(BLECommandsV3.requestCheckNewFw(addr, descriptor)) },
+            response = { FirmwareInfoState.checkNewFwFlow.first() }
+        )
         val status = CheckNewFwStatus.from(raw)
         logger.info(TAG, "CHECK_NEW_FW raw=$raw mapped=$status")
         return status
@@ -303,9 +380,10 @@ class V3FirmwareUpdater(
     // PRELOAD_INFO: передает размер bin-прошивки и готовит flash-память к записи.
     suspend fun preloadFlash(addr: Int, fwSize: Int): Boolean {
         logger.debug(TAG, "TX PRELOAD_INFO fwSize=$fwSize")
-        send(BLECommandsV3.requestPreloadInfoFw(addr, fwSize))
-
-        val status = waitFirmwareStatus(FirmwareManagerCommand.PRELOAD_INFO)
+        val status = sendWhileListening(
+            request = { send(BLECommandsV3.requestPreloadInfoFw(addr, fwSize)) },
+            response = { waitFirmwareStatus(FirmwareManagerCommand.PRELOAD_INFO) }
+        )
         val ok = status == FW_ACK_OK
         logger.debug(TAG, "RX PRELOAD_INFO status=0x${status.toString(16)} ok=$ok")
         return ok
@@ -358,11 +436,15 @@ class V3FirmwareUpdater(
 
     // CALCULATE_CRC/COMPLITE_CRC: запускает CRC-проверку и читает итоговый результат.
     suspend fun checkFirmwareCrcAndCompleteUpdate(addr: Int): Boolean {
+        val crcStartedAt = currentTimeMillis()
+        logger.info(TRACE_TAG, "crc start addr=$addr")
         logger.debug(TAG, "TX CALCULATE_CRC")
-        send(BLECommandsV3.requestCalculateCrcFw(addr))
-
-        val calculateStatus = waitFirmwareStatus(FirmwareManagerCommand.CALCULATE_CRC)
+        val calculateStatus = sendWhileListening(
+            request = { send(BLECommandsV3.requestCalculateCrcFw(addr)) },
+            response = { waitFirmwareStatus(FirmwareManagerCommand.CALCULATE_CRC) }
+        )
         if (calculateStatus != FW_ACK_OK) {
+            logger.warn(TRACE_TAG, "crc calculate_rejected status=0x${calculateStatus.toString(16)}")
             logger.warn(TAG, "CALCULATE_CRC did not start: status=0x${calculateStatus.toString(16)}")
             return false
         }
@@ -372,15 +454,44 @@ class V3FirmwareUpdater(
             ?.takeIf { it > 0 }
             ?.toLong()
             ?: DEFAULT_CRC_DELAY_MS
+        logger.info(TRACE_TAG, "crc calculate_accepted wait_ms=$delayMs")
         delay(delayMs)
 
         FirmwareInfoState.completeCrcFlow.resetReplayCache()
         logger.debug(TAG, "TX COMPLITE_CRC")
-        send(BLECommandsV3.requestCompleteUpdateFw(addr))
+        logger.info(TRACE_TAG, "crc complete_command TX response_timeout_ms=$COMPLETE_CRC_RESPONSE_TIMEOUT_MS")
+        val reportedCrc = sendWhileListening(
+            request = { send(BLECommandsV3.requestCompleteUpdateFw(addr)) },
+            response = {
+                withTimeoutOrNull(COMPLETE_CRC_RESPONSE_TIMEOUT_MS) {
+                    FirmwareInfoState.completeCrcFlow.first()
+                }
+            }
+        )
+        logger.info(
+            TRACE_TAG,
+            "crc complete_notification=$reportedCrc elapsed_ms=${currentTimeMillis() - crcStartedAt}"
+        )
+        if (reportedCrc == false) {
+            logger.warn(TAG, "CRC verification reported BAD for addr=$addr")
+            return false
+        }
 
-        val ok = FirmwareInfoState.completeCrcFlow.first()
-        logger.info(TAG, "CRC verification result for addr=$addr -> $ok")
-        return ok
+        // COMPLITE_CRC commits metadata and immediately resets the FAM. The
+        // final notification can therefore lose the race to the BLE
+        // disconnect. A missing notification is not success by itself: the
+        // authoritative confirmation is a reconnect followed by MAIN_APP.
+        val mainStarted = confirmMainAfterCrc(addr)
+        logger.info(
+            TRACE_TAG,
+            "crc final_result notification=$reportedCrc main_started=$mainStarted " +
+                "elapsed_ms=${currentTimeMillis() - crcStartedAt}"
+        )
+        logger.info(
+            TAG,
+            "CRC finalization addr=$addr notification=$reportedCrc mainStarted=$mainStarted"
+        )
+        return mainStarted
     }
 
     private suspend fun sendChunkAndAwait(
@@ -388,16 +499,24 @@ class V3FirmwareUpdater(
         expectedWrittenBytes: Int,
         timeoutMs: Int
     ): Boolean {
-        send(packet)
-        var writtenBytes = waitFirmwareStatusOrNull(FirmwareManagerCommand.LOAD_NEW_FW, timeoutMs)
+        var writtenBytes = sendWhileListening(
+            request = { send(packet) },
+            response = {
+                waitFirmwareStatusOrNull(FirmwareManagerCommand.LOAD_NEW_FW, timeoutMs)
+            }
+        )
 
         if (!isLoadChunkAckOk(writtenBytes, expectedWrittenBytes)) {
             logger.warn(
                 TAG,
                 "LOAD_NEW_FW writtenBytes=$writtenBytes expected=$expectedWrittenBytes, retrying chunk"
             )
-            send(packet)
-            writtenBytes = waitFirmwareStatusOrNull(FirmwareManagerCommand.LOAD_NEW_FW, timeoutMs)
+            writtenBytes = sendWhileListening(
+                request = { send(packet) },
+                response = {
+                    waitFirmwareStatusOrNull(FirmwareManagerCommand.LOAD_NEW_FW, timeoutMs)
+                }
+            )
         }
         return isLoadChunkAckOk(writtenBytes, expectedWrittenBytes)
     }
@@ -419,21 +538,112 @@ class V3FirmwareUpdater(
     }
 
     private suspend fun requestRunType(addr: Int): PreferenceKeysUbi4.RunProgramType? {
-        send(BLECommandsV3.requestRunProgramTypeFw(addr))
-        return withTimeoutOrNull(RUN_TYPE_RESPONSE_TIMEOUT_MS) {
+        val startedAt = currentTimeMillis()
+        logger.debug(TRACE_TAG, "run_type TX addr=$addr")
+        val result = sendWhileListening(
+            request = { send(BLECommandsV3.requestRunProgramTypeFw(addr)) },
+            response = {
+                withTimeoutOrNull(RUN_TYPE_RESPONSE_TIMEOUT_MS) {
+                    runProgramTypeFlow
+                        .filter { it.first == addr || it.first == 0 }
+                        .map { it.second }
+                        .first()
+                }
+            }
+        )
+        logger.debug(
+            TRACE_TAG,
+            "run_type RX addr=$addr result=$result elapsed_ms=${currentTimeMillis() - startedAt}"
+        )
+        return result
+    }
+
+    private suspend fun requestRunTypeForBootEntry(
+        addr: Int
+    ): PreferenceKeysUbi4.RunProgramType? {
+        val startedAt = currentTimeMillis()
+        logger.debug(TRACE_TAG, "boot_entry run_type TX addr=$addr transport=legacy_queue")
+        sendForBootEntry(BLECommandsV3.requestRunProgramTypeFw(addr))
+        val result = withTimeoutOrNull(RUN_TYPE_RESPONSE_TIMEOUT_MS) {
             runProgramTypeFlow
                 .filter { it.first == addr || it.first == 0 }
                 .map { it.second }
                 .first()
         }
+        logger.debug(
+            TRACE_TAG,
+            "boot_entry run_type RX addr=$addr result=$result " +
+                "elapsed_ms=${currentTimeMillis() - startedAt}"
+        )
+        return result
+    }
+
+    private suspend fun sendForBootEntry(packet: ByteArray) {
+        sender.send(packet, FirmwareTransportChannel.V3_SERIAL)
+    }
+
+    private suspend fun confirmMainAfterCrc(addr: Int): Boolean {
+        // Give the bootloader time to finish metadata commit and reset before
+        // touching the CoreBluetooth/Android GATT connection.
+        logger.info(TRACE_TAG, "post_crc start addr=$addr grace_ms=$POST_CRC_RESET_GRACE_MS")
+        delay(POST_CRC_RESET_GRACE_MS)
+        logger.info(TRACE_TAG, "post_crc direct_probe start")
+        val mainAlreadyReachable = runCatching { requestRunType(addr) }
+            .onFailure {
+                logger.debug(
+                    TAG,
+                    "Post-CRC run-type probe raced the BLE reset: ${it.message}"
+                )
+            }
+            .getOrNull() == PreferenceKeysUbi4.RunProgramType.MAIN_APP
+        logger.info(TRACE_TAG, "post_crc direct_probe main_reachable=$mainAlreadyReachable")
+        if (mainAlreadyReachable) {
+            logger.info(TRACE_TAG, "post_crc complete path=direct_probe")
+            return true
+        }
+
+        val transport = bulkTransport ?: run {
+            logger.warn(TRACE_TAG, "post_crc fail reason=no_bulk_transport")
+            return false
+        }
+        logger.info(TRACE_TAG, "post_crc await_reconnect start")
+        val reconnected = runCatching { transport.awaitReconnect() }
+            .onFailure { logger.warn(TAG, "Post-CRC reconnect failed: ${it.message}") }
+            .isSuccess
+        logger.info(TRACE_TAG, "post_crc await_reconnect result=$reconnected")
+        if (!reconnected) return false
+        val finalRunType = requestRunType(addr)
+        logger.info(TRACE_TAG, "post_crc final_probe run_type=$finalRunType")
+        return finalRunType == PreferenceKeysUbi4.RunProgramType.MAIN_APP
     }
 
     private suspend fun send(packet: ByteArray) {
-        sender.send(packet, FirmwareTransportChannel.V3_SERIAL)
+        /* During DFU the normal application queue may still contain startup
+         * traffic after a GATT reconnect.  The bulk transport waits for the
+         * actual write-with-response callback, so response timeouts start
+         * only after the control request has reached the controller. */
+        if (bulkTransport != null) {
+            bulkTransport.writeControl(packet)
+        } else {
+            sender.send(packet, FirmwareTransportChannel.V3_SERIAL)
+        }
+    }
+
+    private suspend fun <T> sendWhileListening(
+        request: suspend () -> Unit,
+        response: suspend () -> T
+    ): T = coroutineScope {
+        // The v2 bootloader can notify before Android's write callback fires.
+        // Arm the collector first so a fast response is never dropped by a
+        // replay=0 SharedFlow.
+        val waiter = async(start = CoroutineStart.UNDISPATCHED) { response() }
+        request()
+        waiter.await()
     }
 
     private companion object {
         const val TAG = "FW_FLOW_V3"
+        const val TRACE_TAG = "DFU_V2_TRACE"
         const val DESC_TAG = "FW_DESC_V3"
         const val FW_ACK_OK = 0x01
         const val MAX_V3_CHUNK_DATA_SIZE = 238
@@ -444,12 +654,15 @@ class V3FirmwareUpdater(
         const val BOOTLOADER_CHECK_ATTEMPTS = 8
         const val BOOTLOADER_CHECK_INTERVAL_MS = 750L
         const val DEFAULT_CRC_DELAY_MS = 1_500L
+        const val COMPLETE_CRC_RESPONSE_TIMEOUT_MS = 2_000L
+        const val POST_CRC_RESET_GRACE_MS = 1_000L
     }
 }
 
 class FirmwareUpdateCoordinator(
     private val ubi4Updater: Ubi4FirmwareUpdater,
     private val v3Updater: V3FirmwareUpdater,
+    private val legacyV3Updater: LegacyV3FirmwareUpdater,
     private val logger: FirmwareUpdateLogger = NoOpFirmwareUpdateLogger
 ) {
     suspend fun runFirmwareUpdate(
@@ -508,16 +721,163 @@ class FirmwareUpdateCoordinator(
         firmware: FirmwareUpdatePackage,
         onProgress: (offset: Int, total: Int) -> Unit
     ): FirmwareUpdateResult {
-        v3Updater.ensureBootloader(addr)
+        if (DfuDiagnostics.forceLegacy) {
+            return runLegacyV3UpdateExactlyLikeMain(addr, firmware, onProgress)
+        }
 
+        val totalStartedAt = currentTimeMillis()
+        // Enter boot through the untouched legacy implementation. The v2
+        // implementation is not invoked until the board is already in boot.
+        legacyV3Updater.ensureBootloader(addr)
+        val negotiateStartedAt = currentTimeMillis()
+        // Send CAPS over the unchanged write-with-response characteristic
+        // even if a stale Android/iOS GATT cache does not expose WWR yet. A
+        // valid v2 reply authorizes the uploader to refresh and reconnect.
+        val capabilities = v3Updater.negotiateFastDfu(addr)
+        logger.info(
+            "DFU_METRIC",
+            "protocol=${if (capabilities == null) "v1" else "v2"} phase=negotiate " +
+                "duration_ms=${currentTimeMillis() - negotiateStartedAt}"
+        )
+        if (capabilities == null) {
+            logger.info("FW_FLOW_V3", "CAPS unavailable; using legacy DFU v1")
+            return runLegacyV3UpdateFromReadyBootloader(
+                addr = addr,
+                firmware = firmware,
+                onProgress = onProgress,
+                totalStartedAt = totalStartedAt
+            )
+        }
+
+        logger.info("FW_FLOW_V3", "FAM DFU v2 selected")
         val maxInfo = v3Updater.getUploadAttribute(addr)
         val checkStatus = v3Updater.checkNewFirmware(addr, firmware)
         if (checkStatus != CheckNewFwStatus.NEW_FW_ACCEPT) {
             return FirmwareUpdateResult.CheckNewFirmwareRejected(checkStatus)
         }
 
-        val fwSize = v3Updater.getFirmwarePayloadSize(firmware)
-        val preloadOk = v3Updater.preloadFlash(addr, fwSize)
+        try {
+            v3Updater.sendFirmwareFastWithProgress(
+                addr, firmware, capabilities, onProgress
+            )
+        } catch (error: DfuV2TransferException) {
+            logger.warn(
+                "FW_FLOW_V3",
+                "DFU v2 failed (flashChanged=${error.flashMayHaveChanged}); " +
+                    "performing one full legacy retry: ${error.message}"
+            )
+            if (error.flashMayHaveChanged && !v3Updater.abortFastDfu(addr)) {
+                throw IllegalStateException("DFU v2 ABORT was not confirmed", error)
+            }
+            return runLegacyV3Update(addr, firmware, onProgress, totalStartedAt)
+        }
+
+        val crcStartedAt = currentTimeMillis()
+        if (v3Updater.checkFirmwareCrcAndCompleteUpdate(addr)) {
+            v3Updater.completeFastDfu()
+            logger.info(
+                "DFU_METRIC",
+                "protocol=v2 phase=crc_and_start " +
+                    "duration_ms=${currentTimeMillis() - crcStartedAt} total_ms=${currentTimeMillis() - totalStartedAt}"
+            )
+            return FirmwareUpdateResult.Success
+        }
+
+        // A failed final CRC means v2 has already modified Flash. Preserve the
+        // rollout contract: cancel that session, erase from zero, and perform
+        // exactly one complete legacy v1 retry before reporting failure.
+        logger.warn(
+            "FW_FLOW_V3",
+            "DFU v2 final CRC failed; aborting and performing one full legacy retry"
+        )
+        if (!v3Updater.abortFastDfu(addr)) {
+            throw IllegalStateException("DFU v2 ABORT after final CRC failure was not confirmed")
+        }
+        return runLegacyV3Update(addr, firmware, onProgress, totalStartedAt)
+    }
+
+    private suspend fun runLegacyV3Update(
+        addr: Int,
+        firmware: FirmwareUpdatePackage,
+        onProgress: (offset: Int, total: Int) -> Unit,
+        totalStartedAt: Long
+    ): FirmwareUpdateResult {
+        legacyV3Updater.ensureBootloader(addr)
+        return runLegacyV3UpdateFromReadyBootloader(
+            addr = addr,
+            firmware = firmware,
+            onProgress = onProgress,
+            totalStartedAt = totalStartedAt
+        )
+    }
+
+    private suspend fun runLegacyV3UpdateFromReadyBootloader(
+        addr: Int,
+        firmware: FirmwareUpdatePackage,
+        onProgress: (offset: Int, total: Int) -> Unit,
+        totalStartedAt: Long
+    ): FirmwareUpdateResult {
+        val maxInfo = legacyV3Updater.getUploadAttribute(addr)
+        val checkStatus = legacyV3Updater.checkNewFirmware(addr, firmware)
+        if (checkStatus != CheckNewFwStatus.NEW_FW_ACCEPT) {
+            return FirmwareUpdateResult.CheckNewFirmwareRejected(checkStatus)
+        }
+
+        val eraseStartedAt = currentTimeMillis()
+        val fwSize = legacyV3Updater.getFirmwarePayloadSize(firmware)
+        val preloadOk = legacyV3Updater.preloadFlash(addr, fwSize)
+        if (!preloadOk) {
+            return FirmwareUpdateResult.PreloadFailed
+        }
+
+        val delayMs = maxInfo.flashClearDelayMs.toLong()
+        logger.debug("FW_FLOW_V3", "Waiting $delayMs ms for flash clear")
+        delay(delayMs)
+        logger.info(
+            "DFU_METRIC",
+            "protocol=v1 phase=erase_wait duration_ms=${currentTimeMillis() - eraseStartedAt}"
+        )
+
+        val transferStartedAt = currentTimeMillis()
+        legacyV3Updater.sendFirmwareWithProgress(addr, firmware, maxInfo, onProgress)
+        logger.info(
+            "DFU_METRIC",
+            "protocol=v1 phase=ble_transfer duration_ms=${currentTimeMillis() - transferStartedAt} bytes=$fwSize"
+        )
+
+        val crcStartedAt = currentTimeMillis()
+        val crcOk = legacyV3Updater.checkFirmwareCrcAndCompleteUpdate(addr)
+        if (!crcOk) {
+            return FirmwareUpdateResult.CrcMismatch
+        }
+        logger.info(
+            "DFU_METRIC",
+            "protocol=v1 phase=crc_and_start " +
+                "duration_ms=${currentTimeMillis() - crcStartedAt} total_ms=${currentTimeMillis() - totalStartedAt}"
+        )
+        return FirmwareUpdateResult.Success
+    }
+
+    /**
+     * Keep this path byte-for-byte equivalent in behavior to the V3 update
+     * coordinator shipped in the main 3.3.1793 application. Metrics are
+     * collected outside this path so they cannot alter BLE ordering or timing.
+     */
+    private suspend fun runLegacyV3UpdateExactlyLikeMain(
+        addr: Int,
+        firmware: FirmwareUpdatePackage,
+        onProgress: (offset: Int, total: Int) -> Unit
+    ): FirmwareUpdateResult {
+        legacyV3Updater.ensureBootloader(addr)
+
+        val maxInfo = legacyV3Updater.getUploadAttribute(addr)
+        val checkStatus = legacyV3Updater.checkNewFirmware(addr, firmware)
+        if (checkStatus != CheckNewFwStatus.NEW_FW_ACCEPT) {
+            return FirmwareUpdateResult.CheckNewFirmwareRejected(checkStatus)
+        }
+
+        val fwSize = legacyV3Updater.getFirmwarePayloadSize(firmware)
+        val preloadOk = legacyV3Updater.preloadFlash(addr, fwSize)
         if (!preloadOk) {
             return FirmwareUpdateResult.PreloadFailed
         }
@@ -526,9 +886,9 @@ class FirmwareUpdateCoordinator(
         logger.debug("FW_FLOW_V3", "Waiting $delayMs ms for flash clear")
         delay(delayMs)
 
-        v3Updater.sendFirmwareWithProgress(addr, firmware, maxInfo, onProgress)
+        legacyV3Updater.sendFirmwareWithProgress(addr, firmware, maxInfo, onProgress)
 
-        val crcOk = v3Updater.checkFirmwareCrcAndCompleteUpdate(addr)
+        val crcOk = legacyV3Updater.checkFirmwareCrcAndCompleteUpdate(addr)
         if (!crcOk) {
             return FirmwareUpdateResult.CrcMismatch
         }

@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class BootloaderAdapterUBI4(
     private val listener: OnBootloaderClickListener,
-    private val showSettingsButtonProvider: () -> Boolean = { false }
+    private val showSettingsButtonProvider: () -> Boolean = { false },
+    private val loadLocalVersionsOnBind: Boolean = true
 ) : ListAdapter<BootloaderBoardItemUBI4, BootloaderAdapterUBI4.BoardViewHolder>(Diff) {
 
 
@@ -53,7 +56,7 @@ class BootloaderAdapterUBI4(
         holder.versionTv.text = item.version
         Log.d("fw_version", "Плата: ${item.boardName} — Версия: ${item.version}")
 
-        if (localVersions == null) {                 // ленивый сбор каталога
+        if (localVersions == null && loadLocalVersionsOnBind) { // старое поведение для обычных сборок
             localVersions = buildLocalVersionMap(holder.itemView.context)
             Log.d("fw_local", "catalog=$localVersions")
         }
@@ -75,6 +78,16 @@ class BootloaderAdapterUBI4(
         holder.settingsBtn.setOnClickListener { listener.onSettingsClick(item) }
     }
     fun submitBoards(list: List<BootloaderBoardItemUBI4>) = submitList(list)
+
+    suspend fun preloadLocalVersions(ctx: android.content.Context) {
+        if (localVersions != null) return
+        val versions = withContext(Dispatchers.IO) {
+            buildLocalVersionMap(ctx.applicationContext)
+        }
+        localVersions = versions
+        if (itemCount > 0) notifyItemRangeChanged(0, itemCount)
+        Log.d("fw_local", "catalog=$versions")
+    }
 
 
 

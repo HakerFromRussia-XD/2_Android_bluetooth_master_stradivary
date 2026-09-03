@@ -18,6 +18,8 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateCoordinator
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateProtocol
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateResult
+import com.bailout.stickk.ubi4.firmware.LegacyV3FirmwareUpdater
+import com.bailout.stickk.ubi4.firmware.PlatformFirmwareBulkTransport
 import com.bailout.stickk.ubi4.firmware.Ubi4FirmwareUpdater
 import com.bailout.stickk.ubi4.firmware.V3FirmwareUpdater
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
@@ -29,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 
 class DialogManager(
     private val context: Context,
@@ -42,6 +45,11 @@ class DialogManager(
             logger = AndroidFirmwareUpdateLogger
         ),
         v3Updater = V3FirmwareUpdater(
+            sender = AndroidFirmwareCommandSender,
+            bulkTransport = PlatformFirmwareBulkTransport,
+            logger = AndroidFirmwareUpdateLogger
+        ),
+        legacyV3Updater = LegacyV3FirmwareUpdater(
             sender = AndroidFirmwareCommandSender,
             logger = AndroidFirmwareUpdateLogger
         ),
@@ -121,6 +129,7 @@ class DialogManager(
                         }
                     }
                     try {
+                        main?.getBLEController()?.setFirmwareUpdateSessionActive(true)
                         val protocol = if (UiState.isInterfaceV3Activated) {
                             FirmwareUpdateProtocol.V3
                         } else {
@@ -152,10 +161,37 @@ class DialogManager(
                             )
                         )
                     } finally {
+                        main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
                         timeoutJob.cancel()
                     }
                 }
             }
+    }
+
+    fun runV3FirmwareUpdateForDebug(file: File) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            Log.i("DFU_V2_TRACE", "debug_autorun start file=${file.name}")
+            try {
+                main?.getBLEController()?.setFirmwareUpdateSessionActive(true)
+                val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(file)
+                val result = firmwareUpdateCoordinator.runFirmwareUpdate(
+                    protocol = FirmwareUpdateProtocol.V3,
+                    addr = 0,
+                    firmware = firmwarePackage
+                ) { offset, total ->
+                    val percent = if (total <= 0) 0 else (offset * 100 / total).coerceIn(0, 100)
+                    Log.i(
+                        "DFU_V2_TRACE",
+                        "debug_autorun progress=$percent offset=$offset total=$total"
+                    )
+                }
+                Log.i("DFU_V2_TRACE", "debug_autorun result=$result")
+            } catch (error: Throwable) {
+                Log.e("DFU_V2_TRACE", "debug_autorun failed", error)
+            } finally {
+                main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
+            }
+        }
     }
 
     private fun handleFirmwareUpdateResult(result: FirmwareUpdateResult): Boolean =

@@ -622,7 +622,12 @@ object PreferenceKeysUbi4 {
         LOAD_NEW_BOOTLOADER    (0x0B),
         GET_MAX_CHANK_SIZE     (0x0C),
         START_SYSTEM_UPDATE    (0x0D),
-        FINISH_SYSTEM_UPDATE   (0x0E)
+        FINISH_SYSTEM_UPDATE   (0x0E),
+        DFU_V2_CAPS            (0x20),
+        DFU_V2_BEGIN           (0x21),
+        DFU_V2_DATA            (0x22),
+        DFU_V2_STATUS          (0x23),
+        DFU_V2_ABORT           (0x24)
     }
 
     /** Ответ на GET_RUN_PROGRAM_TYPE */

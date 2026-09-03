@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
@@ -112,11 +113,13 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
 
-        binding.refreshLayout.setLottieAnimation("loader_3.json")
-        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener {
-            requestToken()
+        if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
+            binding.preloaderLav.cancelAnimation()
+            binding.refreshLayout.setOnRefreshListener {
+                requestToken()
+            }
+        } else {
+            setupRefreshLayout()
         }
 
         accountMainList = ArrayList()
@@ -124,7 +127,10 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
         val hasCachedContent = applyCachedContentIfAvailable()
         if (hasCachedContent) {
-            canRenderBoards = true
+            canRenderBoards = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
+            binding.preloaderLav.visibility = View.GONE
+            binding.accountRv.visibility = View.VISIBLE
+        } else if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
             binding.preloaderLav.visibility = View.GONE
             binding.accountRv.visibility = View.VISIBLE
         } else {
@@ -138,7 +144,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             canRenderBoards = true
             refreshBoards()
             requestToken()
-        }, transitionDurationMs)
+        }, transitionDurationMs + if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) 80L else 0L)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -205,6 +211,15 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             versionSensors = sensorsVersion
         )
         updateAccountSafe(item)
+    }
+
+    private fun setupRefreshLayout() {
+        binding.refreshLayout.setLottieAnimation("loader_3.json")
+        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+        binding.refreshLayout.setOnRefreshListener {
+            requestToken()
+        }
     }
 
     private fun initializeUI() {
@@ -463,8 +478,25 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         )
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,
-            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation
+            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation,
+            loadLocalVersionsOnBind = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
         )
+        if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
+            accountAdapter.submitProfile(
+                cachedProfileItem ?: AccountMainUBI4Item(
+                    avatarUrl = "avatarUrl",
+                    name = fname,
+                    surname = sname,
+                    patronymic = "Ivanovich",
+                    versionDriver = driverVersion,
+                    versionBms = bmsVersion,
+                    versionSensors = sensorsVersion
+                )
+            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                bootloaderAdapter.preloadLocalVersions(requireContext())
+            }
+        }
         concatAdapter = ConcatAdapter(accountAdapter, BootloaderCardAdapter(bootloaderAdapter))
         binding.accountRv.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -479,12 +511,14 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
         if (profile == null && boards.isNullOrEmpty()) return false
 
-        profile?.let { updateAccountSafe(it) }
+        profile?.let {
+            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateAccountSafe(it)
+        }
         if (!boards.isNullOrEmpty()) {
             val snapshot = boards.map { it.copy() }
             bootloaderBoardsList.clear()
             bootloaderBoardsList.addAll(snapshot)
-            updateBootloaderSafe(snapshot)
+            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateBootloaderSafe(snapshot)
             isBoardsRendered = true
         }
         return true

@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -56,7 +57,9 @@ import static com.bailout.stickk.ubi4.utility.logging.PlatformLog_androidKt.plat
 @SuppressLint("MissingPermission")
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
-    private static final int DESIRED_MTU = 247;
+    private final static String DFU_TRACE_TAG = "DFU_V2_TRACE";
+    private static final int LEGACY_DESIRED_MTU = 247;
+    private static final int FAST_DFU_DESIRED_MTU = 517;
     private static final long RSSI_POLL_INTERVAL_MS = 25_000L;
     private static final double CONNECTION_INTERVAL_UNIT_MS = 1.25d;
     private static final int SUPERVISION_TIMEOUT_UNIT_MS = 10;
@@ -66,7 +69,11 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
+    private volatile int negotiatedMtu = 23;
+    private volatile long connectAttemptStartedAtMs = 0L;
+    private static final long CONNECT_ATTEMPT_GRACE_MS = 8_000L;
     private int connectionUpdateEventCounter = 0;
+    private int dfuWwrCalls = 0;
     private final Object notificationsLock = new Object();
     private final Set<UUID> enabledNotificationUuids = new HashSet<>();
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG_UUID =
@@ -176,6 +183,8 @@ public class BluetoothLeService extends Service {
             return;
         }
         final boolean started = gatt.discoverServices();
+        Log.i(DFU_TRACE_TAG, "gatt discover_services reason=" + reason + " started=" + started +
+                " gatt=" + gattId(gatt));
         platformLog(TAG, "discoverServices(" + reason + "): " + started);
     }
 
@@ -183,8 +192,10 @@ public class BluetoothLeService extends Service {
         if (gatt == null) {
             return;
         }
-        final boolean mtuRequested = gatt.requestMtu(DESIRED_MTU);
-        platformLog(TAG, "requestMtu(" + DESIRED_MTU + "): " + mtuRequested);
+        final boolean mtuRequested = gatt.requestMtu(LEGACY_DESIRED_MTU);
+        Log.i(DFU_TRACE_TAG, "gatt request_mtu value=" + LEGACY_DESIRED_MTU + " accepted=" + mtuRequested +
+                " gatt=" + gattId(gatt));
+        platformLog(TAG, "requestMtu(" + LEGACY_DESIRED_MTU + "): " + mtuRequested);
         if (!mtuRequested) {
             discoverServicesSafely(gatt, "mtu request rejected");
         }
@@ -461,6 +472,16 @@ public class BluetoothLeService extends Service {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            Log.i(DFU_TRACE_TAG, "gatt connection_state status=" + status + " status_name=" +
+                    gattStatusToName(status) + " new_state=" + newState + " gatt=" + gattId(gatt) +
+                    " current=" + (gatt == mBluetoothGatt) + " address=" + mBluetoothDeviceAddress);
+            if (gatt != mBluetoothGatt) {
+                Log.w(DFU_TRACE_TAG, "gatt stale_connection_callback ignored gatt=" + gattId(gatt) +
+                        " current=" + gattId(mBluetoothGatt));
+                closeGattQuietly(gatt);
+                return;
+            }
+            connectAttemptStartedAtMs = 0L;
             platformLog(
                     "onConnectionStateChangeTAG",
                     "onConnectionStateChange: status=" + status + " (" + gattStatusToName(status) + "), newState=" + newState
@@ -520,7 +541,10 @@ public class BluetoothLeService extends Service {
             super.onMtuChanged(gatt, mtu, status);
             platformLog("TestSendByteArray", "status ="+status + "MTU: "+mtu);
             platformLog("MTU_CHANGED", "mtu=" + mtu + ", status=" + status + " (" + gattStatusToName(status) + ")");
+            Log.i(DFU_TRACE_TAG, "gatt mtu_changed mtu=" + mtu + " status=" + status +
+                    " gatt=" + gattId(gatt));
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                negotiatedMtu = mtu;
                 System.err.println("BLE debug onMtuChanged GATT_SUCCESS");
                 discoverServicesSafely(gatt, "mtu changed");
             } else {
@@ -552,6 +576,13 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             platformLog("onConnectionStateChangeTAG", "onServicesDiscovered: status=" + status);
             platformLog("SERVICES_DISCOVERED", "status=" + status + " (" + gattStatusToName(status) + ")");
+            final BluetoothGattCharacteristic serial = findCharacteristicByUuid(
+                    gatt, UUID.fromString(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID));
+            Log.i(DFU_TRACE_TAG, "gatt services_discovered status=" + status + " services=" +
+                    (gatt.getServices() == null ? -1 : gatt.getServices().size()) + " serial_present=" +
+                    (serial != null) + " serial_properties=" + (serial == null ? -1 : serial.getProperties()) +
+                    " negotiated_mtu=" + negotiatedMtu + " max_wwr=" + maximumWriteWithoutResponseSize() +
+                    " gatt=" + gattId(gatt));
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 BLEState.INSTANCE.publishReady();
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
@@ -584,7 +615,20 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            platformLog("TestSendByteArray","status =" +status + " " + EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
+            final byte[] value = characteristic.getValue();
+            if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                    com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+                Log.d(DFU_TRACE_TAG, "gatt control_write_callback status=" + status + " bytes=" +
+                        (value == null ? -1 : value.length) + " hex=" + traceHex(value, 64) +
+                        " write_type=" + characteristic.getWriteType() + " gatt=" + gattId(gatt));
+            }
+            platformLog(
+                    "TestSendByteArray",
+                    "status =" + status + " " +
+                            (value == null
+                                    ? "<value unavailable in callback>"
+                                    : EncodeByteToHex.Companion.bytesToHexString(value))
+            );
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendDataToReceiver(SampleGattAttributes.WRITE);
 //                platformLog("TestSendByteArray","запись удалась!!");
@@ -600,6 +644,11 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             byte[] d   = characteristic.getValue();
+            if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                    com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+                Log.d(DFU_TRACE_TAG, "gatt serial_notify bytes=" + (d == null ? -1 : d.length) +
+                        " hex=" + traceHex(d, 64) + " gatt=" + gattId(gatt));
+            }
             if (!shouldHideFromBleLog(characteristic)) {
                 BleLogStore.INSTANCE.logIncoming(d);
             }
@@ -628,6 +677,11 @@ public class BluetoothLeService extends Service {
             final boolean notificationEnabled = BluetoothGatt.GATT_SUCCESS == status
                     && isCccdDescriptor
                     && (hasEnableValue || (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+            if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                    com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+                Log.i(DFU_TRACE_TAG, "gatt serial_cccd_callback status=" + status + " enabled=" +
+                        notificationEnabled + " has_enable_value=" + hasEnableValue + " gatt=" + gattId(gatt));
+            }
 
             final Intent intent = new Intent(ACTION_NOTIFICATION_SUBSCRIBED);
             intent.putExtra(EXTRA_NOTIFICATION_UUID, String.valueOf(characteristic.getUuid()));
@@ -744,6 +798,16 @@ public class BluetoothLeService extends Service {
             return false;
         }
         platformLog("CONNECT_CALL", "address=" + address + ", appDoesNotCallRequestConnectionPriority=true");
+        Log.i(DFU_TRACE_TAG, "gatt connect start address=" + address + " old_gatt=" + gattId(mBluetoothGatt));
+
+        final long now = SystemClock.elapsedRealtime();
+        if (mBluetoothGatt != null && address.equals(mBluetoothDeviceAddress) &&
+                connectAttemptStartedAtMs > 0L &&
+                now - connectAttemptStartedAtMs < CONNECT_ATTEMPT_GRACE_MS) {
+            Log.d(DFU_TRACE_TAG, "gatt connect pending reused address=" + address + " gatt=" +
+                    gattId(mBluetoothGatt) + " elapsed_ms=" + (now - connectAttemptStartedAtMs));
+            return true;
+        }
 
         if (mBluetoothGatt != null) {
             stopLinkMaintenance();
@@ -773,6 +837,8 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("connectGatt returned null.");
             return false;
         }
+        connectAttemptStartedAtMs = now;
+        Log.i(DFU_TRACE_TAG, "gatt connect dispatched address=" + address + " new_gatt=" + gattId(mBluetoothGatt));
         Timber.d("Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         return true;
@@ -786,12 +852,26 @@ public class BluetoothLeService extends Service {
      */
     public void disconnect() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(DFU_TRACE_TAG, "gatt disconnect skipped adapter_or_gatt_missing gatt=" + gattId(mBluetoothGatt));
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
+        Log.i(DFU_TRACE_TAG, "gatt disconnect request gatt=" + gattId(mBluetoothGatt) +
+                " tracked_notifications=" + snapshotTrackedNotifications().size());
         unsubscribeFromTrackedNotifications(mBluetoothGatt);
         stopLinkMaintenance();
 //        refreshGattCache();
+        mBluetoothGatt.disconnect();
+    }
+
+    /** Release the old application GATT without queuing CCCD writes. */
+    public void disconnectForFirmwareProgramSwitch() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(DFU_TRACE_TAG, "gatt firmware_switch_disconnect skipped gatt=" + gattId(mBluetoothGatt));
+            return;
+        }
+        Log.i(DFU_TRACE_TAG, "gatt firmware_switch_disconnect request gatt=" + gattId(mBluetoothGatt));
+        stopLinkMaintenance();
         mBluetoothGatt.disconnect();
     }
 
@@ -800,10 +880,13 @@ public class BluetoothLeService extends Service {
      * released properly.
      */
     public void close() {
+        connectAttemptStartedAtMs = 0L;
         if (mBluetoothGatt == null) {
+            Log.i(DFU_TRACE_TAG, "gatt close skipped gatt=null");
             clearTrackedNotifications();
             return;
         }
+        Log.i(DFU_TRACE_TAG, "gatt close request gatt=" + gattId(mBluetoothGatt));
         unsubscribeFromTrackedNotifications(mBluetoothGatt);
         stopLinkMaintenance();
         platformLog("BLE_DEBUG11", "close(): вызов close() на mBluetoothGatt");
@@ -815,14 +898,19 @@ public class BluetoothLeService extends Service {
 
     public boolean refreshGattCache() {
         try {
-            if (mBluetoothGatt == null) return false;
+            if (mBluetoothGatt == null) {
+                Log.w(DFU_TRACE_TAG, "gatt cache_refresh skipped gatt=null");
+                return false;
+            }
             Method refreshMethod = mBluetoothGatt.getClass().getMethod("refresh");
             if (refreshMethod != null) {
                 boolean success = (boolean) refreshMethod.invoke(mBluetoothGatt);
+                Log.i(DFU_TRACE_TAG, "gatt cache_refresh result=" + success + " gatt=" + gattId(mBluetoothGatt));
                 platformLog("BLE_DEBUG", "refresh() returned " + success);
                 return success;
             }
         } catch (Exception e) {
+            Log.e(DFU_TRACE_TAG, "gatt cache_refresh error=" + e.getMessage(), e);
             Log.e("BLE_DEBUG", "Could not invoke refresh method", e);
         }
         return false;
@@ -851,13 +939,102 @@ public class BluetoothLeService extends Service {
      *
      * @param characteristic The characteristic a write.
      */
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+    public boolean writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
+            return false;
+        }
+        final byte[] value = characteristic.getValue();
+        BleLogStore.INSTANCE.logOutgoing(value);
+        final boolean accepted = mBluetoothGatt.writeCharacteristic(characteristic);
+        if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+            Log.d(DFU_TRACE_TAG, "gatt control_write_submit accepted=" + accepted + " bytes=" +
+                    (value == null ? -1 : value.length) + " hex=" + traceHex(value, 64) +
+                    " write_type=" + characteristic.getWriteType() + " gatt=" + gattId(mBluetoothGatt));
+        }
+        return accepted;
+    }
+
+    public int maximumWriteWithoutResponseSize() {
+        return Math.max(20, negotiatedMtu - 3);
+    }
+
+    public boolean supportsWriteWithoutResponse(String characteristicUuid) {
+        if (mBluetoothGatt == null || characteristicUuid == null) return false;
+        final BluetoothGattCharacteristic characteristic = findCharacteristicByUuid(
+                mBluetoothGatt, UUID.fromString(characteristicUuid));
+        return characteristic != null &&
+                (characteristic.getProperties() &
+                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0;
+    }
+
+    public void requestDfuHighPerformanceMode() {
+        final BluetoothGatt gatt = mBluetoothGatt;
+        if (gatt == null) {
+            Log.w(DFU_TRACE_TAG, "gatt high_performance skipped gatt=null");
             return;
         }
-        BleLogStore.INSTANCE.logOutgoing(characteristic.getValue());
-        mBluetoothGatt.writeCharacteristic(characteristic);
+        final boolean priorityAccepted = gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+        final boolean mtuAccepted = gatt.requestMtu(FAST_DFU_DESIRED_MTU);
+        boolean phyRequested = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            gatt.setPreferredPhy(
+                    BluetoothDevice.PHY_LE_2M_MASK,
+                    BluetoothDevice.PHY_LE_2M_MASK,
+                    BluetoothDevice.PHY_OPTION_NO_PREFERRED);
+            phyRequested = true;
+        }
+        Log.i(DFU_TRACE_TAG, "gatt high_performance priority=" + priorityAccepted + " mtu=" +
+                mtuAccepted + " phy_requested=" + phyRequested + " gatt=" + gattId(gatt));
+    }
+
+    public boolean requestFirmwareSwitchLowPowerMode() {
+        final BluetoothGatt gatt = mBluetoothGatt;
+        if (gatt == null) {
+            Log.w(DFU_TRACE_TAG, "gatt firmware_switch_low_power skipped gatt=null");
+            return false;
+        }
+        final boolean accepted = gatt.requestConnectionPriority(
+                BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER);
+        Log.i(DFU_TRACE_TAG, "gatt firmware_switch_low_power accepted=" + accepted +
+                " gatt=" + gattId(gatt));
+        return accepted;
+    }
+
+    public boolean writeDfuWithoutResponse(String characteristicUuid, byte[] data) {
+        final BluetoothGatt gatt = mBluetoothGatt;
+        if (gatt == null || characteristicUuid == null || data == null) {
+            Log.w(DFU_TRACE_TAG, "gatt wwr rejected reason=missing_input gatt=" + gattId(gatt));
+            return false;
+        }
+        final BluetoothGattCharacteristic characteristic = findCharacteristicByUuid(
+                gatt, UUID.fromString(characteristicUuid));
+        if (characteristic == null ||
+                (characteristic.getProperties() &
+                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) == 0) {
+            Log.w(DFU_TRACE_TAG, "gatt wwr rejected reason=characteristic_or_property bytes=" + data.length +
+                    " gatt=" + gattId(gatt));
+            return false;
+        }
+        BleLogStore.INSTANCE.logOutgoing(data);
+        dfuWwrCalls++;
+        final boolean accepted;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            accepted = gatt.writeCharacteristic(
+                    characteristic,
+                    data,
+                    BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) == 0;
+        } else {
+            characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+            characteristic.setValue(data);
+            accepted = gatt.writeCharacteristic(characteristic);
+        }
+        if (!accepted || dfuWwrCalls == 1 || dfuWwrCalls % 64 == 0) {
+            Log.d(DFU_TRACE_TAG, "gatt wwr call=" + dfuWwrCalls + " accepted=" + accepted +
+                    " bytes=" + data.length + " gatt=" + gattId(gatt));
+        }
+        return accepted;
     }
 
 
@@ -879,7 +1056,12 @@ public class BluetoothLeService extends Service {
         }
         platformLog("BLEController",
                 "Устанавливаю уведомления для " + characteristic.getUuid() + ", enabled: " + enabled);
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        final boolean localAccepted = mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+            Log.i(DFU_TRACE_TAG, "gatt serial_notify_local enabled=" + enabled + " accepted=" +
+                    localAccepted + " properties=" + characteristic.getProperties() + " gatt=" + gattId(mBluetoothGatt));
+        }
         trackNotificationState(characteristic, enabled);
 
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
@@ -893,7 +1075,27 @@ public class BluetoothLeService extends Service {
                         ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                         : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
         );
-        mBluetoothGatt.writeDescriptor(descriptor);
+        final boolean descriptorAccepted = mBluetoothGatt.writeDescriptor(descriptor);
+        if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
+                com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
+            Log.i(DFU_TRACE_TAG, "gatt serial_cccd_write accepted=" + descriptorAccepted +
+                    " enabled=" + enabled + " gatt=" + gattId(mBluetoothGatt));
+        }
+    }
+
+    private static String gattId(BluetoothGatt gatt) {
+        return gatt == null ? "null" : Integer.toHexString(System.identityHashCode(gatt));
+    }
+
+    private static String traceHex(byte[] data, int limit) {
+        if (data == null) return "null";
+        final int shown = Math.min(data.length, limit);
+        final StringBuilder builder = new StringBuilder(shown * 2 + 16);
+        for (int i = 0; i < shown; i++) {
+            builder.append(String.format(java.util.Locale.US, "%02x", data[i] & 0xFF));
+        }
+        if (data.length > limit) builder.append("...(+").append(data.length - limit).append(')');
+        return builder.toString();
     }
 
     /**

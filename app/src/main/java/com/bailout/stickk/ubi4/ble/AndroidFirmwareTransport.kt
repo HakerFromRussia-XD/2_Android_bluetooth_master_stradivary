@@ -17,6 +17,15 @@ object AndroidFirmwareCommandSender : FirmwareCommandSender {
         }
         main?.bleCommandWithQueue(packet, characteristic, WRITE) {}
     }
+
+    override suspend fun sendBootloaderJump(
+        packet: ByteArray,
+        channel: FirmwareTransportChannel
+    ) {
+        check(channel == FirmwareTransportChannel.V3_SERIAL)
+        main?.firmwareJumpToBootloader(packet)
+            ?: error("MainActivityUBI4 is unavailable for bootloader handoff")
+    }
 }
 
 object AndroidFirmwareUpdateLogger : FirmwareUpdateLogger {

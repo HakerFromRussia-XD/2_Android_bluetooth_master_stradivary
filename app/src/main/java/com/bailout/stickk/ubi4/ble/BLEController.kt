@@ -545,6 +545,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             mBLEParserV3?.parseReceivedData(data)
             handleV3InitResponseProgress(data)
         }.onFailure { t ->
+            Log.e(DFU_TRACE_TAG, "serial_parse failed bytes=${data.size} generation=$gattServicesGeneration firmware_session=$firmwareUpdateSessionActive", t)
             main.showToast(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"))
         }
     }
@@ -1560,7 +1561,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private companion object {
         private const val SETTINGS_PROFILE_DOWNLOAD_LOG_TAG = "SettingsProfileDownload"
-        private const val DFU_TRACE_TAG = "DFU_V2_TRACE"
+        private const val DFU_TRACE_TAG = "DFU_V2_DIAG"
         private const val PCCE_RESET_DEVICE = 2
         private const val FIRMWARE_SWITCH_PREFLIGHT_COMMAND_SETTLE_MS = 500L
         private const val FIRMWARE_SWITCH_PREFLIGHT_DISCONNECT_TIMEOUT_MS = 2_000L

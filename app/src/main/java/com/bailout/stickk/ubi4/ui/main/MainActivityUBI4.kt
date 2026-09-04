@@ -164,6 +164,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-diag-20260904-1 version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         applyDfuDiagnostics(intent)
@@ -386,7 +387,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.i("DFU_METRIC", "diagnostic_require_main_start=${DfuDiagnostics.requireMainStart}")
         }
         Log.i(
-            "DFU_METRIC",
+            DFU_TRACE_TAG,
             "diagnostics forceLegacy=${DfuDiagnostics.forceLegacy} " +
                 "requireMainStart=${DfuDiagnostics.requireMainStart}"
         )
@@ -1201,7 +1202,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     companion object {
-        private const val DFU_TRACE_TAG = "DFU_V2_TRACE"
+        private const val DFU_TRACE_TAG = "DFU_V2_DIAG"
         private const val DFU_CONTROL_WRITE_TIMEOUT_MS = 3_000L
         const val EXTRA_DFU_FORCE_LEGACY = "com.bailout.stickk.extra.DFU_FORCE_LEGACY"
         const val EXTRA_DFU_REQUIRE_MAIN_START =

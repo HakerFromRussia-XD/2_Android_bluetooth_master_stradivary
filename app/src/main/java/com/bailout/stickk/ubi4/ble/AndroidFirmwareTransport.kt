@@ -11,6 +11,9 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 
 object AndroidFirmwareCommandSender : FirmwareCommandSender {
     override suspend fun send(packet: ByteArray, channel: FirmwareTransportChannel) {
+        Log.d(AndroidFirmwareUpdateLogger.DIAG_TAG,
+            "queue TX channel=$channel bytes=${packet.size} activity_present=${main != null} header=" +
+                packet.take(16).joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') })
         val characteristic = when (channel) {
             FirmwareTransportChannel.UBI4_MAIN -> MAIN_CHANNEL_CHARACTERISTIC
             FirmwareTransportChannel.V3_SERIAL -> SERIALPORTCHAR_UUID
@@ -29,23 +32,25 @@ object AndroidFirmwareCommandSender : FirmwareCommandSender {
 }
 
 object AndroidFirmwareUpdateLogger : FirmwareUpdateLogger {
+    const val DIAG_TAG = "DFU_V2_DIAG"
+
     override fun debug(tag: String, message: String) {
-        Log.d(tag, message)
+        Log.d(DIAG_TAG, "[$tag] $message")
     }
 
     override fun info(tag: String, message: String) {
-        Log.i(tag, message)
+        Log.i(DIAG_TAG, "[$tag] $message")
     }
 
     override fun warn(tag: String, message: String) {
-        Log.w(tag, message)
+        Log.w(DIAG_TAG, "[$tag] $message")
     }
 
     override fun error(tag: String, message: String, throwable: Throwable?) {
         if (throwable == null) {
-            Log.e(tag, message)
+            Log.e(DIAG_TAG, "[$tag] $message")
         } else {
-            Log.e(tag, message, throwable)
+            Log.e(DIAG_TAG, "[$tag] $message", throwable)
         }
     }
 }

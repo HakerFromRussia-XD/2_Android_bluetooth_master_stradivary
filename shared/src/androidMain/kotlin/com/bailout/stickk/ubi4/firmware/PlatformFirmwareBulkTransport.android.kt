@@ -5,7 +5,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironm
 import java.util.concurrent.atomic.AtomicInteger
 
 actual object PlatformFirmwareBulkTransport : FirmwareBulkTransport {
-    private const val TRACE_TAG = "DFU_V2_TRACE"
+    private const val TRACE_TAG = "DFU_V2_DIAG"
     private val wwrCalls = AtomicInteger(0)
     private fun executor() = BleEnvironment.getBleCommandExecutor()
 

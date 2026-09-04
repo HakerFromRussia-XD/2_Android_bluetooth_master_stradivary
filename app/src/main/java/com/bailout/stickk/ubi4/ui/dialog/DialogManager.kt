@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderB
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -117,11 +119,18 @@ class DialogManager(
                 val progressBar = showProgressBarDialog()
 
                 viewLifecycleOwner.lifecycleScope.launch {
+                    val startedAt = SystemClock.elapsedRealtime()
+                    var phase = "prepare_notifications"
+                    var progressBucket = -1
+                    Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                        "attempt START id=$startedAt addr=$addr file=${fileItem.file.name} interface_v3=${UiState.isInterfaceV3Activated}")
                     val timeoutJob = launch {
                         var last = progressBar.progress
                         while (isActive) {
                             delay(30_000)
                             if (progressBar.progress == last && progressBar.progress < 100) {
+                                Log.w(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                    "attempt STALLED id=$startedAt phase=$phase progress=$last elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
                                 showWarningLoadingDialog()
                                 break
                             }
@@ -141,23 +150,44 @@ class DialogManager(
                                 "Не удалось включить уведомления канала прошивки"
                             }
                         }
+                        phase = "read_package"
                         val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(fileItem.file)
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt PACKAGE id=$startedAt protocol=$protocol bytes=${firmwarePackage.payload.size} declared_size=${firmwarePackage.descriptorFirmwareSize} crc=${firmwarePackage.descriptorFirmwareCrc.toString(16)} descriptor=" +
+                                firmwarePackage.descriptor.joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') })
+                        phase = "coordinator"
                         val result = firmwareUpdateCoordinator.runFirmwareUpdate(
                             protocol = protocol,
                             addr = addr,
                             firmware = firmwarePackage
                         ) { offset, total ->
+                            val bucket = if (total <= 0) 0 else (offset.toLong() * 100 / total).toInt() / 5
+                            if (bucket != progressBucket) {
+                                progressBucket = bucket
+                                Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                    "attempt PROGRESS id=$startedAt offset=$offset total=$total elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
+                            }
                             updateProgress(progressBar, offset, total)
                         }
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt RESULT id=$startedAt result=$result")
+                        phase = "handle_result"
                         if (!handleFirmwareUpdateResult(result)) {
                             return@launch
                         }
 
+                        phase = "success"
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt SUCCESS id=$startedAt elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
                         progressDialog?.dismiss()
                         main?.showToast(context.getString(SharedRes.strings.firmware_update_success.resourceId))
                         currentDialog?.dismiss()
                         onConfirm(fileItem)
+                    } catch (e: CancellationException) {
+                        Log.w(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt CANCELLED id=$startedAt phase=$phase", e)
+                        throw e
                     } catch (e: Exception) {
+                        Log.e(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt FAILED id=$startedAt phase=$phase elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}", e)
                         Log.e("FW_FLOW", "Firmware update failed", e)
                         progressDialog?.dismiss()
                         main?.showToast(
@@ -167,6 +197,7 @@ class DialogManager(
                             )
                         )
                     } finally {
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt END id=$startedAt phase=$phase")
                         main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
                         timeoutJob.cancel()
                     }

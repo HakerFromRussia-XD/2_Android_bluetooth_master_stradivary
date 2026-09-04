@@ -57,7 +57,7 @@ import static com.bailout.stickk.ubi4.utility.logging.PlatformLog_androidKt.plat
 @SuppressLint("MissingPermission")
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
-    private final static String DFU_TRACE_TAG = "DFU_V2_TRACE";
+    private final static String DFU_TRACE_TAG = "DFU_V2_DIAG";
     private static final int LEGACY_DESIRED_MTU = 247;
     private static final int FAST_DFU_DESIRED_MTU = 517;
     private static final long RSSI_POLL_INTERVAL_MS = 25_000L;

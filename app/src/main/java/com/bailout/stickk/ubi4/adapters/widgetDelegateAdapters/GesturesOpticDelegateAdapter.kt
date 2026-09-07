@@ -326,6 +326,8 @@ class GesturesOpticDelegateAdapter(
 
         gestureCollectionBtns.clear()
         gestureCustomBtns.clear()
+        // Card IDs skip gesture 12; collection positions can change when gestures are hidden.
+        val collectionGesturesById = getCollectionGestures().associateBy { it.gestureId }
         for (i in 0..13) {
             val gestureCollectionBtn =
                 this::class.java.getDeclaredField("gestureCollection${i}Btn").get(this) as? View
@@ -336,8 +338,8 @@ class GesturesOpticDelegateAdapter(
 
             if (i <= 10) {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 1)) }
-                gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
-                gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
+                gestureCollectionTitle?.text = collectionGesturesById.getValue(i + 1).gestureName
+                gestureCollectionImage?.setImageResource(collectionGesturesById.getValue(i + 1).gestureImage)
 
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
@@ -346,9 +348,9 @@ class GesturesOpticDelegateAdapter(
             } else {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 2)) }
                 gestureCollectionTitle?.text =
-                    getCollectionGestures()[i + 1].gestureName
+                    collectionGesturesById.getValue(i + 2).gestureName
                 gestureCollectionImage?.setImageResource(
-                    getCollectionGestures()[i + 1].gestureImage
+                    collectionGesturesById.getValue(i + 2).gestureImage
                 )
 
                 gestureCollectionBtn?.setOnClickListener {

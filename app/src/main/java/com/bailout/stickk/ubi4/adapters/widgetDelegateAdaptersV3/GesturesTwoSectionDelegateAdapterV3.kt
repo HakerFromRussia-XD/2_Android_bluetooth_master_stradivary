@@ -243,6 +243,8 @@ class GesturesTwoSectionDelegateAdapterV3(
         gestureCustomBtns.clear()
         gestureSettingsBtns.clear()
 
+        // Card IDs skip gesture 12; collection positions can change when gestures are hidden.
+        val collectionGesturesById = getCollectionGestures().associateBy { it.gestureId }
         for (i in 0..13) {
             val gestureCollectionBtn =
                 this::class.java.getDeclaredField("gestureCollection${i}Btn")
@@ -255,8 +257,8 @@ class GesturesTwoSectionDelegateAdapterV3(
                     .get(this) as? ImageView
 
             if (i <= 10) {
-                gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
-                gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
+                gestureCollectionTitle?.text = collectionGesturesById.getValue(i + 1).gestureName
+                gestureCollectionImage?.setImageResource(collectionGesturesById.getValue(i + 1).gestureImage)
 
                 val gestureId = i + 1
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(it to gestureId) }
@@ -271,8 +273,8 @@ class GesturesTwoSectionDelegateAdapterV3(
                     sendActiveGesture(gestureId)
                 }
             } else {
-                gestureCollectionTitle?.text = getCollectionGestures()[i + 1].gestureName
-                gestureCollectionImage?.setImageResource(getCollectionGestures()[i + 1].gestureImage)
+                gestureCollectionTitle?.text = collectionGesturesById.getValue(i + 2).gestureName
+                gestureCollectionImage?.setImageResource(collectionGesturesById.getValue(i + 2).gestureImage)
 
                 val gestureId = i + 2
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(it to gestureId) }

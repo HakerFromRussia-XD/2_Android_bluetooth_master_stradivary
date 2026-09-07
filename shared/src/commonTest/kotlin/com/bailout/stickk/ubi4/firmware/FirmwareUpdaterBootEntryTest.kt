@@ -13,6 +13,11 @@ class FirmwareUpdaterBootEntryTest {
                 reportedRunType = PreferenceKeysUbi4.RunProgramType.BOOTLOADER
             )
         )
+        assertFalse(
+            shouldJumpToBootloader(
+                reportedRunType = PreferenceKeysUbi4.RunProgramType.BOOTLOADER_V2
+            )
+        )
     }
 
     @Test

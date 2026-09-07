@@ -22,8 +22,12 @@ actual object PlatformFirmwareBulkTransport : FirmwareBulkTransport {
     }
 
     override suspend fun setHighPerformanceMode() {
-        Log.i(TRACE_TAG, "transport high_performance request")
-        executor().dfuSetHighPerformanceMode()
+        // Keep the link already used for CAPS/CHECK. The v2 windowed WWR
+        // transfer does not require renegotiating MTU, priority and PHY here.
+        // Bench P04 isolates this policy; erase timeouts/recovery stay unchanged.
+        Log.i(TRACE_TAG, "transport high_performance preserve_link_parameters " +
+            "mtu_request=false priority_request=false phy_request=false " +
+            "maximum_wwr_size=${executor().dfuMaximumWriteWithoutResponseSize()}")
     }
 
     override suspend fun writeControl(packet: ByteArray) {

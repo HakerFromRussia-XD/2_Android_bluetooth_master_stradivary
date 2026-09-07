@@ -363,26 +363,36 @@ class FastDfuUploaderV2(
         session: DfuSessionV2,
         prefixVerifier: MotoricaPrefixCrc32
     ): DfuAckV2 {
-        var reconnectAttempts = 0
+        var consecutiveStatusFailures = 0
         repeat(READY_QUERY_ATTEMPTS) { attempt ->
             val ack = try {
                 queryStatus(address, firmware, imageCrc, session.sessionId)
             } catch (error: DfuV2LinkException) {
-                if (reconnectAttempts >= READY_RECONNECT_ATTEMPTS) {
+                consecutiveStatusFailures++
+                if (consecutiveStatusFailures >= READY_STATUS_FAILURE_ATTEMPTS) {
                     throw DfuV2TransferException(
                         "STATUS unavailable while waiting for erase: ${error.message}",
                         flashMayHaveChanged = true,
                         cause = error
                     )
                 }
-                reconnectAttempts++
-                reconnectOrFail("erase STATUS recovery", error)
+                // Flash erase temporarily prevents the bootloader from answering
+                // STATUS, but the GATT link itself remains valid. Reconnecting on
+                // that timeout caused a redundant second application reconnect
+                // before the first DATA frame. Retry on the same connection; a
+                // real peripheral reset is handled by Android's normal reconnect.
+                logger.info(
+                    TRACE_TAG,
+                    "erase STATUS unavailable attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS " +
+                        "same_link_retry=$consecutiveStatusFailures cause=${error.message}"
+                )
                 delay(READY_QUERY_DELAY_MS)
                 return@repeat
             }
+            consecutiveStatusFailures = 0
             logger.info(
                 TRACE_TAG,
-                "erase STATUS attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS reconnects=$reconnectAttempts ack=$ack"
+                "erase STATUS attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS ack=$ack"
             )
             validateAck(ack, firmware, session.sessionId, 0, prefixVerifier)
             if (ack.status == DfuV2Status.READY) return ack
@@ -583,7 +593,7 @@ class FastDfuUploaderV2(
         const val MIN_ACK_TIMEOUT_MS = 250L
         const val READY_QUERY_DELAY_MS = 100L
         const val READY_QUERY_ATTEMPTS = 50
-        const val READY_RECONNECT_ATTEMPTS = 2
+        const val READY_STATUS_FAILURE_ATTEMPTS = 3
         const val CLEAN_ACKS_TO_GROW = 3
         const val WRITE_BUSY_RETRY_MS = 2L
         const val DATA_TRACE_INTERVAL_FRAMES = 32

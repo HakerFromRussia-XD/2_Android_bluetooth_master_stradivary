@@ -119,7 +119,7 @@ class FastDfuUploaderV2Test {
     }
 
     @Test
-    fun `ERASE_RECONNECT reconnects once and resumes from READY`() = runTest {
+    fun `ERASE_RECONNECT keeps the live GATT and resumes from READY`() = runTest {
         val responses = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
         val transport = FakeBulkTransport(responses, eraseReconnect = true)
         val uploader = FastDfuUploaderV2(transport, responses)
@@ -130,7 +130,7 @@ class FastDfuUploaderV2Test {
             assertNotNull(uploader.negotiate(0)),
         ) { _, _ -> }
 
-        assertEquals(1, transport.reconnects)
+        assertEquals(0, transport.reconnects)
     }
 
     @Test
@@ -168,7 +168,7 @@ class FastDfuUploaderV2Test {
     }
 
     @Test
-    fun `STATUS link loss during erase reconnects again before DATA`() = runTest {
+    fun `STATUS timeout during erase retries on the same GATT before DATA`() = runTest {
         val responses = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
         val transport = FakeBulkTransport(
             responses,
@@ -183,7 +183,7 @@ class FastDfuUploaderV2Test {
             assertNotNull(uploader.negotiate(0)),
         ) { _, _ -> }
 
-        assertEquals(2, transport.reconnects)
+        assertEquals(0, transport.reconnects)
         assertEquals(firmware.toList(), transport.received.toList())
     }
 }

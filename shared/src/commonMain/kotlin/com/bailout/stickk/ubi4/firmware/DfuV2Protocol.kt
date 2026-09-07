@@ -119,6 +119,18 @@ object DfuV2Protocol {
     const val DEFAULT_WINDOW = 16
     const val DEFAULT_ACK_EVERY = 8
 
+    /** Fixed wire contract advertised by GET_RUN_PROGRAM_TYPE=3. */
+    val FAM_V2_CAPABILITIES = DfuCapabilitiesV2(
+        status = DfuV2Status.OK,
+        major = 2,
+        minor = 0,
+        flags = DfuV2Flags.REQUIRED,
+        maxFrame = 245,
+        maxWindow = 8,
+        ackEvery = 8,
+        programUnit = 8
+    )
+
     fun caps(address: Int): ByteArray = BLECommandsV3.sendCommand(
         WRITE_FW_COMMAND.number.toInt(),
         DfuV2Command.CAPS.code,

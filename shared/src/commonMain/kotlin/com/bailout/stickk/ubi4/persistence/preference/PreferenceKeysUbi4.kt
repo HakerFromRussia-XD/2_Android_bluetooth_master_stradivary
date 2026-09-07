@@ -633,7 +633,11 @@ object PreferenceKeysUbi4 {
     /** Ответ на GET_RUN_PROGRAM_TYPE */
     enum class RunProgramType(val code: Int) {
         MAIN_APP   (0x01),
-        BOOTLOADER (0x02);
+        BOOTLOADER (0x02),
+        BOOTLOADER_V2 (0x03);
+
+        val isBootloader: Boolean
+            get() = this == BOOTLOADER || this == BOOTLOADER_V2
         //from(v: Int) берёт число v (байт, который прислала плата)
         // и ищет в списке констант RunProgramType ту одну, у которой поле code равно этому числу.
         // В итоге вы получаете не «сырое» число, а понятную константу MAIN_APP или BOOTLOADER.

@@ -164,7 +164,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-diag-20260904-1 version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
+        Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=${BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY} version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         applyDfuDiagnostics(intent)

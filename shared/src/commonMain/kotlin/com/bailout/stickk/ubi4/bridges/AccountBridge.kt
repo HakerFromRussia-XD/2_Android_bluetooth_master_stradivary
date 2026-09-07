@@ -132,7 +132,7 @@ object AccountBridge {
                 callback(
                     AccountBridgeBoardMode(
                         deviceAddress = address,
-                        isInBootloader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
+                        isInBootloader = runType.isBootloader
                     )
                 )
             }

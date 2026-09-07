@@ -177,7 +177,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 if (!canRenderBoards) return@collect
                 val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
                 if (idx != -1) {
-                    bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
+                    bootloaderBoardsList[idx].isInBootLoader = runType.isBootloader
                     bootloaderAdapter.notifyItemChanged(idx)
                 }
             }

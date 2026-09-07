@@ -13,6 +13,7 @@ import android.widget.ProgressBar
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.ubi4.ble.AndroidFirmwareCommandSender
 import com.bailout.stickk.ubi4.ble.AndroidFirmwareUpdateLogger
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -156,6 +157,23 @@ class DialogManager(
                             "attempt PACKAGE id=$startedAt protocol=$protocol bytes=${firmwarePackage.payload.size} declared_size=${firmwarePackage.descriptorFirmwareSize} crc=${firmwarePackage.descriptorFirmwareCrc.toString(16)} descriptor=" +
                                 firmwarePackage.descriptor.joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') })
                         phase = "coordinator"
+                        if (BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
+                            check(protocol == FirmwareUpdateProtocol.V3 && addr == 0) {
+                                "Эта диагностическая сборка проверяет только вход FAM в boot"
+                            }
+                            phase = "boot_entry_probe"
+                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                "entry_probe START id=$startedAt; coordinator/BEGIN/erase disabled for this bench build")
+                            LegacyV3FirmwareUpdater(
+                                sender = AndroidFirmwareCommandSender,
+                                logger = AndroidFirmwareUpdateLogger
+                            ).ensureBootloader(addr)
+                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                "entry_probe VERIFIED id=$startedAt elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}; no firmware transfer")
+                            progressDialog?.dismiss()
+                            main?.showToast("Вход в boot подтверждён. Проверка завершена без передачи прошивки")
+                            return@launch
+                        }
                         val result = firmwareUpdateCoordinator.runFirmwareUpdate(
                             protocol = protocol,
                             addr = addr,
@@ -206,6 +224,9 @@ class DialogManager(
     }
 
     fun runV3FirmwareUpdateForDebug(file: File) {
+        check(!BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
+            "Full-update autorun is not permitted in the boot-entry probe build"
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             Log.i("DFU_V2_TRACE", "debug_autorun start file=${file.name}")
             try {

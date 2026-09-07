@@ -20,7 +20,6 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,13 +35,10 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -69,7 +65,6 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiInter
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
@@ -266,7 +261,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 showSensorsScreen()
             }
         }
-
 
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
@@ -833,27 +827,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun getCurrentSerial(): String? = currentSerial
 
-    private fun sendFwInfoRequests() {
-        bleParser.sendFwInfoRequestsWithRetry()
-//        // CPU
-//        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-//        // Sub-devices (если уже известны)
-//        baseSubDevicesInfoStructSet.forEach { sub ->
-//            bleCommandWithQueue(
-//                BLECommands.requestProductFWInfoType(sub.deviceAddress),
-//                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-//            ) {}
-//        }
-    }
-
-    private fun sendRunProgramTypeRequests() {
-        baseSubDevicesInfoStructSet.forEach { sub ->
-            bleCommandWithQueue(
-                BLECommands.requestRunProgramType(sub.deviceAddress.toByte()),
-                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-            ) {}
-        }
-    }
 
     private fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable

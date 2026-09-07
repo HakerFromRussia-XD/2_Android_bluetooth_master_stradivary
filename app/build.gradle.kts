@@ -1,5 +1,6 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
+import groovy.json.JsonSlurper
 import java.util.Properties
 
 plugins {

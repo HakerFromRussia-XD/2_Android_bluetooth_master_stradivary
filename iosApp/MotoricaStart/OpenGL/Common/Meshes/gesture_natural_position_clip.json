@@ -1,0 +1,10 @@
+{
+  "id": "natural_position",
+  "durationMs": 900,
+  "keyframes": [
+    {"timeMs": 0, "fingers": [13, 11, 10, 12, 60, 67]},
+    {"timeMs": 300, "fingers": [100, 100, 100, 100, 100, 67], "holdAfterMs": 300},
+    {"timeMs": 600, "fingers": [100, 100, 100, 100, 100, 67]},
+    {"timeMs": 900, "fingers": [13, 11, 10, 12, 60, 67]}
+  ]
+}

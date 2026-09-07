@@ -33,6 +33,7 @@ import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
@@ -112,6 +113,7 @@ class GesturesTwoSectionDelegateAdapterV3(
     private var hideCollectionBtnView: View? = null
     private var addGestureToRotationGroupBtnView: View? = null
     private val gestureSettingsBtns: ArrayList<View> = ArrayList()
+    private val collectionPreviewController = CollectionGesturePreviewController()
 
     private companion object {
         private const val UNKNOWN_GESTURE_LABEL = "Unknow"
@@ -123,6 +125,7 @@ class GesturesTwoSectionDelegateAdapterV3(
         platformLog("PWCE_GESTURES_WINDOW_V3", "запустился GesturesDelegateAdapterV3")
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
+        collectionPreviewController.release()
 
 
         // scope как в Optic
@@ -162,11 +165,11 @@ class GesturesTwoSectionDelegateAdapterV3(
         val savedHideState = main.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
         if (hideFactoryCollectionGestures) {
-            hideCollectionBtn.rotation = 0F
+            hideCollectionBtn.rotation = 180F
             collectionFactoryGesturesCl.visibility = View.VISIBLE
             collectionFactoryGesturesCl.alpha = 1.0f
         } else {
-            hideCollectionBtn.rotation = 180F
+            hideCollectionBtn.rotation = 0F
             collectionFactoryGesturesCl.visibility = View.GONE
             collectionFactoryGesturesCl.alpha = 0.0f
         }
@@ -204,7 +207,7 @@ class GesturesTwoSectionDelegateAdapterV3(
 
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
-                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration =
                     ANIMATION_DURATION.toLong()
@@ -217,7 +220,7 @@ class GesturesTwoSectionDelegateAdapterV3(
                 }, ANIMATION_DURATION.toLong())
             } else {
                 hideFactoryCollectionGestures = true
-                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = 0
                 collectionFactoryGesturesCl.visibility = View.VISIBLE
@@ -285,8 +288,9 @@ class GesturesTwoSectionDelegateAdapterV3(
                 }
             }
         }
+        bindCollectionAnimationControls(root)
 
-        for (i in 1..8) {
+        for (i in 1..PreferenceKeysUbi4.NUM_GESTURES) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
             val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")
@@ -838,6 +842,11 @@ class GesturesTwoSectionDelegateAdapterV3(
         collectJob?.cancel()
         interactionJob?.cancel()
         interactionJob = null
+        collectionPreviewController.release()
+    }
+
+    private fun bindCollectionAnimationControls(root: View) {
+        collectionPreviewController.bind(root, { isInteractionEnabled }) { card -> card.performClick() }
     }
 
     override fun onRotationGestureClick(position: Int, gestureName: String?, gestureId: Int) {

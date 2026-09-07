@@ -33,6 +33,7 @@ import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
@@ -127,6 +128,7 @@ class GesturesOpticDelegateAdapter(
 
     private var currentActiveGestureId: Int? = null
     private var lastRenderedFilter: Int? = null
+    private val collectionPreviewController = CollectionGesturePreviewController()
 
     private var collectJob: Job? = null
     private var selectModeJob: Job? = null // >>> changed <<<
@@ -180,6 +182,7 @@ class GesturesOpticDelegateAdapter(
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
+        collectionPreviewController.release()
 
         // >>> changed <<< Инициализируем scope для RetryUtils / корутин
         scope = coroutineScope ?: main.lifecycleScope
@@ -201,11 +204,11 @@ class GesturesOpticDelegateAdapter(
         val savedHideState = main.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
         if (hideFactoryCollectionGestures) {
-            hideCollectionBtn.rotation = 0F
+            hideCollectionBtn.rotation = 180F
             collectionFactoryGesturesCl.visibility = View.VISIBLE
             collectionFactoryGesturesCl.alpha = 1.0f
         } else {
-            hideCollectionBtn.rotation = 180F
+            hideCollectionBtn.rotation = 0F
             collectionFactoryGesturesCl.visibility = View.GONE
             collectionFactoryGesturesCl.alpha = 0.0f
         }
@@ -287,7 +290,7 @@ class GesturesOpticDelegateAdapter(
         hideCollectionBtn.setOnClickListener {
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
-                hideCollectionBtn.animate().rotation(180F).duration =
+                hideCollectionBtn.animate().rotation(0F).duration =
                     ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat())
@@ -301,7 +304,7 @@ class GesturesOpticDelegateAdapter(
                 }, ANIMATION_DURATION.toLong())
             } else {
                 hideFactoryCollectionGestures = true
-                hideCollectionBtn.animate().rotation(0F).duration =
+                hideCollectionBtn.animate().rotation(180F).duration =
                     ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat())
@@ -354,7 +357,7 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         }
-
+        collectionPreviewController.bind(root, { true }) { card -> card.performClick() }
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
@@ -975,6 +978,7 @@ class GesturesOpticDelegateAdapter(
         collectJob?.cancel()
         selectModeJob?.cancel() // >>> changed <<<
         borderAnimator?.destroyCoroutines()
+        collectionPreviewController.release()
     }
 
     override fun onRotationGestureClick(

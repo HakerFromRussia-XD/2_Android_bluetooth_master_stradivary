@@ -22,7 +22,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="${gameControlPermission}" />
@@ -145,18 +144,6 @@
             </intent-filter>
         </service>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.games.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/motorica_games_file_paths" />
-        </provider>
-        <receiver
-            android:name="com.bailout.stickk.ubi4.ui.fragments.account.games.GameInstallStatusReceiver"
-            android:exported="false" />
 <!--        <service-->
 <!--            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.MyService"-->
 <!--            android:exported="false">-->

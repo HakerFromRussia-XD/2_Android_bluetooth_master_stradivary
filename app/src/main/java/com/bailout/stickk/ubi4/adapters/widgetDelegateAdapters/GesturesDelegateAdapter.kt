@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
@@ -95,10 +96,12 @@ class GesturesDelegateAdapter(
     private var currentActiveGestureId: Int? = null
     private var isRotationGroupResponseReceived = false
     private var lastRenderedFilter: Int? = null
+    private val collectionPreviewController = CollectionGesturePreviewController()
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
+        collectionPreviewController.release()
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
 
@@ -138,11 +141,11 @@ class GesturesDelegateAdapter(
         val savedHideState = main.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
         if (hideFactoryCollectionGestures) {
-            hideCollectionBtn.rotation = 0F
+            hideCollectionBtn.rotation = 180F
             collectionFactoryGesturesCl.visibility = View.VISIBLE
             collectionFactoryGesturesCl.alpha = 1.0f
         } else {
-            hideCollectionBtn.rotation = 180F
+            hideCollectionBtn.rotation = 0F
             collectionFactoryGesturesCl.visibility = View.GONE
             collectionFactoryGesturesCl.alpha = 0.0f
         }
@@ -185,7 +188,7 @@ class GesturesDelegateAdapter(
 
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
-                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration =
                     ANIMATION_DURATION.toLong()
@@ -198,7 +201,7 @@ class GesturesDelegateAdapter(
                 }, ANIMATION_DURATION.toLong())
             } else {
                 hideFactoryCollectionGestures = true
-                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
+                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
                 collectionUserGesturesCl.animate()
                     .translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = 0
                 collectionFactoryGesturesCl.visibility = View.VISIBLE
@@ -259,6 +262,7 @@ class GesturesDelegateAdapter(
                 }
             }
         }
+        collectionPreviewController.bind(root, { true }) { card -> card.performClick() }
 
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
@@ -658,6 +662,7 @@ class GesturesDelegateAdapter(
     fun onDestroy() {
         Log.d("LifeCycele", "stopCollectingGestureFlow")
         collectJob?.cancel()
+        collectionPreviewController.release()
     }
 
     override fun onRotationGestureClick(position: Int, gestureName: String?, gestureId: Int) {

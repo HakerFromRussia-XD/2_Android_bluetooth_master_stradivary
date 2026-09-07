@@ -252,6 +252,14 @@ struct GesturesWidgetView: View {
     @State private var previousRotationGroupCount: Int = 0
     @State private var segmentContentLockedHeight: CGFloat = 0
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
+    @State private var gestureKeyAnimationToken = 0
+    @State private var cupGripAnimationToken = 0
+    @State private var boardGripAnimationToken = 0
+    @State private var naturalPositionAnimationToken = 0
+    @State private var fistAnimationToken = 0
+    @State private var pointingAnimationToken = 0
+    @State private var pinchAnimationToken = 0
+    @State private var additionalAnimationTokens: [Int: Int] = [:]
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
     @State private var isRotationGroupAddGesturesDialogVisible = false
@@ -484,10 +492,10 @@ struct GesturesWidgetView: View {
     }
     
     @ViewBuilder
-    private func segmentContent(for segment: GesturesProvider.Segment) -> some View {
+    private func segmentContent(for segment: GesturesProvider.Segment, rendersLiveContent: Bool = true) -> some View {
         switch segment {
         case .collection:
-            collectionView
+            collectionView(rendersLiveContent: rendersLiveContent)
         case .rotationGroup:
             rotationGroupView
         case .sprGroup:
@@ -525,7 +533,7 @@ struct GesturesWidgetView: View {
                 ZStack(alignment: .topLeading) {
                     hiddenCurrentSegmentMeasurementView
                     if shouldPremeasureCollectionHeight {
-                        segmentContent(for: .collection)
+                        segmentContent(for: .collection, rendersLiveContent: false)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .topLeading)
                             .opacity(0.001)
@@ -541,7 +549,7 @@ struct GesturesWidgetView: View {
                             )
                     }
                     if shouldPremeasureRotationHeight {
-                        segmentContent(for: .rotationGroup)
+                        segmentContent(for: .rotationGroup, rendersLiveContent: false)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .topLeading)
                             .opacity(0.001)
@@ -570,7 +578,7 @@ struct GesturesWidgetView: View {
     }
 
     private var hiddenCurrentSegmentMeasurementView: some View {
-        segmentContent(for: provider.selectedSegment)
+        segmentContent(for: provider.selectedSegment, rendersLiveContent: false)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .opacity(0.001)
@@ -679,7 +687,7 @@ struct GesturesWidgetView: View {
 
     
     // MARK: - Collection View
-    private var collectionView: some View {
+    private func collectionView(rendersLiveContent: Bool) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             collapsibleSection(
                 title: SharedLocalizedText.text(SharedRes.strings().collection_of_gestures),
@@ -693,6 +701,76 @@ struct GesturesWidgetView: View {
                             subtitle: item.subtitle,
                             image: item.image,
                             isActive: provider.activeGestureId == item.id,
+                            livePreview: rendersLiveContent ? {
+                                let additionalToken = additionalAnimationTokens[item.id] ?? 0
+                                if item.id == 1 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .fist,
+                                                                              animationToken: fistAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 2 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .pointing,
+                                                                              animationToken: pointingAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 3 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .pinch,
+                                                                              animationToken: pinchAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 5 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .gestureKey,
+                                                                              animationToken: gestureKeyAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 8 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .cupGrip,
+                                                                              animationToken: cupGripAnimationToken,
+                                                                              editingObject: false))
+                                }
+                                if item.id == 9 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .boardGrip,
+                                                                              animationToken: boardGripAnimationToken,
+                                                                              editingObject: false,
+                                                                              enablesHandEditing: false))
+                                }
+                                if item.id == 15 {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: .naturalPosition,
+                                                                              animationToken: naturalPositionAnimationToken,
+                                                                              editingObject: false,
+                                                                              enablesHandEditing: false))
+                                }
+                                let additionalKind: Int? = [4: 7, 6: 8, 7: 9, 10: 10, 11: 11, 13: 12, 14: 13][item.id]
+                                if let additionalKind, let kind = GestureObjectClipKind(rawValue: additionalKind) {
+                                    return AnyView(GestureObjectOpenGLPreview(clipKind: kind,
+                                                                              animationToken: additionalToken,
+                                                                              editingObject: false,
+                                                                              enablesHandEditing: false))
+                                }
+                                return nil
+                            }() : nil,
+                            onAnimationTap: item.id == 1 ? {
+                                fistAnimationToken &+= 1
+                            } : item.id == 2 ? {
+                                pointingAnimationToken &+= 1
+                            } : item.id == 3 ? {
+                                pinchAnimationToken &+= 1
+                            } : item.id == 5 ? {
+                                gestureKeyAnimationToken &+= 1
+                                NSLog("[GestureKeyTrace] event=buttonTap token=%d", gestureKeyAnimationToken)
+                            } : item.id == 8 ? {
+                                cupGripAnimationToken &+= 1
+                                NSLog("[CupGripTrace] event=buttonTap token=%d", cupGripAnimationToken)
+                            } : item.id == 9 ? {
+                                boardGripAnimationToken &+= 1
+                                NSLog("[BoardGripTrace] event=buttonTap token=%d", boardGripAnimationToken)
+                            } : item.id == 15 ? {
+                                naturalPositionAnimationToken &+= 1
+                                NSLog("[NaturalPositionTrace] event=buttonTap token=%d", naturalPositionAnimationToken)
+                            } : item.id == 4 || item.id == 6 || item.id == 7 || item.id == 10 || item.id == 11 || item.id == 13 || item.id == 14 ? { additionalAnimationTokens[item.id, default: 0] &+= 1 } : nil,
+                            editingKey: false,
+                            editorObjectTitle: item.id == 9 ? "BOARD" : "OBJECT",
+                            onEditorTargetTap: nil,
                             action: { onFactoryGestureTap(item) }
                         )
                         .aspectRatio(1, contentMode: .fit)
@@ -1281,6 +1359,11 @@ private struct GestureTile: View {
     let subtitle: String?
     let image: UIImage?
     let isActive: Bool
+    let livePreview: AnyView?
+    let onAnimationTap: (() -> Void)?
+    let editingKey: Bool
+    let editorObjectTitle: String
+    let onEditorTargetTap: (() -> Void)?
     let action: () -> Void
 
     private var borderColor: Color {
@@ -1288,19 +1371,37 @@ private struct GestureTile: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        ZStack(alignment: .topTrailing) {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("ubi4_gray"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(borderColor, lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+
+            if let livePreview {
+                livePreview
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.system(size: 12, weight: .light))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                 
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                if livePreview == nil, image != nil {
+                    ZStack {
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 if let subtitle, subtitle.isEmpty == false {
@@ -1313,17 +1414,261 @@ private struct GestureTile: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("ubi4_gray"))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(borderColor, lineWidth: 1)
+
+            if let onAnimationTap {
+                GeometryReader { proxy in
+                    let referenceSide = min(proxy.size.width, proxy.size.height)
+                    let buttonSide = referenceSide * (36.0 / 166.0)
+                    let iconSide = referenceSide * (11.0 / 166.0)
+                    let edgeInset = referenceSide * (4.0 / 166.0)
+                    let cornerRadius = buttonSide * (10.0 / 36.0)
+
+                    Button(action: onAnimationTap) {
+                        Image("gesture_play")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: iconSide, height: iconSide)
+                            .frame(width: buttonSide, height: buttonSide)
+                            .background(
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .fill(Color("ubi4_gray"))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                    }
+                    .buttonStyle(.plain)
+                    .position(
+                        x: proxy.size.width - edgeInset - buttonSide / 2,
+                        y: edgeInset + buttonSide / 2
                     )
-                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-            )
+                    .accessibilityLabel("Запустить анимацию жеста")
+                    .accessibilityIdentifier("GestureKeyAnimationButton")
+                }
+            }
+
+            if let onEditorTargetTap {
+                Button(action: onEditorTargetTap) {
+                    Text(editingKey ? editorObjectTitle : "HAND")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(editingKey ? Color.black : Color.white)
+                        .padding(.horizontal, 8)
+                        .frame(height: 24)
+                        .background(Capsule().fill(editingKey ? Color("ubi4_active") : Color.black.opacity(0.52)))
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(8)
+                .accessibilityIdentifier("GestureKeyEditorTargetButton")
+            }
         }
-        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .onTapGesture(perform: action)
+    }
+}
+
+private enum GestureObjectClipKind: Int {
+    case gestureKey = 0
+    case cupGrip = 1
+    case boardGrip = 2
+    case naturalPosition = 3
+    case fist = 4
+    case pointing = 5
+    case pinch = 6
+    case fist2 = 7
+    case goat = 8
+    case tweezers = 9
+    case ok = 10
+    case classic = 11
+    case pinch2 = 12
+    case callMe = 13
+}
+
+private final class GestureKeyPreviewHostView: UIView {
+    let clipKind: GestureObjectClipKind
+    let enablesHandEditing: Bool
+    private var rendererController: AAPLOpenGLViewControllerV3?
+    private var pendingAnimation = false
+    private var pendingEditingKey = false
+    private var resourcesReady = false
+
+    init(frame: CGRect,
+         clipKind: GestureObjectClipKind,
+         enablesHandEditing: Bool) {
+        self.clipKind = clipKind
+        self.enablesHandEditing = enablesHandEditing
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isOpaque = false
+        NSLog("[GestureKeyTrace] event=hostInit")
+        V3ModelResourceCache.shared().preload { [weak self] ready, error in
+            DispatchQueue.main.async {
+                NSLog("[GestureKeyTrace] event=preloadCallback ready=%d error=%@", ready, error?.localizedDescription ?? "none")
+                guard let self, ready, error == nil else { return }
+                self.resourcesReady = true
+                self.installRendererIfPossible()
+            }
+        }
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        NSLog("[GestureKeyTrace] event=didMoveToWindow attached=%d size=%.1fx%.1f", window != nil, bounds.width, bounds.height)
+        installRendererIfPossible()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        rendererController?.view.frame = bounds
+        installRendererIfPossible()
+    }
+
+    private var parentViewController: UIViewController? {
+        var responder: UIResponder? = self
+        while let current = responder?.next {
+            if let controller = current as? UIViewController { return controller }
+            responder = current
+        }
+        return nil
+    }
+
+    private func installRendererIfPossible() {
+        NSLog("[GestureKeyTrace] event=installAttempt ready=%d hasRenderer=%d attached=%d size=%.1fx%.1f hasParent=%d", resourcesReady, rendererController != nil, window != nil, bounds.width, bounds.height, parentViewController != nil)
+        guard resourcesReady,
+              rendererController == nil,
+              window != nil,
+              bounds.width > 1,
+              bounds.height > 1,
+              let parentViewController else { return }
+        let controller = AAPLOpenGLViewControllerV3()
+        controller.useV3Mode = true
+        controller.useV3GestureProtocol = false
+        controller.modelTestMode = true
+        controller.cardPreviewMode = true
+        controller.cardPreviewEditingEnabled = enablesHandEditing
+        controller.cardPreviewClipKind = clipKind.rawValue
+        controller.cardPreviewSize = bounds.size
+        controller.loadViewIfNeeded()
+        controller.view.frame = bounds
+        controller.view.backgroundColor = .clear
+        controller.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        parentViewController.addChild(controller)
+        addSubview(controller.view)
+        controller.didMove(toParent: parentViewController)
+        rendererController = controller
+        controller.setCardPreviewEditingKey(pendingEditingKey)
+        NSLog("[GestureKeyTrace] event=rendererInstalled size=%.1fx%.1f pending=%d", bounds.width, bounds.height, pendingAnimation)
+        if pendingAnimation {
+            pendingAnimation = false
+            if clipKind.rawValue >= 7 { controller.playAdditionalFixedClip(clipKind.rawValue) }
+            else if clipKind == .pinch {
+                controller.playPinchClip()
+            } else if clipKind == .pointing {
+                controller.playPointingClip()
+            } else if clipKind == .fist {
+                controller.playFistClip()
+            } else if clipKind == .naturalPosition {
+                controller.playNaturalPositionClip()
+            } else if clipKind == .boardGrip {
+                controller.playBoardGripClip()
+            } else if clipKind == .cupGrip {
+                controller.playCupGripClip()
+            } else {
+                controller.playGestureKeyClip()
+            }
+        }
+    }
+
+    func play() {
+        NSLog("[GestureKeyTrace] event=hostPlay hasRenderer=%d", rendererController != nil)
+        if let rendererController {
+            if clipKind.rawValue >= 7 { rendererController.playAdditionalFixedClip(clipKind.rawValue) }
+            else if clipKind == .pinch {
+                rendererController.playPinchClip()
+            } else if clipKind == .pointing {
+                rendererController.playPointingClip()
+            } else if clipKind == .fist {
+                rendererController.playFistClip()
+            } else if clipKind == .naturalPosition {
+                rendererController.playNaturalPositionClip()
+            } else if clipKind == .boardGrip {
+                rendererController.playBoardGripClip()
+            } else if clipKind == .cupGrip {
+                rendererController.playCupGripClip()
+            } else {
+                rendererController.playGestureKeyClip()
+            }
+        } else {
+            pendingAnimation = true
+        }
+    }
+
+    func setEditingKey(_ editingKey: Bool) {
+        pendingEditingKey = editingKey
+        rendererController?.setCardPreviewEditingKey(editingKey)
+    }
+
+    func stop() {
+        if let controller = rendererController {
+            controller.willMove(toParent: nil)
+            controller.stopCardPreview()
+            controller.view.removeFromSuperview()
+            controller.removeFromParent()
+            rendererController = nil
+        }
+    }
+
+    deinit { stop() }
+}
+
+private struct GestureObjectOpenGLPreview: UIViewRepresentable {
+    let clipKind: GestureObjectClipKind
+    let animationToken: Int
+    let editingObject: Bool
+    let enablesHandEditing: Bool
+
+    init(clipKind: GestureObjectClipKind,
+         animationToken: Int,
+         editingObject: Bool,
+         enablesHandEditing: Bool = false) {
+        self.clipKind = clipKind
+        self.animationToken = animationToken
+        self.editingObject = editingObject
+        self.enablesHandEditing = enablesHandEditing
+    }
+
+    final class Coordinator {
+        var lastAnimationToken = 0
+        var didBindInitialToken = false
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeUIView(context: Context) -> GestureKeyPreviewHostView {
+        GestureKeyPreviewHostView(frame: .zero,
+                                  clipKind: clipKind,
+                                  enablesHandEditing: enablesHandEditing)
+    }
+
+    func updateUIView(_ view: GestureKeyPreviewHostView, context: Context) {
+        view.setEditingKey(editingObject)
+        if !context.coordinator.didBindInitialToken {
+            context.coordinator.lastAnimationToken = animationToken
+            context.coordinator.didBindInitialToken = true
+            return
+        }
+        guard animationToken > 0, animationToken != context.coordinator.lastAnimationToken else { return }
+        context.coordinator.lastAnimationToken = animationToken
+        view.play()
+    }
+
+    static func dismantleUIView(_ view: GestureKeyPreviewHostView, coordinator: Coordinator) {
+        view.stop()
     }
 }
 

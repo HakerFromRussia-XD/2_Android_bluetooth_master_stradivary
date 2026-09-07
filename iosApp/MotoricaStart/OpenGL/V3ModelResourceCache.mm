@@ -1193,11 +1193,11 @@ ModelResourcesPtr SharedModelResources() {
                     metrics:(NSMutableDictionary<NSString *, NSNumber *> *)metrics
                       error:(NSError **)error {
     CFTimeInterval shaderStart = CACurrentMediaTime();
-    NSString *vertex = ReadShader(@"per_pixel_vertex_shader_tex_and_light_new.glsl", error);
-    NSString *material = ReadShader(@"per_pixel_fragment_shader_general_new.glsl", error);
-    NSString *highlight = ReadShader(@"per_pixel_fragment_shader_tex_color_light_new.glsl", error);
-    NSString *pickVertex = ReadShader(@"select_vertex_shader.glsl", error);
-    NSString *pickFragment = ReadShader(@"select_fragment_shader.glsl", error);
+    NSString *vertex = ReadShader(@"v3_per_pixel_vertex_shader_tex_and_light.glsl", error);
+    NSString *material = ReadShader(@"v3_per_pixel_fragment_shader_general.glsl", error);
+    NSString *highlight = ReadShader(@"v3_per_pixel_fragment_shader_selection.glsl", error);
+    NSString *pickVertex = ReadShader(@"v3_select_vertex_shader.glsl", error);
+    NSString *pickFragment = ReadShader(@"v3_select_fragment_shader.glsl", error);
     material = HighPrecisionFragmentShader(material);
     highlight = HighPrecisionFragmentShader(highlight);
 	    if (!vertex || !material || !highlight || !pickVertex || !pickFragment ||

@@ -41,6 +41,29 @@ val missingMotoricaReleaseSigning = buildList {
     if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
 }
 
+val v3ManifestFile = file("src/main/assets/STR2_V3/festh3_test3_manifest.json")
+val packagedV3AssetNames = mutableSetOf(v3ManifestFile.name)
+
+fun collectPackagedV3AssetNames(value: Any?) {
+    when (value) {
+        is Map<*, *> -> value.values.forEach(::collectPackagedV3AssetNames)
+        is Iterable<*> -> value.forEach(::collectPackagedV3AssetNames)
+        is String -> if (value.endsWith(".v3bin") || value.endsWith(".v3def")) {
+            packagedV3AssetNames += value.substringAfterLast('/')
+        }
+    }
+}
+
+collectPackagedV3AssetNames(JsonSlurper().parse(v3ManifestFile))
+
+val unusedV3AssetNames = listOf("STR2_V3", "STR2_V3_BIN")
+    .flatMap { directory ->
+        file("src/main/assets/$directory").listFiles()?.filter { it.isFile }.orEmpty()
+    }
+    .map { it.name }
+    .filterNot(packagedV3AssetNames::contains)
+    .distinct()
+
 gradle.taskGraph.whenReady {
     val needsReleaseApk = allTasks.any { task ->
         task.path == ":app:assembleRelease" ||
@@ -76,8 +99,8 @@ android {
         applicationId = "com.bailout.stickk"
         minSdk = 28
         targetSdk = 33
-        versionCode = 13
-        versionName = "3.3.1783"
+        versionCode = 19
+        versionName = "3.3.1793"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"
@@ -85,6 +108,12 @@ android {
         val motoricaGamesManifestUrl = providers.gradleProperty("motoricaGamesManifestUrl").orElse("").get()
         buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
+        buildConfigField("boolean", "DFU_DIAGNOSTIC_FORCE_LEGACY", "false")
+        // Explicit bench build: stop after the unchanged main -> boot entry.
+        // Normal builds retain the complete firmware-update pipeline.
+        buildConfigField("boolean", "DFU_BOOT_ENTRY_PROBE_ONLY",
+            providers.gradleProperty("dfuBootEntryProbeOnly").orElse("false").get().toBoolean().toString())
+        buildConfigField("boolean", "ACCOUNT_LOAD_PROFILE_IN_BACKGROUND", "true")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -154,7 +183,10 @@ android {
         noCompress += "v3bin"
         noCompress += "v3def"
         noCompress += "astc"
-        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:fest3_test1.obj:fest3_test2.obj:festh3_test3.obj:festh3_test4.obj"
+        ignoreAssetsPattern = (
+            listOf("!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~") +
+                unusedV3AssetNames
+            ).joinToString(":")
     }
     sourceSets {
         getByName("main") {

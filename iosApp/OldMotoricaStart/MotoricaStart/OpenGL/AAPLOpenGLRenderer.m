@@ -28,6 +28,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     GLuint _templeProgram;
     GLuint _selectProgram;
     GLuint _templeMVPUniformLocation;
+    GLint _selectionHighlightUniformLocation;
     matrix_float4x4 _templeCameraMVPMatrix;
 
     // Arrays of submesh index buffers and textures for temple mesh.
@@ -413,6 +414,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _directionalLightColorUniformLocation = glGetUniformLocation(_templeProgram, "directionalLightColor");
 
         _templeMVPUniformLocation = glGetUniformLocation(_templeProgram, "modelViewProjectionMatrix");
+        _selectionHighlightUniformLocation = glGetUniformLocation(_templeProgram, "selectionHighlight");
     }
     
     // Create select program ojbect and setupe for uniforms.
@@ -537,10 +539,15 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
     // Draw the temple object to the drawable. _numTempleSubmeshes - количество полигональных сеток в разными материалами (регулируются материалами каждого мэша в файле mtl и obj)
     
+    glUniform1f(_selectionHighlightUniformLocation, _selectedObject == 5 ? 1.0f : 0.0f);
     [self drawBigFinger];
+    glUniform1f(_selectionHighlightUniformLocation, _selectedObject == 1 ? 1.0f : 0.0f);
     [self drawLittleFinger];
+    glUniform1f(_selectionHighlightUniformLocation, _selectedObject == 2 ? 1.0f : 0.0f);
     [self drawRingFinger];
+    glUniform1f(_selectionHighlightUniformLocation, _selectedObject == 3 ? 1.0f : 0.0f);
     [self drawMiddleFinger];
+    glUniform1f(_selectionHighlightUniformLocation, _selectedObject == 4 ? 1.0f : 0.0f);
     [self drawForeFinger];
     
     
@@ -559,6 +566,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     };
     glUniformMatrix3fv(_templeNormalMatrixUniformLocation, 1, GL_FALSE, packed3x3NormalMatrix);
     glUniformMatrix4fv(_templeMVPUniformLocation, 1, GL_FALSE, (const GLfloat*)&_templeCameraMVPMatrix);
+    glUniform1f(_selectionHighlightUniformLocation, 0.0f);
     [self drawPalm];
 }
 

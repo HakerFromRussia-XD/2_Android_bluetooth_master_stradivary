@@ -10,12 +10,11 @@ private enum AccountGamesMetrics {
 
 final class AccountGamesViewController: UIViewController {
     private enum Constants {
-        static let appGroup = "group.com.motorica.start.gamecontrol"
         static let installedGameKey = "installedGame.stk"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
         static let gameId = "stk"
         static let fallbackTitle = "Super Tux Kart"
-        static let fallbackBundleId = "com.motorica.games.stk"
+        static let fallbackBundleId = "com.motorica.games.stktt"
         static let fallbackScheme = "motorica-stk"
     }
 
@@ -369,9 +368,19 @@ final class AccountGamesViewController: UIViewController {
             showToast(localized("game_launch_failed"))
             return
         }
+        let launchToken = MotoricaGameLaunchRequest.create(scheme: scheme)
         UIApplication.shared.open(url) { [weak self] opened in
             if !opened {
+                MotoricaGameLaunchRequest.clear(token: launchToken)
                 self?.showToast(self?.localized("game_launch_failed") ?? "")
+                return
+            }
+            // STK normally consumes the lease during cold startup or when the
+            // URL reaches a warm process. This cleanup prevents a failed or
+            // interrupted launch from leaving state that a later icon launch
+            // could observe.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                MotoricaGameLaunchRequest.clear(token: launchToken)
             }
         }
     }
@@ -390,8 +399,9 @@ final class AccountGamesViewController: UIViewController {
     }
 
     private func installedGameInfo() -> InstalledGameInfo? {
-        guard let defaults = UserDefaults(suiteName: Constants.appGroup) else {
-            NSLog("\(gameDebugLogPrefix) ios games app group unavailable: \(Constants.appGroup)")
+        guard let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
+            NSLog("\(gameDebugLogPrefix) ios games expected exactly one signed app group")
             return nil
         }
 

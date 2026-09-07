@@ -31,6 +31,10 @@ object FirmwareUpdateBridge {
         callback: (FirmwareUpdateBridgeEvent) -> Unit
     ): Job = coroutineScope.launch {
         try {
+            // The mobile update flow starts from a connected main application.
+            // Recovery from an already-running bootloader remains a Dashboard
+            // workflow, matching the Android client policy.
+            DfuDiagnostics.requireMainStart = true
             val descriptor = FirmwareInfoDescriptorBuilder.build(
                 FirmwareInfoDescriptorBuilder.parseIniProperties(descriptorText)
             )
@@ -48,6 +52,11 @@ object FirmwareUpdateBridge {
                     logger = BridgeFirmwareUpdateLogger
                 ),
                 v3Updater = V3FirmwareUpdater(
+                    sender = PlatformFirmwareCommandSender,
+                    bulkTransport = PlatformFirmwareBulkTransport,
+                    logger = BridgeFirmwareUpdateLogger
+                ),
+                legacyV3Updater = LegacyV3FirmwareUpdater(
                     sender = PlatformFirmwareCommandSender,
                     logger = BridgeFirmwareUpdateLogger
                 ),

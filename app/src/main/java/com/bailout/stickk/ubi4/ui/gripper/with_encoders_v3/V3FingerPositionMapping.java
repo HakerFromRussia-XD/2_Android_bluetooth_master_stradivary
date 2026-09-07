@@ -56,6 +56,25 @@ public final class V3FingerPositionMapping {
         );
     }
 
+    /** Collection clip percentages are applied directly to Android mesh axes. */
+    public static float collectionThumbFirstAxisRotation(int percent, int handSide) {
+        return collectionSideSign(handSide) * thumbFirstAxisAngle(percent);
+    }
+
+    public static float collectionThumbSecondPhalanxRotation(int percent, int handSide) {
+        return collectionSideSign(handSide) * thumbSecondPhalanxAngle(percent);
+    }
+
+    public static float collectionThumbSecondAxisRotation(int percent, int handSide) {
+        return collectionSideSign(handSide)
+                * (thumbSecondAxisAngle(percent)
+                - THUMB_SECOND_AXIS_INITIAL_DEGREES);
+    }
+
+    private static float collectionSideSign(int handSide) {
+        return handSide == 0 ? -1.0f : 1.0f;
+    }
+
     private static int angleFromPercent(int percent, int minAngle, int maxAngle) {
         int clampedPercent = clampPercent(percent);
         return Math.round(maxAngle - clampedPercent * (maxAngle - minAngle) / 100.0f);

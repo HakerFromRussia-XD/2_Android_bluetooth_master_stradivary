@@ -2,7 +2,6 @@ precision mediump float;       	// Set the default precision to medium. We don't
 								// precision in the fragment shader.
 uniform vec3 u_LightPos;       	// The position of the light in eye space.
 uniform sampler2D u_Texture;    // The input texture.
-uniform int u_FrontFaceMirrored;
   
 varying vec3 v_Position;		// Interpolated position for this fragment.
 varying vec3 v_Normal;         	// Interpolated normal for this fragment.
@@ -17,11 +16,6 @@ vec3 eyePosition = vec3(0.0, 0.0, 150.5);
 // The entry point for our fragment shader.
 void main()                    		
 {
-    bool backFacing = u_FrontFaceMirrored == 1 ? gl_FrontFacing : !gl_FrontFacing;
-    if (backFacing) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-        return;
-    }
 
     vec4 diffMatColor = texture2D(u_Texture, v_TexCoordinate); //+
     vec3 eyeVect = normalize(v_Position - eyePosition);
@@ -40,3 +34,4 @@ void main()
 
     gl_FragColor = resultColor;
   }                                                                     	
+

@@ -51,7 +51,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="pref 2" width="512" height="511"/>
+        <image name="pref 2" width="512" height="512"/>
         <namedColor name="transparent">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

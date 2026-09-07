@@ -289,11 +289,13 @@ private struct FingersDelaySliderRow: View {
             HStack {
                 Text(title)
                     .font(.custom("SFProDisplay-Light", size: 14))
+                    .foregroundColor(.white)
                     .padding(.top, 8)
                     .padding(.leading, 12)
                 Spacer()
                 Text(verbatim: "\(Int(value*10)) \(KmmLocalizedStrings.measureType())")
                     .font(.custom("SFProDisplay-Light", size: 14))
+                    .foregroundColor(.white)
                     .padding(.top, 8)
                     .padding(.trailing, 12)
             }

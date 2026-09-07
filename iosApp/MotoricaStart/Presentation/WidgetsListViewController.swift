@@ -71,7 +71,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var hasReceivedWidgetsLoadingProgress = false
     private var hasRetriedSynchronizationWithoutProgress = false
     private var open3DGestureId: Int?
-    private var open3DGestureIsV3 = false
+    private var open3DGestureUsesV3Protocol = false
     private var latestGestureUsageItems: [GestureUsageChartItem] = []
     private var lastWidgetsSignature: String?
     private var specialSettingsSource: SpecialSettingsSource = .prosthetic
@@ -124,14 +124,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 }
                 
                 self?.open3DGestureId = gestureId
-                self?.open3DGestureIsV3 = isV3
+                self?.open3DGestureUsesV3Protocol = isV3
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
             }
             DispatchQueue.main.async {
-                guard isV3 else {
-                    openScreen()
-                    return
-                }
                 let cache = V3ModelResourceCache.shared()
                 NSLog(
                     "[V3OpenTrace] event=mark3DOpenRequested thread=main gestureId=%d useV3Mode=%d cacheState=%ld isReady=%d",
@@ -204,7 +200,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
-        requestTelemetryDataIfNeeded()
         if isSpecialSettingsMobileSource {
             LoadingView.hide()
             showWidgetsContent()
@@ -286,7 +281,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             }
         }
 
-        startObservingTelemetryCountersIfNeeded()
     }
 
     private func stopObservingWidgetUpdates() {
@@ -334,7 +328,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
         let widgetsSignature = makeWidgetsSignature(from: widgetsDTO)
         guard widgetsSignature != lastWidgetsSignature else {
-            applyGestureUsageWidgetIfNeeded()
             return
         }
         lastWidgetsSignature = widgetsSignature
@@ -348,7 +341,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         viewModel.update(with: mockResponseDTO.toDomain())
-        applyGestureUsageWidgetIfNeeded()
         storage.save(response: mockResponseDTO, for: requestDTO)
     }
 
@@ -403,11 +395,13 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         } else if segue.identifier == "go3DGripperSettings",
             let destinationVC = segue.destination as? AAPLOpenGLViewControllerV3 {
             destinationVC.gestureNumber = open3DGestureId ?? 0
-            destinationVC.useV3Mode = open3DGestureIsV3
+            destinationVC.useV3Mode = true
+            destinationVC.useV3GestureProtocol = open3DGestureUsesV3Protocol
             NSLog(
-                "[V3OpenTrace] event=prepare3DDestination thread=main gestureId=%ld useV3Mode=%d",
+                "[V3OpenTrace] event=prepare3DDestination thread=main gestureId=%ld useV3Mode=%d useV3Protocol=%d",
                 destinationVC.gestureNumber,
-                destinationVC.useV3Mode
+                destinationVC.useV3Mode,
+                destinationVC.useV3GestureProtocol
             )
         }
     }
@@ -798,7 +792,7 @@ private extension WidgetsListViewController {
         case 12:
             return SharedLocalizedText.text(SharedRes.strings().gesture_middle_finger)
         case 13:
-            return SharedLocalizedText.text(SharedRes.strings().gesture_double_point)
+            return Locale.current.language.languageCode?.identifier == "ru" ? "Щёпоть 2" : "Pinch 2"
         case 14:
             return SharedLocalizedText.text(SharedRes.strings().gesture_call_me)
         case 15:

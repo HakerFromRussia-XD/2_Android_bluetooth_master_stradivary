@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryPr
 import com.bailout.stickk.ubi4.data.local.repository.AchievementCelebrationRepositoryProvider
 import com.bailout.stickk.ubi4.data.local.repository.AchievementEventRepositoryProvider
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.V3CollectionGlResourceCache
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
@@ -54,6 +55,11 @@ class WDApplication : MultiDexApplication() {
       deviceCrcDao = db.deviceCrcDao(),
     )
     SettingsProfileRepositoryProvider.init(db.settingsProfileDao())
+
+    // Match iOS: prepare both CPU data and the shared GPU buffers/shaders while
+    // the user is still on the connection flow. Gesture cards then only create
+    // lightweight shared contexts when their screen becomes visible.
+    V3CollectionGlResourceCache.preloadAsync(applicationContext)
     AchievementEventRepositoryProvider.init(db.achievementUniqueEventDao())
     AchievementCelebrationRepositoryProvider.init(db.achievementCelebrationStateDao())
   }

@@ -28,7 +28,6 @@ final class TextInputViewCellV3: UITableViewCell {
             TextInputRowViewV3(
                 placeholder: viewModel.placeholder,
                 buttonTitle: viewModel.buttonTitle,
-                initialText: prefilledText(),
                 trimToLimit: { [weak self] text in
                     self?.viewModel?.trimToByteLimit(text) ?? text
                 },
@@ -49,7 +48,7 @@ final class TextInputViewCellV3: UITableViewCell {
 
     private func prefilledText() -> String {
         let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
-        return viewModel?.prefillDisplayName(storedFullName: storedName) ?? ""
+        return viewModel?.prefillText(storedFullName: storedName) ?? ""
     }
 
     private func handleSend(_ input: String) {
@@ -59,51 +58,32 @@ final class TextInputViewCellV3: UITableViewCell {
             return
         }
 
-        guard let fullName = viewModel?.sendInput(normalizedInput) else {
+        guard let viewModel, let transportText = viewModel.sendInput(normalizedInput) else {
             showToast(SharedLocalizedText.text(SharedRes.strings().send_error))
             return
         }
 
-        try? keyValueStorage.save(fullName, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
-        let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: fullName)
-        NotificationCenter.default.post(name: .v3DeviceNameDidUpdate, object: displayName)
-        showToast(SharedLocalizedText.text(SharedRes.strings().name_set))
+        switch viewModel.inputKind {
+        case .deviceName:
+            try? keyValueStorage.save(transportText, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+            let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: transportText)
+            NotificationCenter.default.post(name: .v3DeviceNameDidUpdate, object: displayName)
+            showToast(SharedLocalizedText.text(SharedRes.strings().name_set))
+        case .serialNumber:
+            showToast(SharedLocalizedText.text(SharedRes.strings().serial_number_set))
+        case .generic:
+            showToast(SharedLocalizedText.text(SharedRes.strings().value_sent))
+        }
     }
 
     private func showToast(_ message: String) {
-        let hostView = window ?? contentView
-        let toast = UILabel()
-        toast.text = message
-        toast.textAlignment = .center
-        toast.font = UIFont.systemFont(ofSize: 14)
-        toast.textColor = .white
-        toast.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        toast.layer.cornerRadius = 10
-        toast.clipsToBounds = true
-        toast.alpha = 0
-
-        let padding: CGFloat = 24
-        let textWidth = toast.intrinsicContentSize.width + padding
-        let maxWidth = hostView.bounds.width - 32
-        let width = min(textWidth, maxWidth)
-        let height: CGFloat = 38
-        let y = hostView.bounds.height - 120
-        toast.frame = CGRect(
-            x: (hostView.bounds.width - width) / 2,
-            y: y,
-            width: width,
-            height: height
-        )
-
-        hostView.addSubview(toast)
-        UIView.animate(withDuration: 0.2, animations: {
-            toast.alpha = 1
-        }) { _ in
-            UIView.animate(withDuration: 0.25, delay: 1.2, options: .curveEaseOut, animations: {
-                toast.alpha = 0
-            }) { _ in
-                toast.removeFromSuperview()
+        var responder: UIResponder? = self
+        while let currentResponder = responder {
+            if let viewController = currentResponder as? UIViewController {
+                viewController.showToast(message)
+                return
             }
+            responder = currentResponder.next
         }
     }
 }
@@ -111,14 +91,12 @@ final class TextInputViewCellV3: UITableViewCell {
 private struct TextInputRowViewV3: View {
     let placeholder: String
     let buttonTitle: String
-    let initialText: String
     let trimToLimit: (String) -> String
     let onLimitReached: () -> Void
     let onRequestPrefill: () -> String
     let onSend: (String) -> Void
 
     @State private var inputText: String = ""
-    @State private var didApplyInitial = false
 
     var body: some View {
         HStack(spacing: 8) {
@@ -134,9 +112,11 @@ private struct TextInputRowViewV3: View {
                 .autocorrectionDisabled(true)
                 .padding(.leading, 10)
                 .padding(.trailing, 4)
-                .onTapGesture {
-                    inputText = onRequestPrefill()
-                }
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        inputText = onRequestPrefill()
+                    }
+                )
                 .onChange(of: inputText) { newValue in
                     let trimmed = trimToLimit(newValue)
                     if trimmed != newValue {
@@ -182,10 +162,5 @@ private struct TextInputRowViewV3: View {
                 )
                 .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
-        .onAppear {
-            guard !didApplyInitial else { return }
-            didApplyInitial = true
-            inputText = initialText
-        }
     }
 }

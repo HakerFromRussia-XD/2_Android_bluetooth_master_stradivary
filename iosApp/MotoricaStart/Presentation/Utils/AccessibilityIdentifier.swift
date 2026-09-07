@@ -25,6 +25,8 @@ struct AccessibilityIdentifier {
     static let statusBarDisconnectConfirmButton = "AccessibilityIdentifierStatusBarDisconnectConfirmButton"
     static let statusBarDisconnectCancelButton = "AccessibilityIdentifierStatusBarDisconnectCancelButton"
     static let accountRoot = "AccessibilityIdentifierAccountRoot"
+    static let accountStatisticsButton = "AccessibilityIdentifierAccountStatisticsButton"
+    static let accountStatisticsRoot = "AccessibilityIdentifierAccountStatisticsRoot"
     static let accountGamesRoot = "AccessibilityIdentifierAccountGamesRoot"
     static let accountGamesCard = "AccessibilityIdentifierAccountGamesCard"
     static let accountGamesActionButton = "AccessibilityIdentifierAccountGamesActionButton"

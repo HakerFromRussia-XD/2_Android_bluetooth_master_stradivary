@@ -13,4 +13,12 @@ actual object PlatformFirmwareCommandSender : FirmwareCommandSender {
         }
         BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(packet, characteristic, WRITE) {}
     }
+
+    override suspend fun sendBootloaderJump(
+        packet: ByteArray,
+        channel: FirmwareTransportChannel
+    ) {
+        check(channel == FirmwareTransportChannel.V3_SERIAL)
+        BleEnvironment.getBleCommandExecutor().firmwareJumpToBootloader(packet)
+    }
 }

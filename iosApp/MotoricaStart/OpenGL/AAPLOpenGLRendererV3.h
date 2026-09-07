@@ -14,13 +14,40 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 @interface AAPLOpenGLRendererV3 : NSObject
 - (instancetype _Nullable )initWithDefaultFBOName:(GLuint)defaultFBOName
                         gestureNumber:(NSInteger)gestureNumber;
+- (instancetype _Nullable)initWithDefaultFBOName:(GLuint)defaultFBOName
+                                   gestureNumber:(NSInteger)gestureNumber
+                            useV3GestureProtocol:(BOOL)useV3GestureProtocol
+                                        handSide:(NSInteger)handSide;
 
 - (void)draw;
 - (void)resize:(CGSize)size;
 - (void)setDefaultFBOName:(GLuint)defaultFBOName;
 - (BOOL)isAnimating;
 - (void)setHandSide:(NSInteger)side;
+- (void)setUseV3GestureProtocol:(BOOL)useV3GestureProtocol;
 - (void)releaseGLResources;
+- (void)configureGestureKeyCardPreview;
+- (void)configureCupGripCardPreview;
+- (void)configureBoardGripCardPreview;
+- (void)configureNaturalPositionCardPreview;
+- (void)configureFistCardPreview;
+- (void)configurePointingCardPreview;
+- (void)configurePinchCardPreview;
+- (void)setCardPreviewEditingKey:(BOOL)editingKey;
+- (void)playGestureKeyClip;
+- (void)playCupGripClip;
+- (void)playBoardGripClip;
+- (void)playNaturalPositionClip;
+- (void)playFistClip;
+- (void)playPointingClip;
+- (void)playPinchClip;
+- (void)configureAdditionalFixedCardPreview:(NSInteger)kind;
+- (void)playAdditionalFixedClip:(NSInteger)kind;
+- (void)adjustCardPreviewScaleByFactor:(CGFloat)factor finished:(BOOL)finished;
+- (void)adjustCardPreviewRotationByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
+- (void)adjustCardPreviewPositionByX:(CGFloat)deltaX y:(CGFloat)deltaY finished:(BOOL)finished;
+- (void)adjustCardPreviewRollByRadians:(CGFloat)radians finished:(BOOL)finished;
+- (void)adjustCardPreviewDepthBy:(CGFloat)delta finished:(BOOL)finished;
 
 - (void)stopVC;
 - (void)stopVCWithSaveData;
@@ -42,6 +69,9 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 + (int32_t)transitionGestureStateForClosed:(BOOL)isClosed;
 + (int32_t)saveGestureState;
 #if DEBUG
++ (NSDictionary<NSString *, id> *_Nonnull)gestureKeyClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
++ (NSDictionary<NSString *, id> *_Nonnull)cupGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
++ (NSDictionary<NSString *, id> *_Nonnull)boardGripClipStateForTestingAtMilliseconds:(NSTimeInterval)milliseconds;
 + (NSDictionary<NSString *, NSArray<NSNumber *> *> *_Nonnull)matrixSnapshotsForTestingWithHandSide:(NSInteger)handSide
                                                                                           positions:(NSArray<NSNumber *> *_Nonnull)positions;
 + (NSArray<NSNumber *> *_Nonnull)transitionPositionsForTestingFrom:(NSArray<NSNumber *> *_Nonnull)start

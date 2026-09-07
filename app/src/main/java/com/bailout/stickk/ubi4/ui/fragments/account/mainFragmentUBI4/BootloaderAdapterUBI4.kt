@@ -11,11 +11,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class BootloaderAdapterUBI4(
     private val listener: OnBootloaderClickListener,
     private val showSettingsButtonProvider: () -> Boolean = { false },
-    private val showUpdateButtonProvider: () -> Boolean = { true }
+    private val showUpdateButtonProvider: () -> Boolean = { true },
+    private val loadLocalVersionsOnBind: Boolean = true
 ) : ListAdapter<BootloaderBoardItemUBI4, BootloaderAdapterUBI4.BoardViewHolder>(Diff) {
 
 
@@ -83,6 +86,16 @@ class BootloaderAdapterUBI4(
             .mapNotNull { key -> localVersions?.get(key) }
             .reduceOrNull(::maxVersion)
         return isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
+    }
+
+    suspend fun preloadLocalVersions(ctx: android.content.Context) {
+        if (localVersions != null) return
+        val versions = withContext(Dispatchers.IO) {
+            buildLocalVersionMap(ctx.applicationContext)
+        }
+        localVersions = versions
+        if (itemCount > 0) notifyItemRangeChanged(0, itemCount)
+        Log.d("fw_local", "catalog=$versions")
     }
 
 

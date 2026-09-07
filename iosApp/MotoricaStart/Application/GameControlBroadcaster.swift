@@ -2,11 +2,68 @@ import Foundation
 import QuartzCore
 import shared
 
+enum MotoricaGameControlAppGroup {
+    static let value: String? = {
+        guard let value = Bundle.main.object(
+            forInfoDictionaryKey: "MotoricaGameControlAppGroup"
+        ) as? String,
+        !value.isEmpty,
+        !value.contains("$(") else {
+            return nil
+        }
+        return value
+    }()
+}
+
+enum MotoricaGameLaunchRequest {
+    private enum Keys {
+        static let storage = "launchRequest.stk.v1"
+        static let version = "version"
+        static let token = "token"
+        static let timestampMs = "timestampMs"
+        static let scheme = "scheme"
+    }
+
+    @discardableResult
+    static func create(scheme: String) -> String? {
+        guard scheme.caseInsensitiveCompare("motorica-stk") == .orderedSame,
+              let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
+            return nil
+        }
+
+        let token = UUID().uuidString
+        let request: [String: Any] = [
+            Keys.version: 1,
+            Keys.token: token,
+            Keys.timestampMs: Int64(Date().timeIntervalSince1970 * 1000.0),
+            Keys.scheme: scheme
+        ]
+        defaults.set(request, forKey: Keys.storage)
+        defaults.synchronize()
+        NSLog("[BLE stk-game debug] ios launch lease written token=\(token)")
+        return token
+    }
+
+    static func clear(token: String?) {
+        guard let token,
+              let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup),
+              let request = defaults.dictionary(forKey: Keys.storage),
+              request[Keys.token] as? String == token else {
+            return
+        }
+
+        defaults.removeObject(forKey: Keys.storage)
+        defaults.synchronize()
+        NSLog("[BLE stk-game debug] ios launch lease cleared token=\(token)")
+    }
+}
+
 final class GameControlBroadcaster {
     static let shared = GameControlBroadcaster()
 
     private enum Keys {
-        static let appGroup = "group.com.motorica.start.gamecontrol"
         static let snapshot = "snapshot"
         static let version = "version"
         static let seq = "seq"
@@ -66,10 +123,11 @@ final class GameControlBroadcaster {
         guard force || now - lastPublishTime >= minPublishInterval else { return }
         lastPublishTime = now
 
-        guard let defaults = UserDefaults(suiteName: Keys.appGroup) else {
+        guard let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
             if !appGroupWarningLogged {
                 appGroupWarningLogged = true
-                NSLog("\(logPrefix) ios broadcaster app group unavailable: \(Keys.appGroup)")
+                NSLog("\(logPrefix) ios broadcaster expected exactly one signed app group")
             }
             return
         }

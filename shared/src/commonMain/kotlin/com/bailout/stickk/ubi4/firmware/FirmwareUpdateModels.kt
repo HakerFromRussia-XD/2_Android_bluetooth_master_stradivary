@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.firmware
 
+import kotlinx.coroutines.delay
+
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 
 data class FirmwareUpdatePackage(
@@ -45,6 +47,16 @@ enum class FirmwareTransportChannel {
 
 fun interface FirmwareCommandSender {
     suspend fun send(packet: ByteArray, channel: FirmwareTransportChannel)
+
+    /**
+     * Sends the legacy JUMP_TO_BOOTLOADER command. Platforms that need an
+     * explicit BLE handoff may override this without coupling legacy DFU to
+     * the v2 bulk transport.
+     */
+    suspend fun sendBootloaderJump(packet: ByteArray, channel: FirmwareTransportChannel) {
+        send(packet, channel)
+        delay(1_500L)
+    }
 }
 
 interface FirmwareUpdateLogger {

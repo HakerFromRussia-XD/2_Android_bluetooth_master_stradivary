@@ -70,6 +70,7 @@ class GestureUsageChartView @JvmOverloads constructor(
             setDrawIcons(false)
             setDrawValues(true)
             sliceSpace = 1f
+            setAutomaticallyDisableSliceSpacing(true)
             selectionShift = 0f
             valueLineColor = Color.TRANSPARENT
             valueTextColor = Color.WHITE

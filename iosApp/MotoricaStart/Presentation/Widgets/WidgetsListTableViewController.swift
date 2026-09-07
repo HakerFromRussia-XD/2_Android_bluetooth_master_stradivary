@@ -15,10 +15,23 @@ import shared
     var viewModel: WidgetsListViewModel!
 
     // MARK: - Lifecycle
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        refreshVisibleGestureNames()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         print("[Lifecycle]  viewDidAppear")
         // отключаем переход на предыдущий экран свайпом влево
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+    }
+
+    private func refreshVisibleGestureNames() {
+        tableView.visibleCells.forEach { cell in
+            (cell as? GestureViewCell)?.refreshGestureNames()
+            (cell as? GestureViewCellV3)?.refreshGestureNames()
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -497,6 +510,7 @@ private final class GestureUsageDonutChartView: UIView {
         dataSet.drawIconsEnabled = false
         dataSet.drawValuesEnabled = true
         dataSet.sliceSpace = 1
+        dataSet.automaticallyDisableSliceSpacing = true
         dataSet.selectionShift = 0
         dataSet.valueLineColor = .clear
         dataSet.valueTextColor = .white
@@ -561,13 +575,16 @@ private final class GestureUsageDonutChartView: UIView {
 }
 
 private final class GestureUsagePercentValueFormatter: NSObject, ValueFormatter {
+    private static let minimumVisiblePercent = 3.0
+
     func stringForValue(
         _ value: Double,
         entry: ChartDataEntry,
         dataSetIndex: Int,
         viewPortHandler: ViewPortHandler?
     ) -> String {
-        "\(Int(value.rounded()))%"
+        guard value >= Self.minimumVisiblePercent else { return "" }
+        return "\(Int(value.rounded()))%"
     }
 }
 

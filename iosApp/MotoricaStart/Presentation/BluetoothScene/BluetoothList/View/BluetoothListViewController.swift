@@ -529,41 +529,8 @@ final class BluetoothListViewController: UIViewController {
 // MARK: - UITableViewDataSource
 extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegate {
     private func showConnectionToast(_ message: String) {
-            let toast = UILabel()
-            toast.text = message
-            toast.textAlignment = .center
-            toast.font = UIFont.systemFont(ofSize: 14)
-            toast.textColor = .white
-            toast.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-            toast.layer.cornerRadius = 10
-            toast.clipsToBounds = true
-
-            // вычисляем ширину и позицию
-            let padding: CGFloat = 16
-            let maxWidth = view.bounds.width - padding * 2
-            let textWidth = toast.intrinsicContentSize.width + padding
-            let width = min(maxWidth, textWidth)
-            toast.frame = CGRect(
-                x: (view.bounds.width - width) / 2,
-                y: view.safeAreaInsets.top + 16,
-                width: width,
-                height: 40
-            )
-
-            view.addSubview(toast)
-            toast.alpha = 0
-
-            // анимация появления и исчезновения
-            UIView.animate(withDuration: 0.3, animations: {
-                toast.alpha = 1
-            }) { _ in
-                UIView.animate(withDuration: 0.3, delay: 2.0, options: [], animations: {
-                    toast.alpha = 0
-                }) { _ in
-                    toast.removeFromSuperview()
-                }
-            }
-        }
+        showToast(message)
+    }
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { viewModel.devices.count }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

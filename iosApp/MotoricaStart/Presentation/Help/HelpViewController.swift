@@ -411,6 +411,14 @@ final class HelpViewController: UIViewController {
                     height: CGFloat(block.imageHeight)
                 )
             )
+        } else if isOpeningSensorColorBlock(text) {
+            stack.addArrangedSubview(
+                makeColorIndicator(
+                    color: textColor,
+                    width: CGFloat(block.imageWidth),
+                    height: CGFloat(block.imageHeight)
+                )
+            )
         } else if let image = block.image?.toUIImage() {
             let imageView = UIImageView(image: image)
             imageView.contentMode = .scaleAspectFit
@@ -428,6 +436,10 @@ final class HelpViewController: UIViewController {
 
     private func isClosingSensorColorBlock(_ text: String) -> Bool {
         text == SharedRes.strings().closing_sensor.desc().localized()
+    }
+
+    private func isOpeningSensorColorBlock(_ text: String) -> Bool {
+        text == SharedRes.strings().opening_sensor.desc().localized()
     }
 
     private func makeColorIndicator(color: UIColor, width: CGFloat, height: CGFloat) -> UIView {

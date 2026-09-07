@@ -2,7 +2,13 @@ import Foundation
 import shared
 
 struct TextInputListItemViewModelV3: Equatable, Hashable {
-    static let maxInputBytesWithoutPrefix = 13
+    static let maxDeviceNameBytesWithoutPrefix = 10
+
+    enum InputKind: Equatable {
+        case deviceName
+        case serialNumber
+        case generic
+    }
 
     private let identifier: String
     let title: String
@@ -11,6 +17,15 @@ struct TextInputListItemViewModelV3: Equatable, Hashable {
     let binding: WidgetV3BindingInfo?
     let placeholder: String
     let buttonTitle: String
+
+    var inputKind: InputKind {
+        guard let binding else { return .generic }
+        switch binding.dataCode {
+        case 0x0D: return .deviceName
+        case 0x0B: return .serialNumber
+        default: return .generic
+        }
+    }
 }
 
 extension TextInputListItemViewModelV3 {
@@ -34,31 +49,56 @@ extension TextInputListItemViewModelV3 {
 
     func sendInput(_ input: String) -> String? {
         guard let binding else { return nil }
-        let cleaned = trimToByteLimit(input.trimmingCharacters(in: .whitespacesAndNewlines))
+        let normalized = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleaned = inputKind == .deviceName ? trimToByteLimit(normalized) : normalized
         guard !cleaned.isEmpty else { return nil }
 
-        let transportName = DeviceNameBridgeV3.shared.applyPrefixForTransport(rawName: cleaned)
+        let transportText = inputKind == .deviceName
+            ? DeviceNameBridgeV3.shared.applyPrefixForTransport(rawName: cleaned)
+            : cleaned
         guard let data = WidgetCommandBridgeV3.shared.buildSetText(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
             deviceAddress: Int32(binding.deviceAddress),
-            text: transportName
+            text: transportText
         ) else { return nil }
 
-        sendBytes(data)
-        return transportName
+        let readAfterSet = inputKind == .serialNumber
+            ? WidgetCommandBridgeV3.shared.buildReadRequest(
+                parameterID: Int32(binding.parameterID),
+                dataCode: Int32(binding.dataCode)
+            )
+            : nil
+        sendBytes(data) {
+            guard let readAfterSet else { return }
+            self.sendBytes(readAfterSet)
+        }
+        return transportText
     }
 
-    func prefillDisplayName(storedFullName: String?) -> String {
-        DeviceNameBridgeV3.shared.displayName(deviceName: storedFullName)
+    func prefillText(storedFullName: String?) -> String {
+        switch inputKind {
+        case .deviceName:
+            return DeviceNameBridgeV3.shared.displayName(deviceName: storedFullName)
+        case .serialNumber:
+            guard let binding else { return "" }
+            return WidgetStateBridgeV3.shared.getCurrent(
+                addressDevice: Int32(binding.deviceAddress),
+                parameterID: Int32(binding.parameterID),
+                dataCode: Int32(binding.dataCode)
+            )?.serializedValue ?? ""
+        case .generic:
+            return ""
+        }
     }
 
     func trimToByteLimit(_ value: String) -> String {
-        trimToUtf8ByteLimit(value, maxBytes: Self.maxInputBytesWithoutPrefix)
+        guard inputKind == .deviceName else { return value }
+        return trimToUtf8ByteLimit(value, maxBytes: Self.maxDeviceNameBytesWithoutPrefix)
     }
 
     func isWithinLimit(_ value: String) -> Bool {
-        value.utf8.count <= Self.maxInputBytesWithoutPrefix
+        inputKind != .deviceName || value.utf8.count <= Self.maxDeviceNameBytesWithoutPrefix
     }
 
     private func trimToUtf8ByteLimit(_ value: String, maxBytes: Int) -> String {
@@ -73,13 +113,13 @@ extension TextInputListItemViewModelV3 {
         return result
     }
 
-    private func sendBytes(_ data: KotlinByteArray) {
+    private func sendBytes(_ data: KotlinByteArray, onSent: @escaping () -> Void = {}) {
         let gatt = SampleGattAttributes()
         bleManager.sendBytesKmm(
             data: data,
-            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            command: gatt.SERIALPORTCHAR_UUID,
             typeCommand: gatt.WRITE,
-            onChunkSent: {}
+            onChunkSent: onSent
         )
     }
 

@@ -101,6 +101,7 @@ class BLEParserV3(
     private var gameControlPacketSeq = 0L
 
     private companion object {
+        const val SETTINGS_PROFILE_WIDGET_ENABLED = false
         const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val FINGER_POSITION_LOG_TAG = "V3_FINGER_POSITION"
         const val TELEMETRY_EXPECTED_SIZE = 158
@@ -478,6 +479,13 @@ class BLEParserV3(
                 val isGood = result == PreferenceKeysUbi4.CrcResult.GOOD_CRC_FIRMWARE
                 FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
                 FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
+            }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_CAPS.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_BEGIN.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_STATUS.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.DFU_V2_ABORT.number.toInt() -> {
+                FirmwareInfoState.dfuV2ResponseFlow.tryEmit(payload.toByteArray())
             }
         }
     }
@@ -894,21 +902,24 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
             )
         ), text(SharedRes.strings.ubi4_v3_widget_prosthesis_work_mode))))
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                textList(
-                    SharedRes.strings.ubi4_v3_settings_profile_1,
-                    SharedRes.strings.ubi4_v3_settings_profile_add
+        if (SETTINGS_PROFILE_WIDGET_ENABLED) {
+            baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+                dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                    textList(
+                        SharedRes.strings.ubi4_v3_settings_profile_1,
+                        SharedRes.strings.ubi4_v3_settings_profile_add
+                    ),
+                    0
                 ),
-                0
-            ),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-                )
-            ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
+                baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                    display = 2,
+                    widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                    parameterInfoSet = mutableSetOf(
+                        ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+                    )
+                ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))
+            ))
+        }
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
                 textList(

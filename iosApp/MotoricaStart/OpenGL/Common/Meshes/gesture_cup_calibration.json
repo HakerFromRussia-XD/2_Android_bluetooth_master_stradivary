@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "status": "approved-position",
+  "capturedOn": "2026-08-21T12:58:00+03:00",
+  "source": "Xcode GestureKeyEditor console",
+  "hand": {
+    "rotationMatrixRows": [
+      [-0.96502, -0.24496, 0.09287],
+      [-0.10436, 0.03430, -0.99390],
+      [0.24028, -0.96886, -0.05867]
+    ],
+    "scale": 1.291,
+    "position": [-18.58, -36.74]
+  },
+  "cup": {
+    "position": [-1.42, -30.17, -30.28],
+    "rotationDegrees": [-92.67, 143.44, 7.71],
+    "scale": 1.154
+  }
+}

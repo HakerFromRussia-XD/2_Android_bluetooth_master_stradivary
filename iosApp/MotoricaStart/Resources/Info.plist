@@ -34,6 +34,8 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>MotoricaGameControlAppGroup</key>
+	<string>$(MOTORICA_GAME_CONTROL_APP_GROUP)</string>
 	<key>MotoricaGamesManifestURL</key>
 	<string>https://disk.yandex.ru/d/mVraW6DZ_rDDtg?path=/manifest.json</string>
 	<key>NSAppTransportSecurity</key>
@@ -42,7 +44,7 @@
 		<true/>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Приложение использует Bluetooth для сканирования и подключения к устройствам UBI4.</string>
+	<string>Приложение использует Bluetooth для сканирования и подключения к бионическим кистям.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Нужно для связи с устройствами UBI4.</string>
 	<key>UIAppFonts</key>
@@ -62,7 +64,7 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>MotoricaLaunchV2</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

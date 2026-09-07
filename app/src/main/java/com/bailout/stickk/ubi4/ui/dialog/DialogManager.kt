@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +13,15 @@ import android.widget.ProgressBar
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.ubi4.ble.AndroidFirmwareCommandSender
 import com.bailout.stickk.ubi4.ble.AndroidFirmwareUpdateLogger
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateCoordinator
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateProtocol
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateResult
+import com.bailout.stickk.ubi4.firmware.LegacyV3FirmwareUpdater
+import com.bailout.stickk.ubi4.firmware.PlatformFirmwareBulkTransport
 import com.bailout.stickk.ubi4.firmware.Ubi4FirmwareUpdater
 import com.bailout.stickk.ubi4.firmware.V3FirmwareUpdater
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
@@ -26,9 +30,11 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderB
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 
 class DialogManager(
     private val context: Context,
@@ -42,6 +48,11 @@ class DialogManager(
             logger = AndroidFirmwareUpdateLogger
         ),
         v3Updater = V3FirmwareUpdater(
+            sender = AndroidFirmwareCommandSender,
+            bulkTransport = PlatformFirmwareBulkTransport,
+            logger = AndroidFirmwareUpdateLogger
+        ),
+        legacyV3Updater = LegacyV3FirmwareUpdater(
             sender = AndroidFirmwareCommandSender,
             logger = AndroidFirmwareUpdateLogger
         ),
@@ -109,11 +120,18 @@ class DialogManager(
                 val progressBar = showProgressBarDialog()
 
                 viewLifecycleOwner.lifecycleScope.launch {
+                    val startedAt = SystemClock.elapsedRealtime()
+                    var phase = "prepare_notifications"
+                    var progressBucket = -1
+                    Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                        "attempt START id=$startedAt addr=$addr file=${fileItem.file.name} interface_v3=${UiState.isInterfaceV3Activated}")
                     val timeoutJob = launch {
                         var last = progressBar.progress
                         while (isActive) {
                             delay(30_000)
                             if (progressBar.progress == last && progressBar.progress < 100) {
+                                Log.w(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                    "attempt STALLED id=$startedAt phase=$phase progress=$last elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
                                 showWarningLoadingDialog()
                                 break
                             }
@@ -121,28 +139,73 @@ class DialogManager(
                         }
                     }
                     try {
+                        val bleController = main?.getBLEController()
+                        bleController?.setFirmwareUpdateSessionActive(true)
                         val protocol = if (UiState.isInterfaceV3Activated) {
                             FirmwareUpdateProtocol.V3
                         } else {
                             FirmwareUpdateProtocol.UBI4
                         }
+                        if (protocol == FirmwareUpdateProtocol.V3) {
+                            check(bleController?.prepareFirmwareSessionNotifications() == true) {
+                                "Не удалось включить уведомления канала прошивки"
+                            }
+                        }
+                        phase = "read_package"
                         val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(fileItem.file)
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt PACKAGE id=$startedAt protocol=$protocol bytes=${firmwarePackage.payload.size} declared_size=${firmwarePackage.descriptorFirmwareSize} crc=${firmwarePackage.descriptorFirmwareCrc.toString(16)} descriptor=" +
+                                firmwarePackage.descriptor.joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') })
+                        phase = "coordinator"
+                        if (BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
+                            check(protocol == FirmwareUpdateProtocol.V3 && addr == 0) {
+                                "Эта диагностическая сборка проверяет только вход FAM в boot"
+                            }
+                            phase = "boot_entry_probe"
+                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                "entry_probe START id=$startedAt; coordinator/BEGIN/erase disabled for this bench build")
+                            LegacyV3FirmwareUpdater(
+                                sender = AndroidFirmwareCommandSender,
+                                logger = AndroidFirmwareUpdateLogger
+                            ).ensureBootloader(addr)
+                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                "entry_probe VERIFIED id=$startedAt elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}; no firmware transfer")
+                            progressDialog?.dismiss()
+                            main?.showToast("Вход в boot подтверждён. Проверка завершена без передачи прошивки")
+                            return@launch
+                        }
                         val result = firmwareUpdateCoordinator.runFirmwareUpdate(
                             protocol = protocol,
                             addr = addr,
                             firmware = firmwarePackage
                         ) { offset, total ->
+                            val bucket = if (total <= 0) 0 else (offset.toLong() * 100 / total).toInt() / 5
+                            if (bucket != progressBucket) {
+                                progressBucket = bucket
+                                Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                                    "attempt PROGRESS id=$startedAt offset=$offset total=$total elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
+                            }
                             updateProgress(progressBar, offset, total)
                         }
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt RESULT id=$startedAt result=$result")
+                        phase = "handle_result"
                         if (!handleFirmwareUpdateResult(result)) {
                             return@launch
                         }
 
+                        phase = "success"
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt SUCCESS id=$startedAt elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}")
                         progressDialog?.dismiss()
                         main?.showToast(context.getString(SharedRes.strings.firmware_update_success.resourceId))
                         currentDialog?.dismiss()
                         onConfirm(fileItem)
+                    } catch (e: CancellationException) {
+                        Log.w(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt CANCELLED id=$startedAt phase=$phase", e)
+                        throw e
                     } catch (e: Exception) {
+                        Log.e(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                            "attempt FAILED id=$startedAt phase=$phase elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}", e)
                         Log.e("FW_FLOW", "Firmware update failed", e)
                         progressDialog?.dismiss()
                         main?.showToast(
@@ -152,10 +215,41 @@ class DialogManager(
                             )
                         )
                     } finally {
+                        Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG, "attempt END id=$startedAt phase=$phase")
+                        main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
                         timeoutJob.cancel()
                     }
                 }
             }
+    }
+
+    fun runV3FirmwareUpdateForDebug(file: File) {
+        check(!BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
+            "Full-update autorun is not permitted in the boot-entry probe build"
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            Log.i("DFU_V2_TRACE", "debug_autorun start file=${file.name}")
+            try {
+                main?.getBLEController()?.setFirmwareUpdateSessionActive(true)
+                val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(file)
+                val result = firmwareUpdateCoordinator.runFirmwareUpdate(
+                    protocol = FirmwareUpdateProtocol.V3,
+                    addr = 0,
+                    firmware = firmwarePackage
+                ) { offset, total ->
+                    val percent = if (total <= 0) 0 else (offset * 100 / total).coerceIn(0, 100)
+                    Log.i(
+                        "DFU_V2_TRACE",
+                        "debug_autorun progress=$percent offset=$offset total=$total"
+                    )
+                }
+                Log.i("DFU_V2_TRACE", "debug_autorun result=$result")
+            } catch (error: Throwable) {
+                Log.e("DFU_V2_TRACE", "debug_autorun failed", error)
+            } finally {
+                main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
+            }
+        }
     }
 
     private fun handleFirmwareUpdateResult(result: FirmwareUpdateResult): Boolean =

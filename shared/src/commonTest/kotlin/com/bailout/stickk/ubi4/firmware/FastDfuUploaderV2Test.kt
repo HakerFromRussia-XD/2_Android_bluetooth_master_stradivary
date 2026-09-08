@@ -188,6 +188,116 @@ class FastDfuUploaderV2Test {
     }
 }
 
+class GuiFirmwareUpdaterTest {
+    @Test
+    fun `GUI uses addressed packets and bridge CAPS without changing BLE parameters`() = runTest {
+        val v2 = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+        val replies = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
+        val wire = GuiTestTransport(v2, replies)
+        val image = guiImage()
+        val result = GuiFirmwareUpdater(wire, replies = replies, v2Replies = v2).update(image) { _, _ -> }
+        assertEquals(FirmwareUpdateResult.Success, result)
+        assertEquals(image.payload.toList(), wire.bulk.received.toList())
+        assertEquals(0, wire.highPerformanceCalls)
+        assertEquals(0, wire.bulk.reconnects)
+        assertTrue(wire.mainProbesAfterCrc > 0)
+        assertTrue(wire.opcodes.indexOf(3) < wire.opcodes.indexOf(0x20))
+    }
+
+    @Test
+    fun `GUI waits for single-bank erase on the existing BLE connection`() = runTest {
+        val v2 = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+        val replies = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
+        val wire = GuiTestTransport(v2, replies, statusDelayMs = 5500)
+        assertEquals(FirmwareUpdateResult.Success,
+            GuiFirmwareUpdater(wire, replies = replies, v2Replies = v2).update(guiImage()) { _, _ -> })
+        assertEquals(0, wire.bulk.reconnects)
+    }
+
+    @Test
+    fun `GUI bad CRC cannot become success even if main is reachable`() = runTest {
+        val v2 = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+        val replies = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
+        val wire = GuiTestTransport(v2, replies, goodCrc = false)
+        assertEquals(FirmwareUpdateResult.CrcMismatch,
+            GuiFirmwareUpdater(wire, replies = replies, v2Replies = v2).update(guiImage()) { _, _ -> })
+        assertEquals(0, wire.mainProbesAfterCrc)
+    }
+
+    @Test
+    fun `GUI still in v2 boot after good CRC is not success`() = runTest {
+        val v2 = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+        val replies = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
+        val wire = GuiTestTransport(v2, replies, startsMain = false)
+        var rejected = false
+        try { GuiFirmwareUpdater(wire, replies = replies, v2Replies = v2).update(guiImage()) { _, _ -> } }
+        catch (e: IllegalStateException) { rejected = e.message == "GUI CRC passed but main did not start" }
+        assertTrue(rejected)
+    }
+
+    @Test
+    fun `GUI v1 does not send CAPS or BEGIN`() = runTest {
+        val v2 = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+        val replies = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
+        val wire = GuiTestTransport(v2, replies, bootType = 2)
+        assertEquals(null, GuiFirmwareUpdater(wire, replies = replies, v2Replies = v2).update(guiImage()) { _, _ -> })
+        assertFalse(wire.opcodes.contains(0x20))
+        assertFalse(wire.opcodes.contains(0x21))
+    }
+
+    private fun guiImage(): FirmwareUpdatePackage {
+        val payload = ByteArray(65) { it.toByte() }
+        return FirmwareUpdatePackage("gui.bin", ByteArray(120), payload, 65,
+            MotoricaCrc32.calculate(payload), "test")
+    }
+}
+
+private class GuiTestTransport(
+    v2: MutableSharedFlow<ByteArray>,
+    private val replies: MutableSharedFlow<Pair<Int, ByteArray>>,
+    private val goodCrc: Boolean = true,
+    private val startsMain: Boolean = true,
+    private val bootType: Int = 3,
+    private var statusDelayMs: Long = 0,
+    val bulk: FakeBulkTransport = FakeBulkTransport(v2)
+) : FirmwareBulkTransport by bulk {
+    private var type = 1
+    private var completed = false
+    var mainProbesAfterCrc = 0
+    var highPerformanceCalls = 0
+    val opcodes = mutableListOf<Int>()
+    override suspend fun setHighPerformanceMode() { ++highPerformanceCalls }
+    private fun assertGuiHeader(packet: ByteArray) {
+        assertEquals(9, packet[0].toInt() and 0x7f)
+        assertEquals(com.bailout.stickk.ubi4.ble.BLECommandsV3.calculationCRCRange(packet, 0, 4), packet[4].toInt() and 0xff)
+        assertEquals(9, packet[if (packet[0].toInt() and 0x80 != 0) 6 else 3].toInt())
+    }
+    override suspend fun writeWithoutResponse(packet: ByteArray): Boolean {
+        assertGuiHeader(packet)
+        return bulk.writeWithoutResponse(packet)
+    }
+    override suspend fun writeControl(packet: ByteArray) {
+        assertGuiHeader(packet)
+        val opcode = packet.subcommandForTest()
+        opcodes += opcode
+        if (opcode >= 0x20) {
+            if (opcode == 0x23 && statusDelayMs > 0) {
+                val wait = statusDelayMs; statusDelayMs = 0
+                kotlinx.coroutines.delay(wait)
+            }
+            bulk.writeControl(packet); return
+        }
+        val status = when (opcode) {
+            1 -> { if (completed) ++mainProbesAfterCrc; type }
+            2 -> { type = bootType; return }
+            3, 7 -> 1
+            8 -> { completed = true; if (startsMain) type = 1; if (goodCrc) 0x2e else 0x2f }
+            else -> error("Unexpected GUI opcode $opcode")
+        }
+        replies.emit(0 to byteArrayOf(opcode.toByte(), status.toByte()))
+    }
+}
+
 private class FakeBulkTransport(
     private val responses: MutableSharedFlow<ByteArray>,
     private val busyOnce: Boolean = false,

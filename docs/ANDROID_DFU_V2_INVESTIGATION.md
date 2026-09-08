@@ -322,3 +322,51 @@
 - Это успешный вход MAIN→BOOT на том же APK после пользовательского перезапуска, НЕ результат нового исправления алгоритма. Ожидание сообщения о разрыве GATT после JUMP заняло около 5.39 s; точное время аппаратного reset из этого лога неизвестно. Успешность полного пайплайна v2 не проверялась.
 - Read-only SWD-срез в ходе этих сообщений показал VTOR=0, ядро работает, обе Flash-таблицы уже по 17 слотов с BootloaderStart=1 (`metadata-after-user-restart.bin`). Срез снят ПОСЛЕ самостоятельного запуска Android пользователем; его нельзя приписывать состоянию непосредственно после перезапуска ДО нового JUMP. Значения по RAM-адресам main в этом срезе нельзя интерпретировать как состояние сохранения main при работающем boot.
 - Вывод: перезапуск позволил следующему Android-входу успешно завершиться. Среза состояния сохранения между перезапуском и новым JUMP нет; механизм устранения прежнего зависания пока не доказан. Повторное восстановление сейчас не запрашивается.
+
+## GUI-01 — Android GUI DFU through the verified FAM bridge (2026-09-08)
+
+User requested GUI firmware update from Android after the macOS Dashboard
+path reached 26.95–27.22 kB/s on the FAM/GUI stand. Use the current workspace
+checkout `2_Android_bluetooth_master_stradivary`, existing branch
+`kmm_ubi4_integrationV3`, base `4fd7e0190`. The older `/Documents/denis/`
+checkout was inspected first; the initial GUI patch was transferred here
+and removed from that older checkout. Its pre-existing edits remain intact.
+
+New evidence and scope:
+- Installed APK was backed up as `installed_before.apk`, SHA-256
+  f60828dab4c219db61a0c84467cd136f359deaf9819f8bad150edf2dc75da4b9.
+  Its DEX includes BOOTLOADER_V2 and preserve_link_parameters. Keep the newer
+  source carrying these FAM fixes and the collection-name repairs.
+- FastDfuUploaderV2 excludes every address except zero. GUI requires address 9
+  in both the UBI header and payload, and a real CAPS request to activate
+  the fast bridge. FAM's existing fixed-capabilities/status-3 path is retained.
+- GUI reboots behind FAM. A separate GUI control path keeps BLE connected,
+  accepts explicit raw boot status 2/3, and requires GOOD_CRC plus fresh raw
+  MAIN_APP=1; no default-enum mapping may imply success.
+- GUI STATUS can be delayed by the ~5.05 s single-bank erase. Its request
+  waits up to 10 s without imposing this timeout on FAM.
+- GUI preserves negotiated BLE parameters. This is not a retry of P01/P02:
+  the existing FAM behavior and shared boot-entry implementation are unchanged.
+- Only an explicit GUI v1 status selects legacy before CAPS/BEGIN. Failed
+  GUI v2 attempts are not silently reported as successful v1 uploads.
+
+Validation pending: unit tests, APK build and signature check, installation,
+GUI address-9 CAPS/BEGIN/DATA/CRC/MAIN evidence and timing on Android. No
+Android hardware DFU success is claimed at this stage. Native GUI/FAM
+firmware and Dashboard are unchanged by this Android task.
+
+Android validation, first pass:
+- Shared production Kotlin compiled. The unfiltered test build stopped at
+  pre-existing `BindingGroupV3Test.kt:99` (`BINDING_GROUP_FLOW` unresolved).
+- A temporary Gradle init script excluded only that unrelated source.
+  `FastDfuUploaderV2Test` (11) and `GuiFirmwareUpdaterTest` (5) passed,
+  zero failures/errors. This does not claim a passing full test suite.
+- Added an explicitly opt-in Android instrumentation test which invokes the
+  production coordinator at address 9. It only accepts the verified 449468-byte
+  GUI image SHA-256 7440cedfeb03fda5510f80fc41184ea7a7570a19f7df9493b20d9a48764908f1.
+  A separate scan method is read-only; flashing requires explicit runner
+  arguments and an exact BLE MAC. Hardware execution is still pending.
+- Installed APK certificate SHA-256 is
+  d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8.
+  Local release signing is configured. Preserve package data using an update
+  with the matching certificate, never uninstall to bypass a mismatch.

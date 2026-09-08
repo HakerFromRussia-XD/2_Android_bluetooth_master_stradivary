@@ -256,6 +256,13 @@ class V3FirmwareUpdater(
         }
     }
 
+    suspend fun updateGuiV2(
+        firmware: FirmwareUpdatePackage,
+        onProgress: (Int, Int) -> Unit
+    ): FirmwareUpdateResult? = GuiFirmwareUpdater(
+        requireNotNull(bulkTransport) { "GUI DFU requires BLE bulk transport" }, logger
+    ).update(firmware, onProgress)
+
     suspend fun supportsFastDfuTransport(): Boolean =
         bulkTransport?.supportsWriteWithoutResponse() == true
 
@@ -733,6 +740,12 @@ class FirmwareUpdateCoordinator(
     ): FirmwareUpdateResult {
         if (DfuDiagnostics.forceLegacy) {
             return runLegacyV3UpdateExactlyLikeMain(addr, firmware, onProgress)
+        }
+
+        if (addr == 9) {
+            val startedAt = currentTimeMillis()
+            return v3Updater.updateGuiV2(firmware, onProgress)
+                ?: runLegacyV3UpdateFromReadyBootloader(addr, firmware, onProgress, startedAt)
         }
 
         val totalStartedAt = currentTimeMillis()

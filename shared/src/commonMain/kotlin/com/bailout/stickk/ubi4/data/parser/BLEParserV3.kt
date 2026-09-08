@@ -444,6 +444,7 @@ class BLEParserV3(
         val subcommand = payload.u8(0)
         val status = payload.getOrZero(1)
         val commandStatus = subcommand to status
+        FirmwareInfoState.addressedFirmwareResponseFlow.tryEmit(packet.address to payload.toByteArray())
 
         platformLog(
             "FW_FLOW_V3",

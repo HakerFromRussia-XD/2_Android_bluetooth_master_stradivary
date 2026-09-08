@@ -7,12 +7,14 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -51,6 +53,7 @@ import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
+import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -99,6 +102,37 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var remoteFirmwareCatalog: List<RemoteFirmwareFile>? = null
     private var firmwareCatalogJob: Job? = null
     private var firmwareDownloadJob: Job? = null
+    private var pendingGuiBoard: BootloaderBoardItemUBI4? = null
+    private val chooseGuiZip = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val board = pendingGuiBoard
+        pendingGuiBoard = null
+        if (uri == null || board == null || _binding == null) return@registerForActivityResult
+        val context = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val item = withContext(Dispatchers.IO) {
+                    val resolver = context.contentResolver
+                    val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                        ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+                        ?.substringAfterLast('/')?.substringAfterLast('\\') ?: "gui-firmware.zip"
+                    require(name.endsWith(".zip", ignoreCase = true))
+                    val directory = java.io.File(context.cacheDir, "gui_firmware_import").apply { mkdirs() }
+                    val file = java.io.File(directory, name)
+                    requireNotNull(resolver.openInputStream(uri)).use { input ->
+                        file.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    FirmwareUpdateUtils.readGuiMainFirmwarePackage(file)
+                    FirmwareFileItem(name = name, file = file)
+                }
+                main?.dialogManager?.showConfirmSendFirmwareFileDialog(board, item) {}
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Log.w(FIRMWARE_LOG_TAG, "Cannot import GUI main ZIP", error)
+                Toast.makeText(context, R.string.gui_firmware_zip_invalid, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -678,6 +712,23 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
+        if (boardItem.deviceAddress != 9) {
+            showCatalogFirmwareFilesDialog(boardItem)
+            return
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_firmware_file)
+            .setItems(arrayOf(getString(R.string.firmware_source_catalog), getString(R.string.firmware_source_zip))) { _, choice ->
+                if (choice == 0) showCatalogFirmwareFilesDialog(boardItem)
+                else {
+                    pendingGuiBoard = boardItem.copy()
+                    chooseGuiZip.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream"))
+                }
+            }
+            .show()
+    }
+
+    private fun showCatalogFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
         val catalog = remoteFirmwareCatalog
         if (catalog == null) {
             showFirmwareCatalogUnavailableToast()

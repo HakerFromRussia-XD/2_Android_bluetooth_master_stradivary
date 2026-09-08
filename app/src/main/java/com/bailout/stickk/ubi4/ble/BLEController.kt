@@ -69,6 +69,11 @@ import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -276,7 +281,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        val bootloaderV2Transport =
+                        val supportsBulkWrite =
                             mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
                         if (firmwareUpdateSessionActive && !dfuReconnectActive) {
                             main.lifecycleScope.launch {
@@ -287,8 +292,21 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                         "generation=$gattServicesGeneration"
                                 )
                             }
-                        } else if (!dfuReconnectActive && !bootloaderV2Transport) {
+                        } else if (!dfuReconnectActive && (!supportsBulkWrite || UiState.isInterfaceV3Activated)) {
                             main.lifecycleScope.launch {
+                            // FAM main also exposes WWR to bridge GUI DFU. Read its actual mode.
+                            if (UiState.isInterfaceV3Activated && supportsBulkWrite) {
+                                val programType = readConnectedProgramTypeV3()
+                                if (dfuReconnectActive || firmwareUpdateSessionActive) return@launch
+                                Log.i(DFU_TRACE_TAG, "controller startup program_type=$programType bulk_write=true")
+                                if (programType != 1) {
+                                    UiState.startupInProgress.value = false
+                                    if (programType !in setOf(2, 3)) {
+                                        main.showToast("Не удалось определить режим устройства. Подключитесь повторно")
+                                    }
+                                    return@launch
+                                }
+                            }
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
@@ -312,7 +330,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 DFU_TRACE_TAG,
                                 "controller normal_init suppressed dfu_active=$dfuReconnectActive " +
                                     "firmware_session=$firmwareUpdateSessionActive " +
-                                    "bootloader_v2_transport=$bootloaderV2Transport"
+                                    "bulk_write=$supportsBulkWrite"
                             )
                         }
                     }
@@ -395,6 +413,21 @@ class BLEController(private val bleManager: BleManagerKmm) {
         )
         Log.i(DFU_TRACE_TAG, "firmware_session serial_notify_ready=$ready generation=$gattServicesGeneration")
         return ready
+    }
+
+    private suspend fun readConnectedProgramTypeV3(): Int? = coroutineScope {
+        if (!prepareFirmwareSessionNotifications()) return@coroutineScope null
+        val response = async(start = CoroutineStart.UNDISPATCHED) {
+            withTimeoutOrNull(1500L) {
+                FirmwareInfoState.addressedFirmwareResponseFlow.first { (address, bytes) ->
+                    address == 0 && bytes.size >= 2 && bytes[0].toInt() == 1
+                }.second[1].toInt() and 0xFF
+            }
+        }
+        bleManager.sendBytesKmm(
+            BLECommandsV3.requestRunProgramTypeFw(0), SERIALPORTCHAR_UUID, WRITE
+        ) {}
+        response.await()
     }
     private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()

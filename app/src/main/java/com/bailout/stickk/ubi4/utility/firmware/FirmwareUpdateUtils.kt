@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.utility.firmware
 import android.util.Log
 import com.bailout.stickk.ubi4.firmware.FirmwareInfoDescriptorBuilder
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdatePackage
+import com.bailout.stickk.ubi4.firmware.MotoricaCrc32
 import java.io.File
 import java.io.InputStreamReader
 import java.util.Properties
@@ -33,6 +34,19 @@ object FirmwareUpdateUtils {
             descriptorFirmwareCrc = descriptor.firmwareCrc,
             localVersionString = descriptor.localVersionString
         )
+    }
+
+    fun readGuiMainFirmwarePackage(zipFile: File): FirmwareUpdatePackage {
+        val ini = readIniProperties(zipFile)
+        require(ini.getProperty("BoardCode")?.trim()?.toIntOrNull() == 6 &&
+            ini.getProperty("FWType")?.trim()?.toIntOrNull() == 0) {
+            "Select GUI main firmware, not a bootloader or another board"
+        }
+        return readFirmwarePackage(zipFile).also {
+            require(it.payload.isNotEmpty() && MotoricaCrc32.calculate(it.payload) == it.descriptorFirmwareCrc) {
+                "GUI firmware CRC mismatch"
+            }
+        }
     }
 
     fun readFirmwareBytes(zipFile: File): ByteArray =

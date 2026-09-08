@@ -370,3 +370,62 @@ Android validation, first pass:
   d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8.
   Local release signing is configured. Preserve package data using an update
   with the matching certificate, never uninstall to bypass a mismatch.
+
+GUI-01 synchronization regression and scope correction:
+- User observed endless startup synchronization after the signed debug APK
+  was installed. No Android GUI firmware transfer had started.
+- The normal startup code treated SerialPort WWR as proof of bootloader v2
+  and skipped initialization. FAM main ea6f9dd now exposes WRITE | WWR | NOTIFY
+  to bridge GUI v2, so that discriminator is invalid for this firmware pair.
+- Replaced only the WWR-based startup decision: query raw FAM program type
+  after enabling notifications, initialize normally on explicit MAIN_APP=1,
+  and preserve boot mode on 2/3. No-response shows a connection error rather
+  than an indefinite synchronization overlay. No native firmware changes.
+- The original APK was restored with update-in-place; pulled-back SHA-256
+  matches f60828dab4c219db61a0c84467cd136f359deaf9819f8bad150edf2dc75da4b9.
+- User requires minimal changes in the main app, no test builds on the phone,
+  and no push before checks. Removed the separate instrumentation source;
+  subsequent delivery must use the normal signed release build and UI flow.
+- Commit aa5b535fa remains local. Combined push was denied by approval review
+  because its GitHub destination was unconfirmed; the Gitea-only attempt
+  failed because the configured repository path was unavailable. Neither
+  destination received this commit. No further pushes before validation.
+- Hardware fast GUI DFU and the startup correction are still unverified.
+
+GUI-01 normal release and local ZIP selection:
+- Signed ordinary release APK installed with update-in-place. No debuggable or
+  testOnly manifest flags. App opened its normal Sensors screen without the
+  synchronization overlay; account UI showed FAM 0.2.3 and GUI 0.5.2.
+  This UI result is not yet proof of a complete GUI DFU transfer.
+- The app catalog reported unavailable. Read-only public API checks from Mac
+  returned HTTP 200; GUI folder contains only 0.4.4 and 0.4.6, not the
+  verified 0.5.2 image. No device firmware was downgraded for this test.
+- User explicitly approved adding local ZIP selection in the main app.
+  Only GUI gets a source chooser (catalog or Android document picker); other
+  boards keep their existing flow. The imported ZIP is checked for BoardCode 6,
+  FWType 0 and payload CRC before the existing confirmation dialog.
+- The verified GUI_Module_v0.5.2+1_09.zip is in phone Downloads. The ordinary
+  release with this picker is being built; hardware DFU remains pending.
+
+GUI-01 first verified production-app cycle, 2026-09-08 22:07:52–22:08:26:
+- Normal signed release APK with local ZIP picker, SHA-256
+  fdc5a275be7c973be1f113d2e7eeb7ad16d8ae38267ad81b048ea824456579da.
+- Android phone dcbf845e, FAM BLE 00:80:E1:27:42:FC, GUI address 9.
+- Startup log: serial_wwr=true, MTU=512, explicit program_type=1, normal
+  UI initialization completed. This directly exercises the startup correction.
+- Selected GUI_Module_v0.5.2+1_09.zip through the regular document picker,
+  then the existing confirmation dialog. The production coordinator handled
+  mode 1 -> 3, CHECK, CAPS (maxFrame 245/window 8), BEGIN, DATA and finalization.
+- Session 4175671842: 2007 DATA frames / 2007 ACKs, all 449468 bytes committed.
+  Raw COMPLETE reply 0003082eae (GOOD_CRC) followed by a fresh GUI GET
+  090301092f and reply 000301017e (MAIN_APP). UI result Success.
+- Total 33375 ms; erase-to-ready 5172 ms; READY-to-upload-complete 26771 ms,
+  16789 bytes/s. No BLE reconnect or response timeout during DFU.
+- Control Flash read BEFORE the Android cycle matched the verified GUI boot
+  and main; VTOR was 0x08007800. Phone and ST-Link then disappeared from USB
+  before the requested post-flash readback / second cycle. Those checks are
+  still pending, not counted as passed.
+- Evidence: diagnostics/android_gui_v2_20260908/verified-run1.log and
+  VERIFIED_RUN1.json in the parent Motorica LLC workspace. Log SHA-256
+  f1df70c3bb07b2b3bc870be275e6b864eb7d8b76946aaa3f96d44f00f50a4631.
+- No pushes after the user's restriction; all task commits remain local.

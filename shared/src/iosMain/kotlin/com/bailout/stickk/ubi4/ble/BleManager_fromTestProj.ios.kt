@@ -35,7 +35,6 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetC
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.synchronized
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride

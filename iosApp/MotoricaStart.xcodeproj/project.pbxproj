@@ -44,7 +44,7 @@
 		1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA2048F242F528E000C4B56 /* LoadingView.swift */; };
 		1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA5338C201E1FDE00747E55 /* AppDelegate.swift */; };
 		1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
-		1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */; };
+		1FA53397201E1FDE00747E55 /* MotoricaLaunchV2.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */; };
 		1FA533B2201EE2A500747E55 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533B1201EE2A500747E55 /* Widget.swift */; };
 		1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533D6201EF2B500747E55 /* AppDIContainer.swift */; };
 		1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533E1201EF5F700747E55 /* APIEndpoints.swift */; };
@@ -362,7 +362,7 @@
 		1FA53389201E1FDE00747E55 /* MotoricaStart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FA5338C201E1FDE00747E55 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1FA53393201E1FDE00747E55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MotoricaLaunchV2.storyboard; sourceTree = "<group>"; };
 		1FA53398201E1FDE00747E55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FA533B1201EE2A500747E55 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
@@ -382,7 +382,7 @@
 		1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModel.swift; sourceTree = "<group>"; };
 		1FEE31612218B17E00C160B9 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		1FEED0EF2023576A000F4EAA /* Alertable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertable.swift; sourceTree = "<group>"; };
-		1FF082B2239438D900876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		1FF082B2239438D900876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MotoricaLaunchV2.strings; sourceTree = "<group>"; };
 		1FF082B4239438DC00876A22 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FF082B6239438E000876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FF53EB323688893008D6CCC /* DataTransferError+ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataTransferError+ConnectionError.swift"; sourceTree = "<group>"; };
@@ -510,7 +510,7 @@
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
-		65F27E8F2E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		65F27E8F2E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MotoricaLaunchV2.strings; sourceTree = "<group>"; };
 		65F27E902E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		65F27E952E66046900AD5DFD /* CommandViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandViewCell.swift; sourceTree = "<group>"; };
 		65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandListItemViewModel.swift; sourceTree = "<group>"; };
@@ -554,7 +554,7 @@
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6FB559B71FA408288BC5EAD2 /* Quote.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Quote.swift; path = "test transition/Quote.swift"; sourceTree = "<group>"; };
 		73C6A1855E7FC46ACC049DE6 /* V3ModelResourceCache.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = V3ModelResourceCache.h; sourceTree = "<group>"; };
-		79AF3551241EA20A2DD72DE9 /* metal_color2.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = metal_color2.png; path = ../../app/src/main/res/drawable/metal_color2.png; sourceTree = "<group>"; };
+		79AF3551241EA20A2DD72DE9 /* metal_color2.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = metal_color2.png; path = ../../shared/src/androidMain/res/drawable/metal_color2.png; sourceTree = "<group>"; };
 		82D6FFF4B6BD526F6C047789 /* festh3_test11_gofra_1.v3def */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_1.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3def; sourceTree = "<group>"; };
 		85FAAAFDF6B1179BFF0ECE15 /* festh3_test11.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11.v3bin; sourceTree = "<group>"; };
 		8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedSettinsFesthViewController.swift; path = ViewControllers/Main/AdvancedSettinsFesthViewController.swift; sourceTree = "<group>"; };
@@ -592,7 +592,7 @@
 		C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_1.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3bin; sourceTree = "<group>"; };
 		CA3C711EEFACEFB5D00B737F /* V3ModelResources.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; path = V3ModelResources.hpp; sourceTree = "<group>"; };
 		CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = ScanDeviceNib.xib; sourceTree = "<group>"; };
-		CFA70B579034069F496D6406 /* gray.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = gray.png; path = ../../app/src/main/res/drawable/gray.png; sourceTree = "<group>"; };
+		CFA70B579034069F496D6406 /* gray.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = gray.png; path = ../../shared/src/androidMain/res/drawable/gray.png; sourceTree = "<group>"; };
 		D0F4CC8F3658582F1505CA07 /* festh3_test11_gofra_2.v3def */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_2.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_2.v3def; sourceTree = "<group>"; };
 		D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SensorsSettingsViewController.swift; sourceTree = "<group>"; };
 		D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncherAdapter.swift; sourceTree = "<group>"; };
@@ -858,7 +858,7 @@
 				1FF082B5239438DC00876A22 /* Localizable.strings */,
 				1FA53393201E1FDE00747E55 /* Assets.xcassets */,
 				1FA53398201E1FDE00747E55 /* Info.plist */,
-				1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */,
+				1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1796,7 +1796,7 @@
 				65EAF4A12EE8232500B3C49D /* select_vertex_shader.vsh in Resources */,
 				65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */,
 				65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */,
-				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
+				1FA53397201E1FDE00747E55 /* MotoricaLaunchV2.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
@@ -2127,14 +2127,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */ = {
+		1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				1FA53396201E1FDE00747E55 /* Base */,
 				1FF082B2239438D900876A22 /* es */,
 				65F27E8F2E658CD400AD5DFD /* ru */,
 			);
-			name = LaunchScreen.storyboard;
+			name = MotoricaLaunchV2.storyboard;
 			sourceTree = "<group>";
 		};
 		1FF082B5239438DC00876A22 /* Localizable.strings */ = {

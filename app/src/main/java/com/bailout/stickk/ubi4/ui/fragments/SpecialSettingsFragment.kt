@@ -6,23 +6,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.doOnNextLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsSection
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.DataFactoryV3SpecialSettingsWidgetsSource
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetMapper
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
-
+    override val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
     private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
     private val binding get() = requireNotNull(_binding)
     private val mDataFactory: DataFactory = DataFactory()
@@ -30,11 +44,16 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var previousMobileSettings: Boolean? = null
     private var isMobileSettings = false
     private var selectorIndicatorAnimator: ObjectAnimator? = null
+    private var v3SpecialSettingsViewModel: V3SpecialSettingsViewModel? = null
+    private var v3SpecialSettingsStateJob: Job? = null
+    private val v3WidgetMapper = V3SpecialSettingsWidgetMapper()
+    private var renderedV3Widgets: List<V3SpecialSettingsWidget>? = null
+    private var pendingV3Render: Runnable? = null
 
 
     override fun onResume() {
         super.onResume()
-        updateFlow.tryEmit(0)
+        if (!UiState.isInterfaceV3Activated) updateFlow.tryEmit(0)
     }
 
     override fun onCreateView(
@@ -51,51 +70,110 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         previousMobileSettings = null
+        renderedV3Widgets = null
         isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
         activeSettingsFragmentFilterFlow.value = if (isMobileSettings) 2 else 1
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
-        widgetListUpdater()
+        bindV3SpecialSettings()
+        if (v3SpecialSettingsViewModel == null) widgetListUpdater()
 
         binding.prostheticSettingsBtn.setOnClickListener {
-            main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
-            activeSettingsFragmentFilterFlow.value = 1
-            if (isMobileSettings) {
-                isMobileSettings = false
-                updateUI()
-            }
+            selectSettingsSection(isMobile = false)
         }
 
 
         binding.mobileSettingsBtn.setOnClickListener {
-            main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, true)
-            activeSettingsFragmentFilterFlow.value = 2
-            if (!isMobileSettings) {
-                isMobileSettings = true
-                updateUI()
-            }
+            selectSettingsSection(isMobile = true)
         }
 
 
-        binding.settingsSelectorContainer.post { updateUI(animateSelector = false) }
+        if (v3SpecialSettingsViewModel == null) {
+            binding.settingsSelectorContainer.post {
+                if (_binding != null) updateUI(animateSelector = false)
+            }
+        }
     }
 
+    private fun bindV3SpecialSettings() {
+        if (!UiState.isInterfaceV3Activated) return
+        val repository = createV3DeviceSettingsRepository()
+        val viewModel = ViewModelProvider(
+            this,
+            V3SpecialSettingsViewModelFactory(
+                repository, DataFactoryV3SpecialSettingsWidgetsSource(), repository,
+            ),
+        )[V3SpecialSettingsViewModel::class.java]
+        v3SpecialSettingsViewModel = viewModel
+        viewModel.onAction(V3SpecialSettingsAction.SettingsSectionSelected(currentSettingsSection()))
+        val owner = viewLifecycleOwner
+        v3SpecialSettingsStateJob = owner.lifecycleScope.launch {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onAction(V3SpecialSettingsAction.ViewAttached)
+                try {
+                    viewModel.uiState.collect(::renderV3SpecialSettings)
+                } finally {
+                    viewModel.onAction(V3SpecialSettingsAction.ViewDetached)
+                }
+            }
+        }
+    }
 
-//    private fun updateUI() {
-//        binding.settingsRecyclerView.post {
-//            clearSwitcherCache()
-//            if (isMobileSettings) {
-//                adapterWidgets.swapData(mDataFactory.mobileWidgets())
-//            } else {
-//                adapterWidgets.swapData(mDataFactory.prepareData(display))
-//            }
-//            if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
-//                updateSelectorUI()
-//                previousMobileSettings = isMobileSettings
-//            }
-//        }
-//
-//    }
+    private fun currentSettingsSection() = if (isMobileSettings) {
+        V3SpecialSettingsSection.APPLICATION
+    } else {
+        V3SpecialSettingsSection.PROSTHESIS
+    }
+
+    private fun selectSettingsSection(isMobile: Boolean) {
+        main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, isMobile)
+        activeSettingsFragmentFilterFlow.value = if (isMobile) 2 else 1
+        val viewModel = v3SpecialSettingsViewModel
+        if (viewModel != null) {
+            val section = if (isMobile) V3SpecialSettingsSection.APPLICATION else V3SpecialSettingsSection.PROSTHESIS
+            viewModel.onAction(V3SpecialSettingsAction.SettingsSectionSelected(section))
+        } else if (isMobileSettings != isMobile) {
+            isMobileSettings = isMobile
+            updateUI()
+        }
+    }
+
+    override fun onV3SliderAction(action: V3SliderAction) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SliderAction(action))
+    }
+
+    override fun onV3ToggleSliderAction(action: V3ToggleSliderAction) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ToggleSliderAction(action))
+    }
+
+    private fun renderV3SpecialSettings(state: V3SpecialSettingsUiState) {
+        val currentBinding = _binding ?: return
+        val recyclerView = currentBinding.settingsRecyclerView
+        pendingV3Render?.let(recyclerView::removeCallbacks)
+        pendingV3Render = null
+        if (recyclerView.isComputingLayout) {
+            pendingV3Render = Runnable {
+                if (_binding === currentBinding) {
+                    v3SpecialSettingsViewModel?.uiState?.value?.let(::renderV3SpecialSettings)
+                }
+            }.also(recyclerView::post)
+            return
+        }
+
+        isMobileSettings = state.selectedSection == V3SpecialSettingsSection.APPLICATION
+        val sectionChanged = previousMobileSettings == null || previousMobileSettings != isMobileSettings
+        if (sectionChanged) clearSwitcherCache()
+        renderV3Sliders(state.sliders)
+        renderV3ToggleSliders(state.toggleSliders)
+        if (sectionChanged || renderedV3Widgets != state.widgets) {
+            adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
+            renderedV3Widgets = state.widgets
+        }
+        if (sectionChanged) {
+            updateSelectorUI(animate = previousMobileSettings != null)
+            previousMobileSettings = isMobileSettings
+        }
+    }
 
     private fun updateUI(animateSelector: Boolean = true) {
         val dataSetChanged = (previousMobileSettings == null || previousMobileSettings != isMobileSettings)
@@ -200,6 +278,13 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        pendingV3Render?.let { _binding?.settingsRecyclerView?.removeCallbacks(it) }
+        pendingV3Render = null
+        renderedV3Widgets = null
+        v3SpecialSettingsStateJob?.cancel()
+        v3SpecialSettingsStateJob = null
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ViewDetached)
+        v3SpecialSettingsViewModel = null
         selectorIndicatorAnimator?.cancel()
         selectorIndicatorAnimator = null
         _binding = null

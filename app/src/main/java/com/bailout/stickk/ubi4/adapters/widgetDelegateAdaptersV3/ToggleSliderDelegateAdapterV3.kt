@@ -33,6 +33,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,8 +47,10 @@ import kotlin.collections.forEach
 import kotlin.math.roundToInt
 
 class ToggleSliderDelegateAdapterV3(
-//    private val onSetProgress: (addressDevice: Int, parameterID: Int, packedBytes: ArrayList<Int>) -> Unit,
     private val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
+    private val parameterKeys: Set<String> = emptySet(),
+    private val onAction: (V3ToggleSliderAction) -> Unit = {},
+    private val animationsEnabled: () -> Boolean = { true },
 ) : ViewBindingDelegateAdapter<ToggleSliderItemV3, Ubi4WidgetToggleSliderBinding>(
     Ubi4WidgetToggleSliderBinding::inflate
 ) {
@@ -62,10 +66,133 @@ class ToggleSliderDelegateAdapterV3(
     private var collectJob: kotlinx.coroutines.Job? = null
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private val parameterKeysByInfo = ParameterInfoRegistry.parameterInfoMapV3.entries.associate { it.value to it.key }
+    private var toggleSliderStates: Map<String, ToggleSliderUiStateV3> = emptyMap()
+    private val toggleSliderBindings = mutableMapOf<String, ToggleSliderBinding>()
+    private val progressAnimators = mutableMapOf<ProgressBar, ValueAnimator>()
+
+    private data class ToggleSliderBinding(
+        val binding: Ubi4WidgetToggleSliderBinding,
+        val widget: ToggleSliderParameterWidgetSStruct,
+        var animator: ValueAnimator? = null,
+    )
+
+    fun renderToggleSliders(states: Map<String, ToggleSliderUiStateV3>) {
+        val previous = toggleSliderStates
+        toggleSliderStates = states
+        toggleSliderBindings.forEach { (key, holder) ->
+            val state = states[key]
+            if (state != previous[key]) renderToggleSlider(holder, state, animate = state?.animateValueChange == true)
+        }
+    }
+
+    private fun releaseToggleSliderBinding(root: View) {
+        toggleSliderBindings.entries.removeAll { (_, holder) ->
+            if (holder.binding.root !== root) return@removeAll false
+            holder.animator?.cancel()
+            holder.binding.toggleSliderSb.setOnSeekBarChangeListener(null)
+            holder.binding.toggleMinusRipple1Btn.setOnClickListener(null)
+            holder.binding.togglePlusRipple1Btn.setOnClickListener(null)
+            holder.binding.toggleTurnOffRipple1Btn.setOnClickListener(null)
+            true
+        }
+    }
+
+    override fun Ubi4WidgetToggleSliderBinding.onRecycled() {
+        releaseToggleSliderBinding(root)
+    }
+
+    private fun Ubi4WidgetToggleSliderBinding.bindToggleSlider(
+        item: ToggleSliderItemV3,
+        widget: ToggleSliderParameterWidgetSStruct,
+        key: String,
+    ) {
+        onDestroyParent { onDestroy() }
+        toggleSliderBindings.entries.removeAll { (oldKey, holder) ->
+            (oldKey == key || holder.binding.root === root).also { if (it) holder.animator?.cancel() }
+        }
+        val holder = ToggleSliderBinding(this, widget)
+        toggleSliderBindings[key] = holder
+        toggleSliderSb.setOnSeekBarChangeListener(null)
+        toggleSliderTitleTv.text = item.title
+        toggleSliderUnit2Tv.text = ""
+        toggleSliderUnit2Tv.visibility = View.GONE
+        renderToggleSlider(holder, toggleSliderStates[key], animate = false)
+
+        fun dispatch(action: V3ToggleSliderAction) {
+            if (toggleSliderBindings[key] === holder) onAction(action)
+        }
+        toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    holder.animator?.cancel()
+                    val min = toggleSliderStates[key]?.allowedTimeRange?.first ?: widget.minProgress
+                    dispatch(V3ToggleSliderAction.ToggleSliderValueChanged(key, progress + min))
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) { holder.animator?.cancel() }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val min = toggleSliderStates[key]?.allowedTimeRange?.first ?: widget.minProgress
+                dispatch(V3ToggleSliderAction.ToggleSliderChangeCommitted(key, seekBar.progress + min))
+            }
+        })
+        toggleMinusRipple1Btn.setOnClickListener { dispatch(V3ToggleSliderAction.ToggleSliderStepClicked(key, -1)) }
+        togglePlusRipple1Btn.setOnClickListener { dispatch(V3ToggleSliderAction.ToggleSliderStepClicked(key, 1)) }
+        toggleTurnOffRipple1Btn.setOnClickListener {
+            val state = toggleSliderStates[key] ?: return@setOnClickListener
+            dispatch(V3ToggleSliderAction.ToggleSliderEnabledChanged(key, !state.value.isEnabled))
+        }
+    }
+
+    private fun renderToggleSlider(holder: ToggleSliderBinding, state: ToggleSliderUiStateV3?, animate: Boolean) {
+        val binding = holder.binding
+        val min = state?.allowedTimeRange?.first ?: holder.widget.minProgress
+        val max = state?.allowedTimeRange?.last ?: holder.widget.maxProgress
+        val progress = ((state?.value?.timeTenths ?: 0) - min).coerceIn(0, max - min)
+        holder.animator?.cancel()
+        holder.animator = null
+        binding.toggleSliderSb.max = max - min
+        if (animate && animationsEnabled() && binding.toggleSliderSb.progress != progress) {
+            holder.animator = ValueAnimator.ofInt(binding.toggleSliderSb.progress, progress).apply {
+                duration = DURATION_ANIMATION
+                addUpdateListener { binding.toggleSliderSb.progress = it.animatedValue as Int }
+                start()
+            }
+        } else binding.toggleSliderSb.progress = progress
+        binding.toggleSliderNumTv.text = formatValueForUi(progress, min, max - min, false, holder.widget.increment)
+        binding.toggleSliderUnitTv.text = holder.widget.unitLabel.let { if (it.isEmpty()) "" else " $it" }
+
+        val sliderEnabled = state?.isSliderEnabled == true
+        val context = binding.root.context
+        binding.toggleSliderSb.isEnabled = sliderEnabled
+        binding.toggleSliderSb.progressDrawable = AppCompatResources.getDrawable(
+            context, if (sliderEnabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled,
+        )?.mutate()
+        binding.toggleSliderSb.thumb = AppCompatResources.getDrawable(context, R.drawable.thumb_le)?.mutate()
+        binding.toggleMinusRipple1Btn.isClickable = sliderEnabled
+        binding.togglePlusRipple1Btn.isClickable = sliderEnabled
+        binding.toggleTurnOffRipple1Btn.isClickable = state?.isInteractionEnabled == true
+        val textColor = context.getColor(if (sliderEnabled) R.color.ubi4_white else R.color.ubi4_gray_border)
+        binding.toggleMinusBtnTv1.setTextColor(textColor)
+        binding.togglePlusBtnTv1.setTextColor(textColor)
+        binding.toggleTurnOffBtnIv1.setColorFilter(
+            context.getColor(if (sliderEnabled) R.color.ubi4_active else R.color.ubi4_gray_border),
+            android.graphics.PorterDuff.Mode.SRC_IN,
+        )
+    }
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetToggleSliderBinding.onBind(item: ToggleSliderItemV3) {
+        releaseToggleSliderBinding(root)
+        progressAnimators.remove(toggleSliderSb)?.cancel()
+        val widget = item.widget as? ToggleSliderParameterWidgetSStruct
+        val key = widget?.baseParameterWidgetSStruct?.baseParameterWidgetStruct
+            ?.parameterInfoSet?.firstOrNull()?.let(parameterKeysByInfo::get)
+        if (widget != null && key in parameterKeys) {
+            bindToggleSlider(item, widget, requireNotNull(key))
+            return
+        }
         Log.d("ToggleSliderAdapter", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
@@ -266,6 +393,10 @@ class ToggleSliderDelegateAdapterV3(
                 infoWidget.enabled = enabled
                 infoWidget.progress = progress
 
+                // RecyclerView can reuse a view previously owned by another parameter.
+                // Keep its pending value current, but let screen state own the reused view.
+                if (toggleSliderBindings.values.any { it.binding.toggleSliderSb === seekBar }) return@forEach
+
                 if (withAnimation) { animateProgressBar(seekBar, oldProgress, uiProgress) }
                 else { seekBar.progress = uiProgress }
 
@@ -288,6 +419,7 @@ class ToggleSliderDelegateAdapterV3(
         }
     }
     private fun applyToggleSliderLockState(info: WidgetToggleSliderInfo) {
+        if (toggleSliderBindings.values.any { it.binding.toggleSliderSb === info.widgetSlidersSb }) return
         // в зависимости от enable деактивирует или активирует виджет (визуально)
         val sb = info.widgetSlidersSb as SeekBar
         val togglePlusBtnRipple1Btn = info.togglePlusBtnRipple1Btn
@@ -338,6 +470,17 @@ class ToggleSliderDelegateAdapterV3(
     }
 
     fun onDestroy() {
+        progressAnimators.values.forEach { it.cancel() }
+        progressAnimators.clear()
+        toggleSliderBindings.values.forEach { holder ->
+            holder.animator?.cancel()
+            holder.binding.toggleSliderSb.setOnSeekBarChangeListener(null)
+            holder.binding.toggleMinusRipple1Btn.setOnClickListener(null)
+            holder.binding.togglePlusRipple1Btn.setOnClickListener(null)
+            holder.binding.toggleTurnOffRipple1Btn.setOnClickListener(null)
+        }
+        toggleSliderBindings.clear()
+        toggleSliderStates = emptyMap()
         Log.d("ToggleSliderAdapter", "onDestroy")
         isAttached = false
         widgetInfoList.forEach { info ->
@@ -393,6 +536,7 @@ class ToggleSliderDelegateAdapterV3(
         return String.format(Locale.US, pattern, result)
     }
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
+        progressAnimators.remove(progressBar)?.cancel()
         if (from == to) return
 
         if (WidgetState.dbSnapshotAppliedWithCrc) {
@@ -400,7 +544,7 @@ class ToggleSliderDelegateAdapterV3(
             return
         }
 
-        ValueAnimator.ofInt(from, to).apply {
+        progressAnimators[progressBar] = ValueAnimator.ofInt(from, to).apply {
             duration = DURATION_ANIMATION
             addUpdateListener { animator ->
                 progressBar.progress = animator.animatedValue as Int

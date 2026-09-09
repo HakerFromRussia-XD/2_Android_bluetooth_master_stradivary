@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -22,6 +24,11 @@ import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
 class SensorsFragment : BaseWidgetsFragment() {
+    override val v3SliderParameterKeys = setOf(
+        P_KEY_EMG_GAIN_OPEN_VALUE,
+        P_KEY_EMG_GAIN_CLOSE_VALUE,
+    )
+
     private var _binding: Ubi4FragmentHomeBinding? = null
     private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null

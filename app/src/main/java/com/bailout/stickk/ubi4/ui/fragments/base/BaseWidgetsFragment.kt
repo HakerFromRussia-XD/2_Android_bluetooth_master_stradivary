@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +50,7 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
@@ -67,11 +70,15 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getC
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
-import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsViewModel
-import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModelFactory
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -81,6 +88,26 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
+
+    protected open val v3SliderParameterKeys: Set<String> = emptySet()
+    protected open val v3ToggleSliderParameterKeys: Set<String> = emptySet()
+    private val v3ToggleSliderAdapter by lazy {
+        ToggleSliderDelegateAdapterV3(
+            onDestroyParent = { onDestroyParentCallbacks.add(it) },
+            parameterKeys = v3ToggleSliderParameterKeys,
+            onAction = { onV3ToggleSliderAction(it) },
+            animationsEnabled = { !WidgetState.dbSnapshotAppliedWithCrc },
+        )
+    }
+    private var v3SettingsViewModel: V3SliderSettingsViewModel? = null
+    private var v3SliderStateJob: Job? = null
+    private val v3SliderAdapter by lazy {
+        SliderDelegateAdapterV3(
+            onDestroyParent = { onDestroyParentCallbacks.add(it) },
+            onAction = { action -> onV3SliderAction(action) },
+            animationsEnabled = { !WidgetState.dbSnapshotAppliedWithCrc },
+        )
+    }
 
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         // [new widgets V3] тут подключаем DelegateAdapter нового типа виджета в общий CompositeDelegateAdapter
@@ -272,11 +299,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-            ToggleSliderDelegateAdapterV3(
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
-            ),
+            v3ToggleSliderAdapter,
             SliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, progress ->
                     sendSliderProgress(
@@ -287,24 +310,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            SliderDelegateAdapterV3(
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
-                viewModelProvider = {
-                    ViewModelProvider(this, V3AdvancedSettingsViewModelFactory(
-                        repository = V3DeviceSettingsRepositoryImpl(
-                            enqueuePacket = { packet ->
-                                MainActivityUBI4.main.bleCommandWithQueue(
-                                    packet, SERIALPORTCHAR_UUID, WRITE
-                                ) {}
-                            }
-                        ),
-                        sliderRanges = mapOf(
-                            P_KEY_SPEED_SETTINGS to 0..100,
-                            P_KEY_FORCE_SETTINGS to 0..100,
-                        ),
-                    ))[V3AdvancedSettingsViewModel::class.java]
-                }
-            )
+            v3SliderAdapter
         )
     }
 
@@ -319,6 +325,48 @@ abstract class BaseWidgetsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
+        bindV3SliderSettings()
+    }
+
+    private fun bindV3SliderSettings() {
+        if (!UiState.isInterfaceV3Activated || v3SliderParameterKeys.isEmpty()) return
+        val viewModel = ViewModelProvider(this, V3SliderSettingsViewModelFactory(
+            repository = createV3DeviceSettingsRepository(),
+            sliderParameterKeys = v3SliderParameterKeys,
+        ))[V3SliderSettingsViewModel::class.java]
+        v3SettingsViewModel = viewModel
+        val owner = viewLifecycleOwner
+        v3SliderStateJob = owner.lifecycleScope.launch {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onViewAttached()
+                try {
+                    viewModel.uiState.collect { state -> renderV3Sliders(state.sliders) }
+                } finally {
+                    viewModel.onViewDetached()
+                }
+            }
+        }
+    }
+
+    protected fun createV3DeviceSettingsRepository(): V3DeviceSettingsRepositoryImpl =
+        V3DeviceSettingsRepositoryImpl(
+            enqueuePacket = { packet ->
+                MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
+            },
+        )
+
+    protected open fun onV3SliderAction(action: V3SliderAction) {
+        v3SettingsViewModel?.onAction(action)
+    }
+
+    protected fun renderV3Sliders(states: Map<String, SliderUiStateV3>) {
+        v3SliderAdapter.renderSliders(states)
+    }
+
+    protected open fun onV3ToggleSliderAction(action: V3ToggleSliderAction) = Unit
+
+    protected fun renderV3ToggleSliders(states: Map<String, ToggleSliderUiStateV3>) {
+        v3ToggleSliderAdapter.renderToggleSliders(states)
     }
 
     override fun onResume() {
@@ -338,6 +386,10 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        v3SliderStateJob?.cancel()
+        v3SliderStateJob = null
+        v3SettingsViewModel?.onViewDetached()
+        v3SettingsViewModel = null
         releaseDelegateResources()
         super.onDestroyView()
     }

@@ -11,12 +11,19 @@ import com.bailout.stickk.databinding.Ubi4FragmentServiceBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ServiceFragment: BaseWidgetsFragment() {
+    override val v3SliderParameterKeys = setOf(
+        P_KEY_GLOBAL_THUMB_CLOSED_POSITION,
+        P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION,
+    )
+
 
     private var _binding: Ubi4FragmentServiceBinding? = null
     private val binding get() = requireNotNull(_binding)

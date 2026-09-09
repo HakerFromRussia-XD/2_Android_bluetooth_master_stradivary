@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings
+package com.bailout.stickk.ubi4.versions.v3.presentation.sliders
 
 data class SliderUiStateV3(
     val parameterKey: String,
@@ -8,4 +8,4 @@ data class SliderUiStateV3(
     val animateValueChange: Boolean = false,
 )
 
-data class V3AdvancedSettingsUiState(val sliders: Map<String, SliderUiStateV3>)
+data class V3SliderSettingsUiState(val sliders: Map<String, SliderUiStateV3>)

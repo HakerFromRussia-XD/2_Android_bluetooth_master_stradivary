@@ -276,7 +276,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        val bootloaderV2Transport =
+                        val serialSupportsWriteWithoutResponse =
                             mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
                         if (firmwareUpdateSessionActive && !dfuReconnectActive) {
                             main.lifecycleScope.launch {
@@ -287,7 +287,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                         "generation=$gattServicesGeneration"
                                 )
                             }
-                        } else if (!dfuReconnectActive && !bootloaderV2Transport) {
+                        } else if (!dfuReconnectActive) {
+                            // Normal V3 firmware also supports WRITE_NO_RESPONSE.
+                            // Transport capabilities do not identify bootloader mode;
+                            // active firmware sessions/reconnects are handled above or below.
                             main.lifecycleScope.launch {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
@@ -312,7 +315,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 DFU_TRACE_TAG,
                                 "controller normal_init suppressed dfu_active=$dfuReconnectActive " +
                                     "firmware_session=$firmwareUpdateSessionActive " +
-                                    "bootloader_v2_transport=$bootloaderV2Transport"
+                                    "serial_wwr=$serialSupportsWriteWithoutResponse"
                             )
                         }
                     }

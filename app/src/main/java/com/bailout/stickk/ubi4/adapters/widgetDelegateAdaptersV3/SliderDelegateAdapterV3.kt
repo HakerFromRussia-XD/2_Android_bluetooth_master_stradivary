@@ -37,6 +37,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsViewModel
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +57,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 class SliderDelegateAdapterV3(
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
+    private val viewModelProvider: () -> V3AdvancedSettingsViewModel,
 ) : ViewBindingDelegateAdapter<SliderItemV3, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
     private companion object {
         val requestedOnFirstShow = AtomicBoolean(false)
@@ -68,6 +73,15 @@ class SliderDelegateAdapterV3(
     private var collectJob: kotlinx.coroutines.Job? = null
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private var sliderViewModel: V3AdvancedSettingsViewModel? = null
+    private var sliderStateJob: kotlinx.coroutines.Job? = null
+
+    private fun sliderParameterKey(parameterInfo: ParameterInfo<Int, Int, Int, Int>): String? =
+        when (parameterInfo) {
+            ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS) -> P_KEY_SPEED_SETTINGS
+            ParameterInfoRegistry.require(P_KEY_FORCE_SETTINGS) -> P_KEY_FORCE_SETTINGS
+            else -> null
+        }
 
 
     private fun formatSliderValue(value: Int, increment: Float): String {
@@ -138,8 +152,14 @@ class SliderDelegateAdapterV3(
         widgetInfoList.add(currentSliderInfo)
 
         val infoWidget = currentSliderInfo
+        val parameterKey = sliderParameterKey(currentParameterInfo)
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser && parameterKey != null) {
+                    sliderViewModel?.onAction(V3AdvancedSettingsAction.SliderValueChanged(
+                        parameterKey, progress + infoWidget.minProgress
+                    ))
+                }
                 widgetSliderNumTv.text = formatSliderValue(
                     seekBar.progress + infoWidget.minProgress,
                     infoWidget.increment
@@ -149,6 +169,12 @@ class SliderDelegateAdapterV3(
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if (parameterKey != null) {
+                    sliderViewModel?.onAction(V3AdvancedSettingsAction.SliderChangeCommitted(
+                        parameterKey, seekBar.progress + infoWidget.minProgress
+                    ))
+                    return
+                }
                 if (!isInteractionEnabled) return
                 val uiProgress = seekBar.progress.coerceIn(0, infoWidget.range)
                 val absoluteProgress = uiProgress + infoWidget.minProgress
@@ -174,7 +200,37 @@ class SliderDelegateAdapterV3(
         applySliderLockState(currentSliderInfo)
         observeInteractionState()
         sliderCollect()
-        setUI(currentParameterInfo, withAnimation = false, widgetPosition = currentSliderInfo.widgetPosition)
+        if (parameterKey != null) {
+            bindSliderViewModel()
+        } else {
+            setUI(currentParameterInfo, withAnimation = false, widgetPosition = currentSliderInfo.widgetPosition)
+        }
+    }
+
+    private fun bindSliderViewModel() {
+        val viewModel = sliderViewModel ?: viewModelProvider().also { sliderViewModel = it }
+        viewModel.onAction(V3AdvancedSettingsAction.ViewAttached)
+        renderSliderUiState(withAnimation = false)
+        if (sliderStateJob?.isActive == true) return
+        sliderStateJob = scope.launch(Dispatchers.Main.immediate) {
+            viewModel.uiState.collect {
+                renderSliderUiState()
+            }
+        }
+    }
+
+    private fun renderSliderUiState(withAnimation: Boolean = true) {
+        val sliders = sliderViewModel?.uiState?.value?.sliders ?: return
+        widgetInfoList.forEach { info ->
+            val slider = sliders[sliderParameterKey(info.parameterInfo)] ?: return@forEach
+            applySliderLockState(info)
+            val value = slider.value ?: info.minProgress
+            val animate = withAnimation && slider.animateValueChange
+            if (info.progress != value || !animate) {
+                info.progress = value
+                setProgressBar(info, (value - info.minProgress).coerceIn(0, info.range), animate)
+            }
+        }
     }
 
     private fun sliderCollect() {
@@ -182,7 +238,8 @@ class SliderDelegateAdapterV3(
         collectJob = scope.launch(Dispatchers.Main) {
             ParameterStoreV3.updates.collect { key ->
                 widgetInfoList.forEach { infoWidget ->
-                    if (ParameterStoreV3.toKey(infoWidget.parameterInfo) == key) {
+                    if (sliderParameterKey(infoWidget.parameterInfo) == null &&
+                        ParameterStoreV3.toKey(infoWidget.parameterInfo) == key) {
                         setUI(infoWidget.parameterInfo)
                     }
                 }
@@ -205,22 +262,31 @@ class SliderDelegateAdapterV3(
     }
 
     private fun applySliderLockState(infoWidget: WidgetSliderInfo) {
+        val parameterKey = sliderParameterKey(infoWidget.parameterInfo)
+        val enabled = if (parameterKey != null) {
+            sliderViewModel?.uiState?.value?.sliders?.get(parameterKey)?.isEnabled ?: false
+        } else isInteractionEnabled
         val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return
         val context = seekBar.context
-        val trackRes = if (isInteractionEnabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
+        val trackRes = if (enabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
         seekBar.progressDrawable = AppCompatResources.getDrawable(context, trackRes)?.mutate()
         seekBar.thumb = AppCompatResources.getDrawable(context, R.drawable.thumb_le)?.mutate()
-        seekBar.isEnabled = isInteractionEnabled
+        seekBar.isEnabled = enabled
 
-        infoWidget.minusBtnRipple?.isClickable = isInteractionEnabled
-        infoWidget.plusBtnRipple?.isClickable = isInteractionEnabled
+        infoWidget.minusBtnRipple?.isClickable = enabled
+        infoWidget.plusBtnRipple?.isClickable = enabled
 
-        val colorRes = if (isInteractionEnabled) R.color.ubi4_white else R.color.ubi4_gray_border
+        val colorRes = if (enabled) R.color.ubi4_white else R.color.ubi4_gray_border
         infoWidget.minusBtnTv?.setTextColor(context.getColor(colorRes))
         infoWidget.plusBtnTv?.setTextColor(context.getColor(colorRes))
     }
 
     private fun updateSliderProgressWithStep(step: Int, infoWidget: WidgetSliderInfo) {
+        val parameterKey = sliderParameterKey(infoWidget.parameterInfo)
+        if (parameterKey != null) {
+            sliderViewModel?.onAction(V3AdvancedSettingsAction.SliderStepClicked(parameterKey, step))
+            return
+        }
         if (!isInteractionEnabled) return
 //        val sliderInfo = widgetInfoList[indexWidgetSlider]
         val currentValue = infoWidget.progress
@@ -259,6 +325,8 @@ class SliderDelegateAdapterV3(
                                     (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
                             )
             if (!sameWidget) return@forEach
+
+            if (sliderParameterKey(infoWidget.parameterInfo) != null) return@forEach
 
             val parameterMeta = ParameterInfoRegistry.getMeta(infoWidget.parameterInfo) ?: return@forEach
             val typedValue = ParameterStoreV3.get(infoWidget.parameterInfo)
@@ -494,6 +562,9 @@ class SliderDelegateAdapterV3(
     fun onDestroy() {
         Log.d("SliderAdapterTest", "onDestroy slider")
         isAttached = false
+        sliderViewModel?.onAction(V3AdvancedSettingsAction.ViewDetached)
+        sliderStateJob?.cancel()
+        sliderStateJob = null
         widgetInfoList.forEach { info ->
             info.timer?.cancel()
             info.timer = null

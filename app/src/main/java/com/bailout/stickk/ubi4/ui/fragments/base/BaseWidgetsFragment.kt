@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -65,6 +66,11 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.advancedsettings.V3AdvancedSettingsViewModelFactory
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import java.io.File
 
@@ -282,7 +288,22 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SliderDelegateAdapterV3(
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
+                viewModelProvider = {
+                    ViewModelProvider(this, V3AdvancedSettingsViewModelFactory(
+                        repository = V3DeviceSettingsRepositoryImpl(
+                            enqueuePacket = { packet ->
+                                MainActivityUBI4.main.bleCommandWithQueue(
+                                    packet, SERIALPORTCHAR_UUID, WRITE
+                                ) {}
+                            }
+                        ),
+                        sliderRanges = mapOf(
+                            P_KEY_SPEED_SETTINGS to 0..100,
+                            P_KEY_FORCE_SETTINGS to 0..100,
+                        ),
+                    ))[V3AdvancedSettingsViewModel::class.java]
+                }
             )
         )
     }

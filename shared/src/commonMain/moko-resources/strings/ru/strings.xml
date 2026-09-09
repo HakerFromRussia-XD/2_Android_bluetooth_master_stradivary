@@ -870,4 +870,5 @@
 <item>6</item>
 <item>255</item>
 </string-array>
-    </resources>
+        <string name="firmware_board_compatibility_rejected_status" formatted="true">Прошивка отклонена при проверке совместимости с платой (status=%1$s)</string>
+</resources>

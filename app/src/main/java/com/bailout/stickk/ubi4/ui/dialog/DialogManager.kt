@@ -263,7 +263,10 @@ class DialogManager(
             }
             is FirmwareUpdateResult.CheckNewFirmwareRejected -> {
                 progressDialog?.dismiss()
-                main?.showToast(context.getString(SharedRes.strings.module_not_ready_for_writing_status.resourceId, result.status))
+                val message = if (result.status.code == 0)
+                    SharedRes.strings.firmware_board_compatibility_rejected_status.resourceId
+                else SharedRes.strings.module_not_ready_for_writing_status.resourceId
+                main?.showToast(context.getString(message, result.status))
                 false
             }
             FirmwareUpdateResult.PreloadFailed -> {

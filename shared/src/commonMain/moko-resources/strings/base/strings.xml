@@ -870,4 +870,5 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+    <string name="firmware_board_compatibility_rejected_status" formatted="true">Firmware rejected by board compatibility check (status=%1$s)</string>
 </resources>

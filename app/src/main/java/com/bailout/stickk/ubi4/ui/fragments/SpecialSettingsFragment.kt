@@ -14,6 +14,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
+import com.bailout.stickk.ubi4.ui.dialog.SettingsProfileNameDialogHost
+import com.bailout.stickk.ubi4.shared.SharedRes
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfileNameRules
+import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileNameEditorUiState
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
@@ -22,6 +26,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
+import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesRepositoryImpl
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SettingsProfileApplierV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsSection
@@ -36,6 +43,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
+    override val v3SettingsProfilesFromState = true
+    override val v3SpinnerParameterKeys = V3SpecialSettingsViewModel.spinnerParameterKeys
     override val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
     private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
     private val binding get() = requireNotNull(_binding)
@@ -49,6 +58,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val v3WidgetMapper = V3SpecialSettingsWidgetMapper()
     private var renderedV3Widgets: List<V3SpecialSettingsWidget>? = null
     private var pendingV3Render: Runnable? = null
+    private val settingsProfileNameDialogHost = SettingsProfileNameDialogHost()
+    private var renderedSettingsProfileNameRequest: Long? = null
 
 
     override fun onResume() {
@@ -101,7 +112,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         val viewModel = ViewModelProvider(
             this,
             V3SpecialSettingsViewModelFactory(
-                repository, DataFactoryV3SpecialSettingsWidgetsSource(), repository,
+                repository, DataFactoryV3SpecialSettingsWidgetsSource(), repository, repository,
+                V3SettingsProfilesRepositoryImpl(SettingsProfileApplierV3::apply),
             ),
         )[V3SpecialSettingsViewModel::class.java]
         v3SpecialSettingsViewModel = viewModel
@@ -114,6 +126,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
                     viewModel.uiState.collect(::renderV3SpecialSettings)
                 } finally {
                     viewModel.onAction(V3SpecialSettingsAction.ViewDetached)
+                    dismissSettingsProfileNameDialog()
                 }
             }
         }
@@ -146,8 +159,51 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ToggleSliderAction(action))
     }
 
+    override fun onV3SpinnerAction(action: V3SpinnerAction) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SpinnerAction(action))
+    }
+
+    override fun onV3SettingsProfileCreateRequested() {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileCreateRequested)
+    }
+
+    override fun onV3SettingsProfileSelected(profileId: Int) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSelected(profileId))
+    }
+
+    override fun onV3SettingsProfileRenameRequested(profileId: Int) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileRenameRequested(profileId))
+    }
+
+    private fun renderSettingsProfileNameDialog(editor: V3SettingsProfileNameEditorUiState?) {
+        if (renderedSettingsProfileNameRequest == editor?.requestId) return
+        dismissSettingsProfileNameDialog()
+        if (editor == null) return
+        val viewModel = v3SpecialSettingsViewModel ?: return
+        renderedSettingsProfileNameRequest = editor.requestId
+        settingsProfileNameDialogHost.show(
+            context = requireContext(),
+            currentName = editor.profile.customName ?: getString(
+                SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, editor.profile.profileId,
+            ),
+            maxLength = V3SettingsProfileNameRules.MAX_LENGTH,
+            onSave = { name ->
+                viewModel.onAction(V3SpecialSettingsAction.SettingsProfileNameSubmitted(editor.requestId, name))
+            },
+            onDismissRequest = {
+                viewModel.onAction(V3SpecialSettingsAction.SettingsProfileNameDismissed(editor.requestId))
+            },
+        )
+    }
+
+    private fun dismissSettingsProfileNameDialog() {
+        settingsProfileNameDialogHost.dismiss()
+        renderedSettingsProfileNameRequest = null
+    }
+
     private fun renderV3SpecialSettings(state: V3SpecialSettingsUiState) {
         val currentBinding = _binding ?: return
+        renderSettingsProfileNameDialog(state.settingsProfiles?.nameEditor)
         val recyclerView = currentBinding.settingsRecyclerView
         pendingV3Render?.let(recyclerView::removeCallbacks)
         pendingV3Render = null
@@ -165,6 +221,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         if (sectionChanged) clearSwitcherCache()
         renderV3Sliders(state.sliders)
         renderV3ToggleSliders(state.toggleSliders)
+        renderV3Spinners(state.spinners)
+        renderV3SettingsProfiles(state.settingsProfiles)
         if (sectionChanged || renderedV3Widgets != state.widgets) {
             adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
             renderedV3Widgets = state.widgets
@@ -278,6 +336,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        dismissSettingsProfileNameDialog()
         pendingV3Render?.let { _binding?.settingsRecyclerView?.removeCallbacks(it) }
         pendingV3Render = null
         renderedV3Widgets = null

@@ -111,6 +111,19 @@ class V3SpecialSettingsWidgetsSourceTest {
         assertEquals("test-v3-device", snapshot.deviceAddress)
         assertTrue(UiState.listWidgets.size > snapshot.widgets.size)
         assertEquals(profile == V3DeviceProfile.INDY3, snapshot.widgets.any { it is V3SpecialSettingsWidget.SettingsProfile })
+        val gestureSpinner = snapshot.widgets.filterIsInstance<V3SpecialSettingsWidget.Spinner>()
+            .firstOrNull { it.info.key == P_KEY_GESTURE_CHANGE_MODE }
+        if (profile == V3DeviceProfile.STANDARD_V3) {
+            requireNotNull(gestureSpinner)
+            assertEquals(0, gestureSpinner.initialSelectedIndex)
+            assertEquals(
+                if (language == "ru") listOf("Без действия", "Перейти в открытое положение")
+                else listOf("No action", "Move to open position"),
+                gestureSpinner.options,
+            )
+        } else {
+            assertEquals(null, gestureSpinner)
+        }
         snapshot.widgets.filterIsInstance<V3SpecialSettingsWidget.ToggleSlider>().forEach {
             assertEquals(10, it.minProgress)
             assertEquals(100, it.maxProgress)

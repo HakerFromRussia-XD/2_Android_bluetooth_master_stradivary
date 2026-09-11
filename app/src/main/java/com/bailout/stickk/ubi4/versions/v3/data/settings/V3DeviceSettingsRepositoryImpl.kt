@@ -12,6 +12,7 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.ParameterMetaV3
 import com.bailout.stickk.ubi4.models.ble.SliderV3
+import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.ble.WidgetKindV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -22,6 +23,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -32,9 +34,33 @@ class V3DeviceSettingsRepositoryImpl(
     private val enqueuePacket: (ByteArray) -> Unit,
     private val saveBleValue: (ParameterInfo<Int, Int, Int, Int>, ParameterTypedValueV3) -> Unit =
         SettingsProfileManager::saveBleValue,
-) : V3DeviceSettingsRepository, V3ToggleSliderSettingsRepository {
+) : V3DeviceSettingsRepository, V3ToggleSliderSettingsRepository, V3SpinnerSettingsRepository {
     override val sliderInteractionEnabled = UiState.v3WidgetsInteractionEnabled
     override val toggleSliderInteractionEnabled = UiState.v3WidgetsInteractionEnabled
+    override val spinnerInteractionEnabled = UiState.v3WidgetsInteractionEnabled
+
+    override fun getSpinnerValue(parameterKey: String): Int? =
+        (readTypedValue(spinnerMeta(parameterKey)) as? ParameterTypedValueV3.Spinner)?.value?.spinnerValue
+
+    override fun observeSpinnerValue(parameterKey: String) =
+        ParameterStoreV3.values.map { getSpinnerValue(parameterKey) }.distinctUntilChanged()
+
+    override fun setSpinnerValue(parameterKey: String, value: Int) {
+        val meta = spinnerMeta(parameterKey)
+        val typed = ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = value))
+        ParameterStoreV3.put(meta.parameterInfo, typed)
+        saveBleValue(meta.parameterInfo, typed)
+        ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, typed)?.let { encoded ->
+            ParameterProvider.getParameterV3(meta.parameterInfo).data = encoded
+        }
+        enqueuePacket(BLECommandsV3.sendCommand(meta.parameterInfo.parameterID, meta.parameterInfo.dataCode, value))
+    }
+
+    private fun spinnerMeta(parameterKey: String): ParameterMetaV3 {
+        val meta = ParameterInfoRegistry.getMeta(parameterKey)
+        require(meta?.widgetKind == WidgetKindV3.SPINNER) { "Unsupported Spinner parameter: $parameterKey" }
+        return requireNotNull(meta)
+    }
 
     override fun observeToggleSliderValue(parameterKey: String) =
         ParameterStoreV3.values.map { getToggleSliderValue(parameterKey) }.distinctUntilChanged()

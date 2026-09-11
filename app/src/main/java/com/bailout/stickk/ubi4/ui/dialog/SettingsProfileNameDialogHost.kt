@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import com.bailout.stickk.ubi4.data.local.repository.SETTINGS_PROFILE_NAME_MAX_LENGTH
 
 class SettingsProfileNameDialogHost {
     private var hostView: ComposeView? = null
@@ -13,7 +14,9 @@ class SettingsProfileNameDialogHost {
     fun show(
         context: Context,
         currentName: String,
-        onSave: (String) -> Unit
+        onSave: (String) -> Unit,
+        onDismissRequest: () -> Unit = {},
+        maxLength: Int = SETTINGS_PROFILE_NAME_MAX_LENGTH,
     ) {
         dismiss()
         val activity = context.findActivity() ?: return
@@ -24,10 +27,14 @@ class SettingsProfileNameDialogHost {
             setContent {
                 SettingsProfileNameDialog(
                     currentName = currentName,
-                    onDismissRequest = ::dismiss,
-                    onSave = { newName ->
-                        onSave(newName)
+                    maxLength = maxLength,
+                    onDismissRequest = {
                         dismiss()
+                        onDismissRequest()
+                    },
+                    onSave = { newName ->
+                        dismiss()
+                        onSave(newName)
                     }
                 )
             }

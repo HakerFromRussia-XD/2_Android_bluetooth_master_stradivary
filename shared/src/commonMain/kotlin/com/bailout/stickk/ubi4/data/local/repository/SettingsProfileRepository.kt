@@ -16,6 +16,11 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
@@ -162,7 +167,7 @@ class SettingsProfileRepository(
             }
 
             snapshotCurrentBleValues(normalizedSerial, active.profile_id)
-            val newProfileId = (profiles.maxOfOrNull { it.profile_id } ?: 0) + 1
+            val newProfileId = (1..MAX_SETTINGS_PROFILE_COUNT).first { id -> profiles.none { it.profile_id == id } }
             val ts = getTimeMillis()
             dao.upsertProfile(
                 SettingsProfileEntity(
@@ -611,6 +616,19 @@ object SettingsProfileRepositoryProvider {
 
 object SettingsProfileManager {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val pendingWrites = MutableStateFlow<Map<Job, String>>(emptyMap())
+
+    /** Waits for writes already submitted for this device; cancelling the waiter does not cancel saving. */
+    suspend fun awaitPendingWrites(serial: String) {
+        pendingWrites.value.filterValues { it == serial }.keys.toList().joinAll()
+    }
+
+    private fun launchProfileWrite(serial: String, write: suspend () -> Unit) {
+        val job = scope.launch(start = CoroutineStart.LAZY) { write() }
+        pendingWrites.update { it + (job to serial) }
+        job.invokeOnCompletion { pendingWrites.update { it - job } }
+        job.start()
+    }
 
     @Volatile
     private var currentSerial: String = ""
@@ -662,9 +680,9 @@ object SettingsProfileManager {
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         typedValue: ParameterTypedValueV3
     ) {
-        val serial = currentSerial
+        val serial = serial()
         if (serial.isBlank()) return
-        scope.launch {
+        launchProfileWrite(serial) {
             runCatching {
                 SettingsProfileRepositoryProvider.get().saveBleValue(serial, parameterInfo, typedValue)
             }.onFailure {
@@ -674,9 +692,9 @@ object SettingsProfileManager {
     }
 
     fun saveMobileBoolean(mobileKey: String, value: Boolean) {
-        val serial = currentSerial
+        val serial = serial()
         if (serial.isBlank()) return
-        scope.launch {
+        launchProfileWrite(serial) {
             runCatching {
                 SettingsProfileRepositoryProvider.get().saveMobileBoolean(serial, mobileKey, value)
             }.onFailure {

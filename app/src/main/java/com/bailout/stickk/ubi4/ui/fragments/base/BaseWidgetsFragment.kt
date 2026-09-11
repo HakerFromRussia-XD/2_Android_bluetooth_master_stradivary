@@ -71,6 +71,10 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerUiStateV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfilesUiState
+import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
@@ -90,6 +94,20 @@ abstract class BaseWidgetsFragment : Fragment() {
     private lateinit var bleController: BLEController
 
     protected open val v3SliderParameterKeys: Set<String> = emptySet()
+    protected open val v3SpinnerParameterKeys: Set<String> = emptySet()
+    protected open val v3SettingsProfilesFromState: Boolean = false
+    private val v3SpinnerAdapter by lazy {
+        SpinnerDelegateAdapterV3(
+            onDestroyParent = { onDestroyParentCallbacks.add(it) },
+            parameterKeys = v3SpinnerParameterKeys,
+            onAction = { onV3SpinnerAction(it) },
+            settingsProfilesFromState = v3SettingsProfilesFromState,
+            onSettingsProfilesChanged = V3SettingsProfilesUpdates::notifyChanged,
+            onSettingsProfileSelected = { onV3SettingsProfileSelected(it) },
+            onSettingsProfileCreateRequested = { onV3SettingsProfileCreateRequested() },
+            onSettingsProfileRenameRequested = { onV3SettingsProfileRenameRequested(it) },
+        )
+    }
     protected open val v3ToggleSliderParameterKeys: Set<String> = emptySet()
     private val v3ToggleSliderAdapter by lazy {
         ToggleSliderDelegateAdapterV3(
@@ -285,9 +303,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            SpinnerDelegateAdapterV3(
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-            ),
+            v3SpinnerAdapter,
             TextInputDelegateAdapterV3(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
@@ -367,6 +383,19 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     protected fun renderV3ToggleSliders(states: Map<String, ToggleSliderUiStateV3>) {
         v3ToggleSliderAdapter.renderToggleSliders(states)
+    }
+
+    protected open fun onV3SpinnerAction(action: V3SpinnerAction) = Unit
+    protected open fun onV3SettingsProfileSelected(profileId: Int) = Unit
+    protected open fun onV3SettingsProfileCreateRequested() = Unit
+    protected open fun onV3SettingsProfileRenameRequested(profileId: Int) = Unit
+
+    protected fun renderV3Spinners(states: Map<String, SpinnerUiStateV3>) {
+        v3SpinnerAdapter.renderSpinners(states)
+    }
+
+    protected fun renderV3SettingsProfiles(state: V3SettingsProfilesUiState?) {
+        v3SpinnerAdapter.renderSettingsProfiles(state)
     }
 
     override fun onResume() {

@@ -95,7 +95,7 @@ class V3ToggleSliderSettingsIntegrationTest {
                 savedParameters.add(parameter)
             },
         )
-        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }

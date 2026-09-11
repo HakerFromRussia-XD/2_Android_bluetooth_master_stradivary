@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_M
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
@@ -43,7 +44,7 @@ class V3SpecialSettingsViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository).create(V3SpecialSettingsViewModel::class.java)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository).create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }
 
@@ -324,7 +325,11 @@ class V3SpecialSettingsViewModelTest {
         )
     }
 
-    private class FakeRepository : V3DeviceSettingsRepository, V3ToggleSliderSettingsRepository {
+    private class FakeRepository : V3DeviceSettingsRepository, V3ToggleSliderSettingsRepository, V3SpinnerSettingsRepository {
+        override val spinnerInteractionEnabled get() = sliderInteractionEnabled
+        override fun getSpinnerValue(parameterKey: String): Int? = null
+        override fun observeSpinnerValue(parameterKey: String) = MutableStateFlow<Int?>(null)
+        override fun setSpinnerValue(parameterKey: String, value: Int) = error("No Spinner in this fixture")
         override val toggleSliderInteractionEnabled get() = sliderInteractionEnabled
         override fun getToggleSliderValue(parameterKey: String): V3ToggleSliderValue? = null
         override fun observeToggleSliderValue(parameterKey: String) = MutableStateFlow<V3ToggleSliderValue?>(null)

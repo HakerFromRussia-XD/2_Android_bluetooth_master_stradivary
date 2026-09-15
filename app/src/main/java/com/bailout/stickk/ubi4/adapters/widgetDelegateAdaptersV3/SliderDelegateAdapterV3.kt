@@ -80,10 +80,14 @@ class SliderDelegateAdapterV3(
         )
         widgetInfoList.add(infoWidget)
 
+        fun dispatch(action: V3SliderAction) {
+            if (widgetInfoList.any { it === infoWidget } && sliderStates[parameterKey]?.isEnabled == true) onAction(action)
+        }
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (widgetInfoList.none { it === infoWidget }) return
                 if (fromUser) {
-                    onAction(V3SliderAction.SliderValueChanged(
+                    dispatch(V3SliderAction.SliderValueChanged(
                         parameterKey, progress + infoWidget.minProgress
                     ))
                 }
@@ -95,16 +99,16 @@ class SliderDelegateAdapterV3(
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                onAction(V3SliderAction.SliderChangeCommitted(
+                dispatch(V3SliderAction.SliderChangeCommitted(
                     parameterKey, seekBar.progress + infoWidget.minProgress
                 ))
             }
         })
         minusBtnRipple.setOnClickListener {
-            onAction(V3SliderAction.SliderStepClicked(parameterKey, -1))
+            dispatch(V3SliderAction.SliderStepClicked(parameterKey, -1))
         }
         plusBtnRipple.setOnClickListener {
-            onAction(V3SliderAction.SliderStepClicked(parameterKey, 1))
+            dispatch(V3SliderAction.SliderStepClicked(parameterKey, 1))
         }
 
         widgetSliderSb.max = infoWidget.range
@@ -234,6 +238,12 @@ class SliderDelegateAdapterV3(
         else -> title
     }
 
+
+    override fun Ubi4WidgetSliderBinding.onRecycled() {
+        widgetInfoList.removeAll { info ->
+            (info.widgetSlidersSb === widgetSliderSb).also { if (it) releaseSliderViews(info) }
+        }
+    }
 
     fun onDestroy() {
         isAttached = false

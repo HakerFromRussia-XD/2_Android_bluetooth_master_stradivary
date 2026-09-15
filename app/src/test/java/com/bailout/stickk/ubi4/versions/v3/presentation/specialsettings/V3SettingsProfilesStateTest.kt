@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
+
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileOperation
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
@@ -50,6 +52,7 @@ class V3SettingsProfilesStateTest {
     private val interaction = MutableStateFlow(true)
     private val repository = ProfilesRepository()
     private val source = WidgetsSource()
+    private val appSettings = FakeV3AppSettingsRepository()
     private val sliders = mockk<V3DeviceSettingsRepository>(relaxed = true) {
         every { sliderInteractionEnabled } returns interaction
         every { getSliderValue(any()) } returns null
@@ -72,7 +75,7 @@ class V3SettingsProfilesStateTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository)
+        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository, appSettings)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("screen", viewModel)
     }
@@ -233,7 +236,7 @@ class V3SettingsProfilesStateTest {
         when (reason) {
             "standard-v3" -> source.profile = V3DeviceProfile.STANDARD_V3
             "not-v3" -> source.profile = V3DeviceProfile.NOT_V3
-            "application" -> section(V3SpecialSettingsSection.APPLICATION)
+            "application" -> appSettings.settingsSection = V3SpecialSettingsSection.APPLICATION
             "removed" -> source.visible = false
         }
         attach(); runCurrent()

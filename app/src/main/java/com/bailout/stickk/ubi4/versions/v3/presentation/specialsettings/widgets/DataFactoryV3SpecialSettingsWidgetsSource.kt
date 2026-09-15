@@ -3,8 +3,9 @@ package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
-import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsSection
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import kotlinx.coroutines.flow.map
 
 class DataFactoryV3SpecialSettingsWidgetsSource(
@@ -20,6 +21,9 @@ class DataFactoryV3SpecialSettingsWidgetsSource(
             section == V3SpecialSettingsSection.APPLICATION -> dataFactory.mobileWidgets()
             else -> dataFactory.prepareData(display = 2)
         }
-        return V3SpecialSettingsWidgetsSnapshot(profile, WidgetRepoProvider.mac(), mapper.fromItems(items))
+        return V3SpecialSettingsWidgetsSnapshot(
+            profile, WidgetRepoProvider.mac(), mapper.fromItems(items),
+            animationsEnabled = !WidgetState.dbSnapshotAppliedWithCrc,
+        )
     }
 }

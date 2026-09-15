@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
+
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -89,7 +91,7 @@ class V3SpinnerSettingsIntegrationTest {
                 savedValues.add(value)
             },
         )
-        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository, FakeV3AppSettingsRepository())
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }

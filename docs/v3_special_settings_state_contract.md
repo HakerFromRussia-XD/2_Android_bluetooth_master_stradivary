@@ -32,8 +32,11 @@ V3SpecialSettingsWidgetMapper преобразует Items в описания �
 Options копируются на обеих границах. Повторный одинаковый список не сбрасывает
 черновики; смена устройства или набора Slider отменяет ожидающие записи.
 Fragment отображает состав из состояния; прямой путь DataFactory/updateFlow
-сохраняется только для UBI4. Чтение/сохранение выбранной вкладки ещё находится
-в Fragment до A6; остальные значения и обработчики переносим по A4–A6.
+сохраняется только для UBI4. С A6.2 чтение/сохранение выбранной вкладки V3
+проходит через ViewModel и V3AppSettingsRepository; пользовательская запись —
+через SetSpecialSettingsSectionUseCaseV3. Enum V3SpecialSettingsSection находится
+в domain.appsettings. Fragment отражает selectedSection в совместимом
+activeSettingsFragmentFilterFlow, не записывая preferences при render.
 
 Реализовано в A4.1: ToggleSlider «Блокировка движения с ЕМГ» в SpecialSettings
 для STANDARD_V3/INDY3. В toggleSliders хранится ToggleSliderUiStateV3:
@@ -124,9 +127,14 @@ S-структуры V3 уже содержат текст; механизм `la
 
 В разделе приложения DataFactory.mobileWidgets() возвращает один Switch
 «Автоматический вход» / «Auto login» (`MobileSettingsKey.AUTO_LOGIN`).
-Это существующий SwitchItem, не SwitchItemV3; адаптер читает
-SET_MODE_SMART_CONNECTION из SharedPreferences (по умолчанию false) и сохраняет
-пользовательское изменение через main.saveBoolean без отправки BLE.
+Исходно это SwitchItem, не SwitchItemV3: адаптер читал SET_MODE_SMART_CONNECTION
+из SharedPreferences (default=false) и сохранял через main.saveBoolean, без BLE
+и записи в SettingsProfileManager. С A6.1 источник по-прежнему возвращает SwitchItem,
+а Android mapper передаёт типизированный Switch в AutoLoginDelegateAdapterV3.
+Значение и доступность берутся из autoLogin в UiState; запись идёт через
+AutoLoginChanged → ViewModel → SetAutoLoginEnabledUseCaseV3 → V3AppSettingsRepository.
+Сохраняются прежние preferences, ключ, default и apply(). Внешние изменения
+(включая применение профиля) приходят через listener preferences без повторной записи.
 
 Навигация: `page_4 → showSpecialScreen() → SpecialSettingsFragment`.
 Удержание accountBtn переключает видимость `page_secret`; его выбор вызывает
@@ -141,13 +149,14 @@ SET_MODE_SMART_CONNECTION из SharedPreferences (по умолчанию false)
 | Что | Источник и текущий потребитель | Граница при переносе |
 | --- | --- | --- |
 | Состав | BLEController выбирает генератор по `activeV3DeviceProfile`; парсер публикует `UiState.listWidgets` и `updateFlow` | Узкий presentation-источник состава и преобразователь вокруг DataFactory |
-| Первый список | SpecialSettings восстанавливает LAST_ACTIVE_SETTINGS_FILTER; ViewModel читает снимок выбранной вкладки через source | Реализовано в A3; первый список доступен без события |
+| Первый список | ViewModel восстанавливает вкладку через V3AppSettingsRepository до чтения снимка widgets; повторяет чтение при ViewAttached | Состав реализован в A3, восстановление в A6.2; первый список доступен без события и без записи предпочтения |
 | Обновление списка | Source передаёт инвалидации updateFlow, ViewModel обновляет widgets; Fragment сравнивает состав перед swap | Реализовано в A3; при занятом layout отображается самое свежее состояние с проверкой существования view |
-| Переключение вкладки | Кнопки сохраняют LAST_ACTIVE_SETTINGS_FILTER, меняют activeSettingsFragmentFilterFlow (1 — протез, 2 — приложение); в V3 посылают SettingsSectionSelected, состояние содержит выбранную вкладку и её список | Выбор в UiState с A2, состав с A3; сохранение/совместимый сигнал выносится за контракт в A6, анимация индикатора остаётся UI |
+| Переключение вкладки | SettingsSectionSelected → ViewModel → SetSpecialSettingsSectionUseCaseV3 → repository; Fragment отображает вкладку/список и зеркалирует activeSettingsFragmentFilterFlow (1 — протез, 2 — приложение) | A6.2: прежний LAST_ACTIVE_SETTINGS_FILTER, false — PROSTHESIS, true — APPLICATION; анимация индикатора остаётся UI; UBI4 использует прежний путь |
 | Значения Slider | `V3DeviceSettingsRepository` → общий V3SliderSettingsController → V3SpecialSettingsViewModel → подписка SpecialSettingsFragment → пассивный Slider adapter; запись через UseCase | Реализовано в A2; Base предоставляет только render/callback к общему адаптеру и создание зависимости |
 | Значения ToggleSlider/Spinner | Все применимые ToggleSlider и обычные Spinner SpecialSettings получают значения через repository → ViewModel → UiState | ToggleSlider завершены в A4, обычные Spinner — в A5.1–A5.2; профили настроек отдельно |
 | Доступность | `UiState.v3WidgetsInteractionEnabled`; её меняет в том числе ControllerBleStatusConnection, есть включение для эмуляции | Поток доступности через repository-контракт; не выводить готовность только из GATT connect |
 | Синхронизация | `startupInProgress`, `fullInitInProgress`, `widgetsLoadingProgressFlow`, событие `widgetsLoadingFlow` | Наблюдаемое состояние через Android-адаптер существующего источника |
+| Автоматический вход | V3AppSettingsRepository → экранный autoLogin; запись через SetAutoLoginEnabledUseCaseV3 | A6.1: существующие preferences, без BLE/записи в профиль, независимо от BLE-блокировки |
 | Профили настроек | V3SettingsProfilesRepository → GetSettingsProfilesUseCaseV3 → экранная ViewModel; выбор по ID через SelectSettingsProfileUseCaseV3, создание через CreateSettingsProfileUseCaseV3, имя через RenameSettingsProfileUseCaseV3 | Чтение/выбор/создание/переименование перенесены в A5.3.1–A5.3.4; диалог отображает Fragment |
 | Анимации | `WidgetState.dbSnapshotAppliedWithCrc` подавляет анимации значений | Presentation получает политику анимаций; адаптер не читает глобальное состояние |
 
@@ -173,22 +182,28 @@ SET_MODE_SMART_CONNECTION из SharedPreferences (по умолчанию false)
 Далее — целевые поля. selectedSection и sliders реализованы в A2;
 deviceProfile и widgets — в A3, все применимые ключи toggleSliders — в A4,
 spinners для HAND_CONTROL_MODE — в A5.1 и GESTURE_CHANGE_MODE — в A5.2;
-список/активный ID settingsProfiles — в A5.3.1. Остальные добавляем по A5–A6,
+список/активный ID settingsProfiles — в A5.3.1, autoLogin — в A6.1,
+хранение вкладки и ошибки её чтения/сохранения — в A6.2. Остальные добавляем по A6,
 без пустого каркаса всех классов заранее.
 
 | Поле | Содержание и правило |
 | --- | --- |
 | `deviceProfile` | Текущий тип устройства V3. Для NOT_V3 этот путь экрана не активируется |
-| `selectedSection` | Настройки протеза или приложения; восстанавливается из LAST_ACTIVE_SETTINGS_FILTER |
+| `selectedSection` | Domain enum V3SpecialSettingsSection: PROSTHESIS/APPLICATION; repository восстанавливает из LAST_ACTIVE_SETTINGS_FILTER до первого списка и при возврате. Сохраняется только пользовательским действием активного V3-экрана |
+| `settingsSectionReadFailed`, `settingsSectionSaveFailed` | Фактические ошибки чтения/сохранения вкладки. Первое неудачное чтение использует PROSTHESIS без перезаписи preferences; позднее неудачное чтение или запись оставляет текущую вкладку. Новое отображение ошибок не добавляется по требованию сохранения UI |
 | `widgets` | Упорядоченный неизменяемый список выбранной вкладки: `V3SpecialSettingsWidget` с вариантами `Slider`, `ToggleSlider`, `Spinner`, `SettingsProfile`, `Switch` для AUTO_LOGIN |
 | `sliders` | Существующий `Map<String, SliderUiStateV3>`: значение/черновик, domain-диапазон, доступность и признак анимации |
 | `toggleSliders` | Состояния по parameterKey: значение времени, включённость функции, диапазон, отдельно доступность переключателя и ползунка |
 | `spinners` | `Map<String, SpinnerUiStateV3>`: отображаемый `selectedIndex` и `isEnabled`; варианты и подписи задаёт описание виджета. Подключены HAND_CONTROL_MODE и GESTURE_CHANGE_MODE; отсутствующий в составе ключ имеет null/false |
 | `settingsProfiles` | Nullable: отсутствует, если нет виджета. Список `{profileId, customName}`, activeProfileId, canCreate, isEnabled, isLoading/loadFailed чтения; operation/failedOperation (SELECT, CREATE или RENAME), null означает отсутствие операции/ошибки. nameEditor: запрос диалога с requestId и профилем или null |
-| `mobileSettings` | Значение «Автоматический вход» из настроек приложения; не подчиняется BLE-блокировке параметров протеза |
-| `synchronization` | Снимок startup/fullInit и счётчиков current/total; неизвестный total не означает 100% или готовность |
-| `isInteractionEnabled` | Текущий общий допуск к действиям, из существующего источника доступности |
-| `operationError` | Nullable, только фактически полученная ошибка сценария экрана; не выдуманное подтверждение/ошибка BLE |
+| `autoLogin` | Реализованное в A6.1 состояние «Автоматического входа» (вместо общего планового mobileSettings): isChecked, isEnabled, isLoading, readFailed, saveFailed. Доступно при активном V3-экране, вкладке приложения и наличии виджета; не подчиняется BLE-блокировке параметров протеза |
+| `animationsEnabled` | С A6.3 прежняя политика !dbSnapshotAppliedWithCrc приходит через источник состава; Fragment передаёт её пассивным адаптерам |
+
+Финальная граница A6.3: общего поля synchronization в экран не добавляем — его
+потребитель SyncProgressDialog принадлежит Activity. Доступность уже находится
+в состояниях конкретных виджетов, а реальные ошибки — в состояниях профилей,
+autoLogin и выбранной вкладки. Дополнительные isInteractionEnabled/operationError,
+дублирующие эти поля без потребителя, не нужны. Прежний UI сохраняется.
 
 Описание виджета хранит `id`, `parameterKey`, `position`, `title` и нужные для
 представления метаданные: единицу/масштаб ToggleSlider либо варианты Spinner.
@@ -323,6 +338,12 @@ Domain проверяет ID, наличие профиля и имя через
 
 ## 6. Загрузка и ошибки
 
+Уточнение пользователя 2026-09-11: UI должен отображаться как прежде. Новые блоки,
+сообщения, индикаторы и кнопки повтора в рамках рефакторинга не добавляются.
+Предыдущие пометки «отображение ошибок — A6.3» не означают разрешение на новый UI:
+существующие флаги ошибок остаются в состоянии; переносим только уже имеющееся
+поведение. Вариант с отдельным блоком над виджетами отменён и полностью убран.
+
 У SpecialSettingsFragment нет pull-to-refresh. Изначально анализ ошибочно включал
 обработчик AdvancedFragment; переносить его сюда не нужно.
 Существующий refresh других экранов через BaseWidgetsFragment устанавливает `fullInitInProgress`, подключает существующий
@@ -335,9 +356,10 @@ SyncProgressDialog и вызывает `refreshWidgetsV3BySwipe()`. Тот за�
 индикатор выбранной вкладки; завершение синхронизации из него не выводим.
 
 SyncProgressDialog принадлежит Activity и уже наблюдает startup/fullInit, прогресс
-и событие завершения. Контракт SpecialSettings отражает эти источники для экрана;
-дублирующий модальный диалог или новая инициализация не нужны. При возврате берём
-StateFlow-снимки: событие `widgetsLoadingFlow` не имеет replay и могло быть пропущено.
+и событие завершения. SpecialSettings не копирует его состояние без потребителя
+и не управляет этим диалогом. При возврате Activity использует StateFlow-снимки:
+событие `widgetsLoadingFlow` не имеет replay и могло быть пропущено. Доступность
+виджетов SpecialSettings приходит из repository, не выводится из updateFlow.
 
 Сейчас нет общего потока ошибок SpecialSettings. Ошибки notify/запроса device data
 показываются через toast из BLEController, ошибки загрузки/фонового сохранения
@@ -447,3 +469,57 @@ KMM-менеджера, отмена/другой serial, поздний отв�
 Реальный KMM repository проверен app-тестом на сохранность значений/активного профиля.
 Shared-код, парсеры, iOS и флаг видимости не менялись в A5.3.4. Android view/телефон
 и iOS-сборка не проверялись. Далее A6, начиная с «Автоматического входа».
+
+После A6.1 сборка и 266 app-тестов в 28 suites прошли (2026-09-11 10:42:53–59 UTC),
+0 ошибок/пропусков; `/tmp/ubi4-special-settings-a6-1-20260911.log`.
+Auto login наблюдается только при активном представлении V3; STOP/clear освобождают
+listener, возврат читает актуальное значение. Render/rebind/внешняя запись не вызывают
+сохранение. Адаптер освобождает callback при recycle/destroy; запоздалое нажатие
+не меняет preferences. Проверены STANDARD_V3/INDY3, сохранение при BLE-блокировке,
+ошибки чтения/записи и явный повтор. XML/Compose, shared, парсеры, iOS не менялись.
+На телефоне не проверено. Ошибки чтения/записи autoLogin уже есть в состоянии,
+общая презентация ошибок ещё впереди.
+
+После A6.2 сборка и 276 app-тестов в 28 suites прошли (2026-09-11 10:53:43–49 UTC),
+0 ошибок/пропусков; `/tmp/ubi4-special-settings-a6-2-20260911.log`.
+Проверены восстановление обеих вкладок до первого отображения, возврат и внешнее
+изменение preferences, ошибки/явный повтор, игнорирование действий при STOP/NOT_V3.
+Восстановление не имитирует пользовательское действие и не пишет preferences.
+Повторный выбор текущей вкладки не сбрасывает черновики; переход в APPLICATION
+сохраняет отмену отложенных изменений параметров. Выбор не зависит от BLE-блокировки
+и не меняет «Автоматический вход». После ошибки чтения возврат повторяет чтение;
+после ошибки записи автоматического повтора нет. Shared/парсеры/iOS/XML/Compose
+не менялись; на телефоне не проверено. Далее A6.3 — загрузка и значимые ошибки.
+
+Завершение A6.3 (2026-09-11): архитектурная проверка SpecialSettings выполнена
+без нового UI. Сборки debug/release и 282 app-теста в 30 suites прошли, без ошибок
+и пропусков (XML 11:37:40–45 UTC; `/tmp/ubi4-before-sensors-20260911.log`,
+`/tmp/ubi4-before-sensors-release-20260911.log`). Новые проверки используют
+реальный код адаптеров и сгенерированные bindings с mock Android views:
+нет записи при render, старые callback после rebind/recycle/destroy игнорируются,
+Spinner профилей не запускает старые подписки и не читает preferences. Для
+его режима доступность берётся исключительно из settingsProfiles.isEnabled;
+непосредственно перед операцией ViewModel/repository проверяют актуальный допуск.
+Состояние анимаций приходит из source и не сбрасывает черновики параметров.
+При destroyView Fragment отсоединяет RecyclerView. Общий Base binder Slider
+пока остаётся для Sensors/Service/Advanced, прямой DataFactory-путь Fragment —
+только для UBI4, мост состава SpecialSettings — до этапа shared. Это оставшиеся
+общие границы перехода, а не параллельные обработчики значений этого экрана.
+Новые блоки, тексты, индикаторы, retries, BLE-команды не добавлены; XML/Compose,
+shared, парсеры и iOS не менялись. Проверка shared BindingGroup по-прежнему отложена.
+
+Проверка на телефоне после A6.3: на Samsung SM-A065F установлен release APK с той же
+подписью через install -r. Пользователь подтвердил реальный обычный V3. После запуска
+приложение перешло к рабочему экрану; восстановлены APPLICATION/autoLogin. Уход в фон
+и возврат к тому же MainActivity сохранили мобильную вкладку. Запуск SplashScreen
+через adb отдельно открывал ScanActivity поверх неё; Back возвращал прежний экран.
+Этот вспомогательный маршрут не выдаётся за проверку нажатия иконки лаунчера.
+Сравнены обе вкладки до/после: у PROSTHESIS совпали все 121 узел области настроек
+(resource-id/class/text/checked/enabled/clickable/bounds); у APPLICATION совпали
+переключатель и заголовки. Открытие обоих Spinner проверено визуально: 5 вариантов
+режима протеза и 2 действия смены жеста, без выбора новых значений. Телефон оставлен
+на исходной вкладке PROSTHESIS. Значения Slider/ToggleSlider/Spinner и autoLogin
+не менялись. Снимки `/tmp/v3-before-sensors-*.xml`, результаты
+`/tmp/v3-before-sensors-ui-comparison.txt`. Запись параметров реальному устройству
+и физический INDY3 в эту проверку не входили; соответствующие сценарии проверены
+автоматически. Обычный V3 по-прежнему скрывает «Профили настроек».

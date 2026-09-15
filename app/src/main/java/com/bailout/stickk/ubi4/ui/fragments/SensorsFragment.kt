@@ -1,112 +1,195 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import android.annotation.SuppressLint
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.plot.V3PlotAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.DataFactoryV3SensorsWidgetsSource
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidget
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidgetMapper
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.simform.refresh.SSPullToRefreshLayout
-import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-
-@Suppress("DEPRECATION")
 class SensorsFragment : BaseWidgetsFragment() {
-    override val v3SliderParameterKeys = setOf(
-        P_KEY_EMG_GAIN_OPEN_VALUE,
-        P_KEY_EMG_GAIN_CLOSE_VALUE,
-    )
-
     private var _binding: Ubi4FragmentHomeBinding? = null
     private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
-    private var mDataFactory: DataFactory = DataFactory()
-
-    private val disposables = CompositeDisposable()
-    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
-
-    private var count = 0
-    private val display = 1
-
+    private val dataFactory = DataFactory()
+    private var v3SensorsViewModel: V3SensorsViewModel? = null
+    private var widgetsStateJob: Job? = null
+    private val v3WidgetMapper = V3SensorsWidgetMapper()
+    private var renderedV3Widgets: List<V3SensorsWidget>? = null
+    private var renderedSliders: Map<String, SliderUiStateV3>? = null
+    private var renderedButtons: V3SensorsButtonsUiState? = null
+    private var renderedRefreshIndicator: Boolean? = null
+    private var v3AnimationsEnabled = true
+    private var pendingRender: Runnable? = null
 
     override fun onResume() {
         super.onResume()
-        updateFlow.tryEmit(0)
+        UiState.updateFlow.tryEmit(0)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false).apply {
-            refreshLayout.setLottieAnimation("loader_3.json")
-            refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-            refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-            refreshLayout.setOnRefreshListener { refreshWidgetsList() }
-//        binding.refreshLayout.isEnabled = false
-            homeRv.layoutManager = LinearLayoutManager(context)
-            homeRv.adapter = adapterWidgets
-
-        }
-        widgetListUpdater()
-        main = activity as? MainActivityUBI4
-
-        //настоящие виджеты
-        val initialData = mDataFactory.prepareData(display)
-        platformLog("BOOTSTRAP_UI", "apply initial widgets in SensorsFragment: size=${initialData.size}")
-        adapterWidgets.swapData(initialData)
-        main?.refreshBottomNavVisibility()
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onDestroyView() {
-        disposables.clear()
-        Log.d("onDestroyParentCallbacks", "========================")
-        onDestroyParentCallbacks.forEach {
-            Log.d("onDestroyParentCallbacks", " считаем сколько раз")
-            it.invoke() }
-        onDestroyParentCallbacks.clear()
-        main = null
-        _binding = null
-        super.onDestroyView()
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        main = activity as? MainActivityUBI4
+        binding.refreshLayout.setLottieAnimation("loader_3.json")
+        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+        binding.refreshLayout.setOnRefreshListener {
+            val viewModel = v3SensorsViewModel
+            if (viewModel != null) {
+                viewModel.onAction(V3SensorsAction.RefreshRequested)
+                // The pull control starts its animation before this callback, even if the request is rejected.
+                renderRefreshIndicator(viewModel.uiState.value.isRefreshIndicatorVisible, force = true)
+            } else {
+                refreshWidgetsList()
+            }
+        }
+        binding.homeRv.layoutManager = LinearLayoutManager(context)
+        binding.homeRv.adapter = adapterWidgets
+        if (UiState.isInterfaceV3Activated) bindV3Sensors() else bindUbi4Widgets()
     }
 
+    private fun bindV3Sensors() {
+        val viewModel = ViewModelProvider(
+            this, V3SensorsViewModelFactory(
+                createV3DeviceSettingsRepository(), DataFactoryV3SensorsWidgetsSource(), createV3SensorsPlotRepository(),
+                createV3SensorsCommandsRepository(),
+            ),
+        )[V3SensorsViewModel::class.java]
+        v3SensorsViewModel = viewModel
+        renderV3Sensors(viewModel.uiState.value)
+        val owner = viewLifecycleOwner
+        widgetsStateJob = owner.lifecycleScope.launch {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onAction(V3SensorsAction.ViewAttached)
+                try {
+                    viewModel.uiState.collect(::renderV3Sensors)
+                } finally {
+                    viewModel.onAction(V3SensorsAction.ViewDetached)
+                }
+            }
+        }
+    }
 
+    override fun onV3SensorsButtonsAction(action: V3SensorsButtonsAction) {
+        v3SensorsViewModel?.onAction(V3SensorsAction.ButtonsAction(action))
+    }
 
-    private fun widgetListUpdater() {
-        viewLifecycleOwner.lifecycleScope.launch(Main) {
-            updateFlow.collect { updateEvent->
-                Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
-                val data = mDataFactory.prepareData(display)
-                Log.d("widgetListUpdater", "$data")
-                platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=$data")
+    override fun onV3PlotAction(action: V3PlotAction) {
+        v3SensorsViewModel?.onAction(V3SensorsAction.PlotAction(action))
+    }
 
-                if (binding.homeRv.isComputingLayout) {
-                    binding.homeRv.post {
-                        adapterWidgets.swapData(data)
-                        main?.refreshBottomNavVisibility()
-                    }
+    override fun onV3SliderAction(action: V3SliderAction) {
+        v3SensorsViewModel?.onAction(V3SensorsAction.SliderAction(action))
+    }
+
+    override fun areV3WidgetAnimationsEnabled(): Boolean =
+        if (v3SensorsViewModel != null) v3AnimationsEnabled else super.areV3WidgetAnimationsEnabled()
+
+    private fun renderV3Sensors(state: V3SensorsUiState) {
+        val currentBinding = _binding ?: return
+        val recyclerView = currentBinding.homeRv
+        pendingRender?.let(recyclerView::removeCallbacks)
+        pendingRender = null
+        if (recyclerView.isComputingLayout) {
+            pendingRender = Runnable {
+                if (_binding === currentBinding) v3SensorsViewModel?.uiState?.value?.let(::renderV3Sensors)
+            }.also(recyclerView::post)
+            return
+        }
+        v3AnimationsEnabled = state.animationsEnabled
+        renderV3Plot(state.plot)
+        if (renderedButtons != state.buttons) {
+            renderV3SensorsButtons(state.buttons)
+            renderedButtons = state.buttons
+        }
+        if (renderedSliders != state.sliders) {
+            renderV3Sliders(state.sliders)
+            renderedSliders = state.sliders
+        }
+        if (renderedV3Widgets != state.widgets) {
+            adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
+            renderedV3Widgets = state.widgets
+            main?.refreshBottomNavVisibility()
+        }
+        renderRefreshIndicator(state.isRefreshIndicatorVisible)
+    }
+
+    private fun renderRefreshIndicator(visible: Boolean, force: Boolean = false) {
+        val currentBinding = _binding ?: return
+        if (force || renderedRefreshIndicator != visible) {
+            currentBinding.refreshLayout.setRefreshing(visible)
+            renderedRefreshIndicator = visible
+        }
+    }
+
+    private fun bindUbi4Widgets() {
+        adapterWidgets.swapData(dataFactory.prepareData(display = 1))
+        main?.refreshBottomNavVisibility()
+        widgetsStateJob = viewLifecycleOwner.lifecycleScope.launch {
+            UiState.updateFlow.collect {
+                val currentBinding = _binding ?: return@collect
+                val data = dataFactory.prepareData(display = 1)
+                val recyclerView = currentBinding.homeRv
+                pendingRender?.let(recyclerView::removeCallbacks)
+                pendingRender = null
+                if (recyclerView.isComputingLayout) {
+                    pendingRender = Runnable {
+                        if (_binding === currentBinding) {
+                            adapterWidgets.swapData(data)
+                            main?.refreshBottomNavVisibility()
+                        }
+                    }.also(recyclerView::post)
                 } else {
                     adapterWidgets.swapData(data)
                     main?.refreshBottomNavVisibility()
                 }
-                binding.refreshLayout.setRefreshing(false)
+                currentBinding.refreshLayout.setRefreshing(false)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        v3SensorsViewModel?.onAction(V3SensorsAction.ViewDetached)
+        widgetsStateJob?.cancel()
+        widgetsStateJob = null
+        pendingRender?.let { _binding?.homeRv?.removeCallbacks(it) }
+        pendingRender = null
+        _binding?.homeRv?.adapter = null
+        renderedV3Widgets = null
+        renderedSliders = null
+        renderedButtons = null
+        renderedRefreshIndicator = null
+        v3SensorsViewModel = null
+        main = null
+        _binding = null
+        super.onDestroyView()
     }
 }

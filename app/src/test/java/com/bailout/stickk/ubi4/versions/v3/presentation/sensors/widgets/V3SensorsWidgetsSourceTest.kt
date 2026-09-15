@@ -1,0 +1,182 @@
+package com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets
+
+import com.bailout.stickk.ubi4.versions.v3.domain.sensors.V3ProsthesisMovement
+import com.bailout.stickk.ubi4.ble.BleCommandExecutor
+import com.bailout.stickk.ubi4.ble.BleManagerKmm
+import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.parser.BLEParserV3
+import com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
+import com.bailout.stickk.ubi4.models.widgets.ButtonsItemV3
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
+import com.bailout.stickk.ubi4.shared.SharedRes
+import com.bailout.stickk.ubi4.utility.localizedString
+import dev.icerock.moko.resources.StringResource
+import io.mockk.Called
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import java.io.File
+import java.util.Locale
+import javax.xml.parsers.DocumentBuilderFactory
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class V3SensorsWidgetsSourceTest {
+    private val originalWidgets = UiState.listWidgets.toSet()
+    private val originalDevices = GlobalParameters.baseSubDevicesInfoStructSetV3.toSet()
+    private val originalProfile = UiState.activeV3DeviceProfile
+    private val originalV3Mode = UiState.isInterfaceV3Activated
+    private val originalSnapshotApplied = WidgetState.dbSnapshotAppliedWithCrc
+    private val originalAddress = WidgetRepoProvider.mac()
+    private val originalLocale = Locale.getDefault()
+    private val originalUpdates = UiState.updateFlow.replayCache
+    private val mapper = V3SensorsWidgetMapper()
+    private val factory = DataFactory()
+    private val executor = mockk<BleCommandExecutor>(relaxed = true)
+    private val bleManager = mockk<BleManagerKmm>(relaxed = true)
+
+    @BeforeEach
+    fun setUp() {
+        UiState.listWidgets.clear()
+        UiState.updateFlow.resetReplayCache()
+        UiState.isInterfaceV3Activated = true
+        UiState.activeV3DeviceProfile = V3DeviceProfile.STANDARD_V3
+        WidgetRepoProvider.setCurrentMac("test-v3-device")
+    }
+
+    @AfterEach
+    fun tearDown() {
+        UiState.listWidgets.clear()
+        UiState.listWidgets.addAll(originalWidgets)
+        GlobalParameters.baseSubDevicesInfoStructSetV3.clear()
+        GlobalParameters.baseSubDevicesInfoStructSetV3.addAll(originalDevices)
+        UiState.activeV3DeviceProfile = originalProfile
+        UiState.isInterfaceV3Activated = originalV3Mode
+        WidgetState.dbSnapshotAppliedWithCrc = originalSnapshotApplied
+        WidgetRepoProvider.setCurrentMac(originalAddress)
+        Locale.setDefault(originalLocale)
+        UiState.updateFlow.resetReplayCache()
+        originalUpdates.forEach { UiState.updateFlow.tryEmit(it) }
+        unmockkStatic(::localizedString)
+    }
+
+    @ParameterizedTest
+    @CsvSource("STANDARD_V3,ru", "STANDARD_V3,en", "INDY3,ru", "INDY3,en")
+    fun `both generators preserve all Sensors items and delegate metadata`(profile: V3DeviceProfile, language: String) = runTest {
+        generate(profile, language)
+        val source = DataFactoryV3SensorsWidgetsSource()
+        val snapshot = source.snapshot()
+        val expected = factory.prepareData(display = 1)
+        assertEquals(profile, snapshot.deviceProfile)
+        assertEquals("test-v3-device", snapshot.deviceAddress)
+        assertEquals(4, snapshot.widgets.size)
+        assertEquals(listOf(0, 1, 2, 3), snapshot.widgets.map { it.info.widgetPosition })
+        assertTrue(snapshot.widgets.first() is V3SensorsWidget.Plot)
+        assertTrue(snapshot.widgets.last() is V3SensorsWidget.Buttons)
+        assertEquals(setOf(V3ProsthesisMovement.OPEN, V3ProsthesisMovement.CLOSE),
+            snapshot.widgets.filterIsInstance<V3SensorsWidget.Buttons>().single().movements)
+        assertEquals(listOf(P_KEY_EMG_GAIN_OPEN_VALUE, P_KEY_EMG_GAIN_CLOSE_VALUE),
+            snapshot.widgets.filterIsInstance<V3SensorsWidget.Slider>().map { it.parameterKey })
+        assertEquals(listOf(ParameterInfoRegistry.require(P_KEY_PLOT), ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)),
+            snapshot.widgets.first().info.parameters)
+        assertEquals(expected, mapper.toItems(snapshot.widgets))
+        // Snapshot collections must survive mutations by either the shared factory or delegates.
+        val fromFactory = mapper.fromItems(expected)
+        val forAdapters = mapper.toItems(fromFactory)
+        expected.forEach { base(it).parameterInfoSet.clear() }
+        forAdapters.forEach { base(it).parameterInfoSet.clear() }
+        assertEquals(snapshot.widgets, fromFactory)
+        assertTrue(mapper.toItems(fromFactory).all { base(it).parameterInfoSet.isNotEmpty() })
+        verify { executor wasNot Called; bleManager wasNot Called }
+    }
+
+    @Test
+    fun `source update is only a composition signal and preserves animation policy`() = runTest {
+        generate(V3DeviceProfile.STANDARD_V3, "ru")
+        val source = DataFactoryV3SensorsWidgetsSource()
+        WidgetState.dbSnapshotAppliedWithCrc = true
+        assertFalse(source.snapshot().animationsEnabled)
+        WidgetState.dbSnapshotAppliedWithCrc = false
+        assertTrue(source.snapshot().animationsEnabled)
+        UiState.updateFlow.resetReplayCache()
+        var received = 0
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            source.updates.take(1).collect { received++ }
+        }
+        UiState.updateFlow.emit(0)
+        assertEquals(1, received)
+        verify { executor wasNot Called; bleManager wasNot Called }
+    }
+
+    @Test
+    fun `source exposes no V3 widgets outside V3 even with a previous device composition`() = runTest {
+        generate(V3DeviceProfile.STANDARD_V3, "en")
+        UiState.isInterfaceV3Activated = false
+        val snapshot = DataFactoryV3SensorsWidgetsSource().snapshot()
+        assertEquals(V3DeviceProfile.NOT_V3, snapshot.deviceProfile)
+        assertTrue(snapshot.widgets.isEmpty())
+        verify { executor wasNot Called; bleManager wasNot Called }
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.generate(profile: V3DeviceProfile, language: String) {
+        useResourceStrings(language)
+        UiState.activeV3DeviceProfile = profile
+        val parser = BLEParserV3(backgroundScope, executor, bleManager)
+        if (profile == V3DeviceProfile.INDY3) parser.generatedHardcodeWidgetsINDY3() else parser.generatedHardcodeWidgets()
+    }
+
+    private fun base(item: Any): BaseParameterWidgetStruct = when (item) {
+        is PlotItemV3 -> (item.widget as PlotParameterWidgetSStruct).baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is SliderItemV3 -> (item.widget as SliderParameterWidgetSStruct).baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is ButtonsItemV3 -> (item.widget as CommandParameterWidgetSStruct).baseParameterWidgetSStruct.baseParameterWidgetStruct
+        else -> error("Unexpected Sensors item")
+    }
+
+    private fun useResourceStrings(language: String) {
+        Locale.setDefault(Locale(language))
+        val resourceDirectory = File("../shared/src/commonMain/moko-resources/strings")
+        val strings = readStrings(File(resourceDirectory, "base/strings.xml")) +
+            if (language == "ru") readStrings(File(resourceDirectory, "ru/strings.xml")) else emptyMap()
+        val names = SharedRes.strings::class.java.methods
+            .filter { it.parameterCount == 0 && it.returnType == StringResource::class.java }
+            .associate { (it.invoke(SharedRes.strings) as StringResource) to it.name.removePrefix("get").replaceFirstChar(Char::lowercase) }
+        mockkStatic(::localizedString)
+        every { localizedString(any()) } answers { strings.getValue(names.getValue(firstArg())) }
+    }
+
+    private fun readStrings(file: File): Map<String, String> {
+        val nodes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file).getElementsByTagName("string")
+        return (0 until nodes.length).associate { index ->
+            val node = nodes.item(index)
+            node.attributes.getNamedItem("name").nodeValue to node.textContent
+        }
+    }
+}

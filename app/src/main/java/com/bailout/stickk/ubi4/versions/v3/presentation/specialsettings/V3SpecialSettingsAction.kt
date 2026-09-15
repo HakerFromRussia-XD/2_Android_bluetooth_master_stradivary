@@ -1,10 +1,13 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
+
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
 
 sealed interface V3SpecialSettingsAction {
+    data class AutoLoginChanged(val enabled: Boolean) : V3SpecialSettingsAction
     data object ViewAttached : V3SpecialSettingsAction
     data object ViewDetached : V3SpecialSettingsAction
     data class SettingsSectionSelected(val section: V3SpecialSettingsSection) : V3SpecialSettingsAction

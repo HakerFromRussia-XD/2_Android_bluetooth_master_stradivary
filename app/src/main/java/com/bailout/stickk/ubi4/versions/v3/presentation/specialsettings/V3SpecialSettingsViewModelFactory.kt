@@ -1,6 +1,9 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
 import androidx.lifecycle.ViewModel
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetSpecialSettingsSectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetAutoLoginEnabledUseCaseV3
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderSettingsRepository
@@ -22,6 +25,7 @@ class V3SpecialSettingsViewModelFactory(
     private val toggleSliderRepository: V3ToggleSliderSettingsRepository,
     private val spinnerRepository: V3SpinnerSettingsRepository,
     private val settingsProfilesRepository: V3SettingsProfilesRepository,
+    private val appSettingsRepository: V3AppSettingsRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3SpecialSettingsViewModel::class.java)
@@ -34,6 +38,8 @@ class V3SpecialSettingsViewModelFactory(
             SelectSettingsProfileUseCaseV3(settingsProfilesRepository),
             CreateSettingsProfileUseCaseV3(settingsProfilesRepository),
             RenameSettingsProfileUseCaseV3(settingsProfilesRepository),
+            appSettingsRepository, SetAutoLoginEnabledUseCaseV3(appSettingsRepository),
+            SetSpecialSettingsSectionUseCaseV3(appSettingsRepository),
         ) as T
     }
 }

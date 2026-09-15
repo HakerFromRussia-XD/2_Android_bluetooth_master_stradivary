@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
@@ -28,7 +29,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.localizedString
-import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsSection
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import dev.icerock.moko.resources.StringResource
 import io.mockk.Called
 import io.mockk.every
@@ -59,6 +60,7 @@ class V3SpecialSettingsWidgetsSourceTest {
     private val originalDevices = GlobalParameters.baseSubDevicesInfoStructSetV3.toSet()
     private val originalProfile = UiState.activeV3DeviceProfile
     private val originalV3Mode = UiState.isInterfaceV3Activated
+    private val originalSnapshotApplied = WidgetState.dbSnapshotAppliedWithCrc
     private val originalAddress = WidgetRepoProvider.mac()
     private val originalLocale = Locale.getDefault()
     private val originalUpdates = UiState.updateFlow.replayCache
@@ -84,11 +86,23 @@ class V3SpecialSettingsWidgetsSourceTest {
         GlobalParameters.baseSubDevicesInfoStructSetV3.addAll(originalDevices)
         UiState.activeV3DeviceProfile = originalProfile
         UiState.isInterfaceV3Activated = originalV3Mode
+        WidgetState.dbSnapshotAppliedWithCrc = originalSnapshotApplied
         WidgetRepoProvider.setCurrentMac(originalAddress)
         Locale.setDefault(originalLocale)
         UiState.updateFlow.resetReplayCache()
         originalUpdates.forEach { UiState.updateFlow.tryEmit(it) }
         unmockkStatic(::localizedString)
+    }
+
+    @Test
+    fun `snapshot preserves existing animation policy without device commands`() {
+        useResourceStrings("en")
+        val source = DataFactoryV3SpecialSettingsWidgetsSource()
+        WidgetState.dbSnapshotAppliedWithCrc = true
+        assertFalse(source.snapshot(V3SpecialSettingsSection.APPLICATION).animationsEnabled)
+        WidgetState.dbSnapshotAppliedWithCrc = false
+        assertTrue(source.snapshot(V3SpecialSettingsSection.APPLICATION).animationsEnabled)
+        verify { executor wasNot Called; bleManager wasNot Called }
     }
 
     @ParameterizedTest
@@ -136,7 +150,9 @@ class V3SpecialSettingsWidgetsSourceTest {
         assertEquals(MobileSettingsKey.AUTO_LOGIN.key, switch.info.key)
         assertEquals(if (language == "ru") "Автоматический вход" else "Auto login", switch.info.title)
         assertFalse(switch.initialChecked)
-        assertCompatibleItems(factory.mobileWidgets(), mapper.toItems(mobile))
+        // DataFactory still supplies the same shared SwitchItem; only V3 renders the typed Android row.
+        assertTrue(factory.mobileWidgets().single() is SwitchItem)
+        assertEquals(mobile, mapper.toItems(mobile))
 
         // Subscribing to replay and invalidations only reads the existing composition.
         val observed = mutableListOf<V3SpecialSettingsWidgetsSnapshot>()

@@ -57,11 +57,8 @@ class V3SpecialSettingsWidgetMapper {
             ))
             is V3SpecialSettingsWidget.Spinner -> spinner(info, widget.options, widget.initialSelectedIndex)
             is V3SpecialSettingsWidget.SettingsProfile -> spinner(info, widget.options, widget.initialSelectedIndex)
-            is V3SpecialSettingsWidget.Switch -> SwitchItem(info.title, SwitchParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                    keyMobileSettings = info.key, deviceId = 2, widgetPosition = info.position,
-                )), widget.initialChecked,
-            ))
+            // The Android row now renders screen state without entering the shared SwitchItem adapter.
+            is V3SpecialSettingsWidget.Switch -> widget
         }
     }
 

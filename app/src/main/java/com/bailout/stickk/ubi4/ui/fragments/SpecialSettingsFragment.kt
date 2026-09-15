@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import android.content.Context
+import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -31,7 +33,7 @@ import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfi
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SettingsProfileApplierV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsSection
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModelFactory
@@ -57,6 +59,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var v3SpecialSettingsStateJob: Job? = null
     private val v3WidgetMapper = V3SpecialSettingsWidgetMapper()
     private var renderedV3Widgets: List<V3SpecialSettingsWidget>? = null
+    private var v3AnimationsEnabled = true
     private var pendingV3Render: Runnable? = null
     private val settingsProfileNameDialogHost = SettingsProfileNameDialogHost()
     private var renderedSettingsProfileNameRequest: Long? = null
@@ -82,12 +85,14 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         super.onViewCreated(view, savedInstanceState)
         previousMobileSettings = null
         renderedV3Widgets = null
-        isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
-        activeSettingsFragmentFilterFlow.value = if (isMobileSettings) 2 else 1
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
         bindV3SpecialSettings()
-        if (v3SpecialSettingsViewModel == null) widgetListUpdater()
+        if (v3SpecialSettingsViewModel == null) {
+            isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
+            activeSettingsFragmentFilterFlow.value = if (isMobileSettings) 2 else 1
+            widgetListUpdater()
+        }
 
         binding.prostheticSettingsBtn.setOnClickListener {
             selectSettingsSection(isMobile = false)
@@ -114,10 +119,12 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             V3SpecialSettingsViewModelFactory(
                 repository, DataFactoryV3SpecialSettingsWidgetsSource(), repository, repository,
                 V3SettingsProfilesRepositoryImpl(SettingsProfileApplierV3::apply),
+                V3AppSettingsRepositoryImpl(requireContext().applicationContext.getSharedPreferences(
+                    PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
+                )),
             ),
         )[V3SpecialSettingsViewModel::class.java]
         v3SpecialSettingsViewModel = viewModel
-        viewModel.onAction(V3SpecialSettingsAction.SettingsSectionSelected(currentSettingsSection()))
         val owner = viewLifecycleOwner
         v3SpecialSettingsStateJob = owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -132,24 +139,27 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
     }
 
-    private fun currentSettingsSection() = if (isMobileSettings) {
-        V3SpecialSettingsSection.APPLICATION
-    } else {
-        V3SpecialSettingsSection.PROSTHESIS
-    }
-
     private fun selectSettingsSection(isMobile: Boolean) {
-        main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, isMobile)
-        activeSettingsFragmentFilterFlow.value = if (isMobile) 2 else 1
         val viewModel = v3SpecialSettingsViewModel
         if (viewModel != null) {
             val section = if (isMobile) V3SpecialSettingsSection.APPLICATION else V3SpecialSettingsSection.PROSTHESIS
             viewModel.onAction(V3SpecialSettingsAction.SettingsSectionSelected(section))
-        } else if (isMobileSettings != isMobile) {
-            isMobileSettings = isMobile
-            updateUI()
+        } else {
+            main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, isMobile)
+            activeSettingsFragmentFilterFlow.value = if (isMobile) 2 else 1
+            if (isMobileSettings != isMobile) {
+                isMobileSettings = isMobile
+                updateUI()
+            }
         }
     }
+
+    override fun onV3AutoLoginChanged(enabled: Boolean) {
+        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.AutoLoginChanged(enabled))
+    }
+
+    override fun areV3WidgetAnimationsEnabled(): Boolean =
+        if (v3SpecialSettingsViewModel != null) v3AnimationsEnabled else super.areV3WidgetAnimationsEnabled()
 
     override fun onV3SliderAction(action: V3SliderAction) {
         v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SliderAction(action))
@@ -203,6 +213,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     private fun renderV3SpecialSettings(state: V3SpecialSettingsUiState) {
         val currentBinding = _binding ?: return
+        v3AnimationsEnabled = state.animationsEnabled
+        // Compatibility mirror for the existing shared UI state; preferences are owned by the ViewModel path.
+        activeSettingsFragmentFilterFlow.value = if (state.selectedSection == V3SpecialSettingsSection.APPLICATION) 2 else 1
         renderSettingsProfileNameDialog(state.settingsProfiles?.nameEditor)
         val recyclerView = currentBinding.settingsRecyclerView
         pendingV3Render?.let(recyclerView::removeCallbacks)
@@ -223,6 +236,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         renderV3ToggleSliders(state.toggleSliders)
         renderV3Spinners(state.spinners)
         renderV3SettingsProfiles(state.settingsProfiles)
+        renderV3AutoLogin(state.autoLogin)
         if (sectionChanged || renderedV3Widgets != state.widgets) {
             adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
             renderedV3Widgets = state.widgets
@@ -344,6 +358,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         v3SpecialSettingsStateJob = null
         v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ViewDetached)
         v3SpecialSettingsViewModel = null
+        _binding?.settingsRecyclerView?.adapter = null
         selectorIndicatorAnimator?.cancel()
         selectorIndicatorAnimator = null
         _binding = null

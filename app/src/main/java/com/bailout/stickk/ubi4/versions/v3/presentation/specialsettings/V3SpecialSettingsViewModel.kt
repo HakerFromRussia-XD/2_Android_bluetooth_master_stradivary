@@ -1,5 +1,11 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
+
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetSpecialSettingsSectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetAutoLoginEnabledUseCaseV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -61,6 +67,9 @@ class V3SpecialSettingsViewModel(
     private val selectSettingsProfile: SelectSettingsProfileUseCaseV3,
     private val createSettingsProfile: CreateSettingsProfileUseCaseV3,
     private val renameSettingsProfile: RenameSettingsProfileUseCaseV3,
+    private val appSettingsRepository: V3AppSettingsRepository,
+    private val setAutoLoginEnabled: SetAutoLoginEnabledUseCaseV3,
+    private val setSpecialSettingsSection: SetSpecialSettingsSectionUseCaseV3,
 ) : ViewModel() {
     companion object {
         val spinnerParameterKeys: Set<String> = setOf(P_KEY_HAND_CONTROL_MODE, P_KEY_GESTURE_CHANGE_MODE)
@@ -75,15 +84,18 @@ class V3SpecialSettingsViewModel(
         sliderParameterKeys = setOf(P_KEY_SPEED_SETTINGS, P_KEY_FORCE_SETTINGS, P_KEY_EMG_MAX_GAIN_VALUE),
         scope = viewModelScope,
     )
-    private val initialWidgets = widgetsSource.snapshot(V3SpecialSettingsSection.PROSTHESIS)
+    private val initialSection = runCatching { appSettingsRepository.getSpecialSettingsSection() }
+    private val initialWidgets = widgetsSource.snapshot(initialSection.getOrDefault(V3SpecialSettingsSection.PROSTHESIS))
     private var deviceAddress = initialWidgets.deviceAddress
     private var spinnerValues = spinnerParameterKeys.associateWith(spinnerRepository::getSpinnerValue)
     private val _uiState = MutableStateFlow(
         V3SpecialSettingsUiState(
-            selectedSection = V3SpecialSettingsSection.PROSTHESIS,
+            selectedSection = initialSection.getOrDefault(V3SpecialSettingsSection.PROSTHESIS),
+            settingsSectionReadFailed = initialSection.isFailure,
             sliders = sliderSettings.uiState.value.sliders,
             deviceProfile = initialWidgets.deviceProfile,
             widgets = initialWidgets.widgets,
+            animationsEnabled = initialWidgets.animationsEnabled,
             spinners = spinnerParameterKeys.associateWith { SpinnerUiStateV3(selectedIndex = null) },
             toggleSliders = toggleSliderParameterKeys.associateWith { key ->
                 ToggleSliderUiStateV3(
@@ -95,6 +107,7 @@ class V3SpecialSettingsViewModel(
     )
     val uiState = _uiState.asStateFlow()
     private var isViewAttached = false
+    private var autoLoginObservationJob: Job? = null
     private var activeToggleSliderKeys = emptySet<String>()
     private val pendingToggleSliderWrites = mutableMapOf<String, Job>()
     private var settingsProfilesSerial: String? = null
@@ -157,12 +170,14 @@ class V3SpecialSettingsViewModel(
     @MainThread
     fun onAction(action: V3SpecialSettingsAction) {
         when (action) {
+            is V3SpecialSettingsAction.AutoLoginChanged -> onAutoLoginChanged(action.enabled)
             V3SpecialSettingsAction.ViewAttached -> {
                 isViewAttached = true
-                refreshWidgets(_uiState.value.selectedSection, reloadProfiles = true)
+                restoreSettingsSection()
             }
             V3SpecialSettingsAction.ViewDetached -> {
                 isViewAttached = false
+                updateAutoLoginObservation()
                 cancelSettingsProfileOperation()
                 updateSliderActivity()
                 updateToggleSliderActivity()
@@ -170,7 +185,7 @@ class V3SpecialSettingsViewModel(
                 updateSettingsProfiles()
             }
             is V3SpecialSettingsAction.SettingsSectionSelected -> {
-                refreshWidgets(action.section)
+                onSettingsSectionSelected(action.section)
             }
             is V3SpecialSettingsAction.SliderAction -> {
                 if (action.action.parameterKey in visibleSliderKeys(_uiState.value.widgets)) {
@@ -184,6 +199,31 @@ class V3SpecialSettingsViewModel(
             is V3SpecialSettingsAction.SettingsProfileRenameRequested -> onSettingsProfileRenameRequested(action.profileId)
             is V3SpecialSettingsAction.SettingsProfileNameSubmitted -> onSettingsProfileNameSubmitted(action.requestId, action.name)
             is V3SpecialSettingsAction.SettingsProfileNameDismissed -> dismissSettingsProfileName(action.requestId)
+        }
+    }
+
+    private fun restoreSettingsSection() {
+        val section = try {
+            appSettingsRepository.getSpecialSettingsSection().also {
+                _uiState.update { state -> state.copy(settingsSectionReadFailed = false) }
+            }
+        } catch (error: Exception) {
+            _uiState.update { it.copy(settingsSectionReadFailed = true) }
+            platformLog("V3SpecialSettingsViewModel", "Cannot read settings section: ${error.message}")
+            _uiState.value.selectedSection
+        }
+        refreshWidgets(section, reloadProfiles = true)
+    }
+
+    private fun onSettingsSectionSelected(section: V3SpecialSettingsSection) {
+        if (!isViewAttached || _uiState.value.deviceProfile == V3DeviceProfile.NOT_V3) return
+        try {
+            setSpecialSettingsSection(section)
+            _uiState.update { it.copy(settingsSectionReadFailed = false, settingsSectionSaveFailed = false) }
+            if (section != _uiState.value.selectedSection) refreshWidgets(section)
+        } catch (error: Exception) {
+            _uiState.update { it.copy(settingsSectionSaveFailed = true) }
+            platformLog("V3SpecialSettingsViewModel", "Cannot save settings section: ${error.message}")
         }
     }
 
@@ -202,13 +242,77 @@ class V3SpecialSettingsViewModel(
             activeToggleSliderKeys = emptySet()
         }
         deviceAddress = snapshot.deviceAddress
-        _uiState.update { it.copy(selectedSection = section, deviceProfile = snapshot.deviceProfile, widgets = snapshot.widgets) }
+        _uiState.update { it.copy(
+            selectedSection = section, deviceProfile = snapshot.deviceProfile, widgets = snapshot.widgets,
+            animationsEnabled = snapshot.animationsEnabled,
+        ) }
         updateSliderActivity()
         updateToggleSliderActivity()
         spinnerValues = spinnerParameterKeys.associateWith(spinnerRepository::getSpinnerValue)
         updateSpinnerState()
         if (deviceChanged) clearSettingsProfiles()
         updateSettingsProfiles(reloadProfiles || previous.widgets != snapshot.widgets || previous.selectedSection != section)
+        updateAutoLoginObservation()
+    }
+
+    private fun updateAutoLoginObservation() {
+        if (!isViewAttached || _uiState.value.deviceProfile == V3DeviceProfile.NOT_V3) {
+            autoLoginObservationJob?.cancel()
+            autoLoginObservationJob = null
+        } else if (autoLoginObservationJob?.isActive != true) {
+            readAutoLogin()
+            autoLoginObservationJob = viewModelScope.launch {
+                try {
+                    appSettingsRepository.observeAutoLoginEnabled().collect { value ->
+                        if (isActive && isViewAttached) updateAutoLoginValue(value)
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    if (isActive) onAutoLoginReadFailed(error)
+                }
+            }
+        }
+        updateAutoLoginAvailability()
+    }
+
+    private fun updateAutoLoginAvailability() {
+        val screen = _uiState.value
+        val available = isViewAttached && screen.deviceProfile != V3DeviceProfile.NOT_V3 &&
+            screen.selectedSection == V3SpecialSettingsSection.APPLICATION &&
+            screen.widgets.any { it is V3SpecialSettingsWidget.Switch && it.info.key == MobileSettingsKey.AUTO_LOGIN.key } &&
+            !screen.autoLogin.isLoading && !screen.autoLogin.readFailed
+        _uiState.update { it.copy(autoLogin = it.autoLogin.copy(isEnabled = available)) }
+    }
+
+    private fun updateAutoLoginValue(enabled: Boolean) {
+        _uiState.update { it.copy(autoLogin = it.autoLogin.copy(isChecked = enabled, isLoading = false, readFailed = false)) }
+        updateAutoLoginAvailability()
+    }
+
+    private fun readAutoLogin() {
+        try {
+            updateAutoLoginValue(appSettingsRepository.getAutoLoginEnabled())
+        } catch (error: Exception) {
+            onAutoLoginReadFailed(error)
+        }
+    }
+
+    private fun onAutoLoginReadFailed(error: Exception) {
+        _uiState.update { it.copy(autoLogin = it.autoLogin.copy(isEnabled = false, isLoading = false, readFailed = true)) }
+        platformLog("V3SpecialSettingsViewModel", "Cannot read auto login: ${error.message}")
+    }
+
+    private fun onAutoLoginChanged(enabled: Boolean) {
+        if (!_uiState.value.autoLogin.isEnabled) return
+        _uiState.update { it.copy(autoLogin = it.autoLogin.copy(saveFailed = false)) }
+        try {
+            setAutoLoginEnabled(enabled)
+        } catch (error: Exception) {
+            _uiState.update { it.copy(autoLogin = it.autoLogin.copy(saveFailed = true)) }
+            platformLog("V3SpecialSettingsViewModel", "Cannot save auto login: ${error.message}")
+        }
+        readAutoLogin()
     }
 
     private fun clearSettingsProfiles() {

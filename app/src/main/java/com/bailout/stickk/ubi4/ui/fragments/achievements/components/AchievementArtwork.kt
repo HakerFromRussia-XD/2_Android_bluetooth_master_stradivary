@@ -42,7 +42,7 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
     val colorFilter = if (achievement.achievedTier == null) LockedArtworkFilter else null
     BoxWithConstraints(modifier) {
         // The previous Marathon artwork ended 10 dp before the progress bar's right edge.
-        val artworkHeight = (maxWidth - 10.dp).coerceAtLeast(1.dp) * (822f / 1024f)
+        val artworkHeight = ((maxWidth - 10.dp) * (822f / 1024f) - 22.dp).coerceAtLeast(1.dp)
         val density = LocalDensity.current
         val target = with(density) {
             IntSize(maxWidth.roundToPx().coerceAtLeast(1), artworkHeight.roundToPx().coerceAtLeast(1))
@@ -75,6 +75,22 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
                     )
                 }
             }
+        }
+    }
+}
+
+/** Stars use the same asynchronous screen-size cache as the large illustrations. */
+@Composable
+internal fun AchievementStar(resource: Int, modifier: Modifier = Modifier) {
+    val resources = LocalContext.current.resources
+    val pixels = with(LocalDensity.current) { 18.dp.roundToPx().coerceAtLeast(1) }
+    val key = ArtworkKey(resource, IntRect(0, 0, 1254, 1254), IntSize(pixels, pixels))
+    val bitmap = produceState(AchievementBitmapCache.peek(key), key, resources) {
+        value = AchievementBitmapCache.load(resources, key)
+    }.value
+    androidx.compose.foundation.layout.Box(modifier) {
+        if (bitmap != null) {
+            Image(bitmap.asImageBitmap(), contentDescription = null, modifier = Modifier.fillMaxSize())
         }
     }
 }

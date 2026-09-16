@@ -2,7 +2,7 @@
 
 Source: https://disk.yandex.ru/d/rjLTu0kdZdyiog (downloaded 2026-09-16).
 
-All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. Every card now has the former Marathon height: a 40 dp header and an artwork slot of `(contentWidth - 10 dp) * 822 / 1024`, followed by the existing counter and progress bar. The artwork slot spans the same left/right edges as the progress bar. Each alpha-cropped illustration fits inside it, bottom-centered without stretching or cutting off content; narrower artwork therefore retains empty space at the sides. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
+All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. Every card now has the former Marathon height: a 40 dp header and an artwork slot of `(contentWidth - 10 dp) * 822 / 1024`, with 22 dp of that slot reserved for tier stars, followed by the existing counter and progress bar. The artwork slot spans the same left/right edges as the progress bar. Each alpha-cropped illustration fits inside it, bottom-centered without stretching or cutting off content; narrower artwork therefore retains empty space at the sides. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
 
 PNG regions are decoded on `Dispatchers.IO`, using power-of-two sampling followed by scaling to the actual slot size in physical pixels. A serialized decoder prevents concurrent allocations and a 16 MiB LRU cache reuses screen-sized bitmaps during scrolling. Evicted images are not recycled while Compose may still display them. There are no generated lower-resolution asset files. Previously `ImageBitmap.imageResource` decoded the full original image synchronously during composition.
 
@@ -50,3 +50,11 @@ Achievements now uses the same activity status bar, back-button mode, slide tran
 ## Colour unlock (2026-09-16)
 
 Artwork is rendered with zero saturation while `achievedTier` is null. Bronze, silver and gold use the original colours. The shared draw-time filter applies only to the illustration, preserves alpha, and does not change PNG files or bitmap cache keys; progress updates switch the filter without another decode.
+
+## Tier star assets (2026-09-16)
+
+Three RGBA PNGs in `app/src/main/res/drawable-nodpi/achievement_star_{bronze,silver,gold}.png` were generated with the built-in image_gen tool. All are 1254×1254 with actual alpha values 0–255. Sources are preserved byte-for-byte; the existing background decoder and 16 MiB cache automatically reduce them to the 18 dp display size. One bronze star, two silver stars or three gold stars are centered above the counter; no stars are shown without bronze. A fixed 22 dp row (4 dp top gap + 18 dp stars) is reserved for every card, taken from the artwork area to preserve equal card heights. The counter keeps its 4 dp gaps.
+
+Prompt used for each asset (COLOR replaced with `bronze copper orange`, `silver cool white steel`, `gold warm yellow`):
+
+> Use case: stylized-concept. Generate one production Android game achievement icon: a single symmetrical five-point COLOR metallic star, front view, point straight up, beveled edges and triangular faceted highlights, bright center, polished rim, compact and legible at 18 dp. Match the tiny reward stars in the reference cards concept: simple jewel-like dimensional star, no medal, no circle, no surrounding decoration, no text. Square canvas, star nearly fills canvas with small equal padding. Genuinely transparent RGBA background with alpha, no backdrop, no checkerboard, no ground shadow. Exactly ONE star.

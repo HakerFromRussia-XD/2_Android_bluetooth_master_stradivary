@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -92,13 +93,36 @@ internal fun AchievementCard(
                 achievement = achievement,
                 modifier = Modifier.fillMaxWidth()
             )
-            // The same gap separates the visible artwork, counter and progress bar.
+            AchievementStars(achievement.achievedTier)
+            // The same gap separates the stars, counter and progress bar.
             Spacer(Modifier.height(ProgressTextGap))
             AchievementStageProgress(
                 progress = achievement.progress,
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+}
+
+@Composable
+private fun AchievementStars(tier: AchievementTier?) {
+    val count = when (tier) {
+        null -> 0
+        AchievementTier.BRONZE -> 1
+        AchievementTier.SILVER -> 2
+        AchievementTier.GOLD -> 3
+    }
+    val resource = when (tier) {
+        AchievementTier.SILVER -> R.drawable.achievement_star_silver
+        AchievementTier.GOLD -> R.drawable.achievement_star_gold
+        else -> R.drawable.achievement_star_bronze
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(count) { AchievementStar(resource, Modifier.size(18.dp)) }
     }
 }
 

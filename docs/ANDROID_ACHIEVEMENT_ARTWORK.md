@@ -46,3 +46,7 @@ The source contains 14 images for the 14 enabled achievements. Named files are m
 ## Shared navigation bar (2026-09-16)
 
 Achievements now uses the same activity status bar, back-button mode, slide transition and preserved profile view as Games. Removed the duplicate Compose header and fragment lifecycle overrides that hid/restored the activity bar. Release build passed and installed with data preserved on `dcbf845e`. Physical-device checks confirmed the shared bar on both screens and toolbar Back returning from achievements to the profile.
+
+## Colour unlock (2026-09-16)
+
+Artwork is rendered with zero saturation while `achievedTier` is null. Bronze, silver and gold use the original colours. The shared draw-time filter applies only to the illustration, preserves alpha, and does not change PNG files or bitmap cache keys; progress updates switch the filter without another decode.

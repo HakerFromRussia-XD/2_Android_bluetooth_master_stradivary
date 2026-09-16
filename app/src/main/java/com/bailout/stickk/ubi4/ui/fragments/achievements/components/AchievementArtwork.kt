@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -30,9 +32,14 @@ import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+private val LockedArtworkFilter = ColorFilter.colorMatrix(
+    ColorMatrix().apply { setToSaturation(0f) }
+)
+
 /** Keep the former Marathon height, independently of each illustration's proportions. */
 @Composable
 internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modifier = Modifier) {
+    val colorFilter = if (achievement.achievedTier == null) LockedArtworkFilter else null
     BoxWithConstraints(modifier) {
         // The previous Marathon artwork ended 10 dp before the progress bar's right edge.
         val artworkHeight = (maxWidth - 10.dp).coerceAtLeast(1.dp) * (822f / 1024f)
@@ -47,7 +54,8 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
                 contentDescription = null,
                 modifier = Modifier.height(artworkHeight).fillMaxSize(),
                 contentScale = ContentScale.Fit,
-                alignment = Alignment.BottomCenter
+                alignment = Alignment.BottomCenter,
+                colorFilter = colorFilter
             )
         } else {
             val resources = LocalContext.current.resources
@@ -62,7 +70,8 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit,
-                        alignment = Alignment.BottomCenter
+                        alignment = Alignment.BottomCenter,
+                        colorFilter = colorFilter
                     )
                 }
             }

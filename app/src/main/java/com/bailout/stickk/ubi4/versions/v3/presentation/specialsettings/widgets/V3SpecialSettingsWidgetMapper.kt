@@ -13,7 +13,7 @@ import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_SETTINGS_PROFILE
 
 /** Compatibility boundary for DataFactory and the existing delegate adapters. */
 class V3SpecialSettingsWidgetMapper {

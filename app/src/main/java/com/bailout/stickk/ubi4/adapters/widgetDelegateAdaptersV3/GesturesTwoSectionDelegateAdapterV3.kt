@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
@@ -36,10 +35,8 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.CollectionGesturePreviewController
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
-import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
@@ -49,24 +46,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
 import kotlinx.coroutines.launch
-import java.util.stream.Collectors
 import kotlin.coroutines.cancellation.CancellationException
 
 @Suppress("DEPRECATION")
 class GesturesTwoSectionDelegateAdapterV3(
     val coroutineScope: CoroutineScope?,
     val gestureNameList: ArrayList<String>,
-    val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
-    val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: () -> Unit,
-    val onSendBLEActiveGesture: (activeGesture: Int) -> Unit,
+    val onAction: (V3GesturesAction) -> Unit,
     //  onShowGestureSettings колбек при нажатии на шестерёнку кастомного жеста
     val onShowGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
-    val onRequestActiveGesture: () -> Unit,
-    val onRequestRotationGroup: () -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapterV3.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapterV3.OnDeleteClickRotationGroupListener,
@@ -105,11 +97,14 @@ class GesturesTwoSectionDelegateAdapterV3(
 
     private lateinit var scope: CoroutineScope
     private var collectJob: Job? = null
-    private var interactionJob: Job? = null
-    private var currentActiveGestureId: Int? = null
-    private var isRotationGroupResponseReceived = false
+    private var screenState = V3GesturesUiState()
+    private var lastRenderedRotationGroup: List<Int>? = null
+    private var rotationGroupBeforeDrag: List<Int>? = null
+    private var isBound = false
+    private var boundRoot: View? = null
+    private val currentActiveGestureId get() = screenState.activeGestureId
     private var lastRenderedFilter: Int? = null
-    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private val isInteractionEnabled get() = isBound && screenState.isInteractionEnabled
     private var hideCollectionBtnView: View? = null
     private var addGestureToRotationGroupBtnView: View? = null
     private val gestureSettingsBtns: ArrayList<View> = ArrayList()
@@ -123,6 +118,13 @@ class GesturesTwoSectionDelegateAdapterV3(
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItemV3) {
         platformLog("PWCE_GESTURES_WINDOW_V3", "запустился GesturesDelegateAdapterV3")
+        if (boundRoot !== root) {
+            rotationGroupBeforeDrag = null
+            lastRenderedRotationGroup = null
+            itemsGesturesRotationArray = null
+            listRotationGroupAdapter = null
+        }
+        boundRoot = root
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
         collectionPreviewController.release()
@@ -179,16 +181,6 @@ class GesturesTwoSectionDelegateAdapterV3(
         lastRenderedFilter = null
         renderFilterUI(savedFilter, animate = false)
         UiState.activeGestureFragmentFilterFlow.value = savedFilter // если у тебя этот flow доступен тут
-        if (savedFilter == 2 && isInteractionEnabled) {
-            requestRotationGroupWithRetry()
-        }
-        // запрос активного жеста — чтобы подсветка/текст пришли
-        if (isInteractionEnabled) {
-            onRequestActiveGesture()
-        } else {
-            updateActiveGestureHeader(null)
-        }
-
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
             UiState.activeGestureFragmentFilterFlow.value = 1
@@ -196,10 +188,8 @@ class GesturesTwoSectionDelegateAdapterV3(
 
         rotationGroupSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 2)
+            onAction(V3GesturesAction.RotationGroupRequested)
             UiState.activeGestureFragmentFilterFlow.value = 2
-            if (isInteractionEnabled) {
-                onRequestRotationGroup()
-            }
         }
         hideCollectionBtn.setOnClickListener {
             if (!isInteractionEnabled) return@setOnClickListener
@@ -266,11 +256,7 @@ class GesturesTwoSectionDelegateAdapterV3(
                 gestureCollectionBtn?.setOnClickListener {
                     if (!isInteractionEnabled) return@setOnClickListener
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $gestureId clicked")
-                    currentActiveGestureId = gestureId
-                    listRotationGroupAdapter?.setActiveGestureId(gestureId)
-                    setActiveGesture(getGestureViewById(gestureId))
-                    updateActiveGestureHeader(gestureId)
-                    sendActiveGesture(gestureId)
+                    if (boundRoot === root) onAction(V3GesturesAction.GestureSelected(gestureId))
                 }
             } else {
                 gestureCollectionTitle?.text = collectionGesturesById.getValue(i + 2).gestureName
@@ -282,11 +268,7 @@ class GesturesTwoSectionDelegateAdapterV3(
                 gestureCollectionBtn?.setOnClickListener {
                     if (!isInteractionEnabled) return@setOnClickListener
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $gestureId clicked")
-                    currentActiveGestureId = gestureId
-                    listRotationGroupAdapter?.setActiveGestureId(gestureId)
-                    setActiveGesture(getGestureViewById(gestureId))
-                    updateActiveGestureHeader(gestureId)
-                    sendActiveGesture(gestureId)
+                    if (boundRoot === root) onAction(V3GesturesAction.GestureSelected(gestureId))
                 }
             }
         }
@@ -309,11 +291,7 @@ class GesturesTwoSectionDelegateAdapterV3(
             gestureCustomBtn?.setOnClickListener {
                 if (!isInteractionEnabled) return@setOnClickListener
                 Log.d("GesturesDelegateAdapter", "GestureCustomBtn $gestureId clicked")
-                currentActiveGestureId = gestureId
-                listRotationGroupAdapter?.setActiveGestureId(gestureId)
-                setActiveGesture(getGestureViewById(gestureId))
-                updateActiveGestureHeader(gestureId)
-                sendActiveGesture(gestureId)
+                if (boundRoot === root) onAction(V3GesturesAction.GestureSelected(gestureId))
             }
 
             gestureSettingsBtn?.setOnClickListener {
@@ -330,38 +308,22 @@ class GesturesTwoSectionDelegateAdapterV3(
 
         addGestureToRotationGroupBtn.setOnClickListener {
             if (!isInteractionEnabled) return@setOnClickListener
-            val resultCb: ((selectedGestures: ArrayList<Gesture>) -> Unit) = { selectedGestures ->
-                // проверка что элемент из selectedGestures содержится в rotationGroupGestures
-                // если да, то не меняем его положение и добавляем новых в конец списка
-                val notContainsList = selectedGestures.stream()
-                    .filter { element -> !rotationGroupGestures.contains(element) }
-                    .collect(Collectors.toList())//rotationGroupGestures.add())
-                notContainsList.forEach { rotationGroupGestures.add(it) }
-                // удаляем те элементы, которые были отчекнуты
-                val finalList = rotationGroupGestures.stream()
-                    .filter { element -> selectedGestures.contains(element) }
-                    .collect(Collectors.toList())
-                rotationGroupGestures = ArrayList(finalList)
-
-                showIntroduction()
-                setupListRecyclerView()
-                synchronizeRotationGroup()
-                sendRotationGroup()
-                calculatingShowAddButton()
-            }
-            onAddGesturesToRotationGroup(resultCb)
+            onAction(V3GesturesAction.RotationGroupSelectionRequested)
         }
         rotationGroupDragLv.recyclerView.isVerticalScrollBarEnabled = false
         rotationGroupDragLv.setScrollingEnabled(false)
         rotationGroupDragLv.setOnClickListener {}
         rotationGroupDragLv.setDragListListener(object : DragListListenerAdapter() {
-            override fun onItemDragStarted(position: Int) {}
+            override fun onItemDragStarted(position: Int) {
+                rotationGroupBeforeDrag = displayedRotationGroupIds()
+            }
 
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
+                val gestureIds = rotationGroupBeforeDrag
+                rotationGroupBeforeDrag = null
                 if (!isInteractionEnabled) return
-                if (fromPosition != toPosition) {
-                    synchronizeRotationGroup()
-                    sendRotationGroup()
+                if (fromPosition != toPosition && gestureIds != null) {
+                    onAction(V3GesturesAction.RotationGestureMoved(fromPosition, toPosition, gestureIds))
                 }
             }
         })
@@ -372,11 +334,10 @@ class GesturesTwoSectionDelegateAdapterV3(
         mRotationGroupExplanation2Iv = rotationGroupExplanation2Iv
         mAddGestureToRotationGroupBtn = addGestureToRotationGroupBtn
         mPlusIv = plusIv
-        showIntroduction()
-        setupListRecyclerView()
+        isBound = true
+        renderRotationGroup(screenState.rotationGroupGestureIds)
         applyGesturesLockState(isInteractionEnabled)
-        observeInteractionState()
-        gestureFlowCollect()
+        observeGestureFilter()
     }
 
     private fun setActiveGesture(activeGesture: View?) {
@@ -403,21 +364,22 @@ class GesturesTwoSectionDelegateAdapterV3(
         _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, name)
     }
 
-    private fun observeInteractionState() {
-        if (interactionJob?.isActive == true) return
-
-        interactionJob = scope.launch(Dispatchers.Main.immediate) {
-            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
-                isInteractionEnabled = enabled
-                applyGesturesLockState(enabled)
-                if (enabled) {
-                    onRequestActiveGesture()
-                    if (UiState.activeGestureFragmentFilterFlow.value == 2) {
-                        requestRotationGroupWithRetry()
-                    }
-                }
-            }
+    fun render(state: V3GesturesUiState) {
+        screenState = state
+        if (isBound) {
+            renderRotationGroup(state.rotationGroupGestureIds)
+            applyGesturesLockState(state.isInteractionEnabled)
         }
+    }
+
+    private fun renderRotationGroup(gestureIds: List<Int>) {
+        if (lastRenderedRotationGroup == gestureIds) return
+        lastRenderedRotationGroup = gestureIds.toList()
+        // The remaining edit dialogs still use WidgetState until the next migration step.
+        rotationGroupGestures = ArrayList(gestureIds.map(::getGesture))
+        showIntroduction()
+        setupListRecyclerView()
+        calculatingShowAddButton()
     }
 
     private fun applyGesturesLockState(enabled: Boolean) {
@@ -457,76 +419,18 @@ class GesturesTwoSectionDelegateAdapterV3(
 
 
 
-    private fun gestureFlowCollect() {
+    private fun observeGestureFilter() {
         collectJob?.cancel()
-
         collectJob = scope.launch(Dispatchers.Main.immediate) {
             try {
-                val currentGestureInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
-                val currentGestureMeta = ParameterInfoRegistry.getMeta(currentGestureInfo)
-                val currentGestureKey = ParameterStoreV3.toKey(currentGestureInfo)
-
-                val rotationGroupInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
-                val rotationGroupMeta = ParameterInfoRegistry.getMeta(rotationGroupInfo)
-                val rotationGroupKey = ParameterStoreV3.toKey(rotationGroupInfo)
-
-                merge(
-                    UiState.activeGestureFragmentFilterFlow.map{ filter ->
-                        renderFilterUI(filter, animate = true)
-                    },
-                    ParameterStoreV3.updates.map { key ->
-                        if (key != currentGestureKey) return@map
-                        val typedValue = ParameterStoreV3.get(currentGestureInfo)
-                            ?: run {
-                                val serialized = ParameterProvider.getParameterV3(currentGestureInfo).data
-                                val codecId = currentGestureMeta?.codecId ?: return@run null
-                                ParameterCodecRegistryV3.decodeFromSerialized(codecId, serialized)
-                            }
-                        val currentGesture = (typedValue as? ParameterTypedValueV3.CurrentGesture)?.value
-                            ?: return@map
-                        currentActiveGestureId = currentGesture.currentGesture
-                        setActiveGesture(getGestureViewById(currentGesture.currentGesture))
-                        updateActiveGestureHeader(currentGesture.currentGesture)
-                        listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
-                    ParameterStoreV3.updates.map { key ->
-                        if (key != rotationGroupKey) return@map
-                        val typedValue = ParameterStoreV3.get(rotationGroupInfo)
-                            ?: run {
-                                val serialized = ParameterProvider.getParameterV3(rotationGroupInfo).data
-                                val codecId = rotationGroupMeta?.codecId ?: return@run null
-                                ParameterCodecRegistryV3.decodeFromSerialized(codecId, serialized)
-                            }
-                        val currentGesture = (typedValue as? ParameterTypedValueV3.RotationGroup)?.value
-                            ?: return@map
-                        val rotationGroupList = currentGesture.toGestureList()
-                        val receivedGestures = rotationGroupList
-                            .filter { item -> item.first != 0 }
-                            .map { item -> getGesture(item.first) }
-                        isRotationGroupResponseReceived = true
-                        if (!hasSameRotationGroup(receivedGestures)) {
-                            rotationGroupGestures.clear()
-                            rotationGroupGestures.addAll(receivedGestures)
-
-                            showIntroduction()
-                            setupListRecyclerView()
-                            synchronizeRotationGroup()
-                            calculatingShowAddButton()
-                        }
-
-                        currentActiveGestureId?.let { id ->
-                            setActiveGesture(getGestureViewById(id))
-                            updateActiveGestureHeader(id)
-                        }
-                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 $currentGesture")
-                    },
-                ).collect()
-            } catch (e: CancellationException) {
-                Log.d("gestureFlowCollect", "Job was cancelled: ${e.message}")
-            } catch (e: Exception) {
-                main.runOnUiThread {
-                    main.showToast(main.getString(SharedRes.strings.plot_array_flow_collect_error.resourceId))
+                UiState.activeGestureFragmentFilterFlow.collect { filter ->
+                    renderFilterUI(filter, animate = true)
                 }
-                Log.e("gestureFlowCollect", "Exception: ${e.message}")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                main.showToast(main.getString(SharedRes.strings.plot_array_flow_collect_error.resourceId))
+                Log.e("observeGestureFilter", "Exception", e)
             }
         }
     }
@@ -547,28 +451,9 @@ class GesturesTwoSectionDelegateAdapterV3(
         }
     }
 
-    private fun sendActiveGesture(gestureId: Int) {
-        persistActiveGesture(gestureId)
-        onSendBLEActiveGesture(gestureId)
-    }
-
     private fun sendRotationGroup() {
         persistRotationGroup()
         onSendBLERotationGroup()
-    }
-
-    private fun persistActiveGesture(gestureId: Int) {
-        val parameterInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
-        val typedValue = ParameterTypedValueV3.CurrentGesture(
-            CurrentGestureV3(currentGesture = gestureId)
-        )
-        ParameterStoreV3.put(parameterInfo, typedValue)
-        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
-
-        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
-        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
-            ParameterProvider.getParameterV3(parameterInfo).data = encoded
-        }
     }
 
     private fun persistRotationGroup() {
@@ -582,28 +467,6 @@ class GesturesTwoSectionDelegateAdapterV3(
             ParameterProvider.getParameterV3(parameterInfo).data = encoded
         }
     }
-    private fun requestRotationGroupWithRetry() {
-        if (!isInteractionEnabled) return
-        isRotationGroupResponseReceived = false
-        RetryUtils.sendRequestWithRetry(
-            request = {
-                onRequestRotationGroup()
-                Log.d("GesturesDelegateAdapter", "Отправил onRequestRotationGroup")
-            },
-            isResponseReceived = { isRotationGroupResponseReceived },
-            maxRetries = 5,
-            delayMillis = 400,
-            scope = scope
-        )
-    }
-
-    private fun hasSameRotationGroup(newGestures: List<Gesture>): Boolean {
-        if (rotationGroupGestures.size != newGestures.size) return false
-        return rotationGroupGestures.zip(newGestures).all { (current, received) ->
-            current.gestureId == received.gestureId
-        }
-    }
-
     private fun setupListRecyclerView() {
         val newItems = ArrayList(rotationGroupGestures.mapIndexed { index, gesture ->
             Pair(
@@ -824,26 +687,25 @@ class GesturesTwoSectionDelegateAdapterV3(
         calculatingShowAddButton()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onDeleteClickCb(position: Int) {
         if (!isInteractionEnabled) return
-        val resultCb: ((result: Int) -> Unit) = {
-            rotationGroupGestures.removeAt(position)
-            showIntroduction()
-            setupListRecyclerView()
-            synchronizeRotationGroup()
-            sendRotationGroup()
-            calculatingShowAddButton()
-        }
-        onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)
+        val gestureIds = displayedRotationGroupIds() ?: return
+        onAction(V3GesturesAction.RotationGestureRemovalRequested(position, gestureIds))
     }
 
-    // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
+    private fun displayedRotationGroupIds(): List<Int>? =
+        itemsGesturesRotationArray?.map { it.second.substringAfterLast("™").toInt() }
+
+    override fun Ubi4WidgetGesturesBinding.onRecycled() {
+        if (boundRoot === root) onDestroy()
+    }
+
     fun onDestroy() {
         Log.d("LifeCycele", "stopCollectingGestureFlow")
         collectJob?.cancel()
-        interactionJob?.cancel()
-        interactionJob = null
+        rotationGroupBeforeDrag = null
+        isBound = false
+        boundRoot = null
         collectionPreviewController.release()
     }
 
@@ -855,13 +717,7 @@ class GesturesTwoSectionDelegateAdapterV3(
         if (!isInteractionEnabled) return
         if (gestureId == 0) return
 
-        currentActiveGestureId = gestureId
-        listRotationGroupAdapter?.setActiveGestureId(gestureId)
-
-        setActiveGesture(getGestureViewById(gestureId))
-        updateActiveGestureHeader(gestureId)
-
-        sendActiveGesture(gestureId)
+        onAction(V3GesturesAction.GestureSelected(gestureId))
     }
 }
 

@@ -1,9 +1,9 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.settings
 
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CONTROL_MODE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_CONTROL_MODE
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_LEFT_RIGHT_HAND
 
 object V3SpinnerSettingsRules {
     fun allowedValues(parameterKey: String): IntRange = when (parameterKey) {

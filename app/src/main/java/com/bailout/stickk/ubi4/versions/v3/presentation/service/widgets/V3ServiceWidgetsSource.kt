@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets
 
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
-import kotlinx.coroutines.flow.Flow
 
 data class V3ServiceWidgetsSnapshot(
     val deviceProfile: V3DeviceProfile,
@@ -11,6 +10,5 @@ data class V3ServiceWidgetsSnapshot(
 )
 
 interface V3ServiceWidgetsSource {
-    val updates: Flow<Unit>
-    fun snapshot(): V3ServiceWidgetsSnapshot
+    fun widgets(profile: V3DeviceProfile): List<V3ServiceWidget>
 }

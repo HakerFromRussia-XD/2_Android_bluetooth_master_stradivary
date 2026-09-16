@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sensors
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SensorsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -46,7 +49,7 @@ class V3SensorsCommandsStateTest {
         every { sliders.sliderInteractionEnabled } returns MutableStateFlow(true)
         every { sliders.getSliderValue(any()) } returns 20
         every { sliders.observeSliderValue(any()) } returns MutableStateFlow(20)
-        viewModel = V3SensorsViewModelFactory(sliders, source, FakeV3SensorsPlotRepository(), commands)
+        viewModel = V3SensorsViewModelFactory(sliders, source, FakeV3SensorsPlotRepository(), commands, sessionRepository = source)
             .create(V3SensorsViewModel::class.java)
         store.put("sensors", viewModel)
     }
@@ -253,7 +256,11 @@ class V3SensorsCommandsStateTest {
         assertFalse(viewModel.uiState.value.isRefreshIndicatorVisible)
     }
 
-    private class Source : V3SensorsWidgetsSource {
+    private class Source : V3SensorsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var current = V3SensorsWidgetsSnapshot(V3DeviceProfile.STANDARD_V3, "first-device",
             V3SensorsWidgetMapper().fromItems(listOf(ButtonsItemV3(
@@ -264,6 +271,6 @@ class V3SensorsCommandsStateTest {
                 ),
             ))),
         )
-        override fun snapshot() = current
+        fun snapshot() = current
     }
 }

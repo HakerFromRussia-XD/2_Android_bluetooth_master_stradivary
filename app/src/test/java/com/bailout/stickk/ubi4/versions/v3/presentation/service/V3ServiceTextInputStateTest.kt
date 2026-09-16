@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.service
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
@@ -47,7 +50,7 @@ class V3ServiceTextInputStateTest {
             every { spinnerInteractionEnabled } returns MutableStateFlow(true)
             every { observeSpinnerValue(any()) } returns flowOf(null)
         }
-        vm = V3ServiceViewModelFactory(sliders, source, spinners, FakeV3DeviceRoleRepository(), repository)
+        vm = V3ServiceViewModelFactory(sliders, source, spinners, FakeV3DeviceRoleRepository(), repository, FakeV3ProsthesisCalibrationRepository(), sessionRepository = source)
             .create(V3ServiceViewModel::class.java)
         store.put("service", vm)
     }
@@ -166,12 +169,16 @@ class V3ServiceTextInputStateTest {
         assertNull(vm.uiState.value.textInputFeedback)
     }
 
-    private class Source : V3ServiceWidgetsSource {
+    private class Source : V3ServiceWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var profile = V3DeviceProfile.STANDARD_V3
         var address = "first"
         var visible = true
-        override fun snapshot() = V3ServiceWidgetsSnapshot(profile, address, if (!visible) emptyList() else
+        fun snapshot() = V3ServiceWidgetsSnapshot(profile, address, if (!visible) emptyList() else
             V3ServiceWidgetMapper().fromItems(listOf(P_KEY_SET_DEVICE_NAME, P_KEY_SET_SERIAL_NUMBER).map { key ->
                 TextInputItemV3(key, "Send", CommandParameterWidgetSStruct(
                     BaseParameterWidgetSStruct(BaseParameterWidgetStruct(display = 4,

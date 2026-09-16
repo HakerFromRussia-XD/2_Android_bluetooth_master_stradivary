@@ -9,6 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,8 +28,10 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
+import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
@@ -34,6 +39,13 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
+import com.bailout.stickk.ubi4.versions.v3.data.gestures.V3GesturesRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3RotationGroupSelectionDialogHost
+import com.bailout.stickk.ubi4.versions.v3.di.V3GesturesViewModelFactory
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.util.stream.Collectors
@@ -50,6 +62,12 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
     private val display = 0
+    private var gesturesViewModel: V3GesturesViewModel? = null
+    private var gestureStateJob: Job? = null
+    private var pendingRender: Runnable? = null
+    private var rotationGestureRemovalDialog: Dialog? = null
+    private var renderedRemovalRequestId: Long? = null
+    private val rotationGroupSelectionDialog = V3RotationGroupSelectionDialogHost()
 
 
 
@@ -66,13 +84,15 @@ class SprGestureFragment: BaseWidgetsFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = Ubi4FragmentSprGesturesBinding.inflate(inflater, container, false)
-        if (activity != null) {
-            main = activity as MainActivityUBI4?
-        }
+        return binding.root
+    }
 
-        //настоящие виджеты
-        widgetListUpdater()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        main = activity as? MainActivityUBI4
         val initialData = mDataFactory.prepareData(display)
+        if (UiState.isInterfaceV3Activated && initialData.any { it is GesturesItemV3 }) bindV3Gestures()
+        widgetListUpdater()
         initialData.forEach {
             Log.d("DataType", "Element type: ${it::class.simpleName}")
         }
@@ -88,8 +108,65 @@ class SprGestureFragment: BaseWidgetsFragment() {
         binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
         binding.sprGesturesRv.adapter = adapterWidgets
         adapterWidgets.swapData(initialData)
-        return binding.root
+    }
 
+    private fun bindV3Gestures() {
+        val repository = V3GesturesRepositoryImpl(enqueuePacket = { packet ->
+            MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
+        })
+        val viewModel = ViewModelProvider(this, V3GesturesViewModelFactory(repository))[V3GesturesViewModel::class.java]
+        gesturesViewModel = viewModel
+        renderV3GesturesScreen(viewModel.uiState.value)
+        gestureStateJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onAction(V3GesturesAction.ViewAttached)
+                try {
+                    // Section preferences keep their existing owner until the screen-filter step.
+                    launch {
+                        UiState.activeGestureFragmentFilterFlow.collect { filter ->
+                            viewModel.onAction(V3GesturesAction.RotationGroupVisibilityChanged(filter == 2))
+                        }
+                    }
+                    viewModel.uiState.collect(::renderV3GesturesScreen)
+                } finally {
+                    viewModel.onAction(V3GesturesAction.ViewDetached)
+                    dismissRotationGestureRemovalDialog()
+                    rotationGroupSelectionDialog.dismiss()
+                }
+            }
+        }
+    }
+
+    override fun onV3GesturesAction(action: V3GesturesAction) {
+        gesturesViewModel?.onAction(action)
+    }
+
+    private fun renderV3GesturesScreen(state: V3GesturesUiState) {
+        renderV3Gestures(state)
+        rotationGroupSelectionDialog.render(
+            requireContext(), state.rotationGroupSelection,
+            createItems = { ids ->
+                val collection = CollectionGesturesProvider.getCollectionGestures().associateBy { it.gestureId }
+                ids.map { DialogCollectionGestureItem(collection.getValue(it)) }
+            },
+            onAction = ::onV3GesturesAction,
+        )
+        val removal = state.rotationGestureRemoval
+        if (renderedRemovalRequestId == removal?.requestId) return
+        dismissRotationGestureRemovalDialog()
+        if (removal == null) return
+        renderedRemovalRequestId = removal.requestId
+        rotationGestureRemovalDialog = createRotationGestureRemovalDialog(
+            gestureName = CollectionGesturesProvider.getGesture(removal.gestureId).gestureName,
+            onConfirm = { onV3GesturesAction(V3GesturesAction.RotationGestureRemovalConfirmed(removal.requestId)) },
+            onCancel = { onV3GesturesAction(V3GesturesAction.RotationGestureRemovalCancelled(removal.requestId)) },
+        )
+    }
+
+    private fun dismissRotationGestureRemovalDialog() {
+        rotationGestureRemovalDialog?.dismiss()
+        rotationGestureRemovalDialog = null
+        renderedRemovalRequestId = null
     }
 
     override fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
@@ -205,8 +282,16 @@ class SprGestureFragment: BaseWidgetsFragment() {
         myDialog.dismiss()
     }
 }
-    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     override fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit), gestureName: String) {
+        createRotationGestureRemovalDialog(gestureName, onConfirm = { resultCb(2) })
+    }
+
+    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
+    private fun createRotationGestureRemovalDialog(
+        gestureName: String,
+        onConfirm: () -> Unit,
+        onCancel: () -> Unit = {},
+    ): Dialog {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_delete_gesture_from_rotation_group, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
@@ -220,13 +305,15 @@ class SprGestureFragment: BaseWidgetsFragment() {
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
+            onCancel()
         }
 
         val deleteBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupConfirmBtn)
         deleteBtn.setOnClickListener {
             myDialog.dismiss()
-            resultCb.invoke(2)
+            onConfirm()
         }
+        return myDialog
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -237,11 +324,17 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
                 val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
-                if (binding.sprGesturesRv.isComputingLayout) {
-                    binding.sprGesturesRv.post {
-                        adapterWidgets.swapData(newData)
-                        main?.refreshBottomNavVisibility()
-                    }
+                val currentBinding = _binding ?: return@collect
+                val recyclerView = currentBinding.sprGesturesRv
+                pendingRender?.let(recyclerView::removeCallbacks)
+                pendingRender = null
+                if (recyclerView.isComputingLayout) {
+                    pendingRender = Runnable {
+                        if (_binding === currentBinding) {
+                            adapterWidgets.swapData(newData)
+                            main?.refreshBottomNavVisibility()
+                        }
+                    }.also(recyclerView::post)
                 } else {
                     adapterWidgets.swapData(newData)
                     main?.refreshBottomNavVisibility()
@@ -257,6 +350,15 @@ class SprGestureFragment: BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        gesturesViewModel?.onAction(V3GesturesAction.ViewDetached)
+        gestureStateJob?.cancel()
+        gestureStateJob = null
+        rotationGroupSelectionDialog.dismiss()
+        dismissRotationGestureRemovalDialog()
+        gesturesViewModel = null
+        pendingRender?.let { _binding?.sprGesturesRv?.removeCallbacks(it) }
+        pendingRender = null
+        _binding?.sprGesturesRv?.adapter = null
         main = null
         _binding = null
         super.onDestroyView()

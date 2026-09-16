@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets
 
+import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -55,6 +58,16 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3ServiceWidgetsSourceTest {
+    private val sessionRepository = V3DeviceSessionRepositoryImpl()
+    private val getSession = GetDeviceSessionUseCaseV3(sessionRepository)
+    private val observeSession = ObserveDeviceSessionChangesUseCaseV3(sessionRepository)
+    private val V3ServiceWidgetsSource.updates get() = observeSession()
+    private fun V3ServiceWidgetsSource.snapshot(): V3ServiceWidgetsSnapshot {
+        val session = getSession()
+        return V3ServiceWidgetsSnapshot(session.profile, session.address,
+            widgets(session.profile), !session.restoredFromSnapshot)
+    }
+
     private val originalWidgets = UiState.listWidgets.toSet()
     private val originalDevices = GlobalParameters.baseSubDevicesInfoStructSetV3.toSet()
     private val originalProfile = UiState.activeV3DeviceProfile
@@ -118,11 +131,19 @@ class V3ServiceWidgetsSourceTest {
         assertEquals(com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField.entries.toList(),
             snapshot.widgets.filterIsInstance<V3ServiceWidget.TextInput>().map { it.field })
         val calibration = snapshot.widgets.filterIsInstance<V3ServiceWidget.Buttons>().single()
+        assertEquals(P_KEY_START_CALIBRATE_COMMAND, calibration.parameterKey)
         assertEquals(listOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND)), calibration.info.parameters)
         assertEquals(4, calibration.info.display)
         assertEquals(V3ServiceWidget.BleLog, snapshot.widgets.last())
         assertEquals((0 until snapshot.widgets.size - 1).toList(), expected.mapNotNull { base(it)?.widgetPosition })
         assertEquals(expected, mapper.toItems(snapshot.widgets))
+        val calibrationAdapter = com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3({}, {}, {})
+        val sensorsAdapter = com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3({}, {})
+        val allButtons = (0..4).flatMap { factory.prepareData(display = it) }.filterIsInstance<ButtonsItemV3>()
+        assertEquals(2, allButtons.size)
+        allButtons.forEach { item ->
+            assertEquals(1, listOf(calibrationAdapter, sensorsAdapter).count { it.isForViewType(item) })
+        }
         val role = snapshot.widgets.filterIsInstance<V3ServiceWidget.Spinner>().single { it.parameterKey == P_KEY_DEVICE_ROLE }
         val roleOptions = role.options.drop(1) // Only service engineer and user are currently enabled.
         val forService = mapper.toItems(snapshot.widgets, roleOptions)

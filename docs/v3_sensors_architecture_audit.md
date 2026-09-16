@@ -1,5 +1,9 @@
 # Проверка архитектурных границ Sensors V3 — B1.4
 
+Актуальные границы слоёв после проверки 2026-09-16: [аудит MVVM + MVI](v3_clean_architecture_audit.md).
+Описания отдельных этапов ниже отражают историю переноса.
+
+
 Дата: 2026-09-14. Основной порядок работ — [план](ubi4_v3_clean_architecture_plan.md).
 B1 завершает перенос поведения Sensors на MVVM и UiState/Action. Общая
 инфраструктура приложения и перенос domain в shared остаются отдельными этапами.
@@ -9,7 +13,7 @@ B1 завершает перенос поведения Sensors на MVVM и UiS
 | Область | Текущий путь и ответственность |
 | --- | --- |
 | Состав | DataFactoryV3SensorsWidgetsSource → типизированный снимок → V3SensorsViewModel → UiState.widgets → Fragment. Оба генератора дают Plot, два Slider чувствительности и Buttons; проверены STANDARD_V3/INDY3 и ru/en. |
-| Slider | Адаптер → Fragment → экранная ViewModel → V3SliderSettingsController → SetSliderValueUseCaseV3 → Repository. Диапазоны определяет domain; черновики и задержка отправки принадлежат presentation. |
+| Slider | Адаптер → Fragment → экранная ViewModel → V3SliderSettingsStateHolder → SetSliderValueUseCaseV3 → Repository. Диапазоны определяет domain; черновики и задержка отправки принадлежат presentation. |
 | Plot | Repository отдаёт отсчёты и пороги. Controller готовит кадры и черновик, адаптер рисует график. EditPlotThresholdUseCaseV3 меняет выбранный порог, SetPlotThresholdsUseCaseV3 передаёт пару для записи. |
 | Кнопки | SensorsButtonsDelegateAdapterV3 передаёт события; ViewModel хранит принятые нажатия, UseCase/Repository выполняют OPEN/CLOSE/STOP. Адаптер не обращается к BLE или store. |
 | Обновление | RefreshRequested → ViewModel → UseCase → Repository → существующая синхронизация. Локальная анимация свайпа не объявляет BLE готовым. |

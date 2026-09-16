@@ -1,5 +1,9 @@
 # SpecialSettings V3: контракт состояния и карта источников
 
+Актуальные границы слоёв после проверки 2026-09-16: [аудит MVVM + MVI](v3_clean_architecture_audit.md).
+Описания отдельных этапов ниже отражают историю переноса.
+
+
 Дата: 2026-09-09. Результат анализа A1 из
 [основного плана](ubi4_v3_clean_architecture_plan.md).
 Это контракт полного экрана для A2–A6; реализованная часть отмечена ниже.
@@ -18,7 +22,7 @@ data обращается к существующим хранилищам и о
 
 Реализовано в A2: SpecialSettingsFragment владеет ViewModel и подпиской
 repeatOnLifecycle(STARTED); UiState содержит selectedSection и три Slider.
-V3SliderSettingsController переиспользуется с отдельным scope каждого владельца.
+V3SliderSettingsStateHolder переиспользуется с отдельным scope каждого владельца.
 Для Sensors/Service/Advanced сохранена привязка Base к V3SliderSettingsViewModel.
 STOP и переход к APPLICATION отменяют отложенные записи Slider; PROSTHESIS
 восстанавливает значения.
@@ -152,7 +156,7 @@ AutoLoginChanged → ViewModel → SetAutoLoginEnabledUseCaseV3 → V3AppSetting
 | Первый список | ViewModel восстанавливает вкладку через V3AppSettingsRepository до чтения снимка widgets; повторяет чтение при ViewAttached | Состав реализован в A3, восстановление в A6.2; первый список доступен без события и без записи предпочтения |
 | Обновление списка | Source передаёт инвалидации updateFlow, ViewModel обновляет widgets; Fragment сравнивает состав перед swap | Реализовано в A3; при занятом layout отображается самое свежее состояние с проверкой существования view |
 | Переключение вкладки | SettingsSectionSelected → ViewModel → SetSpecialSettingsSectionUseCaseV3 → repository; Fragment отображает вкладку/список и зеркалирует activeSettingsFragmentFilterFlow (1 — протез, 2 — приложение) | A6.2: прежний LAST_ACTIVE_SETTINGS_FILTER, false — PROSTHESIS, true — APPLICATION; анимация индикатора остаётся UI; UBI4 использует прежний путь |
-| Значения Slider | `V3DeviceSettingsRepository` → общий V3SliderSettingsController → V3SpecialSettingsViewModel → подписка SpecialSettingsFragment → пассивный Slider adapter; запись через UseCase | Реализовано в A2; Base предоставляет только render/callback к общему адаптеру и создание зависимости |
+| Значения Slider | `V3DeviceSettingsRepository` → общий V3SliderSettingsStateHolder → V3SpecialSettingsViewModel → подписка SpecialSettingsFragment → пассивный Slider adapter; запись через UseCase | Реализовано в A2; Base предоставляет только render/callback к общему адаптеру и создание зависимости |
 | Значения ToggleSlider/Spinner | Все применимые ToggleSlider и обычные Spinner SpecialSettings получают значения через repository → ViewModel → UiState | ToggleSlider завершены в A4, обычные Spinner — в A5.1–A5.2; профили настроек отдельно |
 | Доступность | `UiState.v3WidgetsInteractionEnabled`; её меняет в том числе ControllerBleStatusConnection, есть включение для эмуляции | Поток доступности через repository-контракт; не выводить готовность только из GATT connect |
 | Синхронизация | `startupInProgress`, `fullInitInProgress`, `widgetsLoadingProgressFlow`, событие `widgetsLoadingFlow` | Наблюдаемое состояние через Android-адаптер существующего источника |
@@ -435,7 +439,7 @@ KMM-менеджера, отмена/другой serial, поздний отв�
 ## Основные исходники
 
 - [SpecialSettingsFragment][fragment] и [временная связь в BaseWidgetsFragment][base].
-- [Экранная ViewModel][viewmodel] и [общая логика Slider][slidercontroller].
+- [Экранная ViewModel][viewmodel] и [общая логика Slider][sliderstateholder].
 - [Маршруты нижнего меню][navigation] и [открытие настроек в Activity][route].
 - [ToggleSliderDelegateAdapterV3][toggle] и [SpinnerDelegateAdapterV3][spinner].
 - [ParameterStoreV3][store] и [глобальные сигналы UiState][globalstate].
@@ -460,7 +464,7 @@ KMM-менеджера, отмена/другой serial, поздний отв�
 [navigation]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/ui/bottom/BottomNavigationController.kt:54
 [route]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/ui/main/MainActivityUBI4.kt:630
 [viewmodel]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/specialsettings/V3SpecialSettingsViewModel.kt:18
-[slidercontroller]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/sliders/V3SliderSettingsController.kt:16
+[sliderstateholder]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/sliders/V3SliderSettingsStateHolder.kt:16
 
 После A5.3.4 сборка и 252 app-теста в 25 suites прошли (2026-09-11 09:25:26–31 UTC),
 0 ошибок/пропусков; `/tmp/ubi4-special-settings-a5-3-4-20260911.log`.

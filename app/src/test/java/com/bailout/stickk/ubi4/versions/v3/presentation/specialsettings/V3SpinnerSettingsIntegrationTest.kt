@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 
 import androidx.lifecycle.ViewModelStore
@@ -91,7 +94,7 @@ class V3SpinnerSettingsIntegrationTest {
                 savedValues.add(value)
             },
         )
-        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository, FakeV3AppSettingsRepository())
+        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository, FakeV3AppSettingsRepository(), sessionRepository = source)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }
@@ -364,7 +367,11 @@ class V3SpinnerSettingsIntegrationTest {
         assertNoWrites()
     }
 
-    private class WidgetsSource : V3SpecialSettingsWidgetsSource {
+    private class WidgetsSource : V3SpecialSettingsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot(V3SpecialSettingsSection.PROSTHESIS).let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile, section: V3SpecialSettingsSection) = snapshot(section).widgets
         override val updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
         var profile = V3DeviceProfile.STANDARD_V3
         var address = "first-device"
@@ -373,7 +380,7 @@ class V3SpinnerSettingsIntegrationTest {
         var gestureOptions = listOf("No action", "Move to open position")
         var initialIndex = 0
         var options = listOf("Normal", "Sport", "Smooth force", "Smooth speed", "Smooth force and speed")
-        override fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
+        fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
             profile, address,
             if (section == V3SpecialSettingsSection.PROSTHESIS && visible) buildList {
                 add(V3SpecialSettingsWidget.Spinner(

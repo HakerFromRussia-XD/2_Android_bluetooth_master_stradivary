@@ -12,10 +12,10 @@ import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_DEVICE_ROLE
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_SET_SERIAL_NUMBER
 
 /** UI compatibility boundary; preserves widget types, labels, order and command metadata. */
 class V3ServiceWidgetMapper {
@@ -44,6 +44,7 @@ class V3ServiceWidgetMapper {
             }
             is ButtonsItemV3 -> (item.widget as CommandParameterWidgetSStruct).let {
                 V3ServiceWidget.Buttons(item.title, item.title2, item.title3, item.description, info(it.baseParameterWidgetSStruct),
+                    parameterKeys.getValue(it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.first()),
                     it.clickCommand, it.pressedCommand, it.releasedCommand)
             }
             BleLogButtonItem -> V3ServiceWidget.BleLog

@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.plot.V3PlotAction
@@ -21,7 +22,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModel
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3SensorsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.DataFactoryV3SensorsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidgetMapper
@@ -81,6 +82,7 @@ class SensorsFragment : BaseWidgetsFragment() {
             this, V3SensorsViewModelFactory(
                 createV3DeviceSettingsRepository(), DataFactoryV3SensorsWidgetsSource(), createV3SensorsPlotRepository(),
                 createV3SensorsCommandsRepository(),
+                sessionRepository = V3DeviceSessionRepositoryImpl(),
             ),
         )[V3SensorsViewModel::class.java]
         v3SensorsViewModel = viewModel

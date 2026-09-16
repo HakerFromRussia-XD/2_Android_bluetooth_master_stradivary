@@ -19,4 +19,6 @@ sealed interface V3ServiceAction {
     data class TextInputChanged(val field: V3DeviceInfoField, val text: String) : V3ServiceAction
     data class TextInputSendClicked(val field: V3DeviceInfoField) : V3ServiceAction
     data class TextInputFeedbackShown(val id: Long) : V3ServiceAction
+    data class CalibrationButtonPressed(val pressId: Long) : V3ServiceAction
+    data class CalibrationButtonReleased(val pressId: Long) : V3ServiceAction
 }

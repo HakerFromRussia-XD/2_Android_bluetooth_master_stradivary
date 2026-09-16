@@ -31,6 +31,9 @@ object V3BleEmulatorTestHooks {
     private var activeGesture = 1
 
     @Volatile
+    private var rotationGroup = defaultRotationGroupPayload()
+
+    @Volatile
     private var bindingGroup = defaultBindingGroup()
 
     @Volatile
@@ -53,6 +56,7 @@ object V3BleEmulatorTestHooks {
             outgoingPackets.clear()
         }
         activeGesture = 1
+        rotationGroup = defaultRotationGroupPayload()
         bindingGroup = defaultBindingGroup()
         thumbClosedPosition = DEFAULT_THUMB_CLOSED_POSITION
         indexMiddleClosedPosition = DEFAULT_INDEX_MIDDLE_CLOSED_POSITION
@@ -150,7 +154,8 @@ object V3BleEmulatorTestHooks {
                     )
                 )
 
-            PWCE_SET_GESTURE_GROUPE.number.toInt() ->
+            PWCE_SET_GESTURE_GROUPE.number.toInt() -> {
+                if (data.size == 16) rotationGroup = data.copyOf()
                 listOf(
                     BLECommandsV3.sendLongCommand(
                         PROSTHESIS_MODULE_CONTROL.number.toInt(),
@@ -158,6 +163,7 @@ object V3BleEmulatorTestHooks {
                         rotationGroupPayload()
                     )
                 )
+            }
 
             PWCE_GET_BINDING_DATA.number.toInt() ->
                 listOf(
@@ -232,7 +238,9 @@ object V3BleEmulatorTestHooks {
         }
     }
 
-    private fun rotationGroupPayload(): ByteArray =
+    private fun rotationGroupPayload(): ByteArray = rotationGroup.copyOf()
+
+    private fun defaultRotationGroupPayload(): ByteArray =
         byteArrayOf(
             1, 1,
             2, 2,

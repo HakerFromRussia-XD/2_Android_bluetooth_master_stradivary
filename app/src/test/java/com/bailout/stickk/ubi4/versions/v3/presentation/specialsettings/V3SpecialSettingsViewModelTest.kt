@@ -1,5 +1,11 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 
 import androidx.lifecycle.ViewModelStore
@@ -49,7 +55,7 @@ class V3SpecialSettingsViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings).create(V3SpecialSettingsViewModel::class.java)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource).create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }
 
@@ -204,14 +210,14 @@ class V3SpecialSettingsViewModelTest {
     @Test
     fun `hiding special settings does not cancel another screen slider deadline`() = runTest(dispatcher) {
         val otherScreen = V3SliderSettingsViewModel(
-            repository, SetSliderValueUseCaseV3(repository), setOf(P_KEY_FORCE_SETTINGS),
+            GetSliderSettingsUseCaseV3(repository), ObserveSliderSettingsUseCaseV3(repository), SetSliderValueUseCaseV3(repository), setOf(P_KEY_FORCE_SETTINGS),
         )
         store.put("other-screen", otherScreen)
-        otherScreen.onViewAttached()
+        otherScreen.onAction(V3SliderSettingsAction.ViewAttached)
         attach()
         runCurrent()
         step()
-        otherScreen.onAction(V3SliderAction.SliderStepClicked(P_KEY_FORCE_SETTINGS, 1))
+        otherScreen.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderStepClicked(P_KEY_FORCE_SETTINGS, 1)))
         select(V3SpecialSettingsSection.APPLICATION)
         advanceTimeBy(300)
         runCurrent()
@@ -322,7 +328,7 @@ class V3SpecialSettingsViewModelTest {
     fun `new screen restores either saved section before rendering without writing`(section: V3SpecialSettingsSection) = runTest(dispatcher) {
         appSettings.settingsSection = section
         store.clear()
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("restored", viewModel)
         assertEquals(section, viewModel.uiState.value.selectedSection)
@@ -401,7 +407,7 @@ class V3SpecialSettingsViewModelTest {
     fun `section read failure uses the default without overwriting preferences and recovers on return`() = runTest(dispatcher) {
         store.clear()
         appSettings.sectionReadError = IllegalStateException("Invalid stored type")
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("failed-read", viewModel)
         assertEquals(V3SpecialSettingsSection.PROSTHESIS, viewModel.uiState.value.selectedSection)
@@ -433,7 +439,11 @@ class V3SpecialSettingsViewModelTest {
         assertNoWrites()
     }
 
-    private class FakeWidgetsSource : V3SpecialSettingsWidgetsSource {
+    private class FakeWidgetsSource : V3SpecialSettingsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot(V3SpecialSettingsSection.PROSTHESIS).let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile, section: V3SpecialSettingsSection) = snapshot(section).widgets
         override val updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
         var profile = V3DeviceProfile.STANDARD_V3
         var address = "first-device"
@@ -443,7 +453,7 @@ class V3SpecialSettingsViewModelTest {
                 V3SpecialSettingsWidget.Slider(V3SpecialSettingsWidgetInfo(key, key, index), 0, 100, 1f)
             }
         val mobileWidgets = listOf(V3SpecialSettingsWidget.Switch(V3SpecialSettingsWidgetInfo("auto-login", "Auto login", 0), false))
-        override fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
+        fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
             profile, address, if (section == V3SpecialSettingsSection.PROSTHESIS) prosthesisWidgets else mobileWidgets,
             animationsEnabled = animationsEnabled,
         )

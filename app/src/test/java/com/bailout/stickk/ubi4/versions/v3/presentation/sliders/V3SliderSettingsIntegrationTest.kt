@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sliders
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -88,7 +91,7 @@ class V3SliderSettingsIntegrationTest {
             },
         )
         viewModel = V3SliderSettingsViewModel(
-            repository,
+            GetSliderSettingsUseCaseV3(repository), ObserveSliderSettingsUseCaseV3(repository),
             SetSliderValueUseCaseV3(repository),
             initialValues.keys,
         )
@@ -105,8 +108,8 @@ class V3SliderSettingsIntegrationTest {
     }
 
     private fun stateValues() = viewModel.uiState.value.sliders.mapValues { it.value.value }
-    private fun attach() = viewModel.onViewAttached()
-    private fun step(key: String) = viewModel.onAction(V3SliderAction.SliderStepClicked(key, 1))
+    private fun attach() = viewModel.onAction(V3SliderSettingsAction.ViewAttached)
+    private fun step(key: String) = viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderStepClicked(key, 1)))
     private fun cached(key: String) = ParameterProvider.getParameterV3(ParameterInfoRegistry.require(key))
 
     @Test
@@ -130,7 +133,7 @@ class V3SliderSettingsIntegrationTest {
                 else -> 63
             }
         }, stateValues())
-        viewModel.onViewDetached()
+        viewModel.onAction(V3SliderSettingsAction.ViewDetached)
         attach()
         assertEquals(0, packets.size)
         assertEquals(0, savedValues.size)
@@ -233,13 +236,13 @@ class V3SliderSettingsIntegrationTest {
         initialValues.keys.forEach { key ->
             val before = packets.size
             val upper = if (key == P_KEY_EMG_MAX_GAIN_VALUE) 250 else 100
-            viewModel.onAction(V3SliderAction.SliderValueChanged(key, upper + 10))
+            viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(key, upper + 10)))
             assertEquals(upper, stateValues()[key])
             assertEquals(before, packets.size)
-            viewModel.onAction(V3SliderAction.SliderChangeCommitted(key, upper + 10))
+            viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, upper + 10)))
             runCurrent()
             assertEquals(upper, repository.getSliderValue(key))
-            viewModel.onAction(V3SliderAction.SliderChangeCommitted(key, -1))
+            viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, -1)))
             runCurrent()
             assertEquals(0, repository.getSliderValue(key))
         }
@@ -252,7 +255,7 @@ class V3SliderSettingsIntegrationTest {
         runCurrent()
         initialValues.keys.forEach(::step)
         UiState.v3WidgetsInteractionEnabled.value = false
-        initialValues.keys.forEach { viewModel.onAction(V3SliderAction.SliderChangeCommitted(it, 50)) }
+        initialValues.keys.forEach { viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(it, 50))) }
         runCurrent()
         viewModel.uiState.value.sliders.values.forEach { assertFalse(it.isEnabled) }
         advanceTimeBy(301)
@@ -270,7 +273,7 @@ class V3SliderSettingsIntegrationTest {
         attach()
         runCurrent()
         initialValues.keys.forEach(::step)
-        viewModel.onViewDetached()
+        viewModel.onAction(V3SliderSettingsAction.ViewDetached)
         advanceTimeBy(301)
         runCurrent()
         attach()

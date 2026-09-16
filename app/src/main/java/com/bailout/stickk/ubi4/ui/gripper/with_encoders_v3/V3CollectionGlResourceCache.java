@@ -6,6 +6,7 @@ import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -164,6 +165,8 @@ public final class V3CollectionGlResourceCache {
 			preloadRenderer.onSurfaceChanged(null, 1, 1);
 			UBI4GripperSettingsWithEncodersRendererV3.CollectionSharedResources readyResources =
 					preloadRenderer.captureCollectionSharedResources();
+			// Publishing Java objects does not wait for GPU uploads in this context.
+			GLES20.glFinish();
 
 			List<Runnable> callbacks;
 			synchronized (STATE_LOCK) {

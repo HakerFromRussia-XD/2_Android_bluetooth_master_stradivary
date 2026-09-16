@@ -15,4 +15,5 @@ data class V3ServiceUiState(
     val role: V3ServiceRoleUiState? = null,
     val textInputs: Map<V3DeviceInfoField, V3ServiceTextInputUiState> = emptyMap(),
     val textInputFeedback: V3TextInputFeedback? = null,
+    val calibration: V3ProsthesisCalibrationUiState? = null,
 )

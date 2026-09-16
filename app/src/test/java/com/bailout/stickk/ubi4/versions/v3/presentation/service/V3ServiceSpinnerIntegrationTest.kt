@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.service
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
@@ -79,7 +82,7 @@ class V3ServiceSpinnerIntegrationTest {
                 saved += key to value
             },
         )
-        viewModel = V3ServiceViewModelFactory(repository, source, repository, FakeV3DeviceRoleRepository(), FakeV3DeviceInfoRepository()).create(V3ServiceViewModel::class.java)
+        viewModel = V3ServiceViewModelFactory(repository, source, repository, FakeV3DeviceRoleRepository(), FakeV3DeviceInfoRepository(), FakeV3ProsthesisCalibrationRepository(), sessionRepository = source).create(V3ServiceViewModel::class.java)
         store.put("service", viewModel)
     }
 
@@ -251,7 +254,11 @@ class V3ServiceSpinnerIntegrationTest {
         noWrites()
     }
 
-    private class Source : V3ServiceWidgetsSource {
+    private class Source : V3ServiceWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var profile = V3DeviceProfile.STANDARD_V3
         var address = "first-device"
@@ -259,7 +266,7 @@ class V3ServiceSpinnerIntegrationTest {
         var initialIndex = 0
         var extraOptions = false
         var optionCount: Int? = null
-        override fun snapshot() = V3ServiceWidgetsSnapshot(profile, address,
+        fun snapshot() = V3ServiceWidgetsSnapshot(profile, address,
             if (!visible || profile == V3DeviceProfile.NOT_V3) emptyList() else {
                 val keys = listOf(P_KEY_EMG_CONTROL_MODE) +
                     (if (profile == V3DeviceProfile.STANDARD_V3) listOf(P_KEY_LEFT_RIGHT_HAND) else emptyList()) + P_KEY_DEVICE_ROLE

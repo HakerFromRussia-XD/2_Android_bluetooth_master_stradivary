@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets
 
+import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -56,6 +59,16 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3SpecialSettingsWidgetsSourceTest {
+    private val sessionRepository = V3DeviceSessionRepositoryImpl()
+    private val getSession = GetDeviceSessionUseCaseV3(sessionRepository)
+    private val observeSession = ObserveDeviceSessionChangesUseCaseV3(sessionRepository)
+    private val V3SpecialSettingsWidgetsSource.updates get() = observeSession()
+    private fun V3SpecialSettingsWidgetsSource.snapshot(section: V3SpecialSettingsSection): V3SpecialSettingsWidgetsSnapshot {
+        val session = getSession()
+        return V3SpecialSettingsWidgetsSnapshot(session.profile, session.address,
+            widgets(session.profile, section), !session.restoredFromSnapshot)
+    }
+
     private val originalWidgets = UiState.listWidgets.toSet()
     private val originalDevices = GlobalParameters.baseSubDevicesInfoStructSetV3.toSet()
     private val originalProfile = UiState.activeV3DeviceProfile

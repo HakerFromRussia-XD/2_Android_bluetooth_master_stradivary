@@ -38,6 +38,7 @@ sealed interface V3ServiceWidget {
         val title3: String,
         val description: String,
         val info: V3ServiceWidgetInfo,
+        val parameterKey: String,
         val clickCommand: Int,
         val pressedCommand: Int,
         val releasedCommand: Int,

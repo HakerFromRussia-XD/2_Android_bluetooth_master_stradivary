@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sensors
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SensorsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -45,7 +48,7 @@ class V3SensorsViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SensorsViewModelFactory(repository, source, FakeV3SensorsPlotRepository(), FakeV3SensorsCommandsRepository()).create(V3SensorsViewModel::class.java)
+        viewModel = V3SensorsViewModelFactory(repository, source, FakeV3SensorsPlotRepository(), FakeV3SensorsCommandsRepository(), sessionRepository = source).create(V3SensorsViewModel::class.java)
         store.put("sensors", viewModel)
     }
 
@@ -288,7 +291,11 @@ class V3SensorsViewModelTest {
         }
     }
 
-    private class FakeWidgetsSource : V3SensorsWidgetsSource {
+    private class FakeWidgetsSource : V3SensorsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var current = V3SensorsWidgetsSnapshot(
             V3DeviceProfile.STANDARD_V3, "first-device",
@@ -298,6 +305,6 @@ class V3SensorsViewModelTest {
                 )), 0, 100, 1f))
             }),
         )
-        override fun snapshot() = current
+        fun snapshot() = current
     }
 }

@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import android.content.Context
 import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
 import android.animation.ArgbEvaluator
@@ -36,7 +37,7 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3Specia
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
-import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.DataFactoryV3SpecialSettingsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetMapper
@@ -122,6 +123,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
                 V3AppSettingsRepositoryImpl(requireContext().applicationContext.getSharedPreferences(
                     PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
                 )),
+                sessionRepository = V3DeviceSessionRepositoryImpl(),
             ),
         )[V3SpecialSettingsViewModel::class.java]
         v3SpecialSettingsViewModel = viewModel

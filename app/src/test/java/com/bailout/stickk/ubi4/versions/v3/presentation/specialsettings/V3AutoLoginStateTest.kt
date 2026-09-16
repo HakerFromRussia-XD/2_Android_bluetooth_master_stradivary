@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 
 import androidx.lifecycle.ViewModelStore
@@ -48,7 +51,7 @@ class V3AutoLoginStateTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, NoSettingsProfilesRepository, appSettings)
+        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, NoSettingsProfilesRepository, appSettings, sessionRepository = source)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("screen", viewModel)
     }
@@ -155,11 +158,15 @@ class V3AutoLoginStateTest {
         assertTrue(appSettings.writes.isEmpty())
     }
 
-    private class Source : V3SpecialSettingsWidgetsSource {
+    private class Source : V3SpecialSettingsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot(V3SpecialSettingsSection.PROSTHESIS).let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile, section: V3SpecialSettingsSection) = snapshot(section).widgets
         override val updates = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         var profile = V3DeviceProfile.STANDARD_V3
         var visible = true
-        override fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
+        fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
             profile, "device",
             if (visible && profile != V3DeviceProfile.NOT_V3 && section == V3SpecialSettingsSection.APPLICATION) listOf(
                 V3SpecialSettingsWidget.Switch(V3SpecialSettingsWidgetInfo(MobileSettingsKey.AUTO_LOGIN.key, "Auto login", 0), true),

@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets
 
+import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.V3ProsthesisMovement
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
@@ -50,6 +53,16 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3SensorsWidgetsSourceTest {
+    private val sessionRepository = V3DeviceSessionRepositoryImpl()
+    private val getSession = GetDeviceSessionUseCaseV3(sessionRepository)
+    private val observeSession = ObserveDeviceSessionChangesUseCaseV3(sessionRepository)
+    private val V3SensorsWidgetsSource.updates get() = observeSession()
+    private fun V3SensorsWidgetsSource.snapshot(): V3SensorsWidgetsSnapshot {
+        val session = getSession()
+        return V3SensorsWidgetsSnapshot(session.profile, session.address,
+            widgets(session.profile), !session.restoredFromSnapshot)
+    }
+
     private val originalWidgets = UiState.listWidgets.toSet()
     private val originalDevices = GlobalParameters.baseSubDevicesInfoStructSetV3.toSet()
     private val originalProfile = UiState.activeV3DeviceProfile

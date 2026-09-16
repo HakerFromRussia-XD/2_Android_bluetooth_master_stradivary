@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sensors
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SensorsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -35,14 +38,18 @@ class V3SensorsPlotStateTest {
     private val store = ViewModelStore()
     private val repository = FakeV3SensorsPlotRepository()
     private val sliders = mockk<V3DeviceSettingsRepository>(relaxed = true)
-    private val source = object : V3SensorsWidgetsSource {
+    private val source = object : V3SensorsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var current = V3SensorsWidgetsSnapshot(V3DeviceProfile.STANDARD_V3, "first", V3SensorsWidgetMapper().fromItems(listOf(
             PlotItemV3("Plot", PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_PLOT), ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)),
             )))),
         )))
-        override fun snapshot() = current
+        fun snapshot() = current
     }
     private lateinit var viewModel: V3SensorsViewModel
     private fun plot() = requireNotNull(viewModel.uiState.value.plot)
@@ -67,7 +74,7 @@ class V3SensorsPlotStateTest {
         every { sliders.sliderInteractionEnabled } returns MutableStateFlow(true)
         every { sliders.getSliderValue(any()) } returns 18
         every { sliders.observeSliderValue(any()) } returns MutableStateFlow(18)
-        viewModel = V3SensorsViewModelFactory(sliders, source, repository, FakeV3SensorsCommandsRepository()).create(V3SensorsViewModel::class.java)
+        viewModel = V3SensorsViewModelFactory(sliders, source, repository, FakeV3SensorsCommandsRepository(), sessionRepository = source).create(V3SensorsViewModel::class.java)
         store.put("sensors", viewModel)
     }
 

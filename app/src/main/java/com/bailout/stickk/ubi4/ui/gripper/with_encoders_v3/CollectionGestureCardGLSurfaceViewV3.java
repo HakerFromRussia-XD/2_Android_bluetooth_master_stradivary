@@ -7,8 +7,10 @@ import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -45,14 +47,17 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	private volatile boolean firstFramePresented;
 
 	private HandlerThread glThread;
-	private Handler glHandler;
+	private long surfaceGeneration; // UI-thread lifecycle order, including queued releases.
+	private volatile Handler glHandler;
+	private final Handler mainHandler = new Handler(Looper.getMainLooper());
 	private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
 	private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
 	private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
 	private volatile boolean eglReady;
-	private SurfaceTexture activeSurfaceTexture;
-	private boolean usingSharedContext;
-	private boolean waitingForSharedResources;
+	private volatile SurfaceTexture activeSurfaceTexture;
+	// Owned by the GL worker, unlike activeSurfaceTexture which follows UI callbacks.
+	private SurfaceTexture eglSurfaceTexture;
+	private volatile boolean waitingForSharedResources;
 
 	public CollectionGestureCardGLSurfaceViewV3(Context context, int gestureId) {
 		this(context, null);
@@ -100,7 +105,7 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	public void setOnFirstFrameReadyListener(Runnable listener) {
 		firstFrameReadyListener = listener;
 		if (listener != null && firstFramePresented) {
-			post(listener);
+			post(this::notifyFirstFrameReady);
 		}
 	}
 
@@ -112,7 +117,7 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 
 	private void notifyFirstFrameReady() {
 		Runnable listener = firstFrameReadyListener;
-		if (listener != null) listener.run();
+		if (listener != null && firstFramePresented) listener.run();
 	}
 
 	public void playFromStart() {
@@ -152,31 +157,42 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	}
 
 	private void startEgl(SurfaceTexture surfaceTexture, int width, int height) {
+		surfaceGeneration++;
 		activeSurfaceTexture = surfaceTexture;
 		ensureGlThread();
-		glHandler.post(() -> initializeEgl(surfaceTexture, width, height));
+		Handler handler = glHandler;
+		handler.post(() -> {
+			if (handler == glHandler) initializeEgl(surfaceTexture, width, height);
+		});
 	}
 
 	private void ensureGlThread() {
 		if (glThread != null && glThread.isAlive()) return;
+		frameQueued.set(false);
 		glThread = new HandlerThread(TAG + "-" + Integer.toHexString(hashCode()));
 		glThread.start();
 		glHandler = new Handler(glThread.getLooper());
 	}
 
 	private void initializeEgl(SurfaceTexture surfaceTexture, int width, int height) {
-		destroyEgl(false);
+		V3CollectionGlResourceCache.runSerialized(() -> initializeEglSerialized(surfaceTexture, width, height));
+	}
+
+	private void initializeEglSerialized(SurfaceTexture surfaceTexture, int width, int height) {
 		if (surfaceTexture != activeSurfaceTexture || cardRenderer == null || width <= 0 || height <= 0) {
 			return;
 		}
+		destroyEgl();
+		eglSurfaceTexture = surfaceTexture;
 		if (!V3CollectionGlResourceCache.isReady()
 				&& !V3CollectionGlResourceCache.hasFailed()) {
 			if (!waitingForSharedResources) {
 				waitingForSharedResources = true;
 				V3CollectionGlResourceCache.whenReady(() -> {
 					waitingForSharedResources = false;
-					if (surfaceTexture == activeSurfaceTexture && isAvailable()) {
-						startEgl(surfaceTexture, getWidth(), getHeight());
+					SurfaceTexture currentSurface = activeSurfaceTexture;
+					if (currentSurface != null && isAvailable()) {
+						startEgl(currentSurface, getWidth(), getHeight());
 					}
 				});
 			}
@@ -190,12 +206,10 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 					V3CollectionGlResourceCache.createSharedContext();
 			final EGLConfig selectedConfig;
 			if (shared != null) {
-				usingSharedContext = true;
 				eglDisplay = shared.display;
 				eglContext = shared.context;
 				selectedConfig = shared.config;
 			} else {
-				usingSharedContext = false;
 				eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
 				int[] versions = new int[2];
 				if (eglDisplay == EGL14.EGL_NO_DISPLAY
@@ -242,7 +256,7 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 			}
 		} catch (Throwable error) {
 			Log.e(TAG, "Unable to initialize collection GL texture", error);
-			destroyEgl(false);
+			destroyEgl();
 		}
 	}
 
@@ -291,15 +305,15 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 		if (handler == null || !frameQueued.compareAndSet(false, true)) return;
 		handler.post(() -> {
 			try {
-				if (eglReady) drawFrameOnGlThread();
+				if (handler == glHandler && eglReady) drawFrameOnGlThread();
 			} finally {
-				frameQueued.set(false);
+				if (handler == glHandler) frameQueued.set(false);
 			}
 		});
 	}
 
 	private void drawFrameOnGlThread() {
-		if (!eglReady || cardRenderer == null) return;
+		if (!eglReady || cardRenderer == null || eglSurfaceTexture != activeSurfaceTexture) return;
 		Runnable draw = () -> {
 			cardRenderer.onDrawFrame(null);
 			if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
@@ -311,50 +325,64 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 				post(this::notifyFirstFrameReady);
 			}
 		};
-		if (usingSharedContext) {
-			V3CollectionGlResourceCache.runSerialized(draw);
-		} else {
-			draw.run();
-		}
+		V3CollectionGlResourceCache.runSerialized(draw);
 	}
 
-	private void destroyEgl(boolean quitThread) {
-		eglReady = false;
-		firstFramePresented = false;
-		frameQueued.set(false);
-		if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
-			EGL14.eglMakeCurrent(
-					eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
-			if (eglSurface != EGL14.EGL_NO_SURFACE) {
-				EGL14.eglDestroySurface(eglDisplay, eglSurface);
+	private void destroyEgl() {
+		V3CollectionGlResourceCache.runSerialized(() -> {
+			eglReady = false;
+			firstFramePresented = false;
+			frameQueued.set(false);
+			if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
+				if (eglContext != EGL14.EGL_NO_CONTEXT
+						&& eglContext.equals(EGL14.eglGetCurrentContext())) {
+					// Swapping submits work asynchronously. Finish this card's last
+					// frame before releasing the surface and its shared context.
+					GLES20.glFinish();
+				}
+				EGL14.eglMakeCurrent(
+						eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+				if (eglSurface != EGL14.EGL_NO_SURFACE) {
+					EGL14.eglDestroySurface(eglDisplay, eglSurface);
+				}
+				if (eglContext != EGL14.EGL_NO_CONTEXT) {
+					EGL14.eglDestroyContext(eglDisplay, eglContext);
+				}
+				// The default display also belongs to the process-wide collection cache
+				// and other cards. A card only owns its surface and context.
 			}
-			if (eglContext != EGL14.EGL_NO_CONTEXT) {
-				EGL14.eglDestroyContext(eglDisplay, eglContext);
-			}
-			if (!usingSharedContext) {
-				EGL14.eglTerminate(eglDisplay);
-			}
-		}
-		eglDisplay = EGL14.EGL_NO_DISPLAY;
-		eglContext = EGL14.EGL_NO_CONTEXT;
-		eglSurface = EGL14.EGL_NO_SURFACE;
-		usingSharedContext = false;
-		if (quitThread && glThread != null) {
-			glThread.quitSafely();
-			glThread = null;
-			glHandler = null;
-		}
+			eglDisplay = EGL14.EGL_NO_DISPLAY;
+			eglContext = EGL14.EGL_NO_CONTEXT;
+			eglSurface = EGL14.EGL_NO_SURFACE;
+			eglSurfaceTexture = null;
+			// Release driver thread-local state here, under the same serialization,
+			// instead of leaving concurrent cleanup to fourteen thread destructors.
+			EGL14.eglReleaseThread();
+		});
 	}
 
 	private void releaseSurface(SurfaceTexture surfaceTexture) {
+		long releaseGeneration = ++surfaceGeneration;
 		Handler handler = glHandler;
+		HandlerThread thread = glThread;
 		if (handler == null) {
-			surfaceTexture.release();
+			mainHandler.post(surfaceTexture::release);
 			return;
 		}
 		handler.post(() -> {
-			destroyEgl(true);
-			surfaceTexture.release();
+			if (eglSurfaceTexture == surfaceTexture) destroyEgl();
+			// Only the UI thread replaces workers. Reattachment can reuse this worker
+			// while teardown is queued; an old release must never quit the new worker.
+			mainHandler.post(() -> {
+				// TextureView destroys its own native window after its listener returns.
+				// Release the producer only after that UI callback and EGL cleanup finish.
+				surfaceTexture.release();
+				if (activeSurfaceTexture == null && glHandler == handler && surfaceGeneration == releaseGeneration) {
+					glHandler = null;
+					glThread = null;
+					thread.quitSafely();
+				}
+			});
 		});
 	}
 
@@ -368,23 +396,23 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 		Handler handler = glHandler;
 		if (handler != null) {
 			handler.post(() -> {
-				if (eglReady && cardRenderer != null) {
+				if (handler == glHandler && eglReady && cardRenderer != null
+						&& surface == eglSurfaceTexture && surface == activeSurfaceTexture) {
 					surface.setDefaultBufferSize(width, height);
 					Runnable resize = () -> {
 						cardRenderer.onSurfaceChanged(null, width, height);
 						drawFrameOnGlThread();
 					};
-					if (usingSharedContext) {
-						V3CollectionGlResourceCache.runSerialized(resize);
-					} else {
-						resize.run();
-					}
+					V3CollectionGlResourceCache.runSerialized(resize);
 				}
 			});
 		}
 	}
 
 	@Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+		firstFramePresented = false;
+		playing = false;
+		Choreographer.getInstance().removeFrameCallback(frameCallback);
 		if (surface == activeSurfaceTexture) activeSurfaceTexture = null;
 		releaseSurface(surface);
 		return false;
@@ -411,13 +439,12 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	}
 
 	@Override protected void onDetachedFromWindow() {
-		stopAtInitialPose();
+		playing = false;
+		Choreographer.getInstance().removeFrameCallback(frameCallback);
+		if (rendererConfigured) poseSource.setPose(clip.initialPose().copyValues());
 		firstFrameReadyListener = null;
-		SurfaceTexture surface = activeSurfaceTexture;
-		activeSurfaceTexture = null;
-		if (surface != null && isAvailable()) {
-			releaseSurface(surface);
-		}
+		// TextureView invokes onSurfaceTextureDestroyed during detach. That callback
+		// is the sole owner of asynchronous EGL/SurfaceTexture release.
 		super.onDetachedFromWindow();
 	}
 

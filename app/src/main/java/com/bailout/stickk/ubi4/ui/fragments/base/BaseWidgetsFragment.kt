@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments.base
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.AutoLoginDelegateAdapterV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.V3AutoLoginUiState
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3
@@ -40,7 +41,8 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAd
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ProsthesisCalibrationUiState
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesTwoSectionDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
@@ -88,9 +90,11 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3Setti
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModel
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3SliderSettingsViewModelFactory
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -104,8 +108,31 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
 
+    private val v3GesturesAdapter by lazy {
+        GesturesTwoSectionDelegateAdapterV3(
+            coroutineScope = main?.lifecycleScope,
+            gestureNameList = gestureNameList,
+            onSendBLERotationGroup = { sendBLERotationGroupV3() },
+            onAction = ::onV3GesturesAction,
+            onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+        )
+    }
+    protected open fun onV3GesturesAction(action: V3GesturesAction) = Unit
+    protected fun renderV3Gestures(state: V3GesturesUiState) = v3GesturesAdapter.render(state)
+
     protected open val v3SliderParameterKeys: Set<String> = emptySet()
     protected open val v3SpinnerParameterKeys: Set<String> = emptySet()
+    private val v3CalibrationAdapter by lazy {
+        ProsthesisCalibrationDelegateAdapterV3(
+            onDestroyParent = { onDestroyParentCallbacks.add(it) },
+            onPressed = ::onV3CalibrationButtonPressed,
+            onReleased = ::onV3CalibrationButtonReleased,
+        )
+    }
+    protected open fun onV3CalibrationButtonPressed(pressId: Long) = Unit
+    protected open fun onV3CalibrationButtonReleased(pressId: Long) = Unit
+    protected fun renderV3Calibration(state: V3ProsthesisCalibrationUiState?) = v3CalibrationAdapter.render(state)
     private val v3TextInputAdapter by lazy {
         TextInputDelegateAdapterV3(
             onDestroyParent = { onDestroyParentCallbacks.add(it) },
@@ -183,9 +210,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             v3SensorsButtonsAdapter,
-            ButtonsDelegateAdapterV3(
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-            ),
+            v3CalibrationAdapter,
             BleLogButtonDelegateAdapter(
                 onClick = { navigator().showBleLogScreen() }
             ),
@@ -257,18 +282,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-            GesturesTwoSectionDelegateAdapterV3(
-                coroutineScope = main?.lifecycleScope, // см. пункт 2 ниже
-                gestureNameList = gestureNameList,
-                onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
-                onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
-                onSendBLERotationGroup = { sendBLERotationGroupV3() },
-                onSendBLEActiveGesture = { activeGesture -> sendBLEActiveGestureV3(activeGesture) },
-                onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
-                onRequestActiveGesture = { requestActiveGestureV3() },
-                onRequestRotationGroup = { requestRotationGroupV3() },
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-            ),
+            v3GesturesAdapter,
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
@@ -396,11 +410,11 @@ abstract class BaseWidgetsFragment : Fragment() {
         val owner = viewLifecycleOwner
         v3SliderStateJob = owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.onViewAttached()
+                viewModel.onAction(V3SliderSettingsAction.ViewAttached)
                 try {
                     viewModel.uiState.collect { state -> renderV3Sliders(state.sliders) }
                 } finally {
-                    viewModel.onViewDetached()
+                    viewModel.onAction(V3SliderSettingsAction.ViewDetached)
                 }
             }
         }
@@ -430,7 +444,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     protected fun renderV3Plot(state: V3PlotUiState?) = v3PlotAdapter.render(state)
 
     protected open fun onV3SliderAction(action: V3SliderAction) {
-        v3SettingsViewModel?.onAction(action)
+        v3SettingsViewModel?.onAction(V3SliderSettingsAction.SliderAction(action))
     }
 
     protected fun renderV3Sliders(states: Map<String, SliderUiStateV3>) {
@@ -477,7 +491,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     override fun onDestroyView() {
         v3SliderStateJob?.cancel()
         v3SliderStateJob = null
-        v3SettingsViewModel?.onViewDetached()
+        v3SettingsViewModel?.onAction(V3SliderSettingsAction.ViewDetached)
         v3SettingsViewModel = null
         releaseDelegateResources()
         super.onDestroyView()
@@ -673,18 +687,9 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
-    open fun sendBLEActiveGestureV3(activeGesture: Int) {
-        platformLog("sendBLEActiveGestureV3", "послали жест $activeGesture")
-        if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), activeGesture), SERIALPORTCHAR_UUID, WRITE){}
-    }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}
         transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-    }
-    open fun requestActiveGestureV3() {
-        if (!isAdded) {return}
-        transmitter().bleCommandWithQueue(BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun sendBLEBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         if (!isAdded) { return }
@@ -715,12 +720,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-
-    }
-    private fun requestRotationGroupV3() {
-        platformLog("requestRotationGroupV3", "спросили группу ротации")
-        if (!isAdded) return
-        transmitter().bleCommandWithQueue(BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
 
     }
     private fun requestBindingGroupV3() {

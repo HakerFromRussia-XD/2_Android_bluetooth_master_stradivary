@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import android.os.Bundle
 import android.content.Context
 import android.widget.Toast
@@ -20,6 +21,7 @@ import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceRoleRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceInfoRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.service.V3ProsthesisCalibrationRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceTextInputUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3TextInputMessage
@@ -33,7 +35,7 @@ import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceViewModel
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.DataFactoryV3ServiceWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidgetMapper
@@ -92,6 +94,10 @@ class ServiceFragment : BaseWidgetsFragment() {
         )
         val viewModel = ViewModelProvider(this, V3ServiceViewModelFactory(
             repository, DataFactoryV3ServiceWidgetsSource(), repository, roleRepository, deviceInfoRepository,
+            V3ProsthesisCalibrationRepositoryImpl { packet ->
+                MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
+            },
+            sessionRepository = V3DeviceSessionRepositoryImpl(),
         ))[V3ServiceViewModel::class.java]
         v3ServiceViewModel = viewModel
         renderV3Service(viewModel.uiState.value)
@@ -111,6 +117,14 @@ class ServiceFragment : BaseWidgetsFragment() {
 
     override fun onV3SliderAction(action: V3SliderAction) {
         v3ServiceViewModel?.onAction(V3ServiceAction.SliderAction(action))
+    }
+
+    override fun onV3CalibrationButtonPressed(pressId: Long) {
+        v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonPressed(pressId))
+    }
+
+    override fun onV3CalibrationButtonReleased(pressId: Long) {
+        v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonReleased(pressId))
     }
 
     override fun onV3TextInputChanged(field: V3DeviceInfoField, text: String) {
@@ -148,6 +162,7 @@ class ServiceFragment : BaseWidgetsFragment() {
             return
         }
         v3AnimationsEnabled = state.animationsEnabled
+        renderV3Calibration(state.calibration)
         if (renderedTextInputs != state.textInputs) {
             renderV3TextInputs(state.textInputs)
             renderedTextInputs = state.textInputs

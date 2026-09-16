@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sliders
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
@@ -33,7 +36,7 @@ class V3SliderSettingsViewModelTest {
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         viewModel = V3SliderSettingsViewModel(
-            repository, SetSliderValueUseCaseV3(repository),
+            GetSliderSettingsUseCaseV3(repository), ObserveSliderSettingsUseCaseV3(repository), SetSliderValueUseCaseV3(repository),
             setOf(
                 P_KEY_SPEED_SETTINGS,
                 P_KEY_FORCE_SETTINGS,
@@ -49,10 +52,10 @@ class V3SliderSettingsViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun attach() = viewModel.onViewAttached()
-    private fun step(value: Int = 1, parameterKey: String = P_KEY_SPEED_SETTINGS) = viewModel.onAction(
+    private fun attach() = viewModel.onAction(V3SliderSettingsAction.ViewAttached)
+    private fun step(value: Int = 1, parameterKey: String = P_KEY_SPEED_SETTINGS) = viewModel.onAction(V3SliderSettingsAction.SliderAction(
         V3SliderAction.SliderStepClicked(parameterKey, value)
-    )
+    ))
     private fun sliderState(key: String = P_KEY_SPEED_SETTINGS) = viewModel.uiState.value.sliders.getValue(key)
 
     @Test
@@ -67,7 +70,7 @@ class V3SliderSettingsViewModelTest {
         runCurrent()
         assertEquals(63, sliderState().value)
         assertEquals(250, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
-        viewModel.onViewDetached()
+        viewModel.onAction(V3SliderSettingsAction.ViewDetached)
         attach()
         assertEquals(emptyList<Int>(), repository.writes)
     }
@@ -76,11 +79,11 @@ class V3SliderSettingsViewModelTest {
     fun `drag changes draft and sends only on release`() = runTest(dispatcher) {
         attach()
         runCurrent()
-        viewModel.onAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 42)))
         assertEquals(42, sliderState().value)
         assertEquals(17, repository.value.value)
         assertEquals(emptyList<Int>(), repository.writes)
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 42)))
         runCurrent()
         assertEquals(listOf(42), repository.writes)
     }
@@ -109,8 +112,8 @@ class V3SliderSettingsViewModelTest {
         step(parameterKey = P_KEY_FORCE_SETTINGS)
         step(parameterKey = P_KEY_EMG_MAX_GAIN_VALUE)
         repository.sliderInteractionEnabled.value = false
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 55))
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 55)))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240)))
         runCurrent()
         assertFalse(sliderState().isEnabled)
         assertFalse(sliderState(P_KEY_FORCE_SETTINGS).isEnabled)
@@ -131,7 +134,7 @@ class V3SliderSettingsViewModelTest {
         step()
         step(parameterKey = P_KEY_FORCE_SETTINGS)
         step(parameterKey = P_KEY_EMG_MAX_GAIN_VALUE)
-        viewModel.onViewDetached()
+        viewModel.onAction(V3SliderSettingsAction.ViewDetached)
         advanceTimeBy(301)
         runCurrent()
         attach()
@@ -148,7 +151,7 @@ class V3SliderSettingsViewModelTest {
         attach()
         runCurrent()
         step()
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 42)))
         advanceTimeBy(301)
         runCurrent()
         assertEquals(listOf(42), repository.writes)
@@ -158,13 +161,13 @@ class V3SliderSettingsViewModelTest {
     fun `slider input stays within bounds and rejects another parameter`() = runTest(dispatcher) {
         attach()
         runCurrent()
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted("another_parameter", 42))
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 200))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted("another_parameter", 42)))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 200)))
         runCurrent()
         step()
         advanceTimeBy(300)
         runCurrent()
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, -1))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, -1)))
         assertEquals(listOf(100, 100, 0), repository.writes)
     }
 
@@ -220,7 +223,7 @@ class V3SliderSettingsViewModelTest {
     fun `force response preserves unsent speed draft`() = runTest(dispatcher) {
         attach()
         runCurrent()
-        viewModel.onAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 42)))
         repository.values.getValue(P_KEY_FORCE_SETTINGS).value = 83
         runCurrent()
         assertEquals(42, sliderState().value)
@@ -234,9 +237,9 @@ class V3SliderSettingsViewModelTest {
         attach()
         runCurrent()
         step()
-        viewModel.onAction(V3SliderAction.SliderValueChanged(P_KEY_FORCE_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(P_KEY_FORCE_SETTINGS, 42)))
         assertEquals(70, repository.values.getValue(P_KEY_FORCE_SETTINGS).value)
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_FORCE_SETTINGS, 42))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_FORCE_SETTINGS, 42)))
         runCurrent()
         assertEquals(listOf(P_KEY_FORCE_SETTINGS to 42), repository.writesByParameter)
         advanceTimeBy(300)
@@ -252,21 +255,21 @@ class V3SliderSettingsViewModelTest {
         attach()
         runCurrent()
         val key = P_KEY_EMG_MAX_GAIN_VALUE
-        viewModel.onAction(V3SliderAction.SliderValueChanged(key, 249))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(key, 249)))
         assertEquals(249, sliderState(key).value)
         assertEquals(225, repository.values.getValue(key).value)
         assertEquals(emptyList<Pair<String, Int>>(), repository.writesByParameter)
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(key, 249))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, 249)))
         runCurrent()
         step(parameterKey = key)
         step(parameterKey = key)
         assertEquals(250, sliderState(key).value)
         advanceTimeBy(300)
         runCurrent()
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(key, 300))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, 300)))
         runCurrent()
         assertEquals(250, sliderState(key).value)
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(key, -1))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, -1)))
         runCurrent()
         step(value = -1, parameterKey = key)
         assertEquals(0, sliderState(key).value)
@@ -284,7 +287,7 @@ class V3SliderSettingsViewModelTest {
         runCurrent()
         step()
         step(parameterKey = P_KEY_FORCE_SETTINGS)
-        viewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240)))
         runCurrent()
         assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 240), repository.writesByParameter)
         advanceTimeBy(300)
@@ -299,15 +302,15 @@ class V3SliderSettingsViewModelTest {
     @Test
     fun `screen selection limits observed sliders and their ranges come from domain`() = runTest(dispatcher) {
         val selectedViewModel = V3SliderSettingsViewModel(
-            repository, SetSliderValueUseCaseV3(repository), setOf(P_KEY_EMG_MAX_GAIN_VALUE)
+            GetSliderSettingsUseCaseV3(repository), ObserveSliderSettingsUseCaseV3(repository), SetSliderValueUseCaseV3(repository), setOf(P_KEY_EMG_MAX_GAIN_VALUE)
         )
         store.put("selected-settings", selectedViewModel)
-        selectedViewModel.onViewAttached()
+        selectedViewModel.onAction(V3SliderSettingsAction.ViewAttached)
         runCurrent()
         assertEquals(setOf(P_KEY_EMG_MAX_GAIN_VALUE), selectedViewModel.uiState.value.sliders.keys)
         assertEquals(0..250, selectedViewModel.uiState.value.sliders.getValue(P_KEY_EMG_MAX_GAIN_VALUE).allowedRange)
-        selectedViewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_FORCE_SETTINGS, 50))
-        selectedViewModel.onAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 225))
+        selectedViewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_FORCE_SETTINGS, 50)))
+        selectedViewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 225)))
         assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 225), repository.writesByParameter)
     }
 

@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileOperation
@@ -75,7 +78,7 @@ class V3SettingsProfilesStateTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository, appSettings)
+        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository, appSettings, sessionRepository = source)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("screen", viewModel)
     }
@@ -582,13 +585,17 @@ class V3SettingsProfilesStateTest {
         }
     }
 
-    private class WidgetsSource : V3SpecialSettingsWidgetsSource {
+    private class WidgetsSource : V3SpecialSettingsWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot(V3SpecialSettingsSection.PROSTHESIS).let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile, section: V3SpecialSettingsSection) = snapshot(section).widgets
         override val updates = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         var profile = V3DeviceProfile.INDY3
         var address = "first-device"
         var visible = true
         var extraWidgets = emptyList<V3SpecialSettingsWidget>()
-        override fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
+        fun snapshot(section: V3SpecialSettingsSection) = V3SpecialSettingsWidgetsSnapshot(
             profile, address,
             if (visible && profile != V3DeviceProfile.STANDARD_V3 && section == V3SpecialSettingsSection.PROSTHESIS) listOf(
                 V3SpecialSettingsWidget.SettingsProfile(V3SpecialSettingsWidgetInfo(P_KEY_SETTINGS_PROFILE, "Профили настроек", 5), emptyList(), 0),

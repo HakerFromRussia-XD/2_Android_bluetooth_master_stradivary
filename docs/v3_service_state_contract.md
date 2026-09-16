@@ -1,14 +1,18 @@
 # Service V3: состояние экрана
 
-Статус: B2.4, 2026-09-14. Основной порядок — [план архитектуры](ubi4_v3_clean_architecture_plan.md).
+Актуальные границы слоёв после проверки 2026-09-16: [аудит MVVM + MVI](v3_clean_architecture_audit.md).
+Описания отдельных этапов ниже отражают историю переноса.
+
+
+Статус: B2.5, 2026-09-15. Основной порядок — [план архитектуры](ubi4_v3_clean_architecture_plan.md).
 
 В ServiceFragment подключена V3ServiceViewModel с V3ServiceUiState и
 V3ServiceAction. В этом шаге экранная модель владеет составом всех виджетов и
 значениями двух Slider и обычных Spinner «Режим работы ЕМГ»/«Сторона руки».
 С B2.3 экран также владеет выбором роли, запросом PIN и прежними уведомлениями
 о результате проверки. С B2.4 экран владеет вводом и записью имени/серийного
-номера. Калибровка сохраняет прежний обработчик; весь Service пока не объявляется
-завершённым.
+номера. С B2.5 нажатие/отпускание калибровки также проходит через экранную
+модель и domain/data. Сохраняющиеся инфраструктурные связи перечислены ниже.
 
 ## Состав
 
@@ -61,7 +65,7 @@ V3ServiceUiState содержит:
 ## Slider и lifecycle
 
 `SliderDelegateAdapterV3 → ServiceFragment → V3ServiceAction.SliderAction
-→ V3SliderSettingsController → SetSliderValueUseCaseV3 → V3DeviceSettingsRepository`.
+→ V3SliderSettingsStateHolder → SetSliderValueUseCaseV3 → V3DeviceSettingsRepository`.
 
 Повторно используются существующие domain/data и controller. Новых правил,
 пакетов или репозиториев для уже работающих Slider не добавлено. Оба диапазона
@@ -276,3 +280,70 @@ SET → GET и адаптер с подавлением программного
 `/tmp/service-b2-4-ui-comparison.txt`. Запись имени/серийного номера на реальное
 устройство не выполнялась; её пакеты и порядок проверены автоматическими
 тестами. INDY3 проверен тестами, без физического устройства.
+
+
+## Калибровка протеза и проверка границ Service (B2.5)
+
+`V3ServiceUiState.calibration` — состояние существующей кнопки: `isEnabled`
+и `isPressed`; null означает отсутствие виджета. Это не состояние выполнения
+калибровки на устройстве: новый прогресс/результат/Toast не вводятся.
+
+ProsthesisCalibrationDelegateAdapterV3 передаёт CalibrationButtonPressed и
+CalibrationButtonReleased с идентификатором касания. V3ServiceViewModel
+принимает нажатие только для подключённого View и актуального состава/устройства,
+хранит принятый идентификатор и адрес. StartProsthesisCalibrationUseCaseV3
+проверяет актуальную блокировку и вызывает V3ProsthesisCalibrationRepository;
+ReleaseProsthesisCalibrationButtonUseCaseV3 завершает принятое нажатие.
+Data использует прежнюю очередь и неизменённый BLECommandsV3:
+
+- DOWN: sendSubcommand(PMCE_START_CALIBRATE_COMMAND, 0), то есть команда 15,
+  подкоманда 3, параметр 0.
+- UP/CANCEL: sendSubcommand(0, 0). Это прежняя команда отпускания, а не
+  подтверждение окончания или отдельная новая отмена калибровки.
+- Повторные DOWN и поздние UP/CANCEL не дублируют команды. Rebind/recycle/detach,
+  уход с экрана, блокировка или удаление виджета завершают принятое нажатие один
+  раз; новое устройство не получает отпускание от старого MAC. Даже если UP
+  потерян при блокировке View, ViewModel освобождает принятое нажатие.
+
+Прежний ButtonsDelegateAdapterV3 и WidgetButtonsInfoV3 удалены целиком. Он был
+последним адаптером прямой записи для калибровки. SensorsButtonsDelegateAdapterV3
+остаётся владельцем отображения OPEN/CLOSE. Проверены все ButtonsItemV3,
+созданные обоими настоящими генераторами на display 0–4: каждый обслуживается
+ровно одним из этих двух адаптеров. Подписи, XML, один видимый контейнер и
+устойчивый идентификатор калибровки сохранены. Новых зависимостей нет.
+
+Проверка оставшихся связей:
+
+| Связь | Текущая граница |
+| --- | --- |
+| ViewModel и адаптер калибровки | Нет прямых обращений к MainActivity, BLEController, ParameterStore или DataFactory. |
+| Состав, Slider, Spinner, роль/PIN, имя/серийный номер, калибровка | Состояние и действия принадлежат Service; domain/data используются через существующие контракты. |
+| Вход в журнал BLE | BleLogButtonDelegateAdapter вызывает переданный навигационный callback Base → navigator().showBleLogScreen(). Бизнес-логики и BLE-записи здесь нет; состав хранится в UiState. Общая навигация остаётся в C4. |
+| Фабрики во Fragment/Base и MainActivity.main в callback очереди | Точки сборки зависимостей; выделение инфраструктуры остаётся в C4. Fragment не формирует пакеты. |
+| DataFactoryV3ServiceWidgetsSource, mapper, shared stores/bridges | Совместимость с текущими генераторами и API iOS; очистка внутренних обязанностей shared — D1/D2. |
+| bindUbi4Widgets и выбор ветки по UiState | Прежний динамический путь UBI4 сохранён до E2. |
+| Общая синхронизация/загрузка | Принадлежит Activity/BLEController; Service получает доступность через repository и не создаёт второй индикатор. |
+| bindV3SliderSettings | Service его не использует. Остаётся потребитель AdvancedFragment; проверка и сокращение binder — B3. |
+
+463 app-теста в 51 классе прошли без ошибок/пропусков; debug/release собраны.
+Лог `/tmp/ubi4-service-b2-5-final.log`. Проверены точные команды/CRC, оба профиля,
+реальные генераторы ru/en, нажатие/отпускание, блокировки, lifecycle и отсутствие
+команд из render. Калибровка физического протеза не запускалась; физическая
+проверка выполнения на обоих устройствах остаётся в E1. Общие ограничения
+сессии подключения и BLE-очереди остаются в C4; алгоритм очереди не изменён.
+
+
+Дополнительно прошли 2 инструментальных теста V3ServiceCalibrationEmulatorTest
+на Android-эмуляторе: STANDARD_V3 и INDY3, настоящий ServiceFragment, 9/6 строк,
+касания DOWN/UP/CANCEL, блокировка во время нажатия и существующая навигация в
+журнал BLE. Все исходящие команды перехвачены V3BleEmulatorTestHooks. Для INDY3
+тест явно вызывает существующий generatedHardcodeWidgetsINDY3, поскольку
+штатный debug-запуск всегда создаёт состав STANDARD_V3. Парсер не изменён.
+
+Обычный connectedDebugAndroidTest упёрся в отсутствующий в кэше UTP core JAR
+и сетевую загрузку. Тестовый APK собран offline и запущен через adb instrument:
+`/tmp/ubi4-service-b2-5-instrumentation.log` — `OK (2 tests)`.
+На эмуляторе исходное приложение имеет другую подпись; для теста использован
+временный отдельный applicationId `.calibrationtest` через init-script в /tmp.
+Gradle-файлы проекта, существующая установка и её данные не менялись.
+Обычный debug APK восстановлен отдельной сборкой без init-script.

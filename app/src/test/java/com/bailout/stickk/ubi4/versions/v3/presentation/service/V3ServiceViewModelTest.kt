@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.service
 
+import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -37,7 +40,7 @@ class V3ServiceViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3ServiceViewModelFactory(repository, source, repository, FakeV3DeviceRoleRepository(), FakeV3DeviceInfoRepository()).create(V3ServiceViewModel::class.java)
+        viewModel = V3ServiceViewModelFactory(repository, source, repository, FakeV3DeviceRoleRepository(), FakeV3DeviceInfoRepository(), FakeV3ProsthesisCalibrationRepository(), sessionRepository = source).create(V3ServiceViewModel::class.java)
         store.put("service", viewModel)
     }
 
@@ -213,13 +216,17 @@ class V3ServiceViewModelTest {
         }
     }
 
-    private class Source : V3ServiceWidgetsSource {
+    private class Source : V3ServiceWidgetsSource, V3DeviceSessionRepository {
+        override fun getSession() = snapshot().let {
+            V3DeviceSession(it.deviceProfile, it.deviceAddress, !it.animationsEnabled)
+        }
+        override fun widgets(profile: V3DeviceProfile) = snapshot().widgets
         override val updates = MutableSharedFlow<Unit>()
         var current = V3ServiceWidgetsSnapshot(V3DeviceProfile.STANDARD_V3, "first-device",
             V3ServiceWidgetMapper().fromItems(listOf(P_KEY_GLOBAL_THUMB_CLOSED_POSITION, P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION)
                 .mapIndexed { index, key -> SliderItemV3(key, SliderParameterWidgetSStruct(
                     BaseParameterWidgetSStruct(BaseParameterWidgetStruct(display = 4, widgetPosition = index,
                         parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(key)))), 0, 100, 1f)) }))
-        override fun snapshot() = current
+        fun snapshot() = current
     }
 }

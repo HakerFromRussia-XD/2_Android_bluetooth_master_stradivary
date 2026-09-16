@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,7 +14,7 @@ import androidx.compose.ui.unit.IntSize
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
 import kotlin.math.roundToInt
 
-/** Fit the visible PNG artwork above the counter, excluding transparent export margins. */
+/** Fill the available width and derive height from the visible PNG bounds, without distortion. */
 @Composable
 internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modifier = Modifier) {
     val bounds = achievement.artworkBounds
@@ -21,21 +22,21 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
         Image(
             painter = painterResource(achievement.iconRes),
             contentDescription = null,
-            modifier = modifier,
+            modifier = modifier.aspectRatio(1f),
             alignment = Alignment.BottomCenter
         )
         return
     }
     val bitmap = ImageBitmap.imageResource(achievement.iconRes)
-    Canvas(modifier) {
-        val scale = minOf(size.width / bounds.width, size.height / bounds.height)
+    Canvas(modifier.aspectRatio(bounds.width.toFloat() / bounds.height)) {
+        val scale = size.width / bounds.width
         val width = (bounds.width * scale).roundToInt().coerceAtLeast(1)
         val height = (bounds.height * scale).roundToInt().coerceAtLeast(1)
         drawImage(
             image = bitmap,
             srcOffset = IntOffset(bounds.left, bounds.top),
             srcSize = IntSize(bounds.width, bounds.height),
-            dstOffset = IntOffset(((size.width - width) / 2).roundToInt(), (size.height - height).roundToInt()),
+            dstOffset = IntOffset.Zero,
             dstSize = IntSize(width, height)
         )
     }

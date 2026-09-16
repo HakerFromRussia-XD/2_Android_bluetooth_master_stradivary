@@ -2,7 +2,7 @@
 
 Source: https://disk.yandex.ru/d/rjLTu0kdZdyiog (downloaded 2026-09-16).
 
-All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. The renderer fits the alpha-content bounds from the catalog and bottom-aligns the visible image. This excludes transparent export margins without altering or stretching the artwork. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
+All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. The renderer fills the width from the title start to the visible right edge of the info icon, using the alpha-content bounds from the catalog. Image height follows its aspect ratio; cards grow vertically instead of shrinking the image into a square card. The right inset includes the info button padding (8 dp) and vector margin (2 dp). This excludes transparent export margins without altering or stretching the artwork. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
 
 The source contains 14 images for the 14 enabled achievements. Named files are matched by title (`Точно в цель` corresponds to `PRECISION`). Numbered exports are matched by their depicted scene. The phone scene maps to `ALWAYS_CONNECTED`. The existing disabled `SQUARE_EYES` achievement remains disabled.
 

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +44,8 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
 import java.text.NumberFormat
 
 private val ProgressTextGap = 4.dp
+// 8 dp inside the 40 dp button plus 2 dp inside the info vector.
+private val ArtworkEndInset = 10.dp
 
 @Composable
 internal fun AchievementCard(
@@ -55,16 +56,14 @@ internal fun AchievementCard(
     val title = stringResource(achievement.titleRes)
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         backgroundColor = AchievementsColors.Card,
         elevation = 3.dp
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
         ) {
             Row(
@@ -93,7 +92,7 @@ internal fun AchievementCard(
 
             AchievementArtwork(
                 achievement = achievement,
-                modifier = Modifier.fillMaxWidth().weight(1f)
+                modifier = Modifier.fillMaxWidth().padding(end = ArtworkEndInset)
             )
             // The same gap separates the visible artwork, counter and progress bar.
             Spacer(Modifier.height(ProgressTextGap))
@@ -165,7 +164,7 @@ private fun AchievementStageProgress(
     showBackground = true,
     backgroundColor = 0xFF2A2A2A,
     widthDp = 190,
-    heightDp = 190
+    heightDp = 250
 )
 @Composable
 private fun AchievementCardPreview() {

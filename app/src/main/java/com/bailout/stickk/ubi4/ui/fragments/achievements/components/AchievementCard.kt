@@ -44,6 +44,8 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
 import java.text.NumberFormat
 
+private val ProgressTextGap = 4.dp
+
 @Composable
 internal fun AchievementCard(
     achievement: AchievementUiModel,
@@ -94,7 +96,7 @@ internal fun AchievementCard(
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
             // The same gap separates the visible artwork, counter and progress bar.
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(ProgressTextGap))
             AchievementStageProgress(
                 progress = achievement.progress,
                 modifier = Modifier.fillMaxWidth()
@@ -127,7 +129,7 @@ private fun AchievementStageProgress(
             text = progressValueText,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 4.dp),
+                .padding(bottom = ProgressTextGap),
             color = AchievementsColors.White,
             fontFamily = AchievementsFontFamily,
             fontSize = 10.sp,

@@ -29,4 +29,5 @@ The source contains 14 images for the 14 enabled achievements. Named files are m
 - `AchievementsCatalogTest` passed (1 test), using an isolated test source set to avoid unrelated legacy test compilation failures.
 - A temporary Android instrumentation check on an Android 14 / Pixel 5 emulator opened the screen and the Bronze/Silver/Gold description, scrolled the grid and captured the top and final rows. It passed (1 test). The sensor screen needed a manual profile tap to let instrumentation reach an idle screen.
 - The 14 packaged PNG SHA-256 hashes match the downloads; the catalog's alpha bounds match every original bitmap.
+- The profile entry was also verified as visible and clickable (`achievementsItem`); tapping it opened the updated screen.
 - No physical BLE device was used for artwork verification.

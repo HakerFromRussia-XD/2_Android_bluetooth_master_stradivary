@@ -775,4 +775,5 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+    <string name="achievement_stage_count">%1$d of %2$d</string>
 </resources>

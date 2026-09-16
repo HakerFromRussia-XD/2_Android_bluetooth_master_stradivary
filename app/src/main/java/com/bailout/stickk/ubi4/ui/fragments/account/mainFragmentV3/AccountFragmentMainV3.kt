@@ -474,7 +474,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         accountAdapter = AccountMainAdapterUBI4(
             onAccountClickListener = accountClickListener,
             showStatisticsItem = true,
-            showAchievementsItem = false
+            showAchievementsItem = true
         )
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,

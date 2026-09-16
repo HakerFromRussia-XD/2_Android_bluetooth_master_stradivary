@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ui.fragments.achievements
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.IntRect
 
 enum class AchievementId {
     BIONIC,
@@ -40,5 +41,6 @@ data class AchievementUiModel(
     @StringRes val titleRes: Int,
     val stages: List<AchievementStageUiModel>,
     @DrawableRes val iconRes: Int,
-    val achievedTier: AchievementTier? = null
+    val achievedTier: AchievementTier? = null,
+    val artworkBounds: IntRect? = null
 )

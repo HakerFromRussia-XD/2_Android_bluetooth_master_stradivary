@@ -226,6 +226,7 @@ actual class BleManagerKmm actual constructor() {
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             reconnectTargetUuid = didConnectPeripheral.identifier.UUIDString()
+            com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress = reconnectTargetUuid!!
             pendingManualConnectUuid = null
             didConnectPeripheral.delegate = this
             didNotifyCharacteristicsReady = false
@@ -702,6 +703,8 @@ actual class BleManagerKmm actual constructor() {
                     }
                 }
             }
+        } else if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) {
+            connectionScope.launch { enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID) }
         } else if (UiState.isInterfaceV3Activated) {
             launchV3SynchronizationPipeline()
         }
@@ -784,6 +787,7 @@ actual class BleManagerKmm actual constructor() {
                 continue
             }
 
+            if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) return
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 platformLog("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")

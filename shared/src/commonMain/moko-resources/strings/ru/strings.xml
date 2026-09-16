@@ -871,4 +871,16 @@
 <item>255</item>
 </string-array>
         <string name="firmware_board_compatibility_rejected_status" formatted="true">Прошивка отклонена при проверке совместимости с платой (status=%1$s)</string>
+
+    <!-- Automatic user firmware update -->
+    <string name="user_firmware_title">Обновление ПО</string>
+    <string name="user_firmware_offer">Для электроники вашего протеза есть более стабильная версия программного обеспечения.</string>
+    <string name="user_firmware_install">Установить обновление</string>
+    <string name="user_firmware_complete_title">Обновление завершено</string>
+    <string name="user_firmware_complete">Поздравляем! Вы используете последнюю версию программного обеспечения.</string>
+    <string name="user_firmware_preparing">Подготовка прошивок…</string>
+    <string name="user_firmware_updating">Обновление платы %1$d из %2$d</string>
+    <string name="user_firmware_verifying">Проверка состояния платы и версии ПО…</string>
+    <string name="user_firmware_waiting">Ожидание устройства или сети. Обновление продолжится автоматически.</string>
+    <string name="user_firmware_unavailable">Не удалось проверить наличие обновлений ПО.</string>
 </resources>

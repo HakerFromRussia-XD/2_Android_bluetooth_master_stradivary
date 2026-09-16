@@ -7,8 +7,6 @@ final class SpinnerViewCellV3: UITableViewCell {
     private enum RoleAccess {
         static let prosthetistIndex = 0
         static let serviceEngineerIndex = 1
-        static let deviceRoleParameterID = 0x0F
-        static let deviceRoleDataCode = 0
         static let pin = "1234"
     }
     private var viewModel: SpinnerListItemViewModelV3?
@@ -178,8 +176,7 @@ final class SpinnerViewCellV3: UITableViewCell {
 
     private func isDeviceRoleSelector(_ viewModel: SpinnerListItemViewModelV3) -> Bool {
         if let binding = viewModel.binding,
-           binding.parameterID == RoleAccess.deviceRoleParameterID,
-           binding.dataCode == RoleAccess.deviceRoleDataCode {
+           UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) {
             return true
         }
 

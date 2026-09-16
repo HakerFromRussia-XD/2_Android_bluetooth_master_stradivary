@@ -228,6 +228,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             "reconnect_flag=$reconnectThreadFlag dfu_active=$dfuReconnectActive intentional=$mDisconnected"
                     )
                     isTransferFlowActive = false
+                    com.bailout.stickk.ubi4.data.state.BLEState.publishDisconnect()
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
@@ -412,6 +413,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             baseDelayMs = 100L
         )
         Log.i(DFU_TRACE_TAG, "firmware_session serial_notify_ready=$ready generation=$gattServicesGeneration")
+        if (ready) com.bailout.stickk.ubi4.data.state.BLEState.publishReady()
         return ready
     }
 
@@ -919,6 +921,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
+            com.bailout.stickk.ubi4.data.state.BLEState.publishReady()
+            if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) return
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
@@ -1052,6 +1056,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }
+    internal fun resumeAfterUserFirmwareUpdate() {
+        firmwareUpdateSessionActive = false
+        main.lifecycleScope.launch { initRequestsV3() }
+    }
     internal fun setFirmwareUpdateSessionActive(state: Boolean) {
         firmwareUpdateSessionActive = state
         Log.i(DFU_TRACE_TAG, "firmware_session active=$state generation=$gattServicesGeneration")
@@ -1396,6 +1404,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 baseDelayMs = 20L
             )
         ) { "Android DFU SERIALPORT notification subscription failed" }
+        com.bailout.stickk.ubi4.data.state.BLEState.publishReady()
         Log.i("DFU_METRIC", "serial_notifications_ready=true")
         Log.i(
             DFU_TRACE_TAG,

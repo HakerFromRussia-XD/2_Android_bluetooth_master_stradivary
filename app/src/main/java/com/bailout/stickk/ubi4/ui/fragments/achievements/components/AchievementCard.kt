@@ -44,8 +44,6 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
 import java.text.NumberFormat
 
 private val ProgressTextGap = 4.dp
-// 8 dp inside the 40 dp button plus 2 dp inside the info vector.
-private val ArtworkEndInset = 10.dp
 
 @Composable
 internal fun AchievementCard(
@@ -67,7 +65,7 @@ internal fun AchievementCard(
                 .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(40.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -92,7 +90,7 @@ internal fun AchievementCard(
 
             AchievementArtwork(
                 achievement = achievement,
-                modifier = Modifier.fillMaxWidth().padding(end = ArtworkEndInset)
+                modifier = Modifier.fillMaxWidth()
             )
             // The same gap separates the visible artwork, counter and progress bar.
             Spacer(Modifier.height(ProgressTextGap))

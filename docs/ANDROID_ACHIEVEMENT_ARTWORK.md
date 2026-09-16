@@ -2,7 +2,9 @@
 
 Source: https://disk.yandex.ru/d/rjLTu0kdZdyiog (downloaded 2026-09-16).
 
-All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. The renderer fills the width from the title start to the visible right edge of the info icon, using the alpha-content bounds from the catalog. Image height follows its aspect ratio; cards grow vertically instead of shrinking the image into a square card. The right inset includes the info button padding (8 dp) and vector margin (2 dp). This excludes transparent export margins without altering or stretching the artwork. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
+All PNGs are copied byte-for-byte into `app/src/main/res/drawable-nodpi`. Every card now has the former Marathon height: a 40 dp header and an artwork slot of `(contentWidth - 10 dp) * 822 / 1024`, followed by the existing counter and progress bar. The artwork slot spans the same left/right edges as the progress bar. Each alpha-cropped illustration fits inside it, bottom-centered without stretching or cutting off content; narrower artwork therefore retains empty space at the sides. The artwork-to-counter and counter-to-progress-bar gaps are both 4 dp.
+
+PNG regions are decoded on `Dispatchers.IO`, using power-of-two sampling followed by scaling to the actual slot size in physical pixels. A serialized decoder prevents concurrent allocations and a 16 MiB LRU cache reuses screen-sized bitmaps during scrolling. Evicted images are not recycled while Compose may still display them. There are no generated lower-resolution asset files. Previously `ImageBitmap.imageResource` decoded the full original image synchronously during composition.
 
 The source contains 14 images for the 14 enabled achievements. Named files are matched by title (`Точно в цель` corresponds to `PRECISION`). Numbered exports are matched by their depicted scene. The phone scene maps to `ALWAYS_CONNECTED`. The existing disabled `SQUARE_EYES` achievement remains disabled.
 
@@ -31,3 +33,12 @@ The source contains 14 images for the 14 enabled achievements. Named files are m
 - The 14 packaged PNG SHA-256 hashes match the downloads; the catalog's alpha bounds match every original bitmap.
 - The profile entry was also verified as visible and clickable (`achievementsItem`); tapping it opened the updated screen.
 - No physical BLE device was used for artwork verification.
+
+
+## Uniform cards and scrolling check (2026-09-16)
+
+- `:app:assembleRelease` passed. `AchievementsCatalogTest` and `AchievementArtworkSizeTest` passed (3 tests total) using the isolated achievement test source set.
+- Updated signed release installed with `adb install -r` on phone `dcbf845e`, 1080×2400, density 440; installed APK SHA-256 matches the local build: `48c39128e169bba442b465168af28799e57ee9ef3d62738f2e9d18355a2d28e1`.
+- Real phone screenshot verified equal card heights and intact illustrations. The full-width slot follows the progress bar, while the image preserves its proportions within that slot.
+- Same 24-swipe sequence on the achievement screen, three passes down/up: before 1,142 frames, median 18 ms, p95 23 ms, p99 24 ms; after 1,139 frames, median 12 ms, p95 15 ms, p99 18 ms. Modern janky-frame metric was 0 before and 8 (0.70%) after; legacy metric was 92.38% before and 4.30% after. Frame durations improved, but this is not proof of zero jank. Before used an already warm process; after included first traversal of uncached lower rows. Layout and image-loading changes were measured together.
+- Performance logs and physical-device screenshots are retained with the task artifacts. This UI check does not validate BLE firmware updating.

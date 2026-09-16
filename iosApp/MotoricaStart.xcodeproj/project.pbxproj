@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ABCD09160000000000000001 /* UserFirmwareUpdatePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD09160000000000000002 /* UserFirmwareUpdatePresenter.swift */; };
 		024CD56B23ACECDDDD15333A /* festh3_test11_gofra_1.v3bin in Resources */ = {isa = PBXBuildFile; fileRef = C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */; };
 		03AC1AA39B113799F46BD962 /* DialogFingersDelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */; };
 		059524415962DA54885D8A4C /* DialogDisconnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */; };
@@ -318,6 +319,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ABCD09160000000000000002 /* UserFirmwareUpdatePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFirmwareUpdatePresenter.swift; sourceTree = "<group>"; };
 		0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSetSerialNumberViewController.swift; path = ViewControllers/Dialogs/DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
 		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
 		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
@@ -957,6 +959,7 @@
 				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
 				65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
+				ABCD09160000000000000002 /* UserFirmwareUpdatePresenter.swift */,
 				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
 				ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */,
 				ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */,
@@ -1966,6 +1969,7 @@
 				652E2BCF2F2B97AD0084F557 /* StatusBarView.swift in Sources */,
 				ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */,
 				ABCD02012F9C000100000001 /* AccountFirmwareModels.swift in Sources */,
+				ABCD09160000000000000001 /* UserFirmwareUpdatePresenter.swift in Sources */,
 				ABCD02022F9C000100000001 /* FirmwareArchiveReader.swift in Sources */,
 				ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */,
 				ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */,
@@ -2448,6 +2452,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
 			};
 			name = Debug;
@@ -2472,6 +2477,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
 			};
 			name = Release;

@@ -871,4 +871,16 @@
         <item>255</item>
     </string-array>
     <string name="firmware_board_compatibility_rejected_status" formatted="true">Firmware rejected by board compatibility check (status=%1$s)</string>
+
+    <!-- Automatic user firmware update -->
+    <string name="user_firmware_title">Software update</string>
+    <string name="user_firmware_offer">A more stable software version is available for your prosthesis electronics.</string>
+    <string name="user_firmware_install">Install update</string>
+    <string name="user_firmware_complete_title">Update complete</string>
+    <string name="user_firmware_complete">Congratulations! You are using the latest software version.</string>
+    <string name="user_firmware_preparing">Preparing firmware…</string>
+    <string name="user_firmware_updating">Updating board %1$d of %2$d</string>
+    <string name="user_firmware_verifying">Checking board state and software version…</string>
+    <string name="user_firmware_waiting">Waiting for the device or network. The update will continue automatically.</string>
+    <string name="user_firmware_unavailable">Unable to check for software updates.</string>
 </resources>

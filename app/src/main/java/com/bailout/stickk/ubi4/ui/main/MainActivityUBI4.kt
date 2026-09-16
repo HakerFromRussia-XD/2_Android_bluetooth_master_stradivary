@@ -137,6 +137,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private val percentProgressLearningModel = MutableStateFlow(0)
 
     internal var locate = ""
+    var userFirmwareUpdates: com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController? = null
+        private set
+
     var mDeviceName: String? = null
     var mDeviceAddress: String? = null
     var mDeviceType: String? = null
@@ -222,10 +225,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showToast = ::showToast
         )
         mBLEController.setOnConnectedListener {
-            if (UiState.isInterfaceV3Activated) {
+            if (UiState.isInterfaceV3Activated && !com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) {
                 telemetryCoordinator.sendTelemetry(showResultToast = false)
             }
         }
+        userFirmwareUpdates = com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController(this)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -397,6 +401,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+        userFirmwareUpdates?.foreground()
         appCloseUploadRequested = false
         SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
         if (isV3BleEmulatorMode) {
@@ -439,6 +444,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager?.onDestroy()
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
+        userFirmwareUpdates?.close()
+        userFirmwareUpdates = null
         mBLEController.cleanup()
         clearMainIfSame(this)
         super.onDestroy()

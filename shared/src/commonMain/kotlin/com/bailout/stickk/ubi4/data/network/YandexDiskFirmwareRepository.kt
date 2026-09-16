@@ -22,6 +22,13 @@ class YandexDiskFirmwareRepository(
     private val publicUrl: String = PUBLIC_FIRMWARE_URL,
     private val apiBaseUrl: String = YANDEX_API_BASE_URL
 ) {
+    /** Fetch a manifest or an exact archive path; no catalog/latest-file substitution. */
+    suspend fun readPublicFile(path: String): ByteArray {
+        val response = client.get(requestDownloadUrl("/" + path.trimStart('/')))
+        response.ensureSuccess("Firmware resource download failed")
+        return response.body<ByteArray>()
+    }
+
     suspend fun loadCatalog(): List<RemoteFirmwareFile> =
         FirmwareBoardFamily.entries
             .filterNot { it == FirmwareBoardFamily.UNKNOWN }

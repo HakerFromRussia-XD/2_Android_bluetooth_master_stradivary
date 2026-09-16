@@ -16,7 +16,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.launch
 
 /**
- * Bulk FAM/GUI uploader. Negotiation is deliberately separate from legacy DFU:
+ * Bulk FAM/GUI/finger uploader. Negotiation is deliberately separate from legacy DFU:
  * until a complete, valid CAPS response is received no flash-changing v2
  * command is sent, so an old bootloader remains byte-for-byte on its v1 path.
  */
@@ -30,12 +30,12 @@ class FastDfuUploaderV2(
     private var beginOutcomeUnknown = false
 
     suspend fun negotiate(address: Int): DfuCapabilitiesV2? {
-        if (address != FAM_ADDRESS && address != 9) {
+        if (address != FAM_ADDRESS && address != 9 && address !in 0x20..0x25) {
             logger.debug(TRACE_TAG, "negotiate skip address=$address reason=unsupported_board")
             return null
         }
         logger.info(TRACE_TAG, "negotiate start address=$address")
-        val capsTimeoutMs = if (address == 9) 1500L else CAPS_TIMEOUT_MS
+        val capsTimeoutMs = if (address != FAM_ADDRESS) 1500L else CAPS_TIMEOUT_MS
 
         val payload = try {
             sendAndAwait(
@@ -70,8 +70,8 @@ class FastDfuUploaderV2(
         // refresh cost; an old bootloader still falls back after 500 ms.
         val wwrBeforeReconnect = transport.supportsWriteWithoutResponse()
         logger.info(TRACE_TAG, "negotiate wwr_before_reconnect=$wwrBeforeReconnect")
-        if (!wwrBeforeReconnect && address == 9) {
-            logger.warn(TAG, "GUI bridge does not expose WWR; preserve the existing BLE link")
+        if (!wwrBeforeReconnect && address != FAM_ADDRESS) {
+            logger.warn(TAG, "FAM bridge does not expose WWR; preserve the existing BLE link")
             return null
         }
         if (!wwrBeforeReconnect) {
@@ -103,7 +103,7 @@ class FastDfuUploaderV2(
         onProgress: (offset: Int, total: Int) -> Unit
     ) {
         val uploadStartedAt = currentTimeMillis()
-        require(address == FAM_ADDRESS || address == 9) { "DFU v2 is enabled for FAM and GUI" }
+        require(address == FAM_ADDRESS || address == 9 || address in 0x20..0x25) { "Unsupported DFU v2 board address: $address" }
         require(firmware.isNotEmpty()) { "Firmware image is empty" }
 
         val actualCrc = MotoricaCrc32.calculate(firmware)
@@ -117,7 +117,7 @@ class FastDfuUploaderV2(
             "upload start address=$address bytes=${firmware.size} crc32=0x${actualCrc.toString(16)} caps=$capabilities"
         )
         if (address == FAM_ADDRESS) transport.setHighPerformanceMode()
-        else logger.info(TRACE_TAG, "GUI preserve_link_parameters: bridge remains connected")
+        else logger.info(TRACE_TAG, "Bridge preserve_link_parameters: bridge remains connected")
         val platformFrame = transport.maximumWriteWithoutResponseSize()
             .coerceAtMost(DfuV2Protocol.MAX_GATT_FRAME)
         val maxDataLength = DfuV2Protocol.maxDataLength(platformFrame, capabilities.maxFrame)
@@ -420,7 +420,7 @@ class FastDfuUploaderV2(
             sendAndAwait(
                 DfuV2Protocol.status(address, sessionId, firmware.size.toLong(), imageCrc),
                 DfuV2Command.STATUS,
-                if (address == 9) 10000L else CONTROL_TIMEOUT_MS,
+                if (address != FAM_ADDRESS) 10000L else CONTROL_TIMEOUT_MS,
                 responseFilter = { response ->
                     // STATUS notifications are broadcast. Ignore delayed ACKs
                     // from an older session, but let a malformed short response

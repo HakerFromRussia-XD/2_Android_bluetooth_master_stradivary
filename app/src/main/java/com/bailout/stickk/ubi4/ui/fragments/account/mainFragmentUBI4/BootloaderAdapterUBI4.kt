@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -41,6 +43,7 @@ class BootloaderAdapterUBI4(
         val versionTv : TextView = view.findViewById(R.id.boardVerTv)
         val bootStatus : TextView = view.findViewById(R.id.bootloderStatusTv)
         val updateBtn : TextView = view.findViewById(R.id.update_btn)   // ← было Button
+        val actions: View = view.findViewById(R.id.bootloader_actions)
         val settingsBtn: ImageButton = view.findViewById(R.id.bootloader_settings_btn)
     }
 
@@ -68,6 +71,18 @@ class BootloaderAdapterUBI4(
         holder.updateBtn.visibility = if (showUpdateButtonProvider()) View.VISIBLE else View.GONE
         holder.bootStatus.visibility = if (item.isInBootLoader) View.VISIBLE else View.INVISIBLE
         holder.settingsBtn.visibility = if (showSettingsButtonProvider()) View.VISIBLE else View.GONE
+        val hideActions = holder.updateBtn.visibility == View.GONE &&
+            holder.settingsBtn.visibility == View.GONE
+        holder.actions.visibility = if (hideActions) View.GONE else View.VISIBLE
+        val density = holder.itemView.resources.displayMetrics.density
+        holder.versionTv.layoutParams = (holder.versionTv.layoutParams as ConstraintLayout.LayoutParams).apply {
+            endToEnd = if (hideActions) ConstraintSet.PARENT_ID else ConstraintSet.UNSET
+            endToStart = if (hideActions) ConstraintSet.UNSET else R.id.bootloderStatusTv
+            marginEnd = ((if (hideActions) 16 else 12) * density + 0.5f).toInt()
+        }
+        holder.bootStatus.layoutParams = (holder.bootStatus.layoutParams as ConstraintLayout.LayoutParams).apply {
+            endToStart = if (hideActions) R.id.boardVerTv else R.id.bootloader_actions
+        }
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
         holder.settingsBtn.setOnClickListener { listener.onSettingsClick(item) }
     }

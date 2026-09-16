@@ -85,6 +85,20 @@ class FastDfuUploaderV2Test {
     }
 
     @Test
+    fun `all finger addresses negotiate and transfer through bridge`() = runTest {
+        for (address in 0x20..0x25) {
+            val responses = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
+            val transport = FakeBulkTransport(responses)
+            val uploader = FastDfuUploaderV2(transport, responses)
+            val firmware = ByteArray(65) { it.toByte() }
+            val caps = assertNotNull(uploader.negotiate(address))
+            uploader.upload(address, firmware, MotoricaCrc32.calculate(firmware), caps) { _, _ -> }
+            assertEquals(firmware.toList(), transport.received.toList())
+            assertEquals(0, transport.reconnects)
+        }
+    }
+
+    @Test
     fun `abort confirms and clears active session`() = runTest {
         val responses = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
         val transport = FakeBulkTransport(responses)

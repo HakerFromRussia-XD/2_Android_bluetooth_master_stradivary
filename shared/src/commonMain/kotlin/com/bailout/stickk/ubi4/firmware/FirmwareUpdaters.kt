@@ -562,7 +562,7 @@ class V3FirmwareUpdater(
             response = {
                 withTimeoutOrNull(RUN_TYPE_RESPONSE_TIMEOUT_MS) {
                     runProgramTypeFlow
-                        .filter { it.first == addr || it.first == 0 }
+                        .filter { it.first == addr || (addr !in 0x20..0x25 && it.first == 0) }
                         .map { it.second }
                         .first()
                 }
@@ -597,6 +597,18 @@ class V3FirmwareUpdater(
 
     private suspend fun sendForBootEntry(packet: ByteArray) {
         sender.send(packet, FirmwareTransportChannel.V3_SERIAL)
+    }
+
+    internal suspend fun confirmFingerMainAfterCrc(addr: Int) {
+        require(addr in 0x20..0x25)
+        repeat(5) {
+            delay(250)
+            if (requestRunType(addr) == PreferenceKeysUbi4.RunProgramType.MAIN_APP) {
+                logger.info(TRACE_TAG, "finger post_crc MAIN_APP confirmed addr=$addr")
+                return
+            }
+        }
+        error("CRC пальца подтверждён, но возврат в main не подтверждён")
     }
 
     private suspend fun confirmMainAfterCrc(addr: Int): Boolean {
@@ -764,13 +776,17 @@ class FirmwareUpdateCoordinator(
         check(bootloaderType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER_V2) {
             "Неизвестный тип bootloader: $bootloaderType"
         }
-        val capabilities = DfuV2Protocol.FAM_V2_CAPABILITIES
+        val capabilities = if (addr in 0x20..0x25) {
+            checkNotNull(v3Updater.negotiateFastDfu(addr)) {
+                "Finger bootloader v2 did not negotiate CAPS through FAM"
+            }
+        } else DfuV2Protocol.FAM_V2_CAPABILITIES
         logger.info(
             "DFU_METRIC",
             "protocol=v2 selected_by=get_run_program_type value=3"
         )
 
-        logger.info("FW_FLOW_V3", "FAM DFU v2 selected")
+        logger.info("FW_FLOW_V3", "DFU v2 selected addr=$addr")
         val maxInfo = v3Updater.getUploadAttribute(addr)
         val checkStatus = v3Updater.checkNewFirmware(addr, firmware)
         if (checkStatus != CheckNewFwStatus.NEW_FW_ACCEPT) {
@@ -796,6 +812,7 @@ class FirmwareUpdateCoordinator(
         val crcStartedAt = currentTimeMillis()
         if (v3Updater.checkFirmwareCrcAndCompleteUpdate(addr)) {
             v3Updater.completeFastDfu()
+            if (addr in 0x20..0x25) v3Updater.confirmFingerMainAfterCrc(addr)
             logger.info(
                 "DFU_METRIC",
                 "protocol=v2 phase=crc_and_start " +

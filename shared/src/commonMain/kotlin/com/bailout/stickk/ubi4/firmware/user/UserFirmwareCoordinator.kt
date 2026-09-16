@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 interface UserFirmwareBackend {
     suspend fun boards(): List<UserFirmwareBoard>
@@ -40,7 +41,9 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
             } else {
                 mutableState.value = UserFirmwareUiState("checking")
                 val boards = backend.boards()
-                val queue = UserFirmwarePolicy.queue(boards, backend.targets(boards))
+                val targets = backend.targets(boards)
+                val queue = UserFirmwarePolicy.queue(boards, targets)
+                platformLog("USER_DFU", "targets=${targets.joinToString { "${it.module.address}:${it.version}" }} queue=${queue.joinToString { "${it.module.address}:${it.version}" }}")
                 check(backend.isSameDevice()) { "Device changed during firmware check" }
                 if (queue.isEmpty()) {
                     mutableState.value = UserFirmwareUiState()
@@ -51,6 +54,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
             }
         } catch (error: Exception) {
             currentCoroutineContext().ensureActive()
+            platformLog("USER_DFU", "check failed ${error::class.simpleName}: ${error.message}")
             mutableState.value = UserFirmwareUiState("unavailable", detail = error.message.orEmpty())
         } finally { running = false }
     }

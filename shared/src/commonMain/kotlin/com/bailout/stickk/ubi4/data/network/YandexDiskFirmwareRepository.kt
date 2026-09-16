@@ -7,6 +7,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,9 +25,12 @@ class YandexDiskFirmwareRepository(
 ) {
     /** Fetch a manifest or an exact archive path; no catalog/latest-file substitution. */
     suspend fun readPublicFile(path: String): ByteArray {
-        val response = client.get(requestDownloadUrl("/" + path.trimStart('/')))
-        response.ensureSuccess("Firmware resource download failed")
-        return response.body<ByteArray>()
+        val downloadUrl = requestDownloadUrl("/" + path.trimStart('/'))
+        return requestImmediately("Firmware resource download failed") {
+            val response = client.get(downloadUrl)
+            response.ensureSuccess("Firmware resource download failed")
+            response.body<ByteArray>()
+        }
     }
 
     suspend fun loadCatalog(): List<RemoteFirmwareFile> =
@@ -82,14 +86,32 @@ class YandexDiskFirmwareRepository(
     }
 
     private suspend fun requestDownloadUrl(path: String): String {
-        val response = client.get(endpoint(DOWNLOAD_RESOURCE_PATH)) {
-            parameter("public_key", publicUrl)
-            parameter("path", path)
+        return requestImmediately("Firmware link request failed") {
+            val response = client.get(endpoint(DOWNLOAD_RESOURCE_PATH)) {
+                parameter("public_key", publicUrl)
+                parameter("path", path)
+            }
+            response.ensureSuccess("Firmware link request failed")
+            response.body<YandexDownloadResponse>().href
+                .takeIf(String::isNotBlank)
+                ?: throw IOException("Firmware download link is empty")
         }
-        response.ensureSuccess("Firmware link request failed")
-        return response.body<YandexDownloadResponse>().href
-            .takeIf(String::isNotBlank)
-            ?: throw IOException("Firmware download link is empty")
+    }
+
+    /** Yandex's public CDN can drop a single TCP connection on mobile networks.
+     * Retry immediately; firmware transfer itself still has no delay-based retry. */
+    private suspend fun <T> requestImmediately(message: String, request: suspend () -> T): T {
+        var failure: IOException? = null
+        repeat(3) {
+            try {
+                return request()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: IOException) {
+                failure = error
+            }
+        }
+        throw failure ?: IOException(message)
     }
 
     private fun endpoint(path: String): String =

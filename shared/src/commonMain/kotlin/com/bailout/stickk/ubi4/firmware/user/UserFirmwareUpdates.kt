@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.firmware.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.RunProgramType
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -57,6 +58,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
     fun observe(callback: (UserFirmwareUiState) -> Unit): Job = scope.launch { mutableState.collect(callback) }
 
     fun setUserRole(enabled: Boolean) {
+        platformLog("USER_DFU", "setUserRole enabled=$enabled ble=${BLEState.state.value} id=${currentId()}")
         val entered = enabled && !userRole
         userRole = enabled
         if (entered) checkIfNeeded()
@@ -90,9 +92,19 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
     private fun currentId(): String = runCatching { ConnectionState.connectedDeviceAddress }.getOrDefault("")
 
     private fun checkIfNeeded() {
-        if (!userRole || operation?.isActive == true || BLEState.state.value != BLEState.State.READY) return
-        val id = currentId().takeIf { it.isNotBlank() } ?: return
-        if (coordinator?.state?.value?.blocksInteraction == true) return
+        if (!userRole || operation?.isActive == true || BLEState.state.value != BLEState.State.READY) {
+            platformLog("USER_DFU", "check skipped role=$userRole active=${operation?.isActive == true} ble=${BLEState.state.value}")
+            return
+        }
+        val id = currentId().takeIf { it.isNotBlank() } ?: run {
+            platformLog("USER_DFU", "check skipped: empty device id")
+            return
+        }
+        if (coordinator?.state?.value?.blocksInteraction == true) {
+            platformLog("USER_DFU", "check skipped: phase=${coordinator?.state?.value?.phase}")
+            return
+        }
+        platformLog("USER_DFU", "check begin id=$id")
         if (coordinator == null || id != deviceId) {
             deviceId = id
             coordinator = UserFirmwareCoordinator(id, Backend(id))
@@ -105,6 +117,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         val current = coordinator!!
         operation = scope.launch {
             current.check()
+            platformLog("USER_DFU", "check complete phase=${current.state.value.phase} detail=${current.state.value.detail}")
             if (current.needsResume()) current.start()
         }
     }
@@ -146,6 +159,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
             PlatformFirmwareCommandSender.send(BLECommandsV3.requestDeviceData(), FirmwareTransportChannel.V3_SERIAL)
             val result = response.await()
             check(isSameDevice()) { "Device changed during board read" }
+            platformLog("USER_DFU", "boards=${result.joinToString { "${it.address}:${it.version}:${if (it.isMain) "main" else "boot"}" }}")
             result
         }
         override suspend fun transfer(target: UserFirmwareTarget, progress: (Int) -> Unit) {

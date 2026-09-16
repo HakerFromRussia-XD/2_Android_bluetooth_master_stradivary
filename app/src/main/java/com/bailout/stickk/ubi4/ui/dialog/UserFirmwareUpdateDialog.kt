@@ -5,13 +5,16 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
 import android.util.Log
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.view.LayoutInflater
 import android.view.WindowManager
-import android.widget.LinearLayout
+import android.app.Dialog
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.firmware.user.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -56,7 +59,12 @@ class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : Use
         }
     }
     fun state() = lastState
-    private fun refreshRole() { updates.setUserRole(UiState.isInterfaceV3Activated && preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, 2) == 2) }
+    private fun refreshRole() {
+        val role = preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, 2)
+        val enabled = UiState.isInterfaceV3Activated && role == 2
+        Log.i("USER_DFU", "roleGate enabled=$enabled v3=${UiState.isInterfaceV3Activated} role=$role")
+        updates.setUserRole(enabled)
+    }
     fun foreground() { refreshRole(); updates.environmentChanged(); render(lastState) }
     fun close() {
         preferences.unregisterOnSharedPreferenceChangeListener(roleListener)
@@ -90,28 +98,29 @@ class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : Use
 class UserFirmwareUpdateDialog : DialogFragment() {
     private var label: TextView? = null
     private var progress: ProgressBar? = null
+    private var title: TextView? = null
+    private var action: TextView? = null
     private val controller get() = (requireActivity() as MainActivityUBI4).userFirmwareUpdates
     override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); isCancelable = false }
-    override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
-        val context = requireContext()
-        val content = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            val padding = (24 * resources.displayMetrics.density).toInt()
-            setPadding(padding, padding / 2, padding, padding)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val content = LayoutInflater.from(requireContext())
+            .inflate(R.layout.ubi4_dialog_user_firmware_update, null)
+        title = content.findViewById(R.id.user_firmware_dialog_title_tv)
+        label = content.findViewById(R.id.user_firmware_dialog_message_tv)
+        progress = content.findViewById(R.id.user_firmware_dialog_progress_pb)
+        action = content.findViewById(R.id.user_firmware_dialog_action_tv)
+        return Dialog(requireContext()).apply {
+            setContentView(content)
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
-        label = TextView(context).also { content.addView(it) }
-        progress = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).also { content.addView(it); it.max = 100 }
-        return AlertDialog.Builder(context)
-            .setTitle(context.getString(SharedRes.strings.user_firmware_title.resourceId))
-            .setView(content)
-            .setPositiveButton(context.getString(SharedRes.strings.user_firmware_install.resourceId), null)
-            .create().also { it.setCanceledOnTouchOutside(false) }
     }
     override fun onStart() { super.onStart(); controller?.let { render(it.state()) } }
     fun render(state: UserFirmwareUiState) {
-        val dialog = dialog as? AlertDialog ?: return
+        if (dialog == null) return
         val context = requireContext()
-        dialog.setTitle(context.getString(if (state.phase == "complete") SharedRes.strings.user_firmware_complete_title.resourceId else SharedRes.strings.user_firmware_title.resourceId))
+        title?.text = context.getString(if (state.phase == "complete") SharedRes.strings.user_firmware_complete_title.resourceId else SharedRes.strings.user_firmware_title.resourceId)
         label?.text = when (state.phase) {
             "offered" -> context.getString(SharedRes.strings.user_firmware_offer.resourceId)
             "complete" -> context.getString(SharedRes.strings.user_firmware_complete.resourceId)
@@ -125,7 +134,7 @@ class UserFirmwareUpdateDialog : DialogFragment() {
             isIndeterminate = state.phase != "updating"
             progress = state.progress
         }
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.apply {
+        action?.apply {
             visibility = if (state.phase in listOf("offered", "complete")) android.view.View.VISIBLE else android.view.View.GONE
             text = context.getString(if (state.phase == "complete") SharedRes.strings.ok.resourceId else SharedRes.strings.user_firmware_install.resourceId)
             setOnClickListener {

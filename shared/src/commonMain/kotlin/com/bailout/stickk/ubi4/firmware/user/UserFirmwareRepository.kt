@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.firmware.user
 
 import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
 import com.bailout.stickk.ubi4.data.network.sharedFile
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -14,6 +15,7 @@ class UserFirmwareRepository(
     suspend fun targets(boards: List<UserFirmwareBoard>): List<UserFirmwareTarget> {
         val assembly = FirmwareAssembly.parse(disk.readPublicFile("assembly.json").decodeToString())
         val present = boards.map { it.address }.toSet()
+        platformLog("USER_DFU", "assembly modules=${assembly.modules.joinToString { "${it.address}:${it.file}" }} present=$present")
         return assembly.modules.filter { it.address in present }.map { module ->
             val path = "$directory/${module.sha256}.zip"
             ensureArchive(module, path)

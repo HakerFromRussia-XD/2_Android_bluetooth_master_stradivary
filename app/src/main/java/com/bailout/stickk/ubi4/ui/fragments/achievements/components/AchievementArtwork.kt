@@ -42,7 +42,7 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
     val colorFilter = if (achievement.achievedTier == null) LockedArtworkFilter else null
     BoxWithConstraints(modifier) {
         // The previous Marathon artwork ended 10 dp before the progress bar's right edge.
-        val artworkHeight = ((maxWidth - 10.dp) * (822f / 1024f) - 22.dp).coerceAtLeast(1.dp)
+        val artworkHeight = (maxWidth - 10.dp).coerceAtLeast(1.dp) * (822f / 1024f)
         val density = LocalDensity.current
         val target = with(density) {
             IntSize(maxWidth.roundToPx().coerceAtLeast(1), artworkHeight.roundToPx().coerceAtLeast(1))

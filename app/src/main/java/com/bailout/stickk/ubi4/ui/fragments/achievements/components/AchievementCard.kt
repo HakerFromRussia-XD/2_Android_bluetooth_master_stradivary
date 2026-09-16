@@ -89,12 +89,17 @@ internal fun AchievementCard(
                 }
             }
 
-            AchievementArtwork(
-                achievement = achievement,
-                modifier = Modifier.fillMaxWidth()
-            )
-            AchievementStars(achievement.achievedTier)
-            // The same gap separates the stars, counter and progress bar.
+            Box(Modifier.fillMaxWidth()) {
+                AchievementArtwork(
+                    achievement = achievement,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                AchievementStars(
+                    tier = achievement.achievedTier,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+            // Stars overlay the artwork; the counter and progress bar keep their positions.
             Spacer(Modifier.height(ProgressTextGap))
             AchievementStageProgress(
                 progress = achievement.progress,
@@ -105,7 +110,7 @@ internal fun AchievementCard(
 }
 
 @Composable
-private fun AchievementStars(tier: AchievementTier?) {
+private fun AchievementStars(tier: AchievementTier?, modifier: Modifier = Modifier) {
     val count = when (tier) {
         null -> 0
         AchievementTier.BRONZE -> 1
@@ -118,7 +123,7 @@ private fun AchievementStars(tier: AchievementTier?) {
         else -> R.drawable.achievement_star_bronze
     }
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(18.dp),
+        modifier = modifier.fillMaxWidth().height(18.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {

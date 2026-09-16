@@ -536,13 +536,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun showAchievementsScreen() {
-        hideTopStatusBar()
+        if (activeFragment is AchievementsFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
         hideBottomNavigationAnimated()
 
         launchFragmentWithStack(
             fragment = AchievementsFragment(),
             withSlideAnimation = true,
-            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
+            preserveCurrentFragmentView =
+                activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
         )
     }
 

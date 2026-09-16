@@ -42,3 +42,7 @@ The source contains 14 images for the 14 enabled achievements. Named files are m
 - Real phone screenshot verified equal card heights and intact illustrations. The full-width slot follows the progress bar, while the image preserves its proportions within that slot.
 - Same 24-swipe sequence on the achievement screen, three passes down/up: before 1,142 frames, median 18 ms, p95 23 ms, p99 24 ms; after 1,139 frames, median 12 ms, p95 15 ms, p99 18 ms. Modern janky-frame metric was 0 before and 8 (0.70%) after; legacy metric was 92.38% before and 4.30% after. Frame durations improved, but this is not proof of zero jank. Before used an already warm process; after included first traversal of uncached lower rows. Layout and image-loading changes were measured together.
 - Performance logs and physical-device screenshots are retained with the task artifacts. This UI check does not validate BLE firmware updating.
+
+## Shared navigation bar (2026-09-16)
+
+Achievements now uses the same activity status bar, back-button mode, slide transition and preserved profile view as Games. Removed the duplicate Compose header and fragment lifecycle overrides that hid/restored the activity bar. Release build passed and installed with data preserved on `dcbf845e`. Physical-device checks confirmed the shared bar on both screens and toolbar Back returning from achievements to the profile.

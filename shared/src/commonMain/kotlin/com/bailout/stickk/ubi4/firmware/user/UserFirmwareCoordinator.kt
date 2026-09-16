@@ -73,8 +73,13 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                     break
                 } catch (error: Exception) {
                     currentCoroutineContext().ensureActive()
-                    publish("waiting", detail = error.message.orEmpty())
-                    backend.awaitChange()
+                    if (!backend.isSameDevice()) {
+                        publish("waiting", detail = error.message.orEmpty())
+                        backend.awaitChange()
+                    }
+                    // The device is still connected: immediately repeat the
+                    // validation request. Progress is driven only by its
+                    // callback; there is no timer/backoff between attempts.
                 }
             }
             for (target in journal!!.targets) {
@@ -109,8 +114,13 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                         }
                     } catch (error: Exception) {
                         currentCoroutineContext().ensureActive()
-                        publish("waiting", detail = error.message.orEmpty())
-                        if (error !is kotlinx.coroutines.TimeoutCancellationException || !backend.isSameDevice()) backend.awaitChange()
+                        if (!backend.isSameDevice()) {
+                            publish("waiting", detail = error.message.orEmpty())
+                            backend.awaitChange()
+                        }
+                        // A transfer/probe failure on an active BLE session is
+                        // followed immediately by a fresh mode/version probe.
+                        // Do not wait for a timer or a second user action.
                     }
                 }
             }

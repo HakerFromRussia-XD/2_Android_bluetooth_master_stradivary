@@ -8,10 +8,14 @@ import android.util.Log
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.app.Dialog
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
@@ -96,21 +100,16 @@ class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : Use
 }
 
 class UserFirmwareUpdateDialog : DialogFragment() {
-    private var label: TextView? = null
     private var progress: ProgressBar? = null
     private var title: TextView? = null
+    private var message: TextView? = null
     private var action: TextView? = null
+    private var actionArea: View? = null
+    private var isProgressLayout: Boolean? = null
     private val controller get() = (requireActivity() as MainActivityUBI4).userFirmwareUpdates
     override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); isCancelable = false }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val content = LayoutInflater.from(requireContext())
-            .inflate(R.layout.ubi4_dialog_user_firmware_update, null)
-        title = content.findViewById(R.id.user_firmware_dialog_title_tv)
-        label = content.findViewById(R.id.user_firmware_dialog_message_tv)
-        progress = content.findViewById(R.id.user_firmware_dialog_progress_pb)
-        action = content.findViewById(R.id.user_firmware_dialog_action_tv)
         return Dialog(requireContext()).apply {
-            setContentView(content)
             setCancelable(false)
             setCanceledOnTouchOutside(false)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -120,8 +119,9 @@ class UserFirmwareUpdateDialog : DialogFragment() {
     fun render(state: UserFirmwareUiState) {
         if (dialog == null) return
         val context = requireContext()
-        title?.text = context.getString(if (state.phase == "complete") SharedRes.strings.user_firmware_complete_title.resourceId else SharedRes.strings.user_firmware_title.resourceId)
-        label?.text = when (state.phase) {
+        val needsProgressLayout = state.phase !in listOf("offered", "complete")
+        if (isProgressLayout != needsProgressLayout) inflateUbiV3Layout(needsProgressLayout, state.phase)
+        val status = when (state.phase) {
             "offered" -> context.getString(SharedRes.strings.user_firmware_offer.resourceId)
             "complete" -> context.getString(SharedRes.strings.user_firmware_complete.resourceId)
             "updating" -> context.getString(SharedRes.strings.user_firmware_updating.resourceId, state.boardNumber, state.boardCount)
@@ -129,13 +129,16 @@ class UserFirmwareUpdateDialog : DialogFragment() {
             "waiting" -> context.getString(SharedRes.strings.user_firmware_waiting.resourceId)
             else -> context.getString(SharedRes.strings.user_firmware_preparing.resourceId)
         }
+        title?.text = if (needsProgressLayout) status else context.getString(
+            if (state.phase == "complete") SharedRes.strings.user_firmware_complete_title.resourceId
+            else SharedRes.strings.user_firmware_title.resourceId
+        )
+        message?.text = status
         progress?.apply {
-            visibility = if (state.phase in listOf("offered", "complete")) android.view.View.GONE else android.view.View.VISIBLE
             isIndeterminate = state.phase != "updating"
             progress = state.progress
         }
         action?.apply {
-            visibility = if (state.phase in listOf("offered", "complete")) android.view.View.VISIBLE else android.view.View.GONE
             text = context.getString(if (state.phase == "complete") SharedRes.strings.ok.resourceId else SharedRes.strings.user_firmware_install.resourceId)
             setOnClickListener {
                 isEnabled = false
@@ -143,5 +146,50 @@ class UserFirmwareUpdateDialog : DialogFragment() {
             }
             isEnabled = true
         }
+        actionArea?.setOnClickListener {
+            if (state.phase == "complete") controller?.updates?.acknowledge() else controller?.updates?.start()
+        }
+    }
+
+    /** Uses the shipped UBIv3 XML dialogs directly; no parallel visual design. */
+    private fun inflateUbiV3Layout(needsProgressLayout: Boolean, phase: String) {
+        val content = LayoutInflater.from(requireContext()).inflate(
+            if (needsProgressLayout) R.layout.ubi4_dialog_progressbar_firmware
+            else R.layout.ubi4_dialog_confirm_finish_training,
+            null
+        )
+        dialog?.setContentView(content)
+        isProgressLayout = needsProgressLayout
+        progress = null
+        title = null
+        message = null
+        action = null
+        actionArea = null
+        if (needsProgressLayout) {
+            title = content.findViewById(R.id.dialogTitleTv)
+            progress = content.findViewById(R.id.loadingFirmwareProgressBar)
+            return
+        }
+
+        title = content.findViewById(R.id.ubi4DialogRotationGroupTitleTv)
+        message = content.findViewById(R.id.ubi4DialogRotationGroupMessageTv)
+        actionArea = content.findViewById(R.id.ubi4CompletedTrainingBtn)
+        action = content.findActionLabel(title, message)
+        val icon = content.findViewById<ImageView>(R.id.successIv)
+        if (phase != "complete") {
+            icon.visibility = View.GONE
+            (title?.layoutParams as? ConstraintLayout.LayoutParams)?.apply {
+                topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                topMargin = (16 * resources.displayMetrics.density).toInt()
+                title?.layoutParams = this
+            }
+        }
+    }
+
+    private fun View.findActionLabel(title: TextView?, message: TextView?): TextView? {
+        if (this is TextView && this !== title && this !== message) return this
+        if (this !is ViewGroup) return null
+        for (index in 0 until childCount) childAt(index).findActionLabel(title, message)?.let { return it }
+        return null
     }
 }

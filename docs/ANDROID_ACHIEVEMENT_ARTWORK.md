@@ -22,3 +22,11 @@ The source contains 14 images for the 14 enabled achievements. Named files are m
 | PERSONALISATION | achievement-flex-panda-clean (5).png | `achievement_personalisation` | `62137271e2ed26cc90e50b8f5bc2df102c50dda2e7bca48673a7e0ded4792cf7` |
 | CHAMPION | achievement-flex-panda-clean (2).png | `achievement_champion` | `8e7a4cabf0da3b6cb0afa8cd84ffe9e1e2b0f6d15712a7336cac16efed2af2fa` |
 | ALWAYS_CONNECTED | achievement-flex-panda-clean.png | `achievement_phone` | `953be665567312260ca1a78a6782c34454c1b6482eca14db11203e95a61c331e` |
+
+## Verification
+
+- `:app:assembleDebug` and `:app:assembleDebugAndroidTest` passed on the merged application baseline.
+- `AchievementsCatalogTest` passed (1 test), using an isolated test source set to avoid unrelated legacy test compilation failures.
+- A temporary Android instrumentation check on an Android 14 / Pixel 5 emulator opened the screen and the Bronze/Silver/Gold description, scrolled the grid and captured the top and final rows. It passed (1 test). The sensor screen needed a manual profile tap to let instrumentation reach an idle screen.
+- The 14 packaged PNG SHA-256 hashes match the downloads; the catalog's alpha bounds match every original bitmap.
+- No physical BLE device was used for artwork verification.

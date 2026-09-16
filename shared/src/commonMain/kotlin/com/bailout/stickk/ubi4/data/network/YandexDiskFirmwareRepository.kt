@@ -24,14 +24,15 @@ class YandexDiskFirmwareRepository(
     private val apiBaseUrl: String = YANDEX_API_BASE_URL
 ) {
     /** Fetch a manifest or an exact archive path; no catalog/latest-file substitution. */
-    suspend fun readPublicFile(path: String): ByteArray {
-        val downloadUrl = requestDownloadUrl("/" + path.trimStart('/'))
-        return requestImmediately("Firmware resource download failed") {
+    suspend fun readPublicFile(path: String): ByteArray =
+        requestImmediately("Firmware resource download failed") {
+            // A downloader URL can be pinned to one unavailable CDN endpoint.
+            // Obtain a fresh URL together with every immediate retry.
+            val downloadUrl = requestDownloadUrlOnce("/" + path.trimStart('/'))
             val response = client.get(downloadUrl)
             response.ensureSuccess("Firmware resource download failed")
             response.body<ByteArray>()
         }
-    }
 
     suspend fun loadCatalog(): List<RemoteFirmwareFile> =
         FirmwareBoardFamily.entries
@@ -39,11 +40,7 @@ class YandexDiskFirmwareRepository(
             .flatMap { family -> loadFolder(family) }
 
     suspend fun download(file: RemoteFirmwareFile, cacheDirectory: SharedFile): SharedFile {
-        val downloadUrl = requestDownloadUrl(file.path)
-        val response = client.get(downloadUrl)
-        response.ensureSuccess("Firmware download failed")
-
-        val bytes = response.body<ByteArray>()
+        val bytes = readPublicFile(file.path)
         if (file.size > 0L && bytes.size.toLong() != file.size) {
             throw IOException("Downloaded firmware size does not match catalog metadata")
         }
@@ -85,17 +82,15 @@ class YandexDiskFirmwareRepository(
             .toList()
     }
 
-    private suspend fun requestDownloadUrl(path: String): String {
-        return requestImmediately("Firmware link request failed") {
-            val response = client.get(endpoint(DOWNLOAD_RESOURCE_PATH)) {
-                parameter("public_key", publicUrl)
-                parameter("path", path)
-            }
-            response.ensureSuccess("Firmware link request failed")
-            response.body<YandexDownloadResponse>().href
-                .takeIf(String::isNotBlank)
-                ?: throw IOException("Firmware download link is empty")
+    private suspend fun requestDownloadUrlOnce(path: String): String {
+        val response = client.get(endpoint(DOWNLOAD_RESOURCE_PATH)) {
+            parameter("public_key", publicUrl)
+            parameter("path", path)
         }
+        response.ensureSuccess("Firmware link request failed")
+        return response.body<YandexDownloadResponse>().href
+            .takeIf(String::isNotBlank)
+            ?: throw IOException("Firmware download link is empty")
     }
 
     /** Yandex's public CDN can drop a single TCP connection on mobile networks.

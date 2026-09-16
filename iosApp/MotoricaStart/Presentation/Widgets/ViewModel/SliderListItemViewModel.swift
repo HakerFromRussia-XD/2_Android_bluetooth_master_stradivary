@@ -205,6 +205,12 @@ extension SliderListItemViewModelV3 {
             print("[V3-SLIDER][VM] requestCurrent failed: buildReadRequest returned nil, binding=\(binding)")
             return
         }
+        logGlobalFingerPosition(
+            direction: "TX_GET",
+            binding: binding,
+            value: nil,
+            data: data
+        )
         print("[V3-SLIDER][VM] requestCurrent binding=\(binding) bytes=\(data.hexString)")
         sendBytes(data)
     }
@@ -256,6 +262,12 @@ extension SliderListItemViewModelV3 {
             print("[V3-SLIDER][VM] sendSliderValue failed: buildSetInt returned nil, binding=\(binding)")
             return
         }
+        logGlobalFingerPosition(
+            direction: "TX_SET",
+            binding: binding,
+            value: clampedValue,
+            data: data
+        )
         print("[V3-SLIDER][VM] sendSliderValue encoded bytes=\(data.hexString)")
         sendBytes(data)
     }
@@ -328,6 +340,36 @@ extension SliderListItemViewModelV3 {
         )
     }
 
+    private func logGlobalFingerPosition(
+        direction: String,
+        binding: WidgetV3BindingInfo,
+        value: Int?,
+        data: KotlinByteArray
+    ) {
+        guard binding.parameterID == ParameterCode.prosthesisModuleControlV3 else { return }
+        let parameterName: String
+        let commandCode: Int
+        switch binding.dataCode {
+        case ParameterCode.setThumbClosedPositionV3:
+            parameterName = "thumb"
+            commandCode = direction == "TX_GET"
+                ? ParameterCode.getThumbClosedPositionV3
+                : ParameterCode.setThumbClosedPositionV3
+        case ParameterCode.setIndexMiddleClosedPositionV3:
+            parameterName = "index_middle"
+            commandCode = direction == "TX_GET"
+                ? ParameterCode.getIndexMiddleClosedPositionV3
+                : ParameterCode.setIndexMiddleClosedPositionV3
+        default:
+            return
+        }
+        let valueText = value.map { String($0) } ?? "-"
+        print(
+            "[V3_FINGER_POSITION] \(direction) platform=iOS parameter=\(parameterName) " +
+                "command=0x\(String(format: "%02x", commandCode)) value=\(valueText) packet=\(data.hexString)"
+        )
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(identifier)
         hasher.combine(title)
@@ -342,6 +384,11 @@ private extension SliderListItemViewModelV3 {
     enum ParameterCode {
         static let emgMasterControlV3 = 0x12
         static let emgGainSetV3 = 0x01
+        static let prosthesisModuleControlV3 = 0x0F
+        static let setThumbClosedPositionV3 = 0x44
+        static let getThumbClosedPositionV3 = 0x45
+        static let setIndexMiddleClosedPositionV3 = 0x46
+        static let getIndexMiddleClosedPositionV3 = 0x47
     }
 
     final class EmgGainsCache {

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 object FirmwareInfoState {
+    val runTypeReplyRouter = RunProgramTypeReplyRouter()
     private val _firmwareInfoFlow = MutableSharedFlow<FirmwareInfoStruct>(replay = 1)
     private val firmwareInfoByAddress = mutableMapOf<Int, FirmwareInfoStruct>()
     val firmwareInfoFlow: SharedFlow<FirmwareInfoStruct> = _firmwareInfoFlow.asSharedFlow()
@@ -23,6 +24,7 @@ object FirmwareInfoState {
     val completeCrcFlow      = MutableSharedFlow<Boolean>(replay = 1)
     val updateCompleteFlow   = MutableSharedFlow<Unit>(replay = 1)
     val finishSystemUpdateFlow = MutableSharedFlow<Unit>(replay = 1)
+    val addressedFirmwareResponseFlow = MutableSharedFlow<Pair<Int, ByteArray>>(extraBufferCapacity = 32)
     val dfuV2ResponseFlow = MutableSharedFlow<ByteArray>(extraBufferCapacity = 32)
     val boardListUpdatedFlow = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1)
 

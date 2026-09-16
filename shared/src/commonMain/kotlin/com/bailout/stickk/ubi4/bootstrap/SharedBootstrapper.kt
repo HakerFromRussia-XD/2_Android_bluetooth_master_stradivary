@@ -3,6 +3,8 @@ package com.bailout.stickk.ubi4.bootstrap
 import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.local.db.RoomInit
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.AchievementCelebrationRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventRepositoryProvider
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 
 object SharedBootstrapper {
@@ -21,5 +23,7 @@ object SharedBootstrapper {
             deviceCrcDao = db.deviceCrcDao(),
         )
         SettingsProfileRepositoryProvider.init(db.settingsProfileDao())
+        AchievementEventRepositoryProvider.init(db.achievementUniqueEventDao())
+        AchievementCelebrationRepositoryProvider.init(db.achievementCelebrationStateDao())
     }
 }

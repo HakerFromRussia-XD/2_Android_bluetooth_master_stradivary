@@ -21,6 +21,8 @@ import com.bailout.stickk.ubi4.data.local.db.AndroidCtx
 import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.local.db.RoomInit
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.AchievementCelebrationRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventRepositoryProvider
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.V3CollectionGlResourceCache
 import javax.inject.Singleton
@@ -58,6 +60,8 @@ class WDApplication : MultiDexApplication() {
     // the user is still on the connection flow. Gesture cards then only create
     // lightweight shared contexts when their screen becomes visible.
     V3CollectionGlResourceCache.preloadAsync(applicationContext)
+    AchievementEventRepositoryProvider.init(db.achievementUniqueEventDao())
+    AchievementCelebrationRepositoryProvider.init(db.achievementCelebrationStateDao())
   }
 
   companion object {

@@ -16,7 +16,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.launch
 
 /**
- * Bulk FAM uploader. Negotiation is deliberately separate from legacy DFU:
+ * Bulk FAM/GUI/finger uploader. Negotiation is deliberately separate from legacy DFU:
  * until a complete, valid CAPS response is received no flash-changing v2
  * command is sent, so an old bootloader remains byte-for-byte on its v1 path.
  */
@@ -30,31 +30,32 @@ class FastDfuUploaderV2(
     private var beginOutcomeUnknown = false
 
     suspend fun negotiate(address: Int): DfuCapabilitiesV2? {
-        if (address != FAM_ADDRESS) {
-            logger.debug(TRACE_TAG, "negotiate skip address=$address reason=not_fam")
+        if (address != FAM_ADDRESS && address != 9 && address !in 0x20..0x25) {
+            logger.debug(TRACE_TAG, "negotiate skip address=$address reason=unsupported_board")
             return null
         }
         logger.info(TRACE_TAG, "negotiate start address=$address")
+        val capsTimeoutMs = if (address != FAM_ADDRESS) 1500L else CAPS_TIMEOUT_MS
 
         val payload = try {
             sendAndAwait(
                 packet = DfuV2Protocol.caps(address),
                 responseCommand = DfuV2Command.CAPS,
-                timeoutMs = CAPS_TIMEOUT_MS
+                timeoutMs = capsTimeoutMs
             ) ?: run {
-                logger.warn(TRACE_TAG, "negotiate CAPS timeout timeout_ms=$CAPS_TIMEOUT_MS")
+                logger.warn(TRACE_TAG, "negotiate CAPS timeout timeout_ms=$capsTimeoutMs")
                 return null
             }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
-            logger.warn(TAG, "CAPS transport failure: ${error.message}; using legacy DFU")
+            logger.warn(TAG, "CAPS transport failure: ${error.message}; negotiation failed")
             return null
         }
 
         val capabilities = runCatching { DfuV2Protocol.parseCapabilities(payload) }
             .getOrElse {
-                logger.warn(TAG, "Malformed CAPS: ${it.message}; using legacy DFU")
+                logger.warn(TAG, "Malformed CAPS: ${it.message}; negotiation failed")
                 return null
             }
         logger.info(TRACE_TAG, "negotiate CAPS parsed=$capabilities")
@@ -69,6 +70,10 @@ class FastDfuUploaderV2(
         // refresh cost; an old bootloader still falls back after 500 ms.
         val wwrBeforeReconnect = transport.supportsWriteWithoutResponse()
         logger.info(TRACE_TAG, "negotiate wwr_before_reconnect=$wwrBeforeReconnect")
+        if (!wwrBeforeReconnect && address != FAM_ADDRESS) {
+            logger.warn(TAG, "FAM bridge does not expose WWR; preserve the existing BLE link")
+            return null
+        }
         if (!wwrBeforeReconnect) {
             logger.warn(TAG, "CAPS confirmed v2 but WWR is absent; refreshing GATT and reconnecting")
             try {
@@ -98,7 +103,7 @@ class FastDfuUploaderV2(
         onProgress: (offset: Int, total: Int) -> Unit
     ) {
         val uploadStartedAt = currentTimeMillis()
-        require(address == FAM_ADDRESS) { "DFU v2 is enabled only for FAM addr=0" }
+        require(address == FAM_ADDRESS || address == 9 || address in 0x20..0x25) { "Unsupported DFU v2 board address: $address" }
         require(firmware.isNotEmpty()) { "Firmware image is empty" }
 
         val actualCrc = MotoricaCrc32.calculate(firmware)
@@ -111,7 +116,8 @@ class FastDfuUploaderV2(
             TRACE_TAG,
             "upload start address=$address bytes=${firmware.size} crc32=0x${actualCrc.toString(16)} caps=$capabilities"
         )
-        transport.setHighPerformanceMode()
+        if (address == FAM_ADDRESS) transport.setHighPerformanceMode()
+        else logger.info(TRACE_TAG, "Bridge preserve_link_parameters: bridge remains connected")
         val platformFrame = transport.maximumWriteWithoutResponseSize()
             .coerceAtMost(DfuV2Protocol.MAX_GATT_FRAME)
         val maxDataLength = DfuV2Protocol.maxDataLength(platformFrame, capabilities.maxFrame)
@@ -363,26 +369,36 @@ class FastDfuUploaderV2(
         session: DfuSessionV2,
         prefixVerifier: MotoricaPrefixCrc32
     ): DfuAckV2 {
-        var reconnectAttempts = 0
+        var consecutiveStatusFailures = 0
         repeat(READY_QUERY_ATTEMPTS) { attempt ->
             val ack = try {
                 queryStatus(address, firmware, imageCrc, session.sessionId)
             } catch (error: DfuV2LinkException) {
-                if (reconnectAttempts >= READY_RECONNECT_ATTEMPTS) {
+                consecutiveStatusFailures++
+                if (consecutiveStatusFailures >= READY_STATUS_FAILURE_ATTEMPTS) {
                     throw DfuV2TransferException(
                         "STATUS unavailable while waiting for erase: ${error.message}",
                         flashMayHaveChanged = true,
                         cause = error
                     )
                 }
-                reconnectAttempts++
-                reconnectOrFail("erase STATUS recovery", error)
+                // Flash erase temporarily prevents the bootloader from answering
+                // STATUS, but the GATT link itself remains valid. Reconnecting on
+                // that timeout caused a redundant second application reconnect
+                // before the first DATA frame. Retry on the same connection; a
+                // real peripheral reset is handled by Android's normal reconnect.
+                logger.info(
+                    TRACE_TAG,
+                    "erase STATUS unavailable attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS " +
+                        "same_link_retry=$consecutiveStatusFailures cause=${error.message}"
+                )
                 delay(READY_QUERY_DELAY_MS)
                 return@repeat
             }
+            consecutiveStatusFailures = 0
             logger.info(
                 TRACE_TAG,
-                "erase STATUS attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS reconnects=$reconnectAttempts ack=$ack"
+                "erase STATUS attempt=${attempt + 1}/$READY_QUERY_ATTEMPTS ack=$ack"
             )
             validateAck(ack, firmware, session.sessionId, 0, prefixVerifier)
             if (ack.status == DfuV2Status.READY) return ack
@@ -404,7 +420,7 @@ class FastDfuUploaderV2(
             sendAndAwait(
                 DfuV2Protocol.status(address, sessionId, firmware.size.toLong(), imageCrc),
                 DfuV2Command.STATUS,
-                CONTROL_TIMEOUT_MS,
+                if (address != FAM_ADDRESS) 10000L else CONTROL_TIMEOUT_MS,
                 responseFilter = { response ->
                     // STATUS notifications are broadcast. Ignore delayed ACKs
                     // from an older session, but let a malformed short response
@@ -583,7 +599,7 @@ class FastDfuUploaderV2(
         const val MIN_ACK_TIMEOUT_MS = 250L
         const val READY_QUERY_DELAY_MS = 100L
         const val READY_QUERY_ATTEMPTS = 50
-        const val READY_RECONNECT_ATTEMPTS = 2
+        const val READY_STATUS_FAILURE_ATTEMPTS = 3
         const val CLEAN_ACKS_TO_GROW = 3
         const val WRITE_BUSY_RETRY_MS = 2L
         const val DATA_TRACE_INTERVAL_FRAMES = 32

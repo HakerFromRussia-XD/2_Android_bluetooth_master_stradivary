@@ -33,14 +33,17 @@
             <!-- Заголовок первого слайдера -->
             <TextView
                 android:id="@+id/widgetSliderTitleTv"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:fontFamily="@font/sf_pro_display_light"
+                android:maxLines="2"
                 android:text="@string/setting_description"
                 android:textColor="@color/white"
                 android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/widgetSliderNumTv"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

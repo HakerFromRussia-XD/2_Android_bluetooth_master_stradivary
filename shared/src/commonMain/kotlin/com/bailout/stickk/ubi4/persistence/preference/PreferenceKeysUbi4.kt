@@ -30,6 +30,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_S
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
@@ -633,7 +635,11 @@ object PreferenceKeysUbi4 {
     /** Ответ на GET_RUN_PROGRAM_TYPE */
     enum class RunProgramType(val code: Int) {
         MAIN_APP   (0x01),
-        BOOTLOADER (0x02);
+        BOOTLOADER (0x02),
+        BOOTLOADER_V2 (0x03);
+
+        val isBootloader: Boolean
+            get() = this == BOOTLOADER || this == BOOTLOADER_V2
         //from(v: Int) берёт число v (байт, который прислала плата)
         // и ищет в списке констант RunProgramType ту одну, у которой поле code равно этому числу.
         // В итоге вы получаете не «сырое» число, а понятную константу MAIN_APP или BOOTLOADER.
@@ -670,6 +676,7 @@ object PreferenceKeysUbi4 {
         }
     }
     enum class CheckNewFwStatus(val code: Int) {
+        BOARD_INCOMPATIBLE (0),
         NEW_FW_ACCEPT      (1),
         READY_TO_UPDATE    (2),
         PART_WRITTEN       (3),
@@ -817,6 +824,11 @@ object PreferenceKeysUbi4 {
         PWCE_GET_TELEMETRY_DATA           (0x41),
         PWCE_GET_BINDING_DATA             (0x42),
         PWCE_SET_BINDING_DATA             (0x43),
+
+        PWCE_SET_PINCH_THUMB_POSITION      (0x44),
+        PWCE_GET_PINCH_THUMB_POSITION      (0x45),
+        PWCE_SET_PINCH_FINGER_POSITION     (0x46),
+        PWCE_GET_PINCH_FINGER_POSITION     (0x47),
 
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
 
@@ -1028,6 +1040,18 @@ object PreferenceKeysUbi4 {
             ),
             P_KEY_FORCE_SETTINGS to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_FORCE_SETTINGS.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_GLOBAL_THUMB_CLOSED_POSITION to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_PINCH_THUMB_POSITION.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_PINCH_FINGER_POSITION.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.SLIDER,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "sliderValue"

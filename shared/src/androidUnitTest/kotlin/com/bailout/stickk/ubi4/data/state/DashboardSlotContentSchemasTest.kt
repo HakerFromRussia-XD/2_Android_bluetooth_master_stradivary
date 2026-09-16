@@ -8,6 +8,102 @@ import kotlin.test.assertTrue
 
 class DashboardSlotContentSchemasTest {
     @Test
+    fun parseDeviceInfoV14UsesOffsetsFromSchema() {
+        val data = MutableList(104) { 0 }
+        data.writeString(0, "FEST-")
+        data.writeString(10, "INDY-3")
+        data[42] = 3
+        data[43] = 1
+        data.writeString(44, "INDY3")
+        data[60] = 7
+        data[61] = 9
+        data[62] = 2
+        data[63] = 0x2A
+        data.writeString(64, "FEST-INDY3-00000000000000000001")
+        data[96] = 4
+        data.writeUInt32(97, 0x12345678)
+        data[101] = 1
+        data[102] = 0x10
+        data[103] = 0x1F
+
+        val parsed = DashboardSlotContentSchemas.parse(
+            state = DashboardSlotContentUiState(
+                dataCode = 3,
+                version = 1,
+                subVersion = 4,
+                data = data
+            )
+        )
+
+        assertEquals("FEST-", parsed.input("DevicePrefix").value)
+        assertEquals("INDY-3", parsed.input("DeviceName").value)
+        assertEquals("3", parsed.input("DeviceVersion").value)
+        assertEquals("1", parsed.input("DeviceSubVersion").value)
+        assertEquals("INDY3", parsed.input("DeviceLabel").value)
+        assertEquals("7", parsed.input("DeviceType").value)
+        assertEquals("9", parsed.input("DeviceCode").value)
+        assertEquals("2", parsed.input("DeviceRole").value)
+        assertEquals("0x2A", parsed.input("DeviceAddress").value)
+        assertEquals("FEST-INDY3-00000000000000000001", parsed.input("DeviceUUID").value)
+        assertEquals("4", parsed.input("DeviceAdditionalInfoType").value)
+        assertEquals("0x12345678", parsed.input("DeviceAdditionalInfo").value)
+        assertEquals("1", parsed.input("DeviceIsCopyable").value)
+        assertEquals("0x10", parsed.input("min_device_address").value)
+        assertEquals("0x1F", parsed.input("max_device_address").value)
+    }
+
+    @Test
+    fun updateDeviceInfoV14FieldsPreservesUnrelatedBytes() {
+        val original = MutableList(104) { index -> (index + 1) and 0xFF }
+        val state = DashboardSlotContentUiState(
+            dataCode = 3,
+            version = 1,
+            subVersion = 4,
+            data = original
+        )
+        val parsed = DashboardSlotContentSchemas.parse(state)
+
+        val nameUpdated = DashboardSlotContentSchemas.updateValue(
+            state = state,
+            path = parsed.input("DeviceName").path,
+            value = "NEW"
+        )
+
+        assertEquals(original.subList(0, 10), nameUpdated.subList(0, 10))
+        assertEquals(listOf('N'.code, 'E'.code, 'W'.code), nameUpdated.subList(10, 13))
+        assertEquals(List(29) { 0 }, nameUpdated.subList(13, 42))
+        assertEquals(original.subList(42, 104), nameUpdated.subList(42, 104))
+
+        val nameUpdatedState = state.copy(data = nameUpdated)
+        val nameUpdatedParsed = DashboardSlotContentSchemas.parse(nameUpdatedState)
+        val additionalInfoUpdated = DashboardSlotContentSchemas.updateValue(
+            state = nameUpdatedState,
+            path = nameUpdatedParsed.input("DeviceAdditionalInfo").path,
+            value = "0x12345678"
+        )
+
+        assertEquals(nameUpdated.subList(0, 97), additionalInfoUpdated.subList(0, 97))
+        assertEquals(listOf(0x78, 0x56, 0x34, 0x12), additionalInfoUpdated.subList(97, 101))
+        assertEquals(nameUpdated.subList(101, 104), additionalInfoUpdated.subList(101, 104))
+    }
+
+    @Test
+    fun unknownSlotSubVersionUsesRawByteInputs() {
+        val parsed = DashboardSlotContentSchemas.parse(
+            state = DashboardSlotContentUiState(
+                dataCode = 3,
+                version = 1,
+                subVersion = 99,
+                data = listOf(0x00, 0x01, 0xFE, 0xFF)
+            )
+        )
+
+        assertEquals(listOf("byte[0]", "byte[1]", "byte[2]", "byte[3]"), parsed.inputs.map { it.name })
+        assertEquals(listOf("0x00", "0x01", "0xFE", "0xFF"), parsed.inputs.map { it.value })
+        assertTrue(parsed.structureGroups.isEmpty())
+    }
+
+    @Test
     fun parseTelemetryDataUsesArrayFieldsFromSchema() {
         val data = MutableList(158) { 0 }
         "FEST-H-0001".forEachIndexed { index, char ->
@@ -98,5 +194,11 @@ class DashboardSlotContentSchemasTest {
 
     private fun MutableList<Int>.writeFloat(offset: Int, value: Float) {
         writeUInt32(offset, value.toRawBits().toLong())
+    }
+
+    private fun MutableList<Int>.writeString(offset: Int, value: String) {
+        value.forEachIndexed { index, char ->
+            this[offset + index] = char.code
+        }
     }
 }

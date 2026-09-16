@@ -90,7 +90,9 @@ object FirmwareUpdateBridge {
                     FirmwareUpdateBridgeEvent(
                         FirmwareUpdateBridgeEvent.KIND_ERROR,
                         0,
-                        "Модуль не готов к записи (status=${result.status})"
+                        if (result.status.code == 0)
+                            "Прошивка отклонена при проверке совместимости с платой (status=${result.status})"
+                        else "Модуль не готов к записи (status=${result.status})"
                     )
                 )
                 FirmwareUpdateResult.PreloadFailed -> callback(

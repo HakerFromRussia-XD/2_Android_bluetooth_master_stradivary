@@ -66,6 +66,8 @@ import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
 import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics;
 
 import org.jetbrains.annotations.NotNull;
+import com.bailout.stickk.ubi4.models.device.DeviceSerialClassifier;
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -548,6 +550,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));//NameUtil.INSTANCE.getCleanName(
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));//getProtocolType()
+            intent.putExtra(
+                    ConstantManager.EXTRAS_DEVICE_PROFILE,
+                    DeviceSerialClassifier.INSTANCE.classifyV3(extraDevice.getName()).name()
+            );
 
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -691,6 +697,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     private String getProtocolType(@NotNull String deviceName) {
+        V3DeviceProfile v3Profile = DeviceSerialClassifier.INSTANCE.classifyV3(deviceName);
+        if (v3Profile == V3DeviceProfile.INDY3) {
+            return ConstantManager.V3_DEVICE_TYPE_INDY;
+        }
+        if (v3Profile == V3DeviceProfile.STANDARD_V3) {
+            String normalizedName = deviceName.trim().toUpperCase(java.util.Locale.ROOT);
+            for (String marker : ConstantManager.V3_TYPES) {
+                if (normalizedName.contains(marker)) return marker;
+            }
+        }
+
         String protocolType = "";
         if (deviceName.length() >= 6) {
             protocolType = deviceName.substring(0, 6);
@@ -734,34 +751,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
     }
     private boolean checkOurLEName (String deviceName) {
-        if (deviceName != null) {
-            return deviceName.contains("HRSTM") ||
-                    deviceName.contains("BLE_test_service") ||
-                    deviceName.contains("MLT") ||
-                    deviceName.contains("FNG") ||
-                    deviceName.contains("FNS") ||
-                    deviceName.contains("MLX") ||
-                    deviceName.contains("FNX") ||
-                    deviceName.contains("STR") ||
-                    deviceName.contains("CBY") ||
-                    deviceName.contains("IND") ||
-                    deviceName.contains("HND") ||
-                    deviceName.contains("NEMO") ||
-                    deviceName.contains("STAND") ||
-                    deviceName.contains("BT05") ||
-                    deviceName.contains("FEST") ||
-                    deviceName.contains("UBIv4") ||
-                    deviceName.contains("FTFS3") ||
-                    deviceName.contains("FTFO3") ||
-                    deviceName.contains("FTHS3") ||
-                    deviceName.contains("FTHO3") ||
-                    deviceName.contains("FTEP3") ||
-                    deviceName.contains("FTEB3") ||
-
-                    !filteringOursDevices;
-        } else {
-            return false;
-        }
+        if (deviceName == null) return false;
+        return DeviceSerialClassifier.INSTANCE.isKnownDeviceName(deviceName) ||
+                !filteringOursDevices;
     }
 
 

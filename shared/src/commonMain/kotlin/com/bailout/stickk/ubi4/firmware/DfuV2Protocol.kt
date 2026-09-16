@@ -119,11 +119,23 @@ object DfuV2Protocol {
     const val DEFAULT_WINDOW = 16
     const val DEFAULT_ACK_EVERY = 8
 
+    /** Fixed wire contract advertised by GET_RUN_PROGRAM_TYPE=3. */
+    val FAM_V2_CAPABILITIES = DfuCapabilitiesV2(
+        status = DfuV2Status.OK,
+        major = 2,
+        minor = 0,
+        flags = DfuV2Flags.REQUIRED,
+        maxFrame = 245,
+        maxWindow = 8,
+        ackEvery = 8,
+        programUnit = 8
+    )
+
     fun caps(address: Int): ByteArray = BLECommandsV3.sendCommand(
         WRITE_FW_COMMAND.number.toInt(),
         DfuV2Command.CAPS.code,
         address
-    )
+    ).withDfuAddress(address)
 
     fun begin(
         address: Int,
@@ -228,7 +240,7 @@ object DfuV2Protocol {
             WRITE_FW_COMMAND.number.toInt(),
             command.code,
             data
-        )
+        ).withDfuAddress(data[0].toInt() and 0xFF)
 
     private fun requireCommandAndSize(payload: ByteArray, command: DfuV2Command, size: Int) {
         require(payload.size == size) {
@@ -259,4 +271,14 @@ object DfuV2Protocol {
         ((this ushr 16) and 0xFF).toByte(),
         ((this ushr 24) and 0xFF).toByte()
     )
+}
+
+/** Existing FAM wire bytes stay unchanged; GUI has its own outer bus address. */
+internal fun ByteArray.withDfuAddress(address: Int): ByteArray {
+    if (address != 9) return this
+    require(size >= 5 && (this[1].toInt() and 0xFF) == 3)
+    return copyOf().also {
+        it[0] = ((it[0].toInt() and 0x80) or address).toByte()
+        it[4] = BLECommandsV3.calculationCRCRange(it, 0, 4).toByte()
+    }
 }

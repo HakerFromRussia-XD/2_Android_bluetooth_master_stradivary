@@ -68,6 +68,11 @@
     <string name="advanced_settings">Advanced settings</string>
     <string name="ok">OK</string>
     <string name="cancel" tools:ignore="ButtonCase">cancel</string>
+    <string name="settings_profile_name_dialog_title">Rename profile</string>
+    <string name="settings_profile_name_dialog_field_label">Profile name</string>
+    <string name="settings_profile_name_dialog_cancel">Cancel</string>
+    <string name="settings_profile_name_dialog_save">Save</string>
+    <string name="settings_profile_rename_action">Rename profile</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>
     <string name="number_of_channel">Number of channel:</string>
@@ -689,7 +694,13 @@
     <string name="gesture_usage_total">Total:\n%1$d</string>
     <string name="no_user_data_on_server">No user data on server</string>
     <string name="select_firmware_file">Select firmware file</string>
+    <string name="firmware_source_catalog">From catalog</string>
+    <string name="firmware_source_zip">Choose ZIP file</string>
+    <string name="gui_firmware_zip_invalid">Cannot open this file. Select a valid GUI main firmware ZIP.</string>
     <string name="update_firmware">Update</string>
+    <string name="firmware_catalog_unavailable">Firmware data is unavailable</string>
+    <string name="firmware_not_found_for_board">No firmware found for this board</string>
+    <string name="firmware_downloading">Downloading firmware…</string>
     <string name="update_board" formatted="true">Update %1$s</string>
     <string name="unknown_board">Unknown</string>
 
@@ -704,6 +715,7 @@
     <string name="achievement_progress_bronze">Bronze stage completed</string>
     <string name="achievement_progress_silver">Silver stage completed</string>
     <string name="achievement_progress_gold">Gold stage completed</string>
+    <string name="achievement_progress_value">%1$s of %2$s</string>
     <string name="achievement_bionic_title">Bionic</string>
     <string name="achievement_bionic_bronze">Use the device while powered on for at least 4 hours in one day.</string>
     <string name="achievement_bionic_silver">Use the device while powered on for at least 8 hours in one day.</string>
@@ -729,25 +741,25 @@
     <string name="achievement_daily_challenge_silver">Complete 7 daily challenges.</string>
     <string name="achievement_daily_challenge_gold">Complete 30 daily challenges.</string>
     <string name="achievement_precision_title">Precision</string>
-    <string name="achievement_precision_bronze">Perform 50 movements using the Tripod or Pinch grip.</string>
+    <string name="achievement_precision_bronze">Perform 50 movements using Pinch, Key, or Tweezers.</string>
     <string name="achievement_precision_silver">Perform 250 movements using precision grips.</string>
     <string name="achievement_precision_gold">Perform 1,000 movements using precision grips.</string>
     <string name="achievement_power_title">Power</string>
-    <string name="achievement_power_bronze">Perform 50 movements using the Hook or Fist grip.</string>
+    <string name="achievement_power_bronze">Perform 50 movements using Fist or Fist 2.</string>
     <string name="achievement_power_silver">Perform 250 movements using power grips.</string>
     <string name="achievement_power_gold">Perform 1,000 movements using power grips.</string>
     <string name="achievement_get_a_grip_title">Get a Grip</string>
-    <string name="achievement_get_a_grip_bronze">Open the grip settings menu.</string>
-    <string name="achievement_get_a_grip_silver">Change the settings of one grip.</string>
-    <string name="achievement_get_a_grip_gold">Save custom settings for three grips.</string>
+    <string name="achievement_get_a_grip_bronze">Change finger positions and save one custom gesture.</string>
+    <string name="achievement_get_a_grip_silver">Change finger positions for two different custom gestures.</string>
+    <string name="achievement_get_a_grip_gold">Change finger positions for three different custom gestures.</string>
     <string name="achievement_alter_ego_title">Alter Ego</string>
     <string name="achievement_alter_ego_bronze">Give your device a custom name.</string>
     <string name="achievement_alter_ego_silver">Use the device with its custom name for 7 days.</string>
     <string name="achievement_alter_ego_gold">Use the device with its custom name for 30 days.</string>
     <string name="achievement_anniversary_title">Anniversary</string>
-    <string name="achievement_anniversary_bronze">Use the device for 30 days.</string>
-    <string name="achievement_anniversary_silver">Use the device for 180 days.</string>
-    <string name="achievement_anniversary_gold">Use the device for one year.</string>
+    <string name="achievement_anniversary_bronze">Use the prosthesis for 30 days from the date you received it.</string>
+    <string name="achievement_anniversary_silver">Use the prosthesis for 180 days from the date you received it.</string>
+    <string name="achievement_anniversary_gold">Use the prosthesis for 365 days from the date you received it.</string>
     <string name="achievement_square_eyes_title">Square Eyes</string>
     <string name="achievement_square_eyes_bronze">Watch one tutorial video.</string>
     <string name="achievement_square_eyes_silver">Watch three tutorial videos.</string>
@@ -764,6 +776,8 @@
     <string name="achievement_champion_bronze">Earn Bronze in five other achievements.</string>
     <string name="achievement_champion_silver">Earn Silver in ten other achievements.</string>
     <string name="achievement_champion_gold">Earn Gold in every other achievement.</string>
+    <string name="achievement_celebration_animation">Achievement unlocked</string>
+    <string name="achievement_celebration_message">Congratulations! You have earned the “%1$s” achievement</string>
 
     <string-array name="numbers">
         <item>0</item>
@@ -775,5 +789,4 @@
         <item>6</item>
         <item>255</item>
     </string-array>
-    <string name="achievement_stage_count">%1$d of %2$d</string>
 </resources>

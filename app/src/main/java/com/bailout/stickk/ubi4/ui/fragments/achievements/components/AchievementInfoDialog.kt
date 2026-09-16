@@ -1,28 +1,32 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementStageUiModel
-import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
+import com.bailout.stickk.ubi4.ui.fragments.achievements.color
 
 @Composable
 internal fun AchievementInfoDialog(
@@ -47,14 +51,27 @@ internal fun AchievementInfoDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.achievements_close),
-                    color = AchievementsColors.Accent,
-                    fontFamily = AchievementsFontFamily,
-                    fontWeight = FontWeight.Bold
+        buttons = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Divider(
+                    color = AchievementsColors.Border,
+                    thickness = 1.dp
                 )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .clickable(onClick = onDismiss),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.achievements_close),
+                        color = AchievementsColors.SystemBlue,
+                        fontFamily = AchievementsFontFamily,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         },
         shape = RoundedCornerShape(16.dp),
@@ -95,10 +112,4 @@ private fun AchievementTier.titleRes(): Int = when (this) {
     AchievementTier.BRONZE -> R.string.achievement_tier_bronze
     AchievementTier.SILVER -> R.string.achievement_tier_silver
     AchievementTier.GOLD -> R.string.achievement_tier_gold
-}
-
-private fun AchievementTier.color(): Color = when (this) {
-    AchievementTier.BRONZE -> AchievementsColors.Bronze
-    AchievementTier.SILVER -> AchievementsColors.Silver
-    AchievementTier.GOLD -> AchievementsColors.Gold
 }

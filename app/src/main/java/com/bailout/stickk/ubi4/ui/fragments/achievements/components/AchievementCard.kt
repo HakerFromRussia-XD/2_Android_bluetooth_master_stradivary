@@ -27,14 +27,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementTier
+import com.bailout.stickk.ubi4.achievements.AchievementDefinitions
+import com.bailout.stickk.ubi4.achievements.AchievementId
+import com.bailout.stickk.ubi4.achievements.AchievementProgress
+import com.bailout.stickk.ubi4.achievements.AchievementProgressCalculator
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
+import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsCatalog
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
+import java.text.NumberFormat
 
 @Composable
 internal fun AchievementCard(
@@ -87,21 +95,8 @@ internal fun AchievementCard(
             )
             // The same gap separates the visible artwork, counter and progress bar.
             Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(
-                    R.string.achievement_stage_count,
-                    achievement.achievedTier?.level ?: 0,
-                    AchievementTier.entries.size
-                ),
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                color = AchievementsColors.White,
-                fontFamily = AchievementsFontFamily,
-                fontSize = 10.sp,
-                maxLines = 1
-            )
-            Spacer(Modifier.height(4.dp))
             AchievementStageProgress(
-                achievedTier = achievement.achievedTier,
+                progress = achievement.progress,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -110,19 +105,37 @@ internal fun AchievementCard(
 
 @Composable
 private fun AchievementStageProgress(
-    achievedTier: AchievementTier?,
+    progress: AchievementProgress,
     modifier: Modifier = Modifier
 ) {
     val activeColor = colorResource(R.color.ubi4_active)
-    val progressFraction = (achievedTier?.level ?: 0) / AchievementTier.entries.size.toFloat()
-    val progressText = when (achievedTier) {
+    val numberFormat = NumberFormat.getIntegerInstance()
+    val progressValueText = stringResource(
+        R.string.achievement_progress_value,
+        numberFormat.format(progress.currentValue.coerceAtMost(progress.nextTarget)),
+        numberFormat.format(progress.nextTarget)
+    )
+    val progressText = when (progress.achievedTier) {
         AchievementTier.BRONZE -> stringResource(R.string.achievement_progress_bronze)
         AchievementTier.SILVER -> stringResource(R.string.achievement_progress_silver)
         AchievementTier.GOLD -> stringResource(R.string.achievement_progress_gold)
         null -> stringResource(R.string.achievement_progress_none)
     }
 
-    Box(modifier = modifier) {
+    Column(modifier = modifier) {
+        Text(
+            text = progressValueText,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 4.dp),
+            color = AchievementsColors.White,
+            fontFamily = AchievementsFontFamily,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,14 +146,43 @@ private fun AchievementStageProgress(
                     contentDescription = progressText
                 }
         ) {
-            if (progressFraction > 0f) {
+            if (progress.progressFraction > 0f) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(progressFraction)
+                        .fillMaxWidth(progress.progressFraction.coerceIn(0f, 1f))
                         .background(activeColor)
                 )
             }
         }
+    }
+}
+
+@Preview(
+    name = "Achievement item with progress",
+    showBackground = true,
+    backgroundColor = 0xFF2A2A2A,
+    widthDp = 190,
+    heightDp = 190
+)
+@Composable
+private fun AchievementCardPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AchievementsColors.Background)
+            .padding(16.dp)
+    ) {
+        AchievementCard(
+            achievement = AchievementsCatalog.items
+                .first { it.id == AchievementId.CYBORG }
+                .copy(
+                    progress = AchievementProgressCalculator.calculate(
+                        currentValue = 1_000L,
+                        definition = AchievementDefinitions[AchievementId.CYBORG]
+                    )
+                ),
+            onInfoClick = {}
+        )
     }
 }

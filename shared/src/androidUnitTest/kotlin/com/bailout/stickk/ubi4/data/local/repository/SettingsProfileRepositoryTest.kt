@@ -14,6 +14,8 @@ import com.bailout.stickk.ubi4.testing.InMemorySettingsProfileDao
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
@@ -29,6 +31,7 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsProfileRepositoryTest {
@@ -66,6 +69,59 @@ class SettingsProfileRepositoryTest {
         assertEquals(1, valuesA.size)
         assertEquals(42, valuesA.sliderValue())
         assertTrue(valuesB.isEmpty())
+    }
+
+    @Test
+    fun `profile can be renamed and custom name is included in server payload`() = runBlocking {
+        repository.ensureState("SERIAL-A")
+
+        assertEquals(
+            listOf(SettingsProfileInfo(profileId = 1, customName = null, isActive = true)),
+            repository.getProfiles("SERIAL-A")
+        )
+
+        val renamed = requireNotNull(
+            repository.renameProfile(
+                serial = "SERIAL-A",
+                profileId = 1,
+                name = "  Everyday  "
+            )
+        )
+
+        assertEquals(
+            SettingsProfileInfo(profileId = 1, customName = "Everyday", isActive = true),
+            renamed
+        )
+        assertEquals(listOf(renamed), repository.getProfiles("SERIAL-A"))
+
+        val payload = repository.buildServerSettingsPayload("SERIAL-A")
+        val profileJson = Json.parseToJsonElement(
+            Json.parseToJsonElement(payload)
+                .jsonObject
+                .getValue("PROFILE1")
+                .jsonPrimitive
+                .content
+        ).jsonObject
+        assertEquals("Everyday", profileJson.getValue("name").jsonPrimitive.content)
+    }
+
+    @Test
+    fun `profile rename rejects blank and too long names`() = runBlocking {
+        repository.ensureState("SERIAL-A")
+
+        assertNull(repository.renameProfile("SERIAL-A", 1, "   "))
+        assertNull(repository.renameProfile("SERIAL-A", 4, "Invalid profile"))
+        assertNull(
+            repository.renameProfile(
+                "SERIAL-A",
+                1,
+                "x".repeat(SETTINGS_PROFILE_NAME_MAX_LENGTH + 1)
+            )
+        )
+        assertEquals(
+            listOf(SettingsProfileInfo(profileId = 1, customName = null, isActive = true)),
+            repository.getProfiles("SERIAL-A")
+        )
     }
 
     @Test
@@ -306,12 +362,63 @@ class SettingsProfileRepositoryTest {
         assertEquals(12, gesture73.openPosition1)
         assertEquals(22, gesture73.closePosition1)
     }
+
+    @Test
+    fun `global finger positions round trip independently through settings profiles`() = runBlocking {
+        val thumbInfo = ParameterInfoRegistry.require(P_KEY_GLOBAL_THUMB_CLOSED_POSITION)
+        val indexMiddleInfo = ParameterInfoRegistry.require(P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION)
+
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = thumbInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 15))
+        )
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = indexMiddleInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 35))
+        )
+
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = thumbInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 55))
+        )
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = indexMiddleInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 75))
+        )
+
+        val profile1 = repository.switchToProfile("SERIAL-A", 1).second
+        val profile2 = repository.switchToProfile("SERIAL-A", 2).second
+
+        assertEquals(15, profile1.sliderValue(thumbInfo))
+        assertEquals(35, profile1.sliderValue(indexMiddleInfo))
+        assertEquals(55, profile2.sliderValue(thumbInfo))
+        assertEquals(75, profile2.sliderValue(indexMiddleInfo))
+        assertEquals(thumbInfo, profile2.single { it.parameterInfo == thumbInfo }.parameterInfo)
+        assertEquals(
+            indexMiddleInfo,
+            profile2.single { it.parameterInfo == indexMiddleInfo }.parameterInfo
+        )
+    }
 }
 
 private fun List<SettingsProfileApplyValue>.sliderValue(): Int? =
     filter { it.target == "BLE" }
         .mapNotNull { (it.typedValue as? ParameterTypedValueV3.Slider)?.value?.sliderValue }
         .firstOrNull()
+
+private fun List<SettingsProfileApplyValue>.sliderValue(
+    parameterInfo: com.bailout.stickk.ubi4.models.commonModels.ParameterInfo<Int, Int, Int, Int>
+): Int? =
+    firstOrNull { it.parameterInfo == parameterInfo }
+        ?.typedValue
+        ?.let { it as? ParameterTypedValueV3.Slider }
+        ?.value
+        ?.sliderValue
 
 private fun List<SettingsProfileApplyValue>.mobileBoolean(key: String): Boolean? =
     firstOrNull { it.target == "MOBILE" && it.mobileKey == key }?.mobileBoolean

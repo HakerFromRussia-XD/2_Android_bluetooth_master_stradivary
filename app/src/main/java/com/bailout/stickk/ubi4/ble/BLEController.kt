@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
@@ -51,6 +52,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.device.GlobalFingerPositionInitPolicyV3
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
@@ -66,6 +69,11 @@ import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -262,6 +270,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     )
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
+                    AchievementEventManager.recordSuccessfulBleConnection()
                     Toast.makeText(
                         context,
                         context.getString(SharedRes.strings.connected_device.resourceId, connectedDeviceAddress),
@@ -272,7 +281,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        val bootloaderV2Transport =
+                        val supportsBulkWrite =
                             mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
                         if (firmwareUpdateSessionActive && !dfuReconnectActive) {
                             main.lifecycleScope.launch {
@@ -283,12 +292,29 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                         "generation=$gattServicesGeneration"
                                 )
                             }
-                        } else if (!dfuReconnectActive && !bootloaderV2Transport) {
+                        } else if (!dfuReconnectActive && (!supportsBulkWrite || UiState.isInterfaceV3Activated)) {
                             main.lifecycleScope.launch {
+                            // FAM main also exposes WWR to bridge GUI DFU. Read its actual mode.
+                            if (UiState.isInterfaceV3Activated && supportsBulkWrite) {
+                                val programType = readConnectedProgramTypeV3()
+                                if (dfuReconnectActive || firmwareUpdateSessionActive) return@launch
+                                Log.i(DFU_TRACE_TAG, "controller startup program_type=$programType bulk_write=true")
+                                if (programType != 1) {
+                                    UiState.startupInProgress.value = false
+                                    if (programType !in setOf(2, 3)) {
+                                        main.showToast("Не удалось определить режим устройства. Подключитесь повторно")
+                                    }
+                                    return@launch
+                                }
+                            }
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
-                                mBLEParserV3?.generatedHardcodeWidgets()
+                                if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
+                                    mBLEParserV3?.generatedHardcodeWidgetsINDY3()
+                                } else {
+                                    mBLEParserV3?.generatedHardcodeWidgets()
+                                }
                                 initRequestsV3()
                             } else {
                                 //ветка инициализации протокола UBIv4
@@ -304,7 +330,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 DFU_TRACE_TAG,
                                 "controller normal_init suppressed dfu_active=$dfuReconnectActive " +
                                     "firmware_session=$firmwareUpdateSessionActive " +
-                                    "bootloader_v2_transport=$bootloaderV2Transport"
+                                    "bulk_write=$supportsBulkWrite"
                             )
                         }
                     }
@@ -387,6 +413,21 @@ class BLEController(private val bleManager: BleManagerKmm) {
         )
         Log.i(DFU_TRACE_TAG, "firmware_session serial_notify_ready=$ready generation=$gattServicesGeneration")
         return ready
+    }
+
+    private suspend fun readConnectedProgramTypeV3(): Int? = coroutineScope {
+        if (!prepareFirmwareSessionNotifications()) return@coroutineScope null
+        val response = async(start = CoroutineStart.UNDISPATCHED) {
+            withTimeoutOrNull(1500L) {
+                FirmwareInfoState.addressedFirmwareResponseFlow.first { (address, bytes) ->
+                    address == 0 && bytes.size >= 2 && bytes[0].toInt() == 1
+                }.second[1].toInt() and 0xFF
+            }
+        }
+        bleManager.sendBytesKmm(
+            BLECommandsV3.requestRunProgramTypeFw(0), SERIALPORTCHAR_UUID, WRITE
+        ) {}
+        response.await()
     }
     private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
@@ -897,7 +938,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
-            val initRequests = buildV3InitRequests()
+            val initRequests = if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) {
+                buildINDY3InitRequests()
+            } else {
+                buildV3InitRequests()
+            }
             startV3InitProgressTracking(initRequests)
 
             if (initRequests.isEmpty()) {
@@ -907,6 +952,18 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
 
             initRequests.forEach { request ->
+                when (request.expectedResponseSubcommand) {
+                    PWCE_GET_PINCH_THUMB_POSITION.number.toInt() -> "thumb"
+                    PWCE_GET_PINCH_FINGER_POSITION.number.toInt() -> "index_middle"
+                    else -> null
+                }?.let { parameterName ->
+                    platformLog(
+                        "V3_FINGER_POSITION",
+                        "TX_GET platform=Android parameter=$parameterName " +
+                            "get=0x${request.expectedResponseSubcommand.toString(16).padStart(2, '0')} " +
+                            "packet=${EncodeByteToHex.bytesToHexString(request.packet)}"
+                    )
+                }
                 main.bleCommandWithQueue(
                     request.packet,
                     SERIALPORTCHAR_UUID,
@@ -1429,6 +1486,74 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_SPEED_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_FORCE_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = getSerialNumberPacket,
+                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
+                expectedResponseSubcommand = GET_SERIAL_NUMBER.number
+            )
+        ) + GlobalFingerPositionInitPolicyV3
+            .readSubcommands(V3DeviceProfile.STANDARD_V3)
+            .map { subcommand ->
+                V3InitRequest(
+                    packet = request(subcommand),
+                    expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                    expectedResponseSubcommand = subcommand
+                )
+            }
+    }
+
+    private fun buildINDY3InitRequests(): List<V3InitRequest> {
+        val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
+            DEVICE_INFORMATION.number.toInt(),
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
+
+        return listOf(
+            V3InitRequest(
+                packet = request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_THRESHOLD_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_BATTERY.number.toInt()),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_BATTERY.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
             ),
             V3InitRequest(
                 packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),

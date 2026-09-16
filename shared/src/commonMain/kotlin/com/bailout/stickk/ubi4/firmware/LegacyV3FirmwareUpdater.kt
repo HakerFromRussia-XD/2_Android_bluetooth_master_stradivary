@@ -31,7 +31,7 @@ class LegacyV3FirmwareUpdater(
     private var lastMaxChunkInfo: MaxChunkSizeInfo? = null
 
     // GET_RUN_PROGRAM_TYPE/JUMP_TO_BOOTLOADER: checks the V3 board mode and enters bootloader.
-    suspend fun ensureBootloader(addr: Int) {
+    suspend fun ensureBootloader(addr: Int): PreferenceKeysUbi4.RunProgramType {
         logger.info(TRACE_TAG, "legacy boot_entry start addr=$addr")
         logger.debug(TAG, "TX GET_RUN_PROGRAM_TYPE")
         val initial = requestRunType(addr)
@@ -39,7 +39,7 @@ class LegacyV3FirmwareUpdater(
         logger.debug(TAG, "RX initial status = $initial")
         logger.info(TRACE_TAG, "legacy boot_entry initial_run_type=$initial")
 
-        if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+        if (!initial.isBootloader) {
             logger.info(TRACE_TAG, "legacy boot_entry jump_to_bootloader TX")
             logger.debug(TAG, "TX JUMP_TO_BOOTLOADER")
             send(BLECommandsV3.jumpToBootloaderFw(addr))
@@ -56,10 +56,10 @@ class LegacyV3FirmwareUpdater(
                     TRACE_TAG,
                     "legacy boot_entry probe attempt=${attempt + 1}/$BOOTLOADER_CHECK_ATTEMPTS run_type=$runType"
                 )
-                if (runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+                if (runType?.isBootloader == true) {
                     logger.debug(TAG, "BOOTLOADER ready")
                     logger.info(TRACE_TAG, "legacy boot_entry complete mode=bootloader")
-                    return
+                    return runType
                 }
                 delay(BOOTLOADER_CHECK_INTERVAL_MS)
             }
@@ -69,6 +69,7 @@ class LegacyV3FirmwareUpdater(
             logger.debug(TAG, "Board already in bootloader")
             logger.info(TRACE_TAG, "legacy boot_entry complete mode=already_bootloader")
         }
+        return initial
     }
 
     // GET_UP_LOAD_ATRIBUTE: gets the V3 chunk size and firmware write timings.

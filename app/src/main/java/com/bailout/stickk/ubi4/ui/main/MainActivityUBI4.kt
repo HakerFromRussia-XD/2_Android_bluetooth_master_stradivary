@@ -22,7 +22,6 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -33,18 +32,15 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -59,7 +55,6 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
-import com.bailout.stickk.ubi4.firmware.DfuDiagnostics
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
@@ -69,10 +64,12 @@ import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiInterfaceModeBridgeV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
-import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
@@ -112,7 +109,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
-import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.jvm.java
@@ -164,10 +160,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-diag-20260904-1 version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
+        Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=${BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY} version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-        applyDfuDiagnostics(intent)
+//        applyDfuDiagnostics(intent)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
@@ -195,9 +191,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
-        bottomNavigationController.applyVisibility(computeVisibleDisplays())
         setupImeBottomNavBehavior()
+        //TODO проверить почему дубль
         refreshBottomNavVisibility()
+        lifecycleScope.launch {
+            updateFlow.collect { refreshBottomNavVisibility() }
+        }
         observeBattery()
         // инициализация блютуз
 
@@ -283,7 +282,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
             mBLEController.disconnect()
         }
-        maybeStartDebugFirmwareUpdate()
+//        maybeStartDebugFirmwareUpdate()
         binding.nameTv.setOnClickListener {
             dialogManager?.showDisconnectDialog()
         }
@@ -323,6 +322,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }.start()
             // показать или скрыть секретный пункт
             bottomNavigationController.toggleSecretItem()
+            refreshBottomNavVisibility()
             true
         }
 
@@ -336,62 +336,62 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         lifecycle.addObserver(bleStatusController)
     }
 
-    private fun maybeStartDebugFirmwareUpdate() {
-        if (!BuildConfig.DEBUG || !intent.getBooleanExtra("DFU_TEST_AUTO_UPDATE", false)) return
-        UiState.startupInProgress.value = false
-        UiState.fullInitInProgress.value = false
-        syncDialog.dismiss()
-        lifecycleScope.launch {
-            repeat(2_400) {
-                if (mBLEController.getStatusConnected()) {
-                    delay(750)
-                    if (mBLEController.getStatusConnected()) {
-                        if (!mBLEController.prepareFirmwareSessionNotifications()) {
-                            Log.w("DFU_V2_TRACE", "debug_autorun serial notify unavailable; waiting for reconnect")
-                            delay(500)
-                            return@repeat
-                        }
-                        val firmwareFile = File(cacheDir, "FH_FAM_v0.1.29_.zip")
-                        assets.open("Firmware/FH_FAM_v0.1.29_.zip").use { input ->
-                            firmwareFile.outputStream().use(input::copyTo)
-                        }
-                        Log.i("DFU_V2_TRACE", "debug_autorun connected; dispatching firmware update")
-                        dialogManager?.runV3FirmwareUpdateForDebug(firmwareFile)
-                        return@launch
-                    }
-                }
-                delay(250)
-            }
-            Log.e("DFU_V2_TRACE", "debug_autorun connection timeout")
-        }
-    }
+//    private fun maybeStartDebugFirmwareUpdate() {
+//        if (!BuildConfig.DEBUG || !intent.getBooleanExtra("DFU_TEST_AUTO_UPDATE", false)) return
+//        UiState.startupInProgress.value = false
+//        UiState.fullInitInProgress.value = false
+//        syncDialog.dismiss()
+//        lifecycleScope.launch {
+//            repeat(2_400) {
+//                if (mBLEController.getStatusConnected()) {
+//                    delay(750)
+//                    if (mBLEController.getStatusConnected()) {
+//                        if (!mBLEController.prepareFirmwareSessionNotifications()) {
+//                            Log.w("DFU_V2_TRACE", "debug_autorun serial notify unavailable; waiting for reconnect")
+//                            delay(500)
+//                            return@repeat
+//                        }
+//                        val firmwareFile = File(cacheDir, "FH_FAM_v0.1.29_.zip")
+//                        assets.open("Firmware/FH_FAM_v0.1.29_.zip").use { input ->
+//                            firmwareFile.outputStream().use(input::copyTo)
+//                        }
+//                        Log.i("DFU_V2_TRACE", "debug_autorun connected; dispatching firmware update")
+//                        dialogManager?.runV3FirmwareUpdateForDebug(firmwareFile)
+//                        return@launch
+//                    }
+//                }
+//                delay(250)
+//            }
+//            Log.e("DFU_V2_TRACE", "debug_autorun connection timeout")
+//        }
+//    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        applyDfuDiagnostics(intent)
+//        applyDfuDiagnostics(intent)
     }
 
-    private fun applyDfuDiagnostics(intent: Intent) {
-        DfuDiagnostics.forceLegacy = BuildConfig.DFU_DIAGNOSTIC_FORCE_LEGACY
-        // Production keeps the proven v1-compatible boot-entry behavior.
-        // Requiring a main-app start remains an explicit diagnostics option.
-        DfuDiagnostics.requireMainStart = false
-        if (intent.hasExtra(EXTRA_DFU_FORCE_LEGACY)) {
-            DfuDiagnostics.forceLegacy = intent.getBooleanExtra(EXTRA_DFU_FORCE_LEGACY, false)
-            Log.i("DFU_METRIC", "diagnostic_force_legacy=${DfuDiagnostics.forceLegacy}")
-        }
-        if (intent.hasExtra(EXTRA_DFU_REQUIRE_MAIN_START)) {
-            DfuDiagnostics.requireMainStart =
-                intent.getBooleanExtra(EXTRA_DFU_REQUIRE_MAIN_START, false)
-            Log.i("DFU_METRIC", "diagnostic_require_main_start=${DfuDiagnostics.requireMainStart}")
-        }
-        Log.i(
-            DFU_TRACE_TAG,
-            "diagnostics forceLegacy=${DfuDiagnostics.forceLegacy} " +
-                "requireMainStart=${DfuDiagnostics.requireMainStart}"
-        )
-    }
+//    private fun applyDfuDiagnostics(intent: Intent) {
+//        DfuDiagnostics.forceLegacy = BuildConfig.DFU_DIAGNOSTIC_FORCE_LEGACY
+//        // Production keeps the proven v1-compatible boot-entry behavior.
+//        // Requiring a main-app start remains an explicit diagnostics option.
+//        DfuDiagnostics.requireMainStart = false
+//        if (intent.hasExtra(EXTRA_DFU_FORCE_LEGACY)) {
+//            DfuDiagnostics.forceLegacy = intent.getBooleanExtra(EXTRA_DFU_FORCE_LEGACY, false)
+//            Log.i("DFU_METRIC", "diagnostic_force_legacy=${DfuDiagnostics.forceLegacy}")
+//        }
+//        if (intent.hasExtra(EXTRA_DFU_REQUIRE_MAIN_START)) {
+//            DfuDiagnostics.requireMainStart =
+//                intent.getBooleanExtra(EXTRA_DFU_REQUIRE_MAIN_START, false)
+//            Log.i("DFU_METRIC", "diagnostic_require_main_start=${DfuDiagnostics.requireMainStart}")
+//        }
+//        Log.i(
+//            DFU_TRACE_TAG,
+//            "diagnostics forceLegacy=${DfuDiagnostics.forceLegacy} " +
+//                "requireMainStart=${DfuDiagnostics.requireMainStart}"
+//        )
+//    }
 
 
     @SuppressLint("MissingPermission")
@@ -720,6 +720,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             connectedDeviceName.contains(marker, ignoreCase = true) ||
                 deviceType.contains(marker, ignoreCase = true)
         }
+        val selectedProfile = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_PROFILE)
+            ?.let { runCatching { V3DeviceProfile.valueOf(it) }.getOrNull() }
+        if (selectedProfile != null) {
+            UiInterfaceModeBridgeV3.setActiveProfile(selectedProfile)
+        } else {
+            UiInterfaceModeBridgeV3.updateFromDeviceName(connectedDeviceName)
+        }
         setStaticVariables()
         updateSerialNumberV3()
 
@@ -971,7 +978,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
-            val displayName = NameUtil.getDisplayName(connectedDeviceName)
+            val displayName = DeviceNameBridgeV3.displayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
         }
@@ -984,7 +991,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mDeviceName = serial
         currentSerial = mDeviceName
         SettingsProfileManager.setCurrentSerial(currentSerial)
-        val displayName = NameUtil.getDisplayName(serial)
+        val displayName = DeviceNameBridgeV3.displayName(serial)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
@@ -995,33 +1002,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
 
-        val displayName = NameUtil.getDisplayName(fullDeviceName)
+        val displayName = DeviceNameBridgeV3.displayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
     fun getCurrentSerial(): String? = currentSerial
 
-    private fun sendFwInfoRequests() {
-        bleParser.sendFwInfoRequestsWithRetry()
-//        // CPU
-//        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-//        // Sub-devices (если уже известны)
-//        baseSubDevicesInfoStructSet.forEach { sub ->
-//            bleCommandWithQueue(
-//                BLECommands.requestProductFWInfoType(sub.deviceAddress),
-//                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-//            ) {}
-//        }
-    }
-
-    private fun sendRunProgramTypeRequests() {
-        baseSubDevicesInfoStructSet.forEach { sub ->
-            bleCommandWithQueue(
-                BLECommands.requestRunProgramType(sub.deviceAddress.toByte()),
-                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-            ) {}
-        }
-    }
 
     private fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
@@ -1074,9 +1060,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun refreshBottomNavVisibility() {
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        syncBottomNavigationContainerVisibility()
+    }
+
+    private fun syncBottomNavigationContainerVisibility() {
+        if (!bottomNavigationController.hasVisibleItems()) {
+            binding.bottomNavigation.visibility = View.GONE
+            return
+        }
+        if (canRestoreBottomNavigationAfterIme() && !isImeVisible) {
+            showBottomNavigationAnimated()
+        }
     }
 
     fun showBottomNavigation() {
+        if (!bottomNavigationController.hasVisibleItems()) {
+            binding.bottomNavigation.visibility = View.GONE
+            return
+        }
         if (isImeVisible) {
             bottomNavHiddenByIme = true
             binding.bottomNavigation.visibility = View.GONE
@@ -1117,7 +1118,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun setChromeVisible(visible: Boolean) {
         val v = if (visible) View.VISIBLE else View.INVISIBLE
         binding.statusBar.visibility = v
-        binding.bottomNavigation.visibility = if (visible && !isImeVisible) View.VISIBLE else View.INVISIBLE
+        binding.bottomNavigation.visibility = if (
+            visible && !isImeVisible && bottomNavigationController.hasVisibleItems()
+        ) View.VISIBLE else View.INVISIBLE
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
@@ -1181,7 +1184,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun canRestoreBottomNavigationAfterIme(): Boolean {
         return binding.statusBar.visibility == View.VISIBLE &&
             binding.statusBackContainer.visibility != View.VISIBLE &&
-            !UiState.startupInProgress.value
+            !UiState.startupInProgress.value &&
+            bottomNavigationController.hasVisibleItems()
     }
 
     private fun showBottomNavigationAnimated(nav: View = binding.bottomNavigation) {

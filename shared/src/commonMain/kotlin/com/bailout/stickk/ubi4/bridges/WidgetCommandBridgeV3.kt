@@ -30,12 +30,16 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_SPEED_SETTINGS
@@ -93,6 +97,10 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_SPEED_SETTINGS.number.toInt())
                     PWCE_SET_FORCE_SETTINGS.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_FORCE_SETTINGS.number.toInt())
+                    PWCE_SET_PINCH_THUMB_POSITION.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_PINCH_THUMB_POSITION.number.toInt())
+                    PWCE_SET_PINCH_FINGER_POSITION.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_PINCH_FINGER_POSITION.number.toInt())
                     PWCE_SET_BINDING_DATA.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_BINDING_DATA.number.toInt())
                     else ->
@@ -266,6 +274,8 @@ object WidgetCommandBridgeV3 {
                 PWCE_GET_GESTURE_CHANGE_MODE.number.toInt() -> PWCE_SET_GESTURE_CHANGE_MODE.number.toInt()
                 PWCE_GET_SPEED_SETTINGS.number.toInt() -> PWCE_SET_SPEED_SETTINGS.number.toInt()
                 PWCE_GET_FORCE_SETTINGS.number.toInt() -> PWCE_SET_FORCE_SETTINGS.number.toInt()
+                PWCE_GET_PINCH_THUMB_POSITION.number.toInt() -> PWCE_SET_PINCH_THUMB_POSITION.number.toInt()
+                PWCE_GET_PINCH_FINGER_POSITION.number.toInt() -> PWCE_SET_PINCH_FINGER_POSITION.number.toInt()
                 PWCE_GET_BINDING_DATA.number.toInt() -> PWCE_SET_BINDING_DATA.number.toInt()
                 else -> parameterInfo.dataCode
             }

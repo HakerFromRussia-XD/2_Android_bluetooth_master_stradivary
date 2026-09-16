@@ -83,11 +83,6 @@ object DashboardSlotContentSchemas {
             it.dataCode == state.dataCode &&
                 it.version == state.version &&
                 it.subVersion == state.subVersion
-        } ?: schemas.firstOrNull {
-            it.dataCode == state.dataCode &&
-                it.version == state.version
-        } ?: schemas.firstOrNull {
-            it.dataCode == state.dataCode
         }
 
     private fun parseStructureArray(
@@ -443,6 +438,28 @@ object DashboardSlotContentSchemas {
                 f("DeviceIsCopyable", "uint8", 91, 1),
                 f("min_device_address", "uint8", 92, 1, format = "hex"),
                 f("max_device_address", "uint8", 93, 1, format = "hex")
+            )
+        ),
+        SlotSchema(
+            dataCode = 3,
+            version = 1,
+            subVersion = 4,
+            fields = listOf(
+                f("DevicePrefix", "string", 0, 10, format = "text"),
+                f("DeviceName", "string", 10, 32, format = "text"),
+                f("DeviceVersion", "uint8", 42, 1),
+                f("DeviceSubVersion", "uint8", 43, 1),
+                f("DeviceLabel", "string", 44, 16, format = "text"),
+                f("DeviceType", "uint8", 60, 1),
+                f("DeviceCode", "uint8", 61, 1),
+                f("DeviceRole", "uint8", 62, 1),
+                f("DeviceAddress", "uint8", 63, 1, format = "hex"),
+                f("DeviceUUID", "string", 64, 32, format = "text"),
+                f("DeviceAdditionalInfoType", "uint8", 96, 1),
+                f("DeviceAdditionalInfo", "uint32", 97, 4, format = "hex"),
+                f("DeviceIsCopyable", "uint8", 101, 1),
+                f("min_device_address", "uint8", 102, 1, format = "hex"),
+                f("max_device_address", "uint8", 103, 1, format = "hex")
             )
         ),
         SlotSchema(

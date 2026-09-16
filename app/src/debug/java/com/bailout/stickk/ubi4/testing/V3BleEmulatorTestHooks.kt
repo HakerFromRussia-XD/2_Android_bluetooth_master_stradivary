@@ -9,9 +9,13 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_BINDING_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_BINDING_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_THUMB_POSITION
 import java.util.Collections
 
 object V3BleEmulatorTestHooks {
@@ -29,6 +33,12 @@ object V3BleEmulatorTestHooks {
     @Volatile
     private var bindingGroup = defaultBindingGroup()
 
+    @Volatile
+    private var thumbClosedPosition = DEFAULT_THUMB_CLOSED_POSITION
+
+    @Volatile
+    private var indexMiddleClosedPosition = DEFAULT_INDEX_MIDDLE_CLOSED_POSITION
+
     fun enable() {
         enabled = true
     }
@@ -44,6 +54,8 @@ object V3BleEmulatorTestHooks {
         }
         activeGesture = 1
         bindingGroup = defaultBindingGroup()
+        thumbClosedPosition = DEFAULT_THUMB_CLOSED_POSITION
+        indexMiddleClosedPosition = DEFAULT_INDEX_MIDDLE_CLOSED_POSITION
     }
 
     fun isEnabled(): Boolean = enabled
@@ -75,6 +87,16 @@ object V3BleEmulatorTestHooks {
                 command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 subcommand = PWCE_GET_BINDING_DATA.number.toInt(),
                 data = bindingGroup.toPayloadBytes()
+            ).forEach(parser::parseReceivedData)
+            responsePacketsFor(
+                command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                subcommand = PWCE_GET_PINCH_THUMB_POSITION.number.toInt(),
+                data = byteArrayOf(thumbClosedPosition.toByte())
+            ).forEach(parser::parseReceivedData)
+            responsePacketsFor(
+                command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                subcommand = PWCE_GET_PINCH_FINGER_POSITION.number.toInt(),
+                data = byteArrayOf(indexMiddleClosedPosition.toByte())
             ).forEach(parser::parseReceivedData)
         }
     }
@@ -157,6 +179,32 @@ object V3BleEmulatorTestHooks {
                 )
             }
 
+            PWCE_GET_PINCH_THUMB_POSITION.number.toInt() ->
+                listOf(BLECommandsV3.sendSubcommand(subcommand, thumbClosedPosition))
+
+            PWCE_SET_PINCH_THUMB_POSITION.number.toInt() -> {
+                thumbClosedPosition = data.scalarPositionOr(thumbClosedPosition)
+                listOf(
+                    BLECommandsV3.sendSubcommand(
+                        PWCE_GET_PINCH_THUMB_POSITION.number.toInt(),
+                        thumbClosedPosition
+                    )
+                )
+            }
+
+            PWCE_GET_PINCH_FINGER_POSITION.number.toInt() ->
+                listOf(BLECommandsV3.sendSubcommand(subcommand, indexMiddleClosedPosition))
+
+            PWCE_SET_PINCH_FINGER_POSITION.number.toInt() -> {
+                indexMiddleClosedPosition = data.scalarPositionOr(indexMiddleClosedPosition)
+                listOf(
+                    BLECommandsV3.sendSubcommand(
+                        PWCE_GET_PINCH_FINGER_POSITION.number.toInt(),
+                        indexMiddleClosedPosition
+                    )
+                )
+            }
+
             else -> emptyList()
         }
     }
@@ -209,4 +257,10 @@ object V3BleEmulatorTestHooks {
         val subcommand: Int,
         val data: ByteArray
     )
+
+    private fun ByteArray.scalarPositionOr(fallback: Int): Int =
+        firstOrNull()?.toInt()?.and(0xFF)?.coerceIn(0, 100) ?: fallback
+
+    private const val DEFAULT_THUMB_CLOSED_POSITION = 50
+    private const val DEFAULT_INDEX_MIDDLE_CLOSED_POSITION = 50
 }

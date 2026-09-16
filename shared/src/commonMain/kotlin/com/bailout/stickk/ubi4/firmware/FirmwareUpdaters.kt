@@ -39,7 +39,7 @@ private fun requireValidMeasuredStart(initial: PreferenceKeysUbi4.RunProgramType
 
 internal fun shouldJumpToBootloader(
     reportedRunType: PreferenceKeysUbi4.RunProgramType
-): Boolean = reportedRunType != PreferenceKeysUbi4.RunProgramType.BOOTLOADER
+): Boolean = !reportedRunType.isBootloader
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class Ubi4FirmwareUpdater(
@@ -256,6 +256,13 @@ class V3FirmwareUpdater(
         }
     }
 
+    suspend fun updateGuiV2(
+        firmware: FirmwareUpdatePackage,
+        onProgress: (Int, Int) -> Unit
+    ): FirmwareUpdateResult? = GuiFirmwareUpdater(
+        requireNotNull(bulkTransport) { "GUI DFU requires BLE bulk transport" }, logger
+    ).update(firmware, onProgress)
+
     suspend fun supportsFastDfuTransport(): Boolean =
         bulkTransport?.supportsWriteWithoutResponse() == true
 
@@ -302,7 +309,7 @@ class V3FirmwareUpdater(
         logger.debug(TAG, "RX initial status = $initial")
         logger.info(TRACE_TAG, "boot_entry initial_run_type=$initial")
 
-        if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+        if (!initial.isBootloader) {
             logger.info(TRACE_TAG, "boot_entry jump_to_bootloader TX")
             logger.debug(TAG, "TX JUMP_TO_BOOTLOADER")
             sendForBootEntry(BLECommandsV3.jumpToBootloaderFw(addr))
@@ -319,7 +326,7 @@ class V3FirmwareUpdater(
                     TRACE_TAG,
                     "boot_entry probe attempt=${attempt + 1}/$BOOTLOADER_CHECK_ATTEMPTS run_type=$runType"
                 )
-                if (runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+                if (runType?.isBootloader == true) {
                     logger.debug(TAG, "BOOTLOADER ready")
                     logger.info(TRACE_TAG, "boot_entry complete mode=bootloader")
                     return
@@ -475,10 +482,22 @@ class V3FirmwareUpdater(
             return false
         }
 
-        // COMPLITE_CRC commits metadata and immediately resets the FAM. The
-        // final notification can therefore lose the race to the BLE
-        // disconnect. A missing notification is not success by itself: the
-        // authoritative confirmation is a reconnect followed by MAIN_APP.
+        // The bootloader reports the calculated CRC before it commits metadata
+        // and resets. This is the same success gate used by the v1 pipeline.
+        // Finish the dialog immediately on an explicit positive result instead
+        // of probing a GATT connection that is already being reset.
+        if (reportedCrc == true) {
+            logger.info(
+                TRACE_TAG,
+                "crc final_result notification=true path=notification " +
+                    "elapsed_ms=${currentTimeMillis() - crcStartedAt}"
+            )
+            logger.info(TAG, "CRC finalization addr=$addr notification=true")
+            return true
+        }
+
+        // Keep the reconnect + MAIN_APP probe only as a fallback for the rare
+        // race where the positive notification was transmitted but lost.
         val mainStarted = confirmMainAfterCrc(addr)
         logger.info(
             TRACE_TAG,
@@ -543,7 +562,7 @@ class V3FirmwareUpdater(
             response = {
                 withTimeoutOrNull(RUN_TYPE_RESPONSE_TIMEOUT_MS) {
                     runProgramTypeFlow
-                        .filter { it.first == addr || it.first == 0 }
+                        .filter { it.first == addr || (addr !in 0x20..0x25 && it.first == 0) }
                         .map { it.second }
                         .first()
                 }
@@ -578,6 +597,18 @@ class V3FirmwareUpdater(
 
     private suspend fun sendForBootEntry(packet: ByteArray) {
         sender.send(packet, FirmwareTransportChannel.V3_SERIAL)
+    }
+
+    internal suspend fun confirmFingerMainAfterCrc(addr: Int) {
+        require(addr in 0x20..0x25)
+        repeat(5) {
+            delay(250)
+            if (requestRunType(addr) == PreferenceKeysUbi4.RunProgramType.MAIN_APP) {
+                logger.info(TRACE_TAG, "finger post_crc MAIN_APP confirmed addr=$addr")
+                return
+            }
+        }
+        error("CRC пальца подтверждён, но возврат в main не подтверждён")
     }
 
     private suspend fun confirmMainAfterCrc(addr: Int): Boolean {
@@ -723,22 +754,18 @@ class FirmwareUpdateCoordinator(
             return runLegacyV3UpdateExactlyLikeMain(addr, firmware, onProgress)
         }
 
+        if (addr == 9) {
+            val startedAt = currentTimeMillis()
+            return v3Updater.updateGuiV2(firmware, onProgress)
+                ?: runLegacyV3UpdateFromReadyBootloader(addr, firmware, onProgress, startedAt)
+        }
+
         val totalStartedAt = currentTimeMillis()
-        // Enter boot through the untouched legacy implementation. The v2
-        // implementation is not invoked until the board is already in boot.
-        legacyV3Updater.ensureBootloader(addr)
-        val negotiateStartedAt = currentTimeMillis()
-        // Send CAPS over the unchanged write-with-response characteristic
-        // even if a stale Android/iOS GATT cache does not expose WWR yet. A
-        // valid v2 reply authorizes the uploader to refresh and reconnect.
-        val capabilities = v3Updater.negotiateFastDfu(addr)
-        logger.info(
-            "DFU_METRIC",
-            "protocol=${if (capabilities == null) "v1" else "v2"} phase=negotiate " +
-                "duration_ms=${currentTimeMillis() - negotiateStartedAt}"
-        )
-        if (capabilities == null) {
-            logger.info("FW_FLOW_V3", "CAPS unavailable; using legacy DFU v1")
+        // GET_RUN_PROGRAM_TYPE is the complete protocol selector: 2 means v1
+        // and 3 means the fixed v2 wire contract. No CAPS probe is sent.
+        val bootloaderType = legacyV3Updater.ensureBootloader(addr)
+        if (bootloaderType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
+            logger.info("FW_FLOW_V3", "GET_RUN_PROGRAM_TYPE=2; using DFU v1")
             return runLegacyV3UpdateFromReadyBootloader(
                 addr = addr,
                 firmware = firmware,
@@ -746,8 +773,20 @@ class FirmwareUpdateCoordinator(
                 totalStartedAt = totalStartedAt
             )
         }
+        check(bootloaderType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER_V2) {
+            "Неизвестный тип bootloader: $bootloaderType"
+        }
+        val capabilities = if (addr in 0x20..0x25) {
+            checkNotNull(v3Updater.negotiateFastDfu(addr)) {
+                "Finger bootloader v2 did not negotiate CAPS through FAM"
+            }
+        } else DfuV2Protocol.FAM_V2_CAPABILITIES
+        logger.info(
+            "DFU_METRIC",
+            "protocol=v2 selected_by=get_run_program_type value=3"
+        )
 
-        logger.info("FW_FLOW_V3", "FAM DFU v2 selected")
+        logger.info("FW_FLOW_V3", "DFU v2 selected addr=$addr")
         val maxInfo = v3Updater.getUploadAttribute(addr)
         val checkStatus = v3Updater.checkNewFirmware(addr, firmware)
         if (checkStatus != CheckNewFwStatus.NEW_FW_ACCEPT) {
@@ -773,6 +812,7 @@ class FirmwareUpdateCoordinator(
         val crcStartedAt = currentTimeMillis()
         if (v3Updater.checkFirmwareCrcAndCompleteUpdate(addr)) {
             v3Updater.completeFastDfu()
+            if (addr in 0x20..0x25) v3Updater.confirmFingerMainAfterCrc(addr)
             logger.info(
                 "DFU_METRIC",
                 "protocol=v2 phase=crc_and_start " +

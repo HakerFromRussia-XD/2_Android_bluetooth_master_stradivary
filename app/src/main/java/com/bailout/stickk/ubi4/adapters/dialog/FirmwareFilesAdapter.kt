@@ -10,8 +10,10 @@ import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter.OnFileActio
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 
-class FirmwareFilesAdapter(private val files: List<FirmwareFileItem>,
-                           private val listener: OnFileActionListener
+class FirmwareFilesAdapter(
+    private val files: List<FirmwareFileItem>,
+    private val listener: OnFileActionListener,
+    private val showDeleteButton: Boolean = true
 ) : RecyclerView.Adapter<FirmwareFilesAdapter.FileViewHolder>()  {
 
     inner class FileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,6 +34,7 @@ class FirmwareFilesAdapter(private val files: List<FirmwareFileItem>,
         val item = files[position]
 
         holder.fileNameTv.text = item.name
+        holder.deleteBtn.visibility = if (showDeleteButton) View.VISIBLE else View.GONE
 
         holder.deleteBtn.setOnClickListener {
             // удаляем через PlatformFile API

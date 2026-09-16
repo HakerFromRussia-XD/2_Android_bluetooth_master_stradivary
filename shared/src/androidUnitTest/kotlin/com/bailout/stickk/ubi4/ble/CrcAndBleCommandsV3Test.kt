@@ -2,6 +2,13 @@ package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.data.parser.ByteArrayView
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
@@ -13,17 +20,135 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_TELEMETRY_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_SETTING
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_FINGER_POSITION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager.GET_ALL_SUB_DEVICE
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class CrcAndBleCommandsV3Test {
+
+    @Test
+    fun `global closed position packets should use dedicated one byte commands`() {
+        val getCommands = listOf(
+            PWCE_GET_PINCH_THUMB_POSITION.number.toInt() to 0x3B,
+            PWCE_GET_PINCH_FINGER_POSITION.number.toInt() to 0xAA
+        )
+        val setCommands = listOf(
+            PWCE_SET_PINCH_THUMB_POSITION.number.toInt() to mapOf(0 to 0xFF, 37 to 0xE3, 100 to 0xFB),
+            PWCE_SET_PINCH_FINGER_POSITION.number.toInt() to mapOf(0 to 0x6E, 37 to 0x72, 100 to 0x6A)
+        )
+
+        getCommands.forEach { (command, expectedCrc) ->
+            val packet = BLECommandsV3.request(command)
+            assertContentEquals(
+                byteArrayOf(
+                    0,
+                    PROSTHESIS_MODULE_CONTROL.number,
+                    command.toByte(),
+                    0,
+                    expectedCrc.toByte()
+                ),
+                packet
+            )
+        }
+
+        setCommands.forEach { (command, crcByValue) ->
+            listOf(0, 37, 100).forEach { value ->
+                val packet = BLECommandsV3.sendCommand(
+                    command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                    subcommand = command,
+                    parameter = value
+                )
+                assertContentEquals(
+                    byteArrayOf(
+                        0,
+                        PROSTHESIS_MODULE_CONTROL.number,
+                        command.toByte(),
+                        value.toByte(),
+                        crcByValue.getValue(value).toByte()
+                    ),
+                    packet
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `global closed position bridge should map metadata to read and set commands`() {
+        val cases = listOf(
+            P_KEY_GLOBAL_THUMB_CLOSED_POSITION to PWCE_GET_PINCH_THUMB_POSITION,
+            P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION to PWCE_GET_PINCH_FINGER_POSITION
+        )
+
+        cases.forEach { (key, getCommand) ->
+            val info = com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+                .ParameterInfoRegistry.require(key)
+            val read = WidgetCommandBridgeV3.buildReadRequest(info.parameterID, info.dataCode)!!
+            assertEquals(getCommand.number.toInt(), read[2].toInt() and 0xFF)
+
+            val set = WidgetCommandBridgeV3.buildSetInt(
+                parameterID = info.parameterID,
+                dataCode = getCommand.number.toInt(),
+                deviceAddress = info.deviceAddress,
+                dataOffset = 0,
+                value = 64
+            )!!
+            assertEquals(info.dataCode, set[2].toInt() and 0xFF)
+            assertEquals(64, set[3].toInt() and 0xFF)
+            assertEquals(crcExcludeLast(set), set.last().toInt() and 0xFF)
+        }
+    }
+
+    @Test
+    fun `global closed position values decode independently and survive gesture changes`() {
+        val thumbInfo = com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+            .ParameterInfoRegistry.require(P_KEY_GLOBAL_THUMB_CLOSED_POSITION)
+        val fingersInfo = com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+            .ParameterInfoRegistry.require(P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION)
+        val gestureInfo = com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+            .ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
+
+        val decoded = ParameterCodecRegistryV3.decodeFromPayload(
+            ParameterCodecIdV3.SLIDER,
+            ByteArrayView(
+                byteArrayOf(PWCE_GET_PINCH_THUMB_POSITION.number, 73),
+                offset = 0,
+                length = 2
+            )
+        ) as ParameterTypedValueV3.Slider
+        assertEquals(73, decoded.value.sliderValue)
+
+        ParameterStoreV3.clear()
+        ParameterStoreV3.put(thumbInfo, decoded)
+        ParameterStoreV3.put(fingersInfo, ParameterTypedValueV3.Slider(SliderV3(41)))
+        ParameterStoreV3.put(
+            gestureInfo,
+            ParameterTypedValueV3.CurrentGesture(CurrentGestureV3(currentGesture = 3))
+        )
+        ParameterStoreV3.put(
+            gestureInfo,
+            ParameterTypedValueV3.CurrentGesture(CurrentGestureV3(currentGesture = 10))
+        )
+
+        assertEquals(73, (ParameterStoreV3.get(thumbInfo) as ParameterTypedValueV3.Slider).value.sliderValue)
+        assertEquals(41, (ParameterStoreV3.get(fingersInfo) as ParameterTypedValueV3.Slider).value.sliderValue)
+        assertEquals(3, ParameterStoreV3.values.value.size)
+        assertEquals(false, P_KEY_GLOBAL_THUMB_CLOSED_POSITION.contains("GESTURE", ignoreCase = true))
+        assertEquals(false, P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION.contains("GESTURE", ignoreCase = true))
+    }
 
     @Test
     fun `requestDeviceData should contain expected command and crc`() {

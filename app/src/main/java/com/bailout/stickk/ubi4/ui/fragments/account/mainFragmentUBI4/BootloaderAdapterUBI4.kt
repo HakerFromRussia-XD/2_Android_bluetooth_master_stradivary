@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +19,7 @@ import kotlinx.coroutines.withContext
 class BootloaderAdapterUBI4(
     private val listener: OnBootloaderClickListener,
     private val showSettingsButtonProvider: () -> Boolean = { false },
+    private val showUpdateButtonProvider: () -> Boolean = { true },
     private val loadLocalVersionsOnBind: Boolean = true
 ) : ListAdapter<BootloaderBoardItemUBI4, BootloaderAdapterUBI4.BoardViewHolder>(Diff) {
 
@@ -40,6 +43,7 @@ class BootloaderAdapterUBI4(
         val versionTv : TextView = view.findViewById(R.id.boardVerTv)
         val bootStatus : TextView = view.findViewById(R.id.bootloderStatusTv)
         val updateBtn : TextView = view.findViewById(R.id.update_btn)   // ← было Button
+        val actions: View = view.findViewById(R.id.bootloader_actions)
         val settingsBtn: ImageButton = view.findViewById(R.id.bootloader_settings_btn)
     }
 
@@ -56,15 +60,7 @@ class BootloaderAdapterUBI4(
         holder.versionTv.text = item.version
         Log.d("fw_version", "Плата: ${item.boardName} — Версия: ${item.version}")
 
-        if (localVersions == null && loadLocalVersionsOnBind) { // старое поведение для обычных сборок
-            localVersions = buildLocalVersionMap(holder.itemView.context)
-            Log.d("fw_local", "catalog=$localVersions")
-        }
-        val keys = aliasesOrNormalize(item.boardName) // "bms" -> ["bms", "bms_program"]
-        val local = keys
-            .mapNotNull { key -> localVersions?.get(key) }
-            .reduceOrNull(::maxVersion)
-        val highlight = isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
+        val highlight = item.isUpdateAvailable ?: shouldHighlightFromLocalFiles(holder, item)
 
         val defColor = (holder.updateBtn.tag as? Int)
             ?: holder.updateBtn.currentTextColor.also { holder.updateBtn.tag = it }
@@ -72,12 +68,40 @@ class BootloaderAdapterUBI4(
         holder.updateBtn.setTextColor(if (highlight) active else defColor)
 
         holder.updateBtn.isEnabled = item.canUpdate
+        holder.updateBtn.visibility = if (showUpdateButtonProvider()) View.VISIBLE else View.GONE
         holder.bootStatus.visibility = if (item.isInBootLoader) View.VISIBLE else View.INVISIBLE
         holder.settingsBtn.visibility = if (showSettingsButtonProvider()) View.VISIBLE else View.GONE
+        val hideActions = holder.updateBtn.visibility == View.GONE &&
+            holder.settingsBtn.visibility == View.GONE
+        holder.actions.visibility = if (hideActions) View.GONE else View.VISIBLE
+        val density = holder.itemView.resources.displayMetrics.density
+        holder.versionTv.layoutParams = (holder.versionTv.layoutParams as ConstraintLayout.LayoutParams).apply {
+            endToEnd = if (hideActions) ConstraintSet.PARENT_ID else ConstraintSet.UNSET
+            endToStart = if (hideActions) ConstraintSet.UNSET else R.id.bootloderStatusTv
+            marginEnd = ((if (hideActions) 16 else 12) * density + 0.5f).toInt()
+        }
+        holder.bootStatus.layoutParams = (holder.bootStatus.layoutParams as ConstraintLayout.LayoutParams).apply {
+            endToStart = if (hideActions) R.id.boardVerTv else R.id.bootloader_actions
+        }
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
         holder.settingsBtn.setOnClickListener { listener.onSettingsClick(item) }
     }
     fun submitBoards(list: List<BootloaderBoardItemUBI4>) = submitList(list)
+
+    private fun shouldHighlightFromLocalFiles(
+        holder: BoardViewHolder,
+        item: BootloaderBoardItemUBI4
+    ): Boolean {
+        if (localVersions == null) {
+            localVersions = buildLocalVersionMap(holder.itemView.context)
+            Log.d("fw_local", "catalog=$localVersions")
+        }
+        val keys = aliasesOrNormalize(item.boardName)
+        val local = keys
+            .mapNotNull { key -> localVersions?.get(key) }
+            .reduceOrNull(::maxVersion)
+        return isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
+    }
 
     suspend fun preloadLocalVersions(ctx: android.content.Context) {
         if (localVersions != null) return

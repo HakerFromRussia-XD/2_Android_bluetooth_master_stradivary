@@ -110,6 +110,10 @@ android {
         buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
         buildConfigField("boolean", "DFU_DIAGNOSTIC_FORCE_LEGACY", "false")
+        // Explicit bench build: stop after the unchanged main -> boot entry.
+        // Normal builds retain the complete firmware-update pipeline.
+        buildConfigField("boolean", "DFU_BOOT_ENTRY_PROBE_ONLY",
+            providers.gradleProperty("dfuBootEntryProbeOnly").orElse("false").get().toBoolean().toString())
         buildConfigField("boolean", "ACCOUNT_LOAD_PROFILE_IN_BACKGROUND", "true")
     }
     compileOptions {

@@ -2,6 +2,10 @@ package com.bailout.stickk.ubi4.ui.fragments.achievements
 
 import com.bailout.stickk.R
 import androidx.compose.ui.unit.IntRect
+import com.bailout.stickk.ubi4.achievements.AchievementDefinitions
+import com.bailout.stickk.ubi4.achievements.AchievementId
+import com.bailout.stickk.ubi4.achievements.AchievementProgressCalculator
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 
 object AchievementsCatalog {
     val items: List<AchievementUiModel> = listOf(
@@ -104,15 +108,13 @@ object AchievementsCatalog {
             silverRes = R.string.achievement_anniversary_silver,
             goldRes = R.string.achievement_anniversary_gold
         ),
-        achievement(
-            id = AchievementId.SQUARE_EYES,
-            iconRes = R.drawable.achievement_phone,
-            artworkBounds = IntRect(0, 9, 1254, 1244),
-            titleRes = R.string.achievement_square_eyes_title,
-            bronzeRes = R.string.achievement_square_eyes_bronze,
-            silverRes = R.string.achievement_square_eyes_silver,
-            goldRes = R.string.achievement_square_eyes_gold
-        ),
+//        achievement(
+//            id = AchievementId.SQUARE_EYES,
+//            titleRes = R.string.achievement_square_eyes_title,
+//            bronzeRes = R.string.achievement_square_eyes_bronze,
+//            silverRes = R.string.achievement_square_eyes_silver,
+//            goldRes = R.string.achievement_square_eyes_gold
+//        ),
         achievement(
             id = AchievementId.PERSONALISATION,
             iconRes = R.drawable.achievement_personalisation,
@@ -159,6 +161,11 @@ object AchievementsCatalog {
             AchievementStageUiModel(AchievementTier.GOLD, goldRes)
         ),
         iconRes = iconRes,
-        artworkBounds = artworkBounds
+        artworkBounds = artworkBounds,
+        progress = AchievementProgressCalculator.calculate(
+            currentValue = 0L,
+            definition = AchievementDefinitions[id]
+        )
     )
+
 }

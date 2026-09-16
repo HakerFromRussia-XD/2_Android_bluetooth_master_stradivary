@@ -130,18 +130,24 @@ private fun AchievementStars(tier: AchievementTier?, modifier: Modifier = Modifi
     Row(
         modifier = modifier
             .drawBehind {
-                // Elliptical fade follows the width of the one/two/three-star row.
-                scale(scaleX = 1f, scaleY = size.height / size.width) {
+                // Extend half a star beyond the actual star row on every side.
+                // Draw outside the layout bounds so stars and counters do not move.
+                val starSize = 18.dp.toPx()
+                val outset = starSize / 2f
+                val fadeWidth = size.width - 10.dp.toPx() + 2f * outset
+                val fadeHeight = starSize + 2f * outset
+                val fadeRadius = fadeWidth / 2f
+                scale(scaleX = 1f, scaleY = fadeHeight / fadeWidth) {
                     drawCircle(
                         brush = Brush.radialGradient(
-                            0f to Color.Black.copy(alpha = 0.6f),
-                            0.45f to Color.Black.copy(alpha = 0.45f),
-                            0.75f to Color.Black.copy(alpha = 0.2f),
+                            0f to Color.Black,
+                            0.45f to Color.Black.copy(alpha = 0.75f),
+                            0.75f to Color.Black.copy(alpha = 0.33f),
                             1f to Color.Transparent,
                             center = center,
-                            radius = size.width / 2f
+                            radius = fadeRadius
                         ),
-                        radius = size.width / 2f
+                        radius = fadeRadius
                     )
                 }
             }

@@ -59,7 +59,7 @@ Prompt used for each asset (COLOR replaced with `bronze copper orange`, `silver 
 
 > Use case: stylized-concept. Generate one production Android game achievement icon: a single symmetrical five-point COLOR metallic star, front view, point straight up, beveled edges and triangular faceted highlights, bright center, polished rim, compact and legible at 18 dp. Match the tiny reward stars in the reference cards concept: simple jewel-like dimensional star, no medal, no circle, no surrounding decoration, no text. Square canvas, star nearly fills canvas with small equal padding. Genuinely transparent RGBA background with alpha, no backdrop, no checkerboard, no ground shadow. Exactly ONE star.
 
-The star row has a procedural elliptical black radial fade (alpha 0.60 at center to 0 at edges), sized to its content plus 5 dp horizontal and 3 dp vertical padding. No backdrop raster files are needed. Original generated masters remain in the image generation output directory; only the compact stars are packaged.
+The star row has a procedural elliptical black radial fade (alpha 1.00 at center to 0 at edges), extending 9 dp (half the 18 dp star size) beyond the star row on each side. The fade is drawn outside the layout bounds, preserving the stars, artwork and counter positions. No backdrop raster files are needed. Original generated masters remain in the image generation output directory; only the compact stars are packaged.
 
 ## Selected 256 px illustrations (2026-09-16)
 

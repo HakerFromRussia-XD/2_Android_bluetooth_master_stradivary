@@ -21,6 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -111,6 +115,7 @@ internal fun AchievementCard(
 
 @Composable
 private fun AchievementStars(tier: AchievementTier?, modifier: Modifier = Modifier) {
+    if (tier == null) return
     val count = when (tier) {
         null -> 0
         AchievementTier.BRONZE -> 1
@@ -123,7 +128,25 @@ private fun AchievementStars(tier: AchievementTier?, modifier: Modifier = Modifi
         else -> R.drawable.achievement_star_bronze
     }
     Row(
-        modifier = modifier.fillMaxWidth().height(18.dp),
+        modifier = modifier
+            .drawBehind {
+                // Elliptical fade follows the width of the one/two/three-star row.
+                scale(scaleX = 1f, scaleY = size.height / size.width) {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            0f to Color.Black.copy(alpha = 0.6f),
+                            0.45f to Color.Black.copy(alpha = 0.45f),
+                            0.75f to Color.Black.copy(alpha = 0.2f),
+                            1f to Color.Transparent,
+                            center = center,
+                            radius = size.width / 2f
+                        ),
+                        radius = size.width / 2f
+                    )
+                }
+            }
+            .padding(horizontal = 5.dp, vertical = 3.dp)
+            .height(18.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {

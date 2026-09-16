@@ -84,7 +84,7 @@ internal fun AchievementArtwork(achievement: AchievementUiModel, modifier: Modif
 internal fun AchievementStar(resource: Int, modifier: Modifier = Modifier) {
     val resources = LocalContext.current.resources
     val pixels = with(LocalDensity.current) { 18.dp.roundToPx().coerceAtLeast(1) }
-    val key = ArtworkKey(resource, IntRect(0, 0, 1254, 1254), IntSize(pixels, pixels))
+    val key = ArtworkKey(resource, IntRect(0, 0, 96, 96), IntSize(pixels, pixels))
     val bitmap = produceState(AchievementBitmapCache.peek(key), key, resources) {
         value = AchievementBitmapCache.load(resources, key)
     }.value

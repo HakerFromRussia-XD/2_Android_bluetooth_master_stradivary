@@ -36,6 +36,24 @@ class UserFirmwareCoordinatorTest {
         assertTrue(backend.transfers.isEmpty())
     }
 
+    @Test fun postponeDismissesOfferWithoutPersistingOrStartingUpdate() = runTest {
+        val backend = FakeBackend()
+        val coordinator = UserFirmwareCoordinator("device", backend)
+        coordinator.check()
+        assertEquals("offered", coordinator.state.value.phase)
+
+        coordinator.postpone()
+
+        assertEquals("idle", coordinator.state.value.phase)
+        assertFalse(coordinator.state.value.blocksInteraction)
+        assertNull(backend.saved)
+        assertTrue(backend.transfers.isEmpty())
+
+        // A foreground/network callback in the same session must not reopen it.
+        coordinator.check()
+        assertEquals("idle", coordinator.state.value.phase)
+    }
+
     @Test fun corruptedArchiveStopsBeforeFirstTransfer() = runTest {
         val backend = FakeBackend()
         val coordinator = UserFirmwareCoordinator("device", backend)

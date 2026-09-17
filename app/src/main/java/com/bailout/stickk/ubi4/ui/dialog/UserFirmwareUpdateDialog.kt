@@ -12,10 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.app.Dialog
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
@@ -105,7 +103,9 @@ class UserFirmwareUpdateDialog : DialogFragment() {
     private var message: TextView? = null
     private var action: TextView? = null
     private var actionArea: View? = null
-    private var isProgressLayout: Boolean? = null
+    private var secondaryAction: TextView? = null
+    private var secondaryActionArea: View? = null
+    private var layout: String? = null
     private val controller get() = (requireActivity() as MainActivityUBI4).userFirmwareUpdates
     override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); isCancelable = false }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -119,8 +119,13 @@ class UserFirmwareUpdateDialog : DialogFragment() {
     fun render(state: UserFirmwareUiState) {
         if (dialog == null) return
         val context = requireContext()
-        val needsProgressLayout = state.phase !in listOf("offered", "complete")
-        if (isProgressLayout != needsProgressLayout) inflateUbiV3Layout(needsProgressLayout, state.phase)
+        val requestedLayout = when (state.phase) {
+            "offered" -> "offer"
+            "complete" -> "complete"
+            else -> "progress"
+        }
+        if (layout != requestedLayout) inflateUbiV3Layout(requestedLayout)
+        val needsProgressLayout = requestedLayout == "progress"
         val status = when (state.phase) {
             "offered" -> context.getString(SharedRes.strings.user_firmware_offer.resourceId)
             "complete" -> context.getString(SharedRes.strings.user_firmware_complete.resourceId)
@@ -149,25 +154,42 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         actionArea?.setOnClickListener {
             if (state.phase == "complete") controller?.updates?.acknowledge() else controller?.updates?.start()
         }
+        secondaryAction?.text = context.getString(SharedRes.strings.user_firmware_remind_later.resourceId)
+        secondaryActionArea?.setOnClickListener { controller?.updates?.postpone() }
     }
 
     /** Uses the shipped UBIv3 XML dialogs directly; no parallel visual design. */
-    private fun inflateUbiV3Layout(needsProgressLayout: Boolean, phase: String) {
+    private fun inflateUbiV3Layout(layoutType: String) {
         val content = LayoutInflater.from(requireContext()).inflate(
-            if (needsProgressLayout) R.layout.ubi4_dialog_progressbar_firmware
-            else R.layout.ubi4_dialog_confirm_finish_training,
+            when (layoutType) {
+                "offer" -> R.layout.ubi4_dialog_disconnection
+                "complete" -> R.layout.ubi4_dialog_confirm_finish_training
+                else -> R.layout.ubi4_dialog_progressbar_firmware
+            },
             null
         )
         dialog?.setContentView(content)
-        isProgressLayout = needsProgressLayout
+        layout = layoutType
         progress = null
         title = null
         message = null
         action = null
         actionArea = null
-        if (needsProgressLayout) {
+        secondaryAction = null
+        secondaryActionArea = null
+        if (layoutType == "progress") {
             title = content.findViewById(R.id.dialogTitleTv)
             progress = content.findViewById(R.id.loadingFirmwareProgressBar)
+            return
+        }
+
+        if (layoutType == "offer") {
+            title = content.findViewById(R.id.ubi4DialogConfirmDisconnectionTitleTv)
+            message = content.findViewById(R.id.ubi4DialogDisconnectionMassageTv)
+            action = content.findViewById(R.id.ok_text)
+            actionArea = content.findViewById(R.id.ubi4DialogConfirmDisconnectionBtn)
+            secondaryAction = content.findViewById(R.id.cancel_text)
+            secondaryActionArea = content.findViewById(R.id.ubi4DialogCancelDisconnectionBtn)
             return
         }
 
@@ -175,15 +197,6 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         message = content.findViewById(R.id.ubi4DialogRotationGroupMessageTv)
         actionArea = content.findViewById(R.id.ubi4CompletedTrainingBtn)
         action = content.findActionLabel(title, message)
-        val icon = content.findViewById<ImageView>(R.id.successIv)
-        if (phase != "complete") {
-            icon.visibility = View.GONE
-            (title?.layoutParams as? ConstraintLayout.LayoutParams)?.apply {
-                topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-                topMargin = (16 * resources.displayMetrics.density).toInt()
-                title?.layoutParams = this
-            }
-        }
     }
 
     private fun View.findActionLabel(title: TextView?, message: TextView?): TextView? {

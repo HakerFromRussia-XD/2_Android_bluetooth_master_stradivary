@@ -135,6 +135,16 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
         journal = null
         mutableState.value = UserFirmwareUiState()
     }
+
+    /**
+     * The offer has not been accepted and is not persisted yet. Keep its
+     * in-memory queue so the same app session does not immediately show the
+     * offer again, but do not start or persist an update operation.
+     */
+    fun postpone() {
+        if (state.value.phase != "offered") return
+        mutableState.value = UserFirmwareUiState()
+    }
     private suspend fun persist() = backend.writeJournal(Json.encodeToString(journal!!))
     private fun publish(phase: String, progress: Int = 0, detail: String = "") {
         val saved = journal ?: return

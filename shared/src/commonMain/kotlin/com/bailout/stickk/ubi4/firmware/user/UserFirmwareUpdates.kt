@@ -87,6 +87,10 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         operation = scope.launch { coordinator?.acknowledge() }
     }
 
+    fun postpone() {
+        coordinator?.postpone()
+    }
+
     fun close() { scope.cancel(); UserFirmwareActivity.isActive = false }
 
     private fun currentId(): String = runCatching { ConnectionState.connectedDeviceAddress }.getOrDefault("")

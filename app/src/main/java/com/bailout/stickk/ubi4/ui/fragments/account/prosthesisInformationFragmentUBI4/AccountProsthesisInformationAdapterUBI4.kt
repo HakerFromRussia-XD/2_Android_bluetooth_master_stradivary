@@ -9,7 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4.Companion.accountProsthesisInformationList
 
-class AccountProsthesisInformationAdapterUBI4() : RecyclerView.Adapter<AccountProsthesisInformationAdapterUBI4.AccountViewHolder>() {
+class AccountProsthesisInformationAdapterUBI4(
+    private var items: List<AccountProsthesisInformationItemUBI4>? = null,
+) : RecyclerView.Adapter<AccountProsthesisInformationAdapterUBI4.AccountViewHolder>() {
+    private val currentItems get() = items ?: accountProsthesisInformationList
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitItems(items: List<AccountProsthesisInformationItemUBI4>) {
+        this.items = items
+        notifyDataSetChanged()
+    }
 
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val prosthesisModelStrTv: TextView = view.findViewById(R.id.prosthesis_model_str_tv_ubi4) as TextView
@@ -28,14 +37,14 @@ class AccountProsthesisInformationAdapterUBI4() : RecyclerView.Adapter<AccountPr
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        holder.prosthesisModelStrTv.text = accountProsthesisInformationList[position].getProsthesisModel()
-        holder.prosthesisSizeStrTv.text = accountProsthesisInformationList[position].getProsthesisSize()
-        holder.handSideStrTv.text = accountProsthesisInformationList[position].getHandSide()
-        holder.rotatorTypeStrTv.text = accountProsthesisInformationList[position].getRotatorType()
-        holder.touchscreenFingerPadsStrTv.text = accountProsthesisInformationList[position].getTouchscreenFingerPads()
-        holder.batteryTypeStrTv.text = accountProsthesisInformationList[position].getBatteryType()
+        holder.prosthesisModelStrTv.text = currentItems[position].getProsthesisModel()
+        holder.prosthesisSizeStrTv.text = currentItems[position].getProsthesisSize()
+        holder.handSideStrTv.text = currentItems[position].getHandSide()
+        holder.rotatorTypeStrTv.text = currentItems[position].getRotatorType()
+        holder.touchscreenFingerPadsStrTv.text = currentItems[position].getTouchscreenFingerPads()
+        holder.batteryTypeStrTv.text = currentItems[position].getBatteryType()
     }
     override fun getItemCount(): Int {
-        return accountProsthesisInformationList.size
+        return currentItems.size
     }
 }

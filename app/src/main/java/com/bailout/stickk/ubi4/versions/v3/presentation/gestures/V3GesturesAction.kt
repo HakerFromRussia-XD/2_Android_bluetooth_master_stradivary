@@ -4,8 +4,11 @@ sealed interface V3GesturesAction {
     data object ViewAttached : V3GesturesAction
     data object ViewDetached : V3GesturesAction
     data class GestureSelected(val gestureId: Int) : V3GesturesAction
-    data class RotationGroupVisibilityChanged(val isVisible: Boolean) : V3GesturesAction
-    data object RotationGroupRequested : V3GesturesAction
+    data class GestureSettingsRequested(val gestureId: Int) : V3GesturesAction
+    data class GestureSettingsOpened(val requestId: Long) : V3GesturesAction
+    data object CollectionSelected : V3GesturesAction
+    data object RotationGroupSelected : V3GesturesAction
+    data object FactoryCollectionToggled : V3GesturesAction
     data class RotationGestureMoved(
         val fromPosition: Int,
         val toPosition: Int,

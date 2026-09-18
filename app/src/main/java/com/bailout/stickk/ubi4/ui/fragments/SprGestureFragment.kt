@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -20,31 +22,45 @@ import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
-import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3.Companion.EXTRA_USE_V3_GESTURE_PROTOCOL
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.ui.gestures.GestureCollectionFactory
+import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import com.bailout.stickk.ubi4.versions.v3.data.gestures.V3GesturesRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.DataFactoryV3GesturesWidgetsSource
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidget
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidgetMapper
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GestureSettingsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3RotationGroupSelectionDialogHost
 import com.bailout.stickk.ubi4.versions.v3.di.V3GesturesViewModelFactory
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesTwoSectionDelegateAdapterV3
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -59,17 +75,32 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
-    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
-
     private val display = 0
+    private val v3GesturesAdapter by lazy {
+        GesturesTwoSectionDelegateAdapterV3(
+            onAction = ::onV3GesturesAction,
+            onDestroyParent = ::registerDelegateCleanup,
+        )
+    }
+    protected override val adapterWidgets: CompositeDelegateAdapter by lazy {
+        if (UiState.isInterfaceV3Activated) CompositeDelegateAdapter(v3GesturesAdapter)
+        else super.adapterWidgets
+    }
     private var gesturesViewModel: V3GesturesViewModel? = null
     private var gestureStateJob: Job? = null
     private var pendingRender: Runnable? = null
+    private val v3WidgetMapper = V3GesturesWidgetMapper()
+    private var renderedV3Widgets: List<V3GesturesWidget>? = null
+    private var renderedV3WidgetsUpdateId: Long? = null
     private var rotationGestureRemovalDialog: Dialog? = null
     private var renderedRemovalRequestId: Long? = null
     private val rotationGroupSelectionDialog = V3RotationGroupSelectionDialogHost()
 
 
+
+    override fun loadGestureNameList() {
+        if (!UiState.isInterfaceV3Activated) super.loadGestureNameList()
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
@@ -90,13 +121,10 @@ class SprGestureFragment: BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         main = activity as? MainActivityUBI4
-        val initialData = mDataFactory.prepareData(display)
-        if (UiState.isInterfaceV3Activated && initialData.any { it is GesturesItemV3 }) bindV3Gestures()
-        widgetListUpdater()
-        initialData.forEach {
-            Log.d("DataType", "Element type: ${it::class.simpleName}")
+        val ubi4InitialData = if (UiState.isInterfaceV3Activated) null else mDataFactory.prepareData(display).also { data ->
+            widgetListUpdater()
+            data.forEach { Log.d("DataType", "Element type: ${it::class.simpleName}") }
         }
-
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -107,27 +135,35 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
         binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
         binding.sprGesturesRv.adapter = adapterWidgets
-        adapterWidgets.swapData(initialData)
+        if (ubi4InitialData == null) {
+            bindV3Gestures()
+        } else {
+            adapterWidgets.swapData(ubi4InitialData)
+        }
     }
 
     private fun bindV3Gestures() {
         val repository = V3GesturesRepositoryImpl(enqueuePacket = { packet ->
             MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
         })
-        val viewModel = ViewModelProvider(this, V3GesturesViewModelFactory(repository))[V3GesturesViewModel::class.java]
+        val viewModel = ViewModelProvider(this, V3GesturesViewModelFactory(
+            repository,
+            V3AppSettingsRepositoryImpl(requireContext().applicationContext.getSharedPreferences(
+                PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
+            )),
+            DataFactoryV3GesturesWidgetsSource(),
+            V3DeviceSessionRepositoryImpl(),
+        ))[V3GesturesViewModel::class.java]
         gesturesViewModel = viewModel
         renderV3GesturesScreen(viewModel.uiState.value)
         gestureStateJob = viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.onAction(V3GesturesAction.ViewAttached)
                 try {
-                    // Section preferences keep their existing owner until the screen-filter step.
-                    launch {
-                        UiState.activeGestureFragmentFilterFlow.collect { filter ->
-                            viewModel.onAction(V3GesturesAction.RotationGroupVisibilityChanged(filter == 2))
-                        }
+                    viewModel.uiState.collect { state ->
+                        renderV3GesturesScreen(state)
+                        openV3GestureSettings(state.gestureSettings)
                     }
-                    viewModel.uiState.collect(::renderV3GesturesScreen)
                 } finally {
                     viewModel.onAction(V3GesturesAction.ViewDetached)
                     dismissRotationGestureRemovalDialog()
@@ -137,16 +173,34 @@ class SprGestureFragment: BaseWidgetsFragment() {
         }
     }
 
-    override fun onV3GesturesAction(action: V3GesturesAction) {
+    private fun onV3GesturesAction(action: V3GesturesAction) {
         gesturesViewModel?.onAction(action)
     }
 
     private fun renderV3GesturesScreen(state: V3GesturesUiState) {
-        renderV3Gestures(state)
+        val currentBinding = _binding ?: return
+        val recyclerView = currentBinding.sprGesturesRv
+        pendingRender?.let(recyclerView::removeCallbacks)
+        pendingRender = null
+        if (recyclerView.isComputingLayout) {
+            pendingRender = Runnable {
+                if (_binding === currentBinding) gesturesViewModel?.uiState?.value?.let(::renderV3GesturesScreen)
+            }.also(recyclerView::post)
+            return
+        }
+        v3GesturesAdapter.render(state)
+        if (renderedV3Widgets != state.widgets || renderedV3WidgetsUpdateId != state.widgetsUpdateId) {
+            adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
+            renderedV3Widgets = state.widgets
+            renderedV3WidgetsUpdateId = state.widgetsUpdateId
+            main?.refreshBottomNavVisibility()
+        }
         rotationGroupSelectionDialog.render(
             requireContext(), state.rotationGroupSelection,
             createItems = { ids ->
-                val collection = CollectionGesturesProvider.getCollectionGestures().associateBy { it.gestureId }
+                val collection = GestureCollectionFactory.create(requireContext()) { index, fallback ->
+                    state.customGestureNames.collectionNames.getOrNull(index) ?: fallback
+                }.associateBy { it.gestureId }
                 ids.map { DialogCollectionGestureItem(collection.getValue(it)) }
             },
             onAction = ::onV3GesturesAction,
@@ -157,10 +211,24 @@ class SprGestureFragment: BaseWidgetsFragment() {
         if (removal == null) return
         renderedRemovalRequestId = removal.requestId
         rotationGestureRemovalDialog = createRotationGestureRemovalDialog(
-            gestureName = CollectionGesturesProvider.getGesture(removal.gestureId).gestureName,
+            gestureName = (GestureCollectionFactory.create(requireContext()) { index, fallback ->
+                state.customGestureNames.collectionNames.getOrNull(index) ?: fallback
+            }.firstOrNull { it.gestureId == removal.gestureId } ?: Gesture(0)).gestureName,
             onConfirm = { onV3GesturesAction(V3GesturesAction.RotationGestureRemovalConfirmed(removal.requestId)) },
             onCancel = { onV3GesturesAction(V3GesturesAction.RotationGestureRemovalCancelled(removal.requestId)) },
         )
+    }
+
+    private fun openV3GestureSettings(request: V3GestureSettingsUiState?) {
+        if (request == null || gesturesViewModel?.uiState?.value?.gestureSettings != request) return
+        val intent = Intent(requireContext(), UBI4GripperScreenWithEncodersActivityV3::class.java).apply {
+            putExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
+            putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING).dataCode)
+            putExtra(GESTURE_ID_IN_SYSTEM_UBI4, request.gestureId)
+        }
+        startActivity(intent)
+        // Keep this acknowledgement in the same main-thread call: the editor reads the saved number in onCreate.
+        onV3GesturesAction(V3GesturesAction.GestureSettingsOpened(request.requestId))
     }
 
     private fun dismissRotationGestureRemovalDialog() {
@@ -196,24 +264,6 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 rotationGroup
             ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ){}
-    }
-    override fun sendBLERotationGroupV3 () {
-        platformLog("testRotationGroup", "sendBLERotationGroupV3")
-        val rotationGroup = RotationGroup()
-        rotationGroupGestures.forEachIndexed { index, item ->
-            // Используем рефлексию, чтобы найти и изменить свойства
-            val idProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}Id" } as? KMutableProperty1<RotationGroup, Int>
-            val imageIdProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}ImageId" } as? KMutableProperty1<RotationGroup, Int>
-
-            // Устанавливаем значения, если свойства найдены
-            idProperty?.set(rotationGroup, item.gestureId)
-            imageIdProperty?.set(rotationGroup, item.gestureId)
-        }
-
-        // Проверяем результат
-        Log.d("sendBLERotationGroup", "rotationGroupV3 = $rotationGroup")
-
-        transmitter().bleCommandWithQueue(BLECommandsV3.sendRotationGroup(rotationGroup), SERIALPORTCHAR_UUID, WRITE){}
     }
 
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n", "SuspiciousIndentation")
@@ -356,6 +406,8 @@ class SprGestureFragment: BaseWidgetsFragment() {
         rotationGroupSelectionDialog.dismiss()
         dismissRotationGestureRemovalDialog()
         gesturesViewModel = null
+        renderedV3Widgets = null
+        renderedV3WidgetsUpdateId = null
         pendingRender?.let { _binding?.sprGesturesRv?.removeCallbacks(it) }
         pendingRender = null
         _binding?.sprGesturesRv?.adapter = null

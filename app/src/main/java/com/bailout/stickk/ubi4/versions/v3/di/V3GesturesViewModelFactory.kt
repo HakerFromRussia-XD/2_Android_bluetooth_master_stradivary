@@ -1,6 +1,15 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
 import androidx.lifecycle.ViewModel
+import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidgetsSource
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGesturesPreferencesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetCustomGestureNamesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetGesturesSectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetFactoryGestureCollectionExpandedUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.GetRotationGroupSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.EditRotationGroupSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.SaveRotationGroupSelectionUseCaseV3
@@ -13,9 +22,15 @@ import com.bailout.stickk.ubi4.versions.v3.domain.gestures.RequestActiveGestureU
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.SelectGestureUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3GesturesRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.MoveGestureInRotationGroupUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.SaveGestureSettingsSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesViewModel
 
-class V3GesturesViewModelFactory(private val repository: V3GesturesRepository) : ViewModelProvider.Factory {
+class V3GesturesViewModelFactory(
+    private val repository: V3GesturesRepository,
+    private val appSettingsRepository: V3AppSettingsRepository,
+    private val widgetsSource: V3GesturesWidgetsSource,
+    private val sessionRepository: V3DeviceSessionRepository,
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3GesturesViewModel::class.java)
         @Suppress("UNCHECKED_CAST")
@@ -30,6 +45,14 @@ class V3GesturesViewModelFactory(private val repository: V3GesturesRepository) :
             editRotationGroupSelection = EditRotationGroupSelectionUseCaseV3(),
             saveRotationGroupSelection = SaveRotationGroupSelectionUseCaseV3(repository),
             moveGestureInRotationGroup = MoveGestureInRotationGroupUseCaseV3(repository),
+            getGesturesPreferences = GetGesturesPreferencesUseCaseV3(appSettingsRepository),
+            getCustomGestureNames = GetCustomGestureNamesUseCaseV3(appSettingsRepository),
+            setGesturesSection = SetGesturesSectionUseCaseV3(appSettingsRepository),
+            setFactoryCollectionExpanded = SetFactoryGestureCollectionExpandedUseCaseV3(appSettingsRepository),
+            saveGestureSettingsSelection = SaveGestureSettingsSelectionUseCaseV3(appSettingsRepository),
+            widgetsSource = widgetsSource,
+            getDeviceSession = GetDeviceSessionUseCaseV3(sessionRepository),
+            observeDeviceSessionChanges = ObserveDeviceSessionChangesUseCaseV3(sessionRepository),
         ) as T
     }
 }

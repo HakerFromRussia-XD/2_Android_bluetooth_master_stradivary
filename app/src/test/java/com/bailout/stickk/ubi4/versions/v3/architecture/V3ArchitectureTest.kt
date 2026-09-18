@@ -90,6 +90,7 @@ class V3ArchitectureTest {
             "DataFactoryV3SensorsWidgetsSource.kt", "DataFactoryV3ServiceWidgetsSource.kt",
             "DataFactoryV3SpecialSettingsWidgetsSource.kt", "V3SensorsWidgetMapper.kt",
             "V3ServiceWidgetMapper.kt", "V3SpecialSettingsWidgetMapper.kt",
+            "DataFactoryV3GesturesWidgetsSource.kt", "V3GesturesWidgetMapper.kt",
         )
         sources("presentation").forEach { file ->
             reject(file, imports(file).filter { dependency ->
@@ -101,6 +102,103 @@ class V3ArchitectureTest {
                         dependency.startsWith("com.bailout.stickk.ubi4.persistence.") -> true
                     else -> false
                 }
+            })
+        }
+    }
+
+    @Test fun `gesture adapters do not access rotation storage or send device commands`() {
+        val adapters = File(root.parentFile.parentFile, "adapters/widgetDelegateAdaptersV3")
+        val forbidden = listOf(
+            "ParameterProvider", "ParameterStoreV3", "ParameterTypedValueV3", "ParameterCodecRegistryV3",
+            "SettingsProfileManager", "rotationGroupGestures", "BLECommandsV3", "RotationGroupV3",
+            "onSendBLERotationGroup", "activeGestureFragmentFilterFlow",
+            "LAST_ACTIVE_GESTURE_FILTER", "LAST_HIDE_COLLECTION_BTN_STATE",
+            "SELECT_GESTURE_SETTINGS_NUM", "onShowGestureSettings", "saveInt", "startActivity",
+            "CollectionGesturesProvider", "getSharedPreferences", "gestureNameList",
+        )
+        listOf("GesturesTwoSectionDelegateAdapterV3.kt", "RotationGroupItemAdapterV3.java").forEach { name ->
+            val code = File(adapters, name).readText()
+            assertTrue(forbidden.none { Regex("\\b$it\\b").containsMatchIn(code) },
+                "$name must render screen state and pass actions without accessing rotation storage or BLE")
+        }
+    }
+
+    @Test fun `base widgets fragment does not depend on V3 gesture presentation or adapters`() {
+        val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        reject(base, imports(base).filter {
+            it.startsWith(prefix + "presentation.gestures.") ||
+                it.endsWith(".GesturesTwoSectionDelegateAdapterV3") || it.endsWith(".RotationGroupItemAdapterV3")
+        })
+    }
+
+    @Test fun `gesture visual catalog cannot read preferences or global application state`() {
+        val catalog = File(root.parentFile.parentFile, "ui/gestures/GestureCollectionFactory.kt").readText()
+        val forbidden = listOf("SharedPreferences", "getSharedPreferences", "applicationContext", "WDApplication",
+            "CollectionGesturesProvider", "LAST_CONNECTION_MAC_UBI4", "SELECT_GESTURE_SETTINGS_NUM")
+        assertTrue(forbidden.none { Regex("\\b$it\\b").containsMatchIn(catalog) })
+        sources("presentation/gestures").forEach { file ->
+            assertTrue(!file.readText().contains("CollectionGesturesProvider"), file.name)
+        }
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/SprGestureFragment.kt").readText()
+        val v3Rendering = fragment.substringAfter("private fun renderV3GesturesScreen(")
+            .substringBefore("private fun openV3GestureSettings(")
+        assertTrue(!v3Rendering.contains("CollectionGesturesProvider"))
+    }
+
+    @Test fun `account statistics UI only observes screen state and sends actions`() {
+        val ui = File(root.parentFile.parentFile, "ui/fragments/account/statisticsFragmentV3")
+        ui.listFiles()!!.filter { it.extension == "kt" }.forEach { file ->
+            reject(file, imports(file).filter {
+                it.contains(".data.") || it.contains(".persistence.") || it.contains(".ble.") ||
+                    it.contains("Repository") || it.contains("UseCase") || it.endsWith(".CollectionGesturesProvider") ||
+                    it.endsWith(".MainActivityUBI4")
+            })
+            assertTrue(!file.readText().contains("getSharedPreferences"), file.name)
+        }
+    }
+
+    @Test fun `account profile fragment no longer requests or stores server profile data`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")
+        val code = fragment.readText()
+        val forbidden = listOf("Ubi4RequestsApi", "NetworkResult", "EncryptionManagerUtilsUbi4", "requestToken",
+            "requestUserData", "requestDeviceList", "requestDeviceInfo", "saveManagerInfo", "saveDeviceInfo",
+            "cachedProfileItem", "attemptedRequest", "ACCOUNT_MANAGER_FIO", "ACCOUNT_MODEL_PROSTHESIS")
+        assertTrue(forbidden.none { Regex("\\b$it\\b").containsMatchIn(code) })
+        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.accountprofile.") || it.contains("UseCase") })
+    }
+
+    @Test fun `customer service V3 binding uses state without storage or request access`() {
+        val ui = File(root.parentFile.parentFile, "ui/fragments/account/customerServiceFragmentUBI4")
+        val fragment = File(ui, "AccountFragmentCustomerServiceUBI4.kt")
+        val code = fragment.readText()
+        val binding = code.substringAfter("private fun bindV3CustomerService(")
+            .substringBefore("private fun initializeUbi4Data(")
+        val forbidden = listOf("loadText", "getSharedPreferences", "RequestsUBI4", "PreferenceKeysUbi4",
+            "accountCustomerServiceList", "Repository", "UseCase")
+        assertTrue(forbidden.none { binding.contains(it) })
+        assertTrue(code.contains("if (UiState.isInterfaceV3Activated)"))
+        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.") || it.contains("UseCase") })
+        val adapter = File(ui, "AccountCustomerServiceAdapterUbi4.kt")
+        reject(adapter, imports(adapter).filter {
+            it.contains(".data.") || it.contains(".persistence.") || it.contains("UseCase") || it.contains("Repository")
+        })
+    }
+
+    @Test fun `prosthesis information V3 binding uses state without storage or request access`() {
+        val ui = File(root.parentFile.parentFile, "ui/fragments/account/prosthesisInformationFragmentUBI4")
+        val fragment = File(ui, "AccountFragmentProsthesisInformationUBI4.kt")
+        val code = fragment.readText()
+        val binding = code.substringAfter("private fun bindV3ProsthesisInformation(")
+            .substringBefore("private fun initializeUbi4Data(")
+        val forbidden = listOf("loadText", "getSharedPreferences", "RequestsUBI4", "PreferenceKeysUbi4",
+            "accountProsthesisInformationList", "Repository", "UseCase")
+        assertTrue(forbidden.none { binding.contains(it) })
+        assertTrue(code.contains("if (UiState.isInterfaceV3Activated)"))
+        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.") || it.contains("UseCase") })
+        listOf("AccountProsthesisInformationAdapterUBI4.kt", "AccountProsthesisInformationItemUBI4.kt").forEach { name ->
+            val file = File(ui, name)
+            reject(file, imports(file).filter {
+                it.contains(".data.") || it.contains(".persistence.") || it.contains("UseCase") || it.contains("Repository")
             })
         }
     }

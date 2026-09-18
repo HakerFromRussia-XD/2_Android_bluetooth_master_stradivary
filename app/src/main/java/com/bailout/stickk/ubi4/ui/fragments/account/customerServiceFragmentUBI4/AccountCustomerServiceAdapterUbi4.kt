@@ -9,8 +9,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4.Companion.accountCustomerServiceList
 
-class AccountCustomerServiceAdapterUbi4(private val onYourMangerClickListener: OnAccountCustomerServiceUBI4ClickListener
+class AccountCustomerServiceAdapterUbi4(
+    private val onYourMangerClickListener: OnAccountCustomerServiceUBI4ClickListener,
+    private var items: List<AccountCustomerServiceItemUBI4>? = null,
 ) : RecyclerView.Adapter<AccountCustomerServiceAdapterUbi4.AccountViewHolder>() {
+    private val currentItems get() = items ?: accountCustomerServiceList
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitItems(items: List<AccountCustomerServiceItemUBI4>) {
+        this.items = items
+        notifyDataSetChanged()
+    }
 
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val yourManagerBtn: View = view.findViewById(R.id.ubi4_your_manager_btn)
@@ -29,10 +38,10 @@ class AccountCustomerServiceAdapterUbi4(private val onYourMangerClickListener: O
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        holder.dateOfReceiptOfProsthesisStrTv.text = accountCustomerServiceList[position].getDateOfReceiptOfProsthesisUbi4()
-        holder.warrantyExpirationDateStrTv.text = accountCustomerServiceList[position].getWarrantyExpirationDateUbi4()
-        holder.yourManagerStrTv.text = accountCustomerServiceList[position].getYourManagerUbi4()
-        holder.prosthesisStatusStrTv.text = accountCustomerServiceList[position].getProsthesisStatusUbi4()
+        holder.dateOfReceiptOfProsthesisStrTv.text = currentItems[position].getDateOfReceiptOfProsthesisUbi4()
+        holder.warrantyExpirationDateStrTv.text = currentItems[position].getWarrantyExpirationDateUbi4()
+        holder.yourManagerStrTv.text = currentItems[position].getYourManagerUbi4()
+        holder.prosthesisStatusStrTv.text = currentItems[position].getProsthesisStatusUbi4()
 
 
         holder.yourManagerBtn.setOnClickListener {
@@ -40,6 +49,6 @@ class AccountCustomerServiceAdapterUbi4(private val onYourMangerClickListener: O
         }
     }
     override fun getItemCount(): Int {
-        return accountCustomerServiceList.size
+        return currentItems.size
     }
 }

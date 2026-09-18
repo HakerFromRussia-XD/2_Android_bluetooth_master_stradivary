@@ -43,7 +43,6 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDeleg
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ProsthesisCalibrationUiState
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesTwoSectionDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
@@ -90,8 +89,6 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3Setti
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3SliderSettingsViewModelFactory
@@ -101,25 +98,12 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
-    private var gestureNameList = ArrayList<String>()
+    private val gestureNameList = ArrayList<String>()
     private val onDestroyParentCallbacks = mutableListOf<() -> Unit>()
     private var onClearSwitcherCache : () -> Unit = {}
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
-
-    private val v3GesturesAdapter by lazy {
-        GesturesTwoSectionDelegateAdapterV3(
-            coroutineScope = main?.lifecycleScope,
-            gestureNameList = gestureNameList,
-            onSendBLERotationGroup = { sendBLERotationGroupV3() },
-            onAction = ::onV3GesturesAction,
-            onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-        )
-    }
-    protected open fun onV3GesturesAction(action: V3GesturesAction) = Unit
-    protected fun renderV3Gestures(state: V3GesturesUiState) = v3GesturesAdapter.render(state)
 
     protected open val v3SliderParameterKeys: Set<String> = emptySet()
     protected open val v3SpinnerParameterKeys: Set<String> = emptySet()
@@ -198,7 +182,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         )
     }
 
-    protected val adapterWidgets : CompositeDelegateAdapter by lazy {
+    protected open val adapterWidgets : CompositeDelegateAdapter by lazy {
         // [new widgets V3] тут подключаем DelegateAdapter нового типа виджета в общий CompositeDelegateAdapter
         CompositeDelegateAdapter(
             GestureUsageChartDelegateAdapter(),
@@ -282,7 +266,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-            v3GesturesAdapter,
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
@@ -482,6 +465,10 @@ abstract class BaseWidgetsFragment : Fragment() {
         adapterWidgets.notifyDataSetChanged()
     }
 
+    protected fun registerDelegateCleanup(callback: () -> Unit) {
+        onDestroyParentCallbacks.add(callback)
+    }
+
     private fun releaseDelegateResources() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
@@ -583,13 +570,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         intent.putExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, false)
         intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
         intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
-        intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
-        startActivity(intent)
-    }
-    open fun showGestureSettingsV3(subcommand: Int, gestureID: Int) {
-        val intent = Intent(context, UBI4GripperScreenWithEncodersActivityV3::class.java)
-        intent.putExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
-        intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, subcommand)
         intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
         startActivity(intent)
     }
@@ -713,10 +693,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
         main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
-    open fun sendBLERotationGroupV3 () {
-        Log.d("RotationDebug", "BaseWidgetsFragment.sendBLERotationGroupV3, fragment=${this::class.java.simpleName}")
-        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
-    }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
@@ -818,7 +794,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
 
     //Others fun
-    private fun loadGestureNameList() {
+    protected open fun loadGestureNameList() {
         val macKey = navigator().getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUbi4.NUM_GESTURES) {

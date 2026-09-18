@@ -2,7 +2,14 @@ package com.bailout.stickk.ubi4.versions.v3.data.appsettings
 
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetSpecialSettingsSectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetCustomGestureNamesUseCaseV3
 import android.content.SharedPreferences
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGesturesPreferencesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetGesturesSectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetFactoryGestureCollectionExpandedUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GesturesPreferences
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.SaveGestureSettingsSelectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3GestureSettingsTarget
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetAutoLoginEnabledUseCaseV3
 import io.mockk.*
@@ -18,6 +25,8 @@ class V3AppSettingsRepositoryTest {
     private val editor = mockk<SharedPreferences.Editor>()
     private val key = PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION
     private var storedAutoLogin = false
+    private val storedStrings = mutableMapOf<String, String?>()
+    private val storedInts = mutableMapOf<String, Int>()
     private val sectionKey = PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER
     private var storedApplicationSection = false
     private val listeners = mutableSetOf<SharedPreferences.OnSharedPreferenceChangeListener>()
@@ -27,12 +36,70 @@ class V3AppSettingsRepositoryTest {
     fun setUp() {
         every { preferences.getBoolean(key, false) } answers { storedAutoLogin }
         every { preferences.getBoolean(sectionKey, false) } answers { storedApplicationSection }
+        every { preferences.getString(any(), any()) } answers {
+            if (storedStrings.containsKey(firstArg<String>())) storedStrings[firstArg()] else secondArg<String?>()
+        }
+        every { preferences.getInt(any(), any()) } answers { storedInts[firstArg<String>()] ?: secondArg<Int>() }
+        every { editor.putInt(any(), any()) } answers { storedInts[firstArg()] = secondArg(); editor }
         every { preferences.edit() } returns editor
         every { editor.putBoolean(sectionKey, any()) } answers { storedApplicationSection = secondArg(); editor }
         every { editor.putBoolean(key, any()) } answers { storedAutoLogin = secondArg(); editor }
         every { editor.apply() } answers { listeners.toList().forEach { it.onSharedPreferenceChanged(preferences, key) } }
         every { preferences.registerOnSharedPreferenceChangeListener(any()) } answers { listeners.add(firstArg()); Unit }
         every { preferences.unregisterOnSharedPreferenceChangeListener(any()) } answers { listeners.remove(firstArg()); Unit }
+    }
+
+    @Test fun `custom names preserve MAC index keys and missing null and empty values without writing`() {
+        val macKey = PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4
+        val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
+        storedStrings[macKey] = "AA:01"
+        storedStrings[prefix + "AA:01" + 0] = "First"
+        storedStrings[prefix + "AA:01" + 1] = ""
+        storedStrings[prefix + "AA:01" + 2] = null
+        storedStrings[prefix + "AA:01" + 13] = "Last"
+        storedStrings[prefix + "AA:01" + 64] = "Not an index"
+        val names = GetCustomGestureNamesUseCaseV3(repository)()
+        assertEquals(14, names.names.size)
+        assertEquals(14, names.collectionNames.size)
+        assertEquals(listOf("First", "", "null", "NOT SET!"), names.names.take(4))
+        assertEquals(listOf("First", "", null, null), names.collectionNames.take(4))
+        assertEquals("Last", names.names.last())
+        assertEquals("Last", names.collectionNames.last())
+        verify(exactly = 0) { preferences.edit() }
+    }
+
+    @Test fun `missing and null MAC preserve the two original reader fallbacks`() {
+        val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
+        storedStrings[prefix + "NOT SET!0"] = "Missing MAC direct"
+        storedStrings[prefix + "null0"] = "Null MAC direct"
+        storedStrings[prefix + "0"] = "Empty MAC collection"
+        val read = GetCustomGestureNamesUseCaseV3(repository)
+        assertEquals("Missing MAC direct", read().names.first())
+        assertEquals("Empty MAC collection", read().collectionNames.first())
+        storedStrings[PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4] = null
+        assertEquals("Null MAC direct", read().names.first())
+        assertEquals("Empty MAC collection", read().collectionNames.first())
+        storedStrings[PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4] = ""
+        assertEquals("Empty MAC collection", read().names.first())
+        verify(exactly = 0) { preferences.edit() }
+    }
+
+    @Test fun `name reads follow rename and device switch without mutating an earlier snapshot`() {
+        val macKey = PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4
+        val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
+        val read = GetCustomGestureNamesUseCaseV3(repository)
+        storedStrings[macKey] = "first"
+        storedStrings[prefix + "first0"] = "Before"
+        val old = read()
+        storedStrings[prefix + "first0"] = "Renamed"
+        assertEquals("Renamed", read().names.first())
+        storedStrings[prefix + "second0"] = "Another device"
+        storedStrings[macKey] = "second"
+        assertEquals("Another device", read().names.first())
+        assertEquals("Another device", read().collectionNames.first())
+        assertEquals("Before", old.names.first())
+        assertEquals("Before", old.collectionNames.first())
+        verify(exactly = 0) { preferences.edit() }
     }
 
     @Test
@@ -98,4 +165,47 @@ class V3AppSettingsRepositoryTest {
         assertTrue(listeners.isEmpty())
         verify(exactly = 1) { preferences.unregisterOnSharedPreferenceChangeListener(any()) }
     }
+    @Test fun `editor selection preserves custom gesture numbering and the existing preference key`() {
+        val save = SaveGestureSettingsSelectionUseCaseV3(repository)
+        for (id in 64..77) {
+            save(V3GestureSettingsTarget.fromGestureId(id)!!)
+            assertEquals(id - 63, storedInts[PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM])
+            verify(exactly = 1) { editor.putInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, id - 63) }
+        }
+        verify(exactly = 14) { editor.apply() }
+        confirmVerified(editor)
+        assertEquals(setOf(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM), storedInts.keys)
+    }
+
+    @Test fun `gestures preferences preserve defaults and stored integer meanings without writing`() {
+        val read = GetGesturesPreferencesUseCaseV3(repository)
+        assertEquals(V3GesturesPreferences(1, true), read())
+        for (section in listOf(1, 2, 3, 0, -1)) {
+            for (expanded in listOf(1, 0, 2, -1)) {
+                storedInts[PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER] = section
+                storedInts[PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE] = expanded
+                assertEquals(V3GesturesPreferences(section, expanded == 1), read())
+            }
+        }
+        verify(exactly = 0) { preferences.edit() }
+    }
+
+    @Test fun `gestures writes retain existing keys integer encoding and explicit repeated selections`() {
+        val setSection = SetGesturesSectionUseCaseV3(repository)
+        val setExpanded = SetFactoryGestureCollectionExpandedUseCaseV3(repository)
+        setSection(2); setSection(2)
+        setExpanded(false)
+        assertEquals(V3GesturesPreferences(2, false), repository.getGesturesPreferences())
+        setExpanded(true); setSection(1)
+        assertEquals(V3GesturesPreferences(1, true), repository.getGesturesPreferences())
+        verify(exactly = 2) { editor.putInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 2) }
+        verify(exactly = 1) { editor.putInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1) }
+        verify(exactly = 1) { editor.putInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 0) }
+        verify(exactly = 1) { editor.putInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1) }
+        verify(exactly = 5) { editor.apply() }
+        confirmVerified(editor)
+        assertFalse(storedAutoLogin)
+        assertFalse(storedApplicationSection)
+    }
+
 }

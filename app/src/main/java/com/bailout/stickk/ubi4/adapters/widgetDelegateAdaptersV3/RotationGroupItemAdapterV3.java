@@ -35,18 +35,16 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
     private int mLayoutId;
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
-    OnCopyClickRotationGroupListener onCopyClickRotationGroupListener;
     OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener;
     OnSelectClickRotationGroupListener onSelectClickRotationGroupListener;
     private int activeGestureId = -1;
     private boolean interactionEnabled = true;
 
-    RotationGroupItemAdapterV3(ArrayList<Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener, OnSelectClickRotationGroupListener onSelectClickRotationGroupListener) {
+    RotationGroupItemAdapterV3(ArrayList<Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener, OnSelectClickRotationGroupListener onSelectClickRotationGroupListener) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
         setItemList(list);
-        this.onCopyClickRotationGroupListener = onCopyClickRotationGroupListener;
         this.onDeleteClickRotationGroupListener = onDeleteClickRotationGroupListener;
         this.onSelectClickRotationGroupListener = onSelectClickRotationGroupListener;
     }
@@ -107,7 +105,6 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
     class ViewHolder extends DragItemAdapter.ViewHolder {
         TextView gestureInRotationGroupTv;
         View deleteBtn;
-        View copyBtn;
 
         ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
@@ -117,14 +114,6 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
                 if (!interactionEnabled) return;
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 onDeleteClickRotationGroupListener.onDeleteClickCb(position);
-            });
-            copyBtn = itemView.findViewById(R.id.copyBtn);
-            copyBtn.setOnClickListener(v -> {
-                if (!interactionEnabled) return;
-                int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
-                Long setUniqueItemId = (long)mItemList.size();
-                addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).getSecond()));
-                onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).getSecond());
             });
             gestureInRotationGroupTv.setOnClickListener(v -> {
                 if (!interactionEnabled) return;
@@ -166,7 +155,6 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
             return result;
         }
     }
-    public interface OnCopyClickRotationGroupListener { void onCopyClick(int position, String gestureName); }
     public interface OnDeleteClickRotationGroupListener { void onDeleteClickCb(int position); }
     public interface OnSelectClickRotationGroupListener { void onRotationGestureClick(int position, String gestureName, int gestureId); }
 }

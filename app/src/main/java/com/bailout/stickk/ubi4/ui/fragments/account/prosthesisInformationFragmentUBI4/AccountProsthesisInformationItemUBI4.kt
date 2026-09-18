@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4
 
+import com.bailout.stickk.ubi4.versions.v3.domain.prosthesisinformation.V3ProsthesisInformation
+
 class AccountProsthesisInformationItemUBI4 (
     private val prosthesisModel: String,
     private val prosthesisSize: String,
@@ -15,3 +17,10 @@ class AccountProsthesisInformationItemUBI4 (
     fun getTouchscreenFingerPads(): String { return touchscreenFingerPads }
     fun getBatteryType(): String { return batteryType }
 }
+
+internal fun V3ProsthesisInformation.toAccountItem() = AccountProsthesisInformationItemUBI4(
+    prosthesisModel, prosthesisSize, handSide, rotatorType.orDash(), touchscreenFingerPads, batteryType,
+)
+
+internal fun String?.orDash(): String =
+    takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"

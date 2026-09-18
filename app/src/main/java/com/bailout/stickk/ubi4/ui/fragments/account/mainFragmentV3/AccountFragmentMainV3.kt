@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -24,9 +25,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.RemoteFirmwareFile
-import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
@@ -36,9 +35,6 @@ import com.bailout.stickk.ubi4.firmware.FirmwareBoardFamily
 import com.bailout.stickk.ubi4.firmware.FirmwareCompatibility
 import com.bailout.stickk.ubi4.firmware.FirmwareVersionCatalog
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
-import com.bailout.stickk.ubi4.models.device.DeviceInfo
-import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
-import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.shared.SharedRes
@@ -49,17 +45,17 @@ import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.*
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
-import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
+import com.bailout.stickk.ubi4.versions.v3.di.V3AccountProfileViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileHeader
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileViewModel
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.math.min
 import kotlin.properties.Delegates
 
 class AccountFragmentMainV3 : BaseWidgetsFragment() {
@@ -67,20 +63,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mSettings: SharedPreferences? = null
 
-    private var token = ""
-    private var clientId = 0
-    private var encryptionManager: EncryptionManagerUtilsUbi4? = null
-    private var encryptionResult: String? = null
-    private var serialNumber = "FEST-F-06879"
-    private var fname: String = ""
-    private var sname: String = ""
-    private var locate: String = "en"
-    private var attemptedRequest: Int = 1
-    private val api = Ubi4RequestsApi()
-
-    private var driverVersion = "0.01"
-    private var bmsVersion = "0.01"
-    private var sensorsVersion = "0.01"
+    private val profileViewModel: V3AccountProfileViewModel by viewModels {
+        V3AccountProfileViewModelFactory.from(requireContext())
+    }
+    private var renderedHeaderRevision = -1L
+    private var refreshCompletionId = 0L
 
     private lateinit var accountAdapter: AccountMainAdapterUBI4
     private lateinit var bootloaderAdapter: BootloaderAdapterUBI4
@@ -92,7 +79,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
     private val boardNameByCode = mutableMapOf<Int, String>()
     private var canRenderBoards = false
-    private var isTokenLoaded = false
     private var isBoardsRendered = false
     private var systemBackCallback: OnBackPressedCallback? = null
     private val firmwareRepository = YandexDiskFirmwareRepository()
@@ -107,10 +93,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         main = activity as? MainActivityUBI4
         mContext = context
 
-        serialNumber = main?.mDeviceName
-            ?.takeIf { it.startsWith("FEST-") }
-            ?: serialNumber
-
         return binding.root
     }
 
@@ -121,14 +103,16 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             mSettings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
                 ROLE_SERVICE_ENGINEER_INDEX
 
-        encryptionManager = EncryptionManagerUtilsUbi4.instance
-        attemptedRequest = 1
-        if (main?.locate?.contains("ru") == true) { locate = "ru" }
+        profileViewModel.onAction(V3AccountProfileAction.ViewAttached(
+            BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND, !cachedBootloaderBoards.isNullOrEmpty(),
+        ))
+        renderedHeaderRevision = -1L
+        refreshCompletionId = 0L
 
         if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
             binding.preloaderLav.cancelAnimation()
             binding.refreshLayout.setOnRefreshListener {
-                requestToken()
+                profileViewModel.onAction(V3AccountProfileAction.LoadRequested)
                 refreshFirmwareCatalog()
             }
         } else {
@@ -140,24 +124,18 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         refreshFirmwareCatalog()
 
         val hasCachedContent = applyCachedContentIfAvailable()
-        if (hasCachedContent) {
-            canRenderBoards = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
-            binding.preloaderLav.visibility = View.GONE
-            binding.accountRv.visibility = View.VISIBLE
-        } else if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
-            binding.preloaderLav.visibility = View.GONE
-            binding.accountRv.visibility = View.VISIBLE
-        } else {
-            binding.preloaderLav.visibility = View.VISIBLE
-            binding.accountRv.visibility = View.INVISIBLE
+        canRenderBoards = hasCachedContent && !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
+        viewLifecycleOwner.lifecycleScope.launch {
+            profileViewModel.uiState.collect(::renderAccountProfile)
         }
 
         val transitionDurationMs = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+        val createdBinding = binding
         binding.root.postDelayed({
-            if (!isAdded || _binding == null) return@postDelayed
+            if (!isAdded || _binding !== createdBinding) return@postDelayed
             canRenderBoards = true
             refreshBoards()
-            requestToken()
+            profileViewModel.onAction(V3AccountProfileAction.LoadRequested)
         }, transitionDurationMs + if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) 80L else 0L)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -208,23 +186,10 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (mContext != null) {
-                        updateAllParameters()
+                        profileViewModel.onAction(V3AccountProfileAction.HeaderRefreshRequested)
                     }
                 }
         )
-    }
-
-    private fun updateAllParameters() {
-        val item = AccountMainUBI4Item(
-            avatarUrl      = "avatarUrl",
-            name           = fname,
-            surname        = sname,
-            patronymic     = "Ivanovich",
-            versionDriver  = driverVersion,
-            versionBms     = bmsVersion,
-            versionSensors = sensorsVersion
-        )
-        updateAccountSafe(item)
     }
 
     private fun setupRefreshLayout() {
@@ -232,246 +197,14 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener {
-            requestToken()
+            profileViewModel.onAction(V3AccountProfileAction.LoadRequested)
         }
     }
 
     private fun initializeUI() {
         initAdapter()
         binding.backBtn.setOnClickListener { handleBackPress() }
-
-        driverVersion = if (!checkMultigrib()) {
-            ((mSettings?.getInt(main?.mDeviceAddress + PreferenceKeysUbi4.DRIVER_NUM, 1) ?: 1) / 100f).toString()
-        } else {
-            main?.driverVersionS ?: "0.01"
-        }
-        bmsVersion = ((mSettings?.getInt(main?.mDeviceAddress + PreferenceKeysUbi4.BMS_NUM, 1) ?: 1) / 100f).toString()
-        sensorsVersion = ((mSettings?.getInt(main?.mDeviceAddress + PreferenceKeysUbi4.SENS_NUM, 1) ?: 1) / 100f).toString()
     }
-
-    private fun requestToken() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            encryptionResult = withContext(Dispatchers.Default) {
-                encryptionManager?.encrypt(serialNumber)
-            }
-            when (val res = api.getToken("Aesserial $encryptionResult")) {
-                is NetworkResult.Success -> {
-                    token = res.value.token
-                    isTokenLoaded = true
-                    binding.preloaderLav.visibility = View.GONE
-                    binding.accountRv.visibility = View.VISIBLE
-                    requestUserData()
-                }
-                is NetworkResult.Error -> {
-                    binding.refreshLayout.setRefreshing(false)
-                    handleTokenError(res)
-                }
-            }
-        }
-    }
-
-    private fun handleTokenError(err: NetworkResult.Error) {
-        if (err.isCancelledByLifecycle()) return
-        if (err.code == 500) retryOrShowNoData()
-        else {
-            showInfoWithoutConnection()
-            Toast.makeText(mContext, err.message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun retryOrShowNoData() {
-        if (attemptedRequest++ < 4) requestToken()
-        else {
-            showInfoWithoutConnection()
-            Toast.makeText(
-                mContext,
-                getString(SharedRes.strings.no_user_data_on_server.resourceId),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    private fun requestUserData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            when (val res = api.getUserInfoV2(token, locate)) {
-                is NetworkResult.Success -> {
-                    val info = res.value.userInfo
-                    fname = info?.fname.orEmpty()
-                    sname = info?.sname.orEmpty()
-                    updateProfileUI()
-                    clientId = info?.clientId ?: 0
-                    saveManagerInfo(info?.manager)
-                    requestDeviceList()
-                }
-                is NetworkResult.Error -> {
-                    binding.refreshLayout.setRefreshing(false)
-                    if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun saveManagerInfo(manager: Manager?) {
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, manager?.fio.orEmpty())
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, manager?.phone.orEmpty())
-    }
-
-    private fun requestDeviceList() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            when (val res = api.getDevicesList(clientId, token, locate)) {
-                is NetworkResult.Success -> {
-                    val devices: List<DeviceInList_DEV> = res.value
-                    devices
-                        .firstOrNull { it.serialNumber == serialNumber }
-                        ?.id
-                        ?.let { requestDeviceInfo(it) }
-                }
-                is NetworkResult.Error -> {
-                    binding.refreshLayout.setRefreshing(false)
-                    if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun updateProfileUI() {
-        binding.apply {
-            updateAccountSafe(
-                AccountMainUBI4Item(
-                    avatarUrl = "avatarUrl",
-                    name = fname,
-                    surname = sname,
-                    patronymic = "Ivanovich",
-                    versionDriver = driverVersion,
-                    versionBms = bmsVersion,
-                    versionSensors = sensorsVersion
-                )
-            )
-            refreshLayout.setRefreshing(false)
-        }
-    }
-
-    private fun requestDeviceInfo(deviceId: Int) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            when (val res = api.getDeviceInfo(deviceId, token, locate)) {
-                is NetworkResult.Success -> saveDeviceInfo(res.value)
-                is NetworkResult.Error -> {
-                    binding.refreshLayout.setRefreshing(false)
-                    if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun NetworkResult.Error.isCancelledByLifecycle(): Boolean {
-        val msg = message
-        return msg.contains("Job was cancelled", ignoreCase = true) ||
-                msg.contains("CancellationException", ignoreCase = true) ||
-                msg.contains("cancelled", ignoreCase = true)
-    }
-
-    private fun saveDeviceInfo(info: DeviceInfo) {
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS,
-            simplificationName(info.model?.name.orEmpty())
-        )
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS,
-            info.size?.name.orEmpty()
-        )
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS,
-            info.side?.name.orEmpty()
-        )
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS,
-            info.status?.name.orEmpty()
-        )
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,
-            info.dateTransfer.orEmpty()
-        )
-        main?.saveString(
-            PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
-            info.guaranteePeriod.orEmpty()
-        )
-
-        System.err.println("Device Info model: ${info.model?.name}")
-        System.err.println("Device Info size: ${info.size?.name}")
-        System.err.println("Device Info side: ${info.side?.name}")
-        System.err.println("Device Info status: ${info.status?.name}")
-        System.err.println("Device Info date transfer: ${info.dateTransfer}")
-        System.err.println("Device Info guarantee period: ${info.guaranteePeriod}")
-        System.err.println("Device Info options: ${info.options.size}")
-        var rotatorSet = false
-        var accumulatorSet = false
-        var touchscreenFingersSet = false
-        for (option in info.options) {
-            if (option.id == 3) {
-                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name.orDash())
-                System.err.println("Device Info rotator: ${option.value?.name}")
-                rotatorSet = true
-            }
-            if (option.id == 15) {
-                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name.orEmpty())
-                System.err.println("Device Info accumulator: ${option.value?.name}")
-                accumulatorSet = true
-            }
-            if (option.id == 5) {
-                main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name.orEmpty())
-                System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
-                touchscreenFingersSet = true
-            }
-        }
-        if (!rotatorSet) {
-            main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "-")
-            System.err.println("Device Info rotator NOT SET")
-        }
-        if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
-        if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
-    }
-
-    private fun String?.orDash(): String =
-        takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun showInfoWithoutConnection() {
-        binding.preloaderLav.visibility = View.GONE
-        binding.accountRv.visibility = View.VISIBLE
-        binding.apply {
-            val item = AccountMainUBI4Item(
-                avatarUrl      = "avatarUrl",
-                name           = fname,
-                surname        = sname,
-                patronymic     = "Ivanovich",
-                versionDriver  = driverVersion,
-                versionBms     = bmsVersion,
-                versionSensors = sensorsVersion
-            )
-            updateAccountSafe(item)
-        }
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
-    }
-
-    private fun checkMultigrib(): Boolean = main?.mDeviceType?.contains(ConstantManagerUBI4.DEVICE_TYPE_FEST_X) == true
-
-    private fun simplificationName(name: String): String = name.substringFrom("ПР", name.lastIndex)
-
-    private fun String.substringFrom(char: String, maxLen: Int) =
-        indexOf(char).let { if (it >= 0) substring(it, min(it + maxLen, length)) else this }
 
     private fun initAdapter() {
         val accountClickListener = object : OnAccountMainUBI4ClickListener {
@@ -497,17 +230,10 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             loadLocalVersionsOnBind = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
         )
         if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
-            accountAdapter.submitProfile(
-                cachedProfileItem ?: AccountMainUBI4Item(
-                    avatarUrl = "avatarUrl",
-                    name = fname,
-                    surname = sname,
-                    patronymic = "Ivanovich",
-                    versionDriver = driverVersion,
-                    versionBms = bmsVersion,
-                    versionSensors = sensorsVersion
-                )
-            )
+            profileViewModel.uiState.value.let { state ->
+                state.header?.let { accountAdapter.submitProfile(it.toAccountItem()) }
+                renderedHeaderRevision = state.headerRevision
+            }
             viewLifecycleOwner.lifecycleScope.launch {
                 bootloaderAdapter.preloadLocalVersions(requireContext())
             }
@@ -521,14 +247,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun applyCachedContentIfAvailable(): Boolean {
-        val profile = cachedProfileItem
+        val hasProfile = profileViewModel.uiState.value.hasCachedProfile
         val boards = cachedBootloaderBoards
 
-        if (profile == null && boards.isNullOrEmpty()) return false
+        if (!hasProfile && boards.isNullOrEmpty()) return false
 
-        profile?.let {
-            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateAccountSafe(it)
-        }
         if (!boards.isNullOrEmpty()) {
             val snapshot = boards
                 .filterNot { FirmwareVersionCatalog.isZeroVersion(it.version) }
@@ -629,7 +352,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun revealVersionsWhenReady() {
-        if (!isTokenLoaded || !isBoardsRendered) return
+        if (!profileViewModel.uiState.value.isTokenLoaded || !isBoardsRendered) return
         binding.accountRv.visibility = View.VISIBLE
         binding.preloaderLav.visibility = View.GONE
     }
@@ -757,13 +480,37 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         Toast.makeText(requireContext(), R.string.firmware_catalog_unavailable, Toast.LENGTH_SHORT).show()
     }
 
-    private fun updateAccountSafe(item: AccountMainUBI4Item) {
-        _binding?.accountRv?.post {
-            cachedProfileItem = item
-            accountAdapter.submitProfile(item)
-            scrollAccountListToTop()
+    private fun renderAccountProfile(state: V3AccountProfileUiState) {
+        binding.preloaderLav.visibility = if (state.isContentVisible) View.GONE else View.VISIBLE
+        binding.accountRv.visibility = if (state.isContentVisible) View.VISIBLE else View.INVISIBLE
+        if (state.header != null && renderedHeaderRevision != state.headerRevision) {
+            renderedHeaderRevision = state.headerRevision
+            val currentBinding = binding
+            currentBinding.accountRv.post {
+                if (_binding !== currentBinding || profileViewModel.uiState.value.headerRevision != state.headerRevision) return@post
+                profileViewModel.onAction(V3AccountProfileAction.HeaderRendered(state.headerRevision))
+                accountAdapter.submitProfile(state.header.toAccountItem())
+                scrollAccountListToTop()
+            }
+        }
+        if (refreshCompletionId != state.refreshCompletionId) {
+            refreshCompletionId = state.refreshCompletionId
+            binding.refreshLayout.setRefreshing(false)
+        }
+        state.messages.forEach { message ->
+            if (message.serverMessage == null) {
+                Toast.makeText(context, getString(SharedRes.strings.no_user_data_on_server.resourceId), Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(context, message.serverMessage, Toast.LENGTH_SHORT).show()
+            }
+            profileViewModel.onAction(V3AccountProfileAction.MessageShown(message.id))
         }
     }
+
+    private fun V3AccountProfileHeader.toAccountItem() = AccountMainUBI4Item(
+        avatarUrl = "avatarUrl", name = firstName, surname = lastName, patronymic = "Ivanovich",
+        versionDriver = versions.driver, versionBms = versions.bms, versionSensors = versions.sensors,
+    )
 
     private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
         val snapshot = list.map { it.copy() }
@@ -802,12 +549,12 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        profileViewModel.onAction(V3AccountProfileAction.ViewDetached)
         firmwareCatalogJob?.cancel()
         firmwareDownloadJob?.cancel()
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
         canRenderBoards = false
-        isTokenLoaded = false
         isBoardsRendered = false
         systemBackCallback = null
         mContext = null
@@ -822,7 +569,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         private const val FIRMWARE_LOG_TAG = "FirmwareCatalogV3"
         private const val ROLE_SERVICE_ENGINEER_INDEX = 1
         private const val ROLE_DEFAULT_INDEX = 2
-        private var cachedProfileItem: AccountMainUBI4Item? = null
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }

@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4
 
 import android.Manifest
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.Intent
 import android.os.SystemClock
 import android.view.View
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.UiController
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -36,6 +39,7 @@ import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
@@ -84,6 +88,14 @@ class V3ActiveGestureEmulatorTest {
             scenario.onActivity {
                 it.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
                 it.saveInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
+                // Both existing name readers need the same stored MAC and names instead of their different empty-preference defaults.
+                it.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, 0).edit().apply {
+                    val mac = "00:11:22:33:44:55"
+                    putString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, mac)
+                    repeat(PreferenceKeysUbi4.NUM_GESTURES) { index ->
+                        putString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + mac + index, "Gesture ${index + 1}")
+                    }
+                }.apply()
                 expectedRows = DataFactory().prepareData(0).size
                 it.refreshBottomNavVisibility()
             }
@@ -109,6 +121,10 @@ class V3ActiveGestureEmulatorTest {
                 val fragment = it.supportFragmentManager.findFragmentById(R.id.fragmentContainer) as SprGestureFragment
                 vm = ViewModelProvider(fragment)[V3GesturesViewModel::class.java]
                 assertEquals(expectedRows, it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.itemCount)
+                assertEquals(expectedRows, vm.uiState.value.widgets.size)
+                assertEquals(DataFactory().prepareData(0),
+                    com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidgetMapper()
+                        .toItems(vm.uiState.value.widgets))
                 assertHeader(it, 1)
             }
             assertTrue(selections().isEmpty())
@@ -147,8 +163,10 @@ class V3ActiveGestureEmulatorTest {
             scenario.onActivity {
                 val manager = it.supportFragmentManager
                 val fragment = manager.findFragmentById(R.id.fragmentContainer)!!
+                val composition = vm.uiState.value
                 manager.beginTransaction().detach(fragment).commitNow()
-                assertEquals(V3GesturesUiState(), vm.uiState.value)
+                assertEquals(V3GesturesUiState(widgets = composition.widgets, widgetsUpdateId = composition.widgetsUpdateId,
+                    customGestureNames = composition.customGestureNames), vm.uiState.value)
                 vm.onAction(V3GesturesAction.GestureSelected(2))
                 manager.beginTransaction().attach(fragment).commitNow()
                 assertSame(vm, ViewModelProvider(fragment)[V3GesturesViewModel::class.java])
@@ -208,57 +226,130 @@ class V3ActiveGestureEmulatorTest {
             checkRotationGroupRemoval(scenario)
             checkRotationGroupSelection(scenario)
             checkRotationGroupOrder(scenario)
+            checkGesturesDisplaySettings(scenario)
+            checkGestureSettingsEntry(scenario)
         }
     }
 
-    private fun checkRotationGroupState(scenario: ActivityScenario<MainActivityUBI4>, vm: V3GesturesViewModel) {
-        val info = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
-        val original = ParameterStoreV3.get(info)!!
-        assertEquals((1..8).toList(), vm.uiState.value.rotationGroupGestureIds)
-        val requestsBefore = rotationReads()
-        clickCard(scenario, R.id.rotationGroupSelectBtn)
-        waitUntil { rotationReads() > requestsBefore }
-        SystemClock.sleep(900) // An identical GET response must stop the 400 ms retries.
-        assertEquals(requestsBefore + 1, rotationReads())
-        scenario.onActivity {
-            assertEquals(View.GONE, it.findViewById<View>(R.id.addGestureToRotationGroupBtn).visibility)
-            ParameterStoreV3.put(info, ParameterTypedValueV3.RotationGroup(
-                RotationGroupV3(gesture1Id = 4, gesture2Id = 64, gesture3Id = 4)))
+    private fun checkGestureSettingsEntry(scenario: ActivityScenario<MainActivityUBI4>) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val selectionBefore = selections()
+        val rotationWritesBefore = rotationWrites().size
+        val preferences = instrumentation.targetContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, 0)
+        val launches = mutableListOf<Pair<Intent, Int>>()
+        // Test the navigation boundary without the existing editor's GPU-dependent renderer.
+        // Its full launch is a separate device check; it also sends a finger-opening command after BLE data arrives.
+        val monitor = object : Instrumentation.ActivityMonitor() {
+            override fun onStartActivity(intent: Intent): Instrumentation.ActivityResult? {
+                if (intent.component?.className != UBI4GripperScreenWithEncodersActivityV3::class.java.name) return null
+                launches.add(Intent(intent) to preferences.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, -1))
+                return Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null)
+            }
         }
-        waitUntil { vm.uiState.value.rotationGroupGestureIds == listOf(4, 64, 4) }
-        waitUntil {
-            var rendered = false
-            scenario.onActivity {
-                val list = it.findViewById<com.woxthebox.draglistview.DragListView>(R.id.rotationGroupDragLv).recyclerView
-                rendered = list.adapter?.itemCount == 3 && (0..2).all { position ->
-                    val name = CollectionGesturesProvider.getGesture(listOf(4, 64, 4)[position]).gestureName
-                    list.findViewHolderForAdapterPosition(position)?.itemView
-                        ?.findViewById<TextView>(R.id.gestureInRotationGroupTv)?.text?.toString() == name
+        instrumentation.addMonitor(monitor)
+        try {
+            for (number in listOf(1, 14, 1)) {
+                val gearId = if (number == 1) R.id.gesture1SettingsBtn else R.id.gesture14SettingsBtn
+                val countBefore = launches.size
+                val savedBefore = preferences.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, -1)
+                scenario.onActivity { UiState.v3WidgetsInteractionEnabled.value = false }
+                waitForDisplaySettings(scenario, section = 1, expanded = true, enabled = false)
+                scenario.onActivity {
+                    assertFalse(it.findViewById<View>(gearId).isEnabled)
+                    it.findViewById<View>(gearId).performClick()
+                    assertEquals(countBefore, launches.size)
+                    UiState.v3WidgetsInteractionEnabled.value = true
                 }
+                waitForDisplaySettings(scenario, section = 1, expanded = true)
+                clickCard(scenario, gearId)
+                instrumentation.waitForIdleSync()
+                assertEquals(countBefore + 1, launches.size)
+                val (intent, numberAtLaunch) = launches.last()
+                assertTrue(intent.getBooleanExtra(UBI4GripperScreenWithEncodersActivityV3.EXTRA_USE_V3_GESTURE_PROTOCOL, false))
+                assertEquals(ParameterInfoRegistry.require(ConstantManagerUBI4.P_KEY_GESTURE_SETTING).dataCode,
+                    intent.getIntExtra(PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4, -1))
+                assertEquals(63 + number, intent.getIntExtra(PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4, -1))
+                assertFalse(intent.hasExtra(PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4))
+                assertEquals("Keep launch before saving, as in the original click", savedBefore, numberAtLaunch)
+                assertEquals(number, preferences.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, -1))
+                scenario.onActivity {
+                    val fragment = it.supportFragmentManager.findFragmentById(R.id.fragmentContainer) as SprGestureFragment
+                    assertNull(ViewModelProvider(fragment)[V3GesturesViewModel::class.java].uiState.value.gestureSettings)
+                    it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.notifyDataSetChanged()
+                }
+                waitForDisplaySettings(scenario, section = 1, expanded = true)
+                clickCard(scenario, R.id.page_2)
+                clickCard(scenario, R.id.page_1)
+                waitForDisplaySettings(scenario, section = 1, expanded = true)
+                assertEquals(countBefore + 1, launches.size)
+                assertEquals(number, preferences.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, -1))
             }
-            rendered
+        } finally {
+            instrumentation.removeMonitor(monitor)
         }
-        scenario.onActivity {
-            it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.notifyDataSetChanged()
-        }
-        SystemClock.sleep(500)
-        assertEquals(requestsBefore + 1, rotationReads())
-        scenario.onActivity { ParameterStoreV3.put(info, ParameterTypedValueV3.RotationGroup(RotationGroupV3())) }
-        waitUntil {
-            var empty = false
+        assertEquals(selectionBefore, selections())
+        assertEquals(rotationWritesBefore, rotationWrites().size)
+    }
+
+    private fun checkRotationGroupState(scenario: ActivityScenario<MainActivityUBI4>, vm: V3GesturesViewModel) {
+        val originalUbi4Group = WidgetState.rotationGroupGestures
+        val unrelatedUbi4Group = arrayListOf(CollectionGesturesProvider.getGesture(15))
+        scenario.onActivity { WidgetState.rotationGroupGestures = unrelatedUbi4Group }
+        try {
+            val info = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
+            val original = ParameterStoreV3.get(info)!!
+            assertEquals((1..8).toList(), vm.uiState.value.rotationGroupGestureIds)
+            val requestsBefore = rotationReads()
+            clickCard(scenario, R.id.rotationGroupSelectBtn)
+            waitUntil { rotationReads() > requestsBefore }
+            SystemClock.sleep(900) // An identical GET response must stop the 400 ms retries.
+            assertEquals(requestsBefore + 1, rotationReads())
             scenario.onActivity {
-                val list = it.findViewById<com.woxthebox.draglistview.DragListView>(R.id.rotationGroupDragLv).recyclerView
-                empty = vm.uiState.value.rotationGroupGestureIds.isEmpty() && list.adapter?.itemCount == 0 &&
-                    it.findViewById<View>(R.id.rotationGroupExplanationTv).visibility == View.VISIBLE &&
-                    it.findViewById<View>(R.id.addGestureToRotationGroupBtn).visibility == View.VISIBLE
+                assertEquals(View.GONE, it.findViewById<View>(R.id.addGestureToRotationGroupBtn).visibility)
+                ParameterStoreV3.put(info, ParameterTypedValueV3.RotationGroup(
+                    RotationGroupV3(gesture1Id = 4, gesture2Id = 64, gesture3Id = 4)))
             }
-            empty
+            waitUntil { vm.uiState.value.rotationGroupGestureIds == listOf(4, 64, 4) }
+            waitUntil {
+                var rendered = false
+                scenario.onActivity {
+                    val list = it.findViewById<com.woxthebox.draglistview.DragListView>(R.id.rotationGroupDragLv).recyclerView
+                    rendered = list.adapter?.itemCount == 3 && (0..2).all { position ->
+                        val name = CollectionGesturesProvider.getGesture(listOf(4, 64, 4)[position]).gestureName
+                        list.findViewHolderForAdapterPosition(position)?.itemView
+                            ?.findViewById<TextView>(R.id.gestureInRotationGroupTv)?.text?.toString() == name
+                    }
+                }
+                rendered
+            }
+            scenario.onActivity {
+                it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.notifyDataSetChanged()
+            }
+            SystemClock.sleep(500)
+            assertEquals(requestsBefore + 1, rotationReads())
+            scenario.onActivity { ParameterStoreV3.put(info, ParameterTypedValueV3.RotationGroup(RotationGroupV3())) }
+            waitUntil {
+                var empty = false
+                scenario.onActivity {
+                    val list = it.findViewById<com.woxthebox.draglistview.DragListView>(R.id.rotationGroupDragLv).recyclerView
+                    empty = vm.uiState.value.rotationGroupGestureIds.isEmpty() && list.adapter?.itemCount == 0 &&
+                        it.findViewById<View>(R.id.rotationGroupExplanationTv).visibility == View.VISIBLE &&
+                        it.findViewById<View>(R.id.addGestureToRotationGroupBtn).visibility == View.VISIBLE
+                }
+                empty
+            }
+            scenario.onActivity { ParameterStoreV3.put(info, original) }
+            waitUntil { vm.uiState.value.rotationGroupGestureIds == (1..8).toList() }
+            clickCard(scenario, R.id.collectionOfGesturesSelectBtn)
+            assertFalse(V3BleEmulatorTestHooks.hasOutgoingSubcommand(0x36))
+            assertTrue(selections().isEmpty())
+            scenario.onActivity {
+                assertSame(unrelatedUbi4Group, WidgetState.rotationGroupGestures)
+                assertEquals(listOf(15), WidgetState.rotationGroupGestures.map { gesture -> gesture.gestureId })
+            }
+        } finally {
+            scenario.onActivity { WidgetState.rotationGroupGestures = originalUbi4Group }
         }
-        scenario.onActivity { ParameterStoreV3.put(info, original) }
-        waitUntil { vm.uiState.value.rotationGroupGestureIds == (1..8).toList() }
-        clickCard(scenario, R.id.collectionOfGesturesSelectBtn)
-        assertFalse(V3BleEmulatorTestHooks.hasOutgoingSubcommand(0x36))
-        assertTrue(selections().isEmpty())
     }
 
     private fun checkRotationGroupRemoval(scenario: ActivityScenario<MainActivityUBI4>) {
@@ -526,6 +617,105 @@ class V3ActiveGestureEmulatorTest {
         scenario.onActivity { vm.onAction(V3GesturesAction.RotationGestureMoved(0, 2, listOf(4, 4, 64))) }
         assertEquals(writesBefore + 3, rotationWrites().size)
         assertEquals(selectionsBefore, selections())
+    }
+
+    private fun checkGesturesDisplaySettings(scenario: ActivityScenario<MainActivityUBI4>) {
+        val writesBefore = rotationWrites().size
+        val selectionsBefore = selections()
+        val sharedFilter = UiState.activeGestureFragmentFilterFlow.value
+        scenario.onActivity { UiState.activeGestureFragmentFilterFlow.value = 3 }
+        try {
+            clickCard(scenario, R.id.page_1)
+            waitForDisplaySettings(scenario, section = 2, expanded = true)
+            clickCard(scenario, R.id.collectionOfGesturesSelectBtn)
+            waitForDisplaySettings(scenario, section = 1, expanded = true)
+            clickCard(scenario, R.id.hideCollectionBtn)
+            waitForDisplaySettings(scenario, section = 1, expanded = false)
+            val readsBeforeRebind = rotationReads()
+            scenario.onActivity { it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.notifyDataSetChanged() }
+            waitForDisplaySettings(scenario, section = 1, expanded = false)
+            SystemClock.sleep(450)
+            assertEquals(readsBeforeRebind, rotationReads())
+
+            // Both actions arrive before rendering; the last state must win without a delayed hide/show.
+            scenario.onActivity {
+                val toggle = it.findViewById<View>(R.id.hideCollectionBtn)
+                toggle.performClick(); toggle.performClick()
+            }
+            SystemClock.sleep(500)
+            waitForDisplaySettings(scenario, section = 1, expanded = false)
+            repeat(2) {
+                val readsBefore = rotationReads()
+                clickCard(scenario, R.id.rotationGroupSelectBtn)
+                waitForDisplaySettings(scenario, section = 2, expanded = false)
+                waitUntil { rotationReads() > readsBefore }
+                SystemClock.sleep(900)
+                assertEquals(readsBefore + 1, rotationReads())
+            }
+
+            scenario.onActivity { UiState.v3WidgetsInteractionEnabled.value = false }
+            waitForDisplaySettings(scenario, section = 2, expanded = false, enabled = false)
+            clickCard(scenario, R.id.collectionOfGesturesSelectBtn)
+            scenario.onActivity {
+                assertFalse(it.findViewById<View>(R.id.hideCollectionBtn).isEnabled)
+                it.findViewById<View>(R.id.hideCollectionBtn).performClick()
+            }
+            waitForDisplaySettings(scenario, section = 1, expanded = false, enabled = false)
+            scenario.onActivity { UiState.v3WidgetsInteractionEnabled.value = true }
+            waitForDisplaySettings(scenario, section = 1, expanded = false)
+            clickCard(scenario, R.id.rotationGroupSelectBtn)
+            waitForDisplaySettings(scenario, section = 2, expanded = false)
+            clickCard(scenario, R.id.page_2)
+            clickCard(scenario, R.id.page_1)
+            waitForDisplaySettings(scenario, section = 2, expanded = false)
+            SystemClock.sleep(900)
+            val restoredReads = rotationReads()
+            scenario.onActivity {
+                assertEquals(2, it.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, -1))
+                assertEquals(0, it.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, -1))
+                it.findViewById<RecyclerView>(R.id.sprGesturesRv).adapter?.notifyDataSetChanged()
+            }
+            waitForDisplaySettings(scenario, section = 2, expanded = false)
+            SystemClock.sleep(450)
+            assertEquals(restoredReads, rotationReads())
+
+            clickCard(scenario, R.id.collectionOfGesturesSelectBtn)
+            clickCard(scenario, R.id.hideCollectionBtn)
+            waitForDisplaySettings(scenario, section = 1, expanded = true)
+            clickCard(scenario, R.id.hideCollectionBtn)
+            clickCard(scenario, R.id.page_2) // Leave before the delayed collapse finishes.
+            clickCard(scenario, R.id.page_1)
+            waitForDisplaySettings(scenario, section = 1, expanded = false)
+            clickCard(scenario, R.id.hideCollectionBtn)
+            waitForDisplaySettings(scenario, section = 1, expanded = true)
+            assertEquals(writesBefore, rotationWrites().size)
+            assertEquals(selectionsBefore, selections())
+            assertEquals(3, UiState.activeGestureFragmentFilterFlow.value)
+        } finally {
+            scenario.onActivity { UiState.activeGestureFragmentFilterFlow.value = sharedFilter }
+        }
+    }
+
+    private fun waitForDisplaySettings(
+        scenario: ActivityScenario<MainActivityUBI4>, section: Int, expanded: Boolean, enabled: Boolean = true,
+    ) = waitUntil {
+        var rendered = false
+        scenario.onActivity {
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (fragment is SprGestureFragment && fragment.isResumed && fragment.view != null) {
+                val state = ViewModelProvider(fragment)[V3GesturesViewModel::class.java].uiState.value
+                val factory = it.findViewById<View>(R.id.collectionFactoryGesturesCl)
+                rendered = state.selectedSection == section && state.isFactoryCollectionExpanded == expanded &&
+                    state.isInteractionEnabled == enabled &&
+                    it.findViewById<View>(R.id.collectionGesturesCl).visibility == (if (section == 1) View.VISIBLE else View.GONE) &&
+                    it.findViewById<View>(R.id.rotationGroupCl).visibility == (if (section == 1) View.GONE else View.VISIBLE) &&
+                    factory.visibility == (if (expanded) View.VISIBLE else View.GONE) &&
+                    kotlin.math.abs(factory.alpha - if (expanded) 1F else 0F) < 0.01F &&
+                    kotlin.math.abs(it.findViewById<View>(R.id.hideCollectionBtn).rotation - if (expanded) 180F else 0F) < 0.1F &&
+                    kotlin.math.abs(it.findViewById<View>(R.id.collectionUserGesturesCl).translationY) < 0.1F
+            }
+        }
+        rendered
     }
 
     private fun dragRotationGesture(from: Int, to: Int) {

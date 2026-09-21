@@ -207,9 +207,7 @@ class V3SpecialSettingsViewModel(
                 isViewAttached = false
                 updateAutoLoginObservation()
                 cancelSettingsProfileOperation()
-                updateSliderActivity()
-                updateToggleSliderActivity()
-                updateSpinnerState()
+                updateParameterControls()
                 updateSettingsProfiles()
             }
             is V3SpecialSettingsAction.SettingsSectionSelected -> {
@@ -464,9 +462,7 @@ class V3SpecialSettingsViewModel(
         settingsProfilesLoadJob?.cancel()
         val request = ++settingsProfileOperationRequest
         _uiState.update { it.copy(settingsProfiles = state.copy(operation = operation, isEnabled = false, failedOperation = null, nameEditor = null)) }
-        updateSliderActivity()
-        updateToggleSliderActivity()
-        updateSpinnerState()
+        updateParameterControls()
         settingsProfileOperationJob = viewModelScope.launch {
             try {
                 execute(serial)
@@ -480,9 +476,7 @@ class V3SpecialSettingsViewModel(
             } finally {
                 if (isActive && request == settingsProfileOperationRequest) {
                     _uiState.update { it.copy(settingsProfiles = it.settingsProfiles?.copy(operation = null)) }
-                    updateSliderActivity()
-                    updateToggleSliderActivity()
-                    updateSpinnerState()
+                    updateParameterControls()
                     updateSettingsProfiles(reload = true)
                 }
             }
@@ -495,6 +489,10 @@ class V3SpecialSettingsViewModel(
         settingsProfileOperationJob?.cancel()
         settingsProfileOperationJob = null
         _uiState.update { it.copy(settingsProfiles = it.settingsProfiles?.copy(operation = null)) }
+        updateParameterControls()
+    }
+
+    private fun updateParameterControls() {
         updateSliderActivity()
         updateToggleSliderActivity()
         updateSpinnerState()

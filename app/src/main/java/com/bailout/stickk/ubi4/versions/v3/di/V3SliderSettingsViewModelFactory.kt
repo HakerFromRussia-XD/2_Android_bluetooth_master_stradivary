@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.versions.v3.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
@@ -12,6 +13,14 @@ class V3SliderSettingsViewModelFactory(
     private val repository: V3DeviceSettingsRepository,
     private val sliderParameterKeys: Set<String>,
 ) : ViewModelProvider.Factory {
+    constructor(
+        enqueuePacket: (ByteArray) -> Unit,
+        sliderParameterKeys: Set<String>,
+    ) : this(
+        repository = V3DeviceSettingsRepositoryImpl(enqueuePacket = enqueuePacket),
+        sliderParameterKeys = sliderParameterKeys,
+    )
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3SliderSettingsViewModel::class.java)
         @Suppress("UNCHECKED_CAST")

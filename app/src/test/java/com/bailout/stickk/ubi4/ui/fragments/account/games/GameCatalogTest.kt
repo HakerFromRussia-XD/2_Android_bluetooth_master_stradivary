@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments.account.games
 
+import com.bailout.stickk.ubi4.data.games.GameCatalog
+import com.bailout.stickk.ubi4.data.games.GameAction
+import com.bailout.stickk.ubi4.data.games.RemoteGame
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

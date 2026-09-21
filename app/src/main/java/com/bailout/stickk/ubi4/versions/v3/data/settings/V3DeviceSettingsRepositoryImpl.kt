@@ -48,11 +48,7 @@ class V3DeviceSettingsRepositoryImpl(
     override fun setSpinnerValue(parameterKey: String, value: Int) {
         val meta = spinnerMeta(parameterKey)
         val typed = ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = value))
-        ParameterStoreV3.put(meta.parameterInfo, typed)
-        saveBleValue(meta.parameterInfo, typed)
-        ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, typed)?.let { encoded ->
-            ParameterProvider.getParameterV3(meta.parameterInfo).data = encoded
-        }
+        saveTypedValue(meta, typed)
         enqueuePacket(BLECommandsV3.sendCommand(meta.parameterInfo.parameterID, meta.parameterInfo.dataCode, value))
     }
 
@@ -74,11 +70,7 @@ class V3DeviceSettingsRepositoryImpl(
     override fun saveToggleSliderValue(parameterKey: String, value: V3ToggleSliderValue) {
         val meta = toggleSliderMeta(parameterKey)
         val typed = ParameterTypedValueV3.Toggle(ToggleV3(toggleValue = packToggleSliderValue(value)))
-        ParameterStoreV3.put(meta.parameterInfo, typed)
-        saveBleValue(meta.parameterInfo, typed)
-        ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, typed)?.let { encoded ->
-            ParameterProvider.getParameterV3(meta.parameterInfo).data = encoded
-        }
+        saveTypedValue(meta, typed)
     }
 
     override fun sendToggleSliderValue(parameterKey: String, value: V3ToggleSliderValue) {
@@ -134,14 +126,18 @@ class V3DeviceSettingsRepositoryImpl(
         }
 
         // Preserve the existing optimistic update and scheduling order.
-        ParameterStoreV3.put(parameterInfo, newTyped)
-        saveBleValue(parameterInfo, newTyped)
-        ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, newTyped)?.let { encoded ->
-            ParameterProvider.getParameterV3(parameterInfo).data = encoded
-        }
+        saveTypedValue(meta, newTyped)
         logGlobalFingerPositionTx(parameterInfo, value, packet)
         enqueuePacket(packet)
         platformLog("sendProgress", "parameter=$parameterKey value=$newTyped")
+    }
+
+    private fun saveTypedValue(meta: ParameterMetaV3, value: ParameterTypedValueV3) {
+        ParameterStoreV3.put(meta.parameterInfo, value)
+        saveBleValue(meta.parameterInfo, value)
+        ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, value)?.let { encoded ->
+            ParameterProvider.getParameterV3(meta.parameterInfo).data = encoded
+        }
     }
 
     private fun sliderMeta(parameterKey: String): ParameterMetaV3 {

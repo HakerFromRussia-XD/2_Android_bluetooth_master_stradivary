@@ -49,6 +49,46 @@ class V3AppSettingsRepositoryTest {
         every { preferences.unregisterOnSharedPreferenceChangeListener(any()) } answers { listeners.remove(firstArg()); Unit }
     }
 
+    @Test fun `editor names preserve their own defaults and one based selection`() {
+        val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
+        storedInts[prefix] = 2
+        storedStrings[prefix + "load not work" + 1] = ""
+        storedStrings[prefix + "load not work" + 2] = null
+        val result = repository.getGestureEditorNames()
+        assertEquals(2, result.gestureNumber)
+        assertEquals(PreferenceKeysUbi4.NUM_GESTURES, result.names.size)
+        assertEquals(listOf("load not work", "", "null"), result.names.take(3))
+        verify(exactly = 0) { preferences.edit() }
+    }
+
+    @Test fun `editor writes each name with current MAC then publishes update`() = runTest {
+        val previousUpdates = com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+        com.bailout.stickk.ubi4.data.state.UiState.updateFlow = kotlinx.coroutines.flow.MutableSharedFlow(replay = 1, extraBufferCapacity = 64)
+        try {
+        val events = mutableListOf<String>()
+        every { editor.putString(any(), any()) } answers {
+            events.add("${firstArg<String>()}=${secondArg<String>()}")
+            editor
+        }
+        every { editor.apply() } answers { events.add("apply") }
+        val watcher = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            com.bailout.stickk.ubi4.data.state.UiState.updateFlow.collect { events.add("update:$it") }
+        }
+        repository.saveGestureEditorNames(listOf("First", ""))
+        runCurrent()
+        val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
+        assertEquals(listOf(prefix + "text0=First", "apply", prefix + "text1=", "apply", "update:0"), events)
+        events.clear()
+        storedStrings[PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4] = "NEW"
+        repository.saveGestureEditorNames(listOf("Renamed"))
+        runCurrent()
+        assertEquals(listOf(prefix + "NEW0=Renamed", "apply", "update:0"), events)
+        watcher.cancel()
+        } finally {
+            com.bailout.stickk.ubi4.data.state.UiState.updateFlow = previousUpdates
+        }
+    }
+
     @Test fun `custom names preserve MAC index keys and missing null and empty values without writing`() {
         val macKey = PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4
         val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM

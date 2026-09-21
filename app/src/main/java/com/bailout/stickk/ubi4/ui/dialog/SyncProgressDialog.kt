@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.lottie.LottieAnimationView
+import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncUiState
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
@@ -67,6 +68,23 @@ class SyncProgressDialog(
         dialog?.dismiss()
         dialog = null
         progressBar = null
+    }
+
+    fun renderV3(state: V3SyncUiState, setChromeVisible: (Boolean) -> Unit) {
+        if (state.isShowing && !isShowing) show()
+        else if (!state.isShowing && isShowing) dismiss()
+        state.chromeVisible?.let { visible ->
+            if (chromeHidden == visible) {
+                setChromeVisible(visible)
+                chromeHidden = !visible
+            }
+        }
+        progressBar?.apply {
+            visibility = if (state.isProgressVisible) View.VISIBLE else View.GONE
+            isIndeterminate = state.isIndeterminate
+            if (!state.isIndeterminate && Build.VERSION.SDK_INT >= 24) setProgress(state.progress, true)
+            else progress = state.progress
+        }
     }
 
     fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {

@@ -1,7 +1,13 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
 import androidx.lifecycle.ViewModel
+import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsPlotRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -23,6 +29,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSett
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.DataFactoryV3SensorsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidgetsSource
 
 class V3SensorsViewModelFactory(
@@ -32,6 +39,31 @@ class V3SensorsViewModelFactory(
     private val commandsRepository: V3SensorsCommandsRepository,
     private val sessionRepository: V3DeviceSessionRepository,
 ) : ViewModelProvider.Factory {
+    companion object {
+        fun create(
+            showSyncProgress: () -> Unit = { MainActivityUBI4.main.observeSyncProgress() },
+            refreshWidgets: () -> Unit = { MainActivityUBI4.main.getBLEController().refreshWidgetsV3BySwipe() },
+        ): V3SensorsViewModelFactory = V3SensorsViewModelFactory(
+            enqueuePacket = { packet ->
+                BleDependencies.v3CommandTransport.enqueue(packet)
+            },
+            showSyncProgress = showSyncProgress,
+            refreshWidgets = refreshWidgets,
+        )
+    }
+
+    constructor(
+        enqueuePacket: (ByteArray) -> Unit,
+        showSyncProgress: () -> Unit,
+        refreshWidgets: () -> Unit,
+    ) : this(
+        repository = V3DeviceSettingsRepositoryImpl(enqueuePacket),
+        widgetsSource = DataFactoryV3SensorsWidgetsSource(),
+        plotRepository = V3SensorsPlotRepositoryImpl(enqueuePacket),
+        commandsRepository = V3SensorsCommandsRepositoryImpl(enqueuePacket, showSyncProgress, refreshWidgets),
+        sessionRepository = V3DeviceSessionRepositoryImpl(),
+    )
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3SensorsViewModel::class.java)
         @Suppress("UNCHECKED_CAST")

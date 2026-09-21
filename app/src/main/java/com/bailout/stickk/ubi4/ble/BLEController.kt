@@ -61,7 +61,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModu
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.mainOrNull
@@ -76,7 +75,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import okhttp3.internal.notifyAll
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 
@@ -145,10 +143,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 if(state == WRITE) {
                     pendingFirmwareControlWrite?.complete(true)
                     val currentMain = mainOrNull ?: return@setReceiverCallback
-                    synchronized(currentMain.writeLock) {
-                        canSendFlag = true
-                        currentMain.writeLock.notifyAll()
-                    }
+                    currentMain.onBleWriteCompleted()
                 }
             }
             if (!mBluetoothLeService?.initialize()!!) {

@@ -3,9 +3,11 @@ package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
+import kotlinx.coroutines.channels.SendChannel
 
 class V3AccountProfileMemoryCache {
     var header: V3AccountProfileHeader? = null
+
 }
 
 class V3AccountProfileLocalRepositoryImpl(

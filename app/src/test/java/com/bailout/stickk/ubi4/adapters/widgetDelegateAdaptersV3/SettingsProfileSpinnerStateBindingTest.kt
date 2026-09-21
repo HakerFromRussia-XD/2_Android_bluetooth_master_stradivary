@@ -73,6 +73,7 @@ class SettingsProfileSpinnerStateBindingTest {
         delegate = SpinnerDelegateAdapterV3(
             onDestroyParent = callbacks::add, settingsProfilesFromState = true,
             onSettingsProfileSelected = selections::add, onSettingsProfileCreateRequested = { creations++ },
+            onSettingsProfilesChanged = { error("Screen actions must not invoke the shared profile update callback") },
         )
     }
 

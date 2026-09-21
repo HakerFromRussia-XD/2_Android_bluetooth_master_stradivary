@@ -7,11 +7,6 @@ import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.service.*
-import com.bailout.stickk.ubi4.versions.v3.domain.service.GetDeviceInfoTextUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.GetDeviceRoleUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveDeviceInfoAvailabilityUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveDeviceRoleAvailabilityUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveProsthesisCalibrationAvailabilityUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_CONTROL_MODE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION

@@ -49,13 +49,18 @@ ViewAttached; они больше не отправляют данные и не
 
 ## Что остаётся в следующих этапах
 
+Обновлено после C4.2/C4.6 от 2026-09-18; проверки B1.4 ниже сохранены как история.
+Сборка зависимостей «Датчиков» теперь находится в di, V3-адаптеры и отображение
+их состояния — в SensorsFragment. Подробности и проверки:
+[карта Fragment/Activity](v3_fragment_activity_architecture_map.md).
+
 | Остаточная связь | Почему сохранена / этап |
 | --- | --- |
 | DataFactoryV3SensorsWidgetsSource и mapper с метаданными shared | Мост подготовки UI без изменения генераторов и API iOS. Разделение обязанностей — D2. |
 | UiState.isInterfaceV3Activated во Fragment | Выбор существующего пути V3 или UBI4; глобальное определение версии — C4. |
 | onResume → UiState.updateFlow и общая работа Base с notifyDataSetChanged/именами жестов | Сохранено прежнее уведомление и поведение базового класса; сокращение общих обязанностей — C4. V3-значения из этого события не записываются. |
-| DataFactory и updateFlow внутри bindUbi4Widgets | Динамический UBI4 пока остаётся на прежнем пути до E2. |
-| Фабрики Repository в Base, MainActivity.main, SyncProgressDialog и очередь | Точки подключения к существующему транспорту; владелец общей синхронизации — Activity/BLEController. Выделение инфраструктуры — C4. |
+| DataFactory и updateFlow внутри bindUbi4Widgets | Существующий UBI4-путь сохранён; его рефакторинг исключён из задачи. |
+| Callbacks MainActivity.main, SyncProgressDialog и очередь | Сборка репозиториев перенесена в V3SensorsViewModelFactory (C4.2). Подключение к общему транспорту сохраняется; владелец синхронизации — Activity/BLEController. Выделение инфраструктуры — оставшиеся шаги C4. |
 | Реализации Repository поверх shared stores/кодеков/профилей | Внешние данные уже закрыты domain-контрактами; внутреннее разделение shared — D2. |
 | Domain физически в app | Платформенно независимый код переносится в shared на D1. |
 

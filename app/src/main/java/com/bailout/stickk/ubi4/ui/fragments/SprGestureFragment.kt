@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -23,7 +22,6 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -46,13 +44,8 @@ import com.bailout.stickk.ubi4.ui.gestures.GestureCollectionFactory
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
-import com.bailout.stickk.ubi4.versions.v3.data.gestures.V3GesturesRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.DataFactoryV3GesturesWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.widgets.V3GesturesWidgetMapper
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiState
@@ -143,17 +136,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
     }
 
     private fun bindV3Gestures() {
-        val repository = V3GesturesRepositoryImpl(enqueuePacket = { packet ->
-            MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
-        })
-        val viewModel = ViewModelProvider(this, V3GesturesViewModelFactory(
-            repository,
-            V3AppSettingsRepositoryImpl(requireContext().applicationContext.getSharedPreferences(
-                PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
-            )),
-            DataFactoryV3GesturesWidgetsSource(),
-            V3DeviceSessionRepositoryImpl(),
-        ))[V3GesturesViewModel::class.java]
+        val viewModel = ViewModelProvider(this, V3GesturesViewModelFactory.create(requireContext()))[V3GesturesViewModel::class.java]
         gesturesViewModel = viewModel
         renderV3GesturesScreen(viewModel.uiState.value)
         gestureStateJob = viewLifecycleOwner.lifecycleScope.launch {

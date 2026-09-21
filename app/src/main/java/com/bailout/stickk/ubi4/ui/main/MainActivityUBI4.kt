@@ -28,7 +28,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.bailout.stickk.ubi4.versions.v3.di.V3SyncViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncViewModel
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -67,7 +73,6 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiInterfaceModeBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
@@ -106,11 +111,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import okhttp3.internal.notifyAll
-import okhttp3.internal.wait
 import timber.log.Timber
 import java.lang.ref.WeakReference
-import java.util.concurrent.atomic.AtomicInteger
+import com.bailout.stickk.ubi4.ble.BleCommandQueue
+import com.bailout.stickk.ubi4.di.BleDependencies
 import kotlin.jvm.java
 
 
@@ -124,9 +128,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     var dialogManager: DialogManager? = null
     private var currentSerial: String? = null
     private var syncShownOnce = false
+    private var syncObservation: Job? = null
+    private val v3SyncViewModel by lazy {
+        ViewModelProvider(this, V3SyncViewModelFactory)[V3SyncViewModel::class.java]
+    }
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
-    private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач
     private val transitionPauseHandler = Handler(Looper.getMainLooper())
     private var resumePlotPointsRunnable: Runnable? = null
     private var isImeVisible = false
@@ -149,9 +156,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var job: Job? = null
 
     // Очередь для задачь работы с BLE
-    private val queue = BlockingQueueUbi4()
-    @Volatile private var queueWorkerRunning = false
-    private var queueWorker: Thread? = null
+    private val commandQueue = BleCommandQueue()
+    private val bleCommandWriter by lazy {
+        BleDependencies.createCommandWriter { packet, command, type ->
+            mBLEController.bleCommand(packet, command, type)
+        }
+    }
     private lateinit var bottomNavigationController: BottomNavigationController
     private lateinit var telemetryCoordinator: TelemetryCoordinator
     private var isV3BleEmulatorMode = false
@@ -184,6 +194,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
+        if (UiState.isInterfaceV3Activated) v3SyncViewModel.onAction(V3SyncAction.ViewCreated)
         if (!isV3BleEmulatorMode) {
             showStartupLoaderIfNeeded()
         }
@@ -237,7 +248,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         bluetoothLeService = BluetoothLeService()
-        startQueue()
+        commandQueue.start()
 
         bluetoothLeService = BluetoothLeService()
         mServiceConnection = object : ServiceConnection {
@@ -429,9 +440,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun onDestroy() {
         enqueueAppCloseUploadIfNeeded()
-        queueWorkerRunning = false
-        queueWorker?.interrupt()
-        queueWorker = null
+        commandQueue.stop()
         job?.cancel()
         resumePlotPointsRunnable?.let(transitionPauseHandler::removeCallbacks)
         resumePlotPointsRunnable = null
@@ -740,10 +749,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private fun setStaticVariables() {
         canSendNextChunkFlagFlow = MutableSharedFlow()
-        synchronized(writeLock) {
-            canSendFlag = false
-            writeLock.notifyAll()
-        }
+        bleCommandWriter.reset()
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
         bleParserV3 = BLEParserV3(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
@@ -782,50 +788,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return mSettings?.getBoolean(key, default) ?: default
     }
 
-    private fun startQueue() {
-        if (queueWorkerRunning) return
-        queueWorkerRunning = true
-        val worker = Thread {
-            try {
-                while (queueWorkerRunning && !Thread.currentThread().isInterrupted) {
-                    try {
-                        val task: Runnable = queue.get()
-                        if (!queueWorkerRunning || Thread.currentThread().isInterrupted) break
-                        Log.d(
-                            "BLE_Q",
-                            "DEQ start thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
-                        )
-                        task.run()
-                        Log.d(
-                            "BLE_Q",
-                            "DEQ done  thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
-                        )
-                        remainingTasks.decrementAndGet()
-                    } catch (_: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                        break
-                    } catch (t: Throwable) {
-                        if (!queueWorkerRunning) break
-                        Log.e("BLE_Q", "Queue worker failed: ${t.message}", t)
-                    }
-                }
-            } finally {
-                queueWorkerRunning = false
-            }
-        }
-        worker.name = "BLE-Queue-Worker"
-        queueWorker = worker
-        worker.start()
-    }
-    override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
-    override fun getRemainingTasksCount(): Int = remainingTasks.get()
+    override fun getQueueUBI4(): BlockingQueueUbi4 = commandQueue.queue
+    override fun getRemainingTasksCount(): Int = commandQueue.pendingCount
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
         if (byteArray != null) {
             if (V3BleEmulatorTestHooks.tryHandleOutgoing(byteArray, bleParserV3, onChunkSent)) {
                 return
             }
-            queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
-            remainingTasks.incrementAndGet()
+            commandQueue.enqueue(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
         }
     }
 
@@ -842,7 +812,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         Log.i(
             DFU_TRACE_TAG,
-            "legacy jump enqueue bytes=${packet.size} remaining_before=${remainingTasks.get()}"
+            "legacy jump enqueue bytes=${packet.size} remaining_before=${commandQueue.pendingCount}"
         )
         val sent = CompletableDeferred<Unit>()
         bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {
@@ -853,7 +823,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         } != null
         Log.i(
             DFU_TRACE_TAG,
-            "legacy jump write_complete=$completed remaining=${remainingTasks.get()} " +
+            "legacy jump write_complete=$completed remaining=${commandQueue.pendingCount} " +
                 "elapsed_ms=${System.currentTimeMillis() - startedAt}"
         )
         check(completed) { "Legacy JUMP_TO_BOOTLOADER write timeout" }
@@ -868,8 +838,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override suspend fun dfuSetHighPerformanceMode() {
         val startedAt = System.currentTimeMillis()
-        Log.i(DFU_TRACE_TAG, "queue drain_before_high_performance start remaining=${remainingTasks.get()}")
-        while (remainingTasks.get() > 0) delay(5L)
+        Log.i(DFU_TRACE_TAG, "queue drain_before_high_performance start remaining=${commandQueue.pendingCount}")
+        while (commandQueue.pendingCount > 0) delay(5L)
         Log.i(
             DFU_TRACE_TAG,
             "queue drain_before_high_performance complete elapsed_ms=${System.currentTimeMillis() - startedAt}"
@@ -881,16 +851,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val startedAt = System.currentTimeMillis()
         Log.d(
             DFU_TRACE_TAG,
-            "direct control start bytes=${packet.size} remaining_before=${remainingTasks.get()}"
+            "direct control start bytes=${packet.size} remaining_before=${commandQueue.pendingCount}"
         )
-        while (remainingTasks.get() > 0) delay(5L)
+        while (commandQueue.pendingCount > 0) delay(5L)
         val completed = mBLEController.dfuWriteControlAndAwait(
             packet = packet,
             timeoutMs = DFU_CONTROL_WRITE_TIMEOUT_MS
         )
         Log.d(
             DFU_TRACE_TAG,
-            "direct control result completed=$completed remaining=${remainingTasks.get()} " +
+            "direct control result completed=$completed remaining=${commandQueue.pendingCount} " +
                 "elapsed_ms=${System.currentTimeMillis() - startedAt}"
         )
         check(completed) {
@@ -904,8 +874,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
          * onCharacteristicWrite, so this one command must not enter the
          * callback-gated stop-and-wait queue. */
         val startedAt = System.currentTimeMillis()
-        Log.i(DFU_TRACE_TAG, "queue reset_write drain start remaining=${remainingTasks.get()}")
-        while (remainingTasks.get() > 0) delay(5L)
+        Log.i(DFU_TRACE_TAG, "queue reset_write drain start remaining=${commandQueue.pendingCount}")
+        while (commandQueue.pendingCount > 0) delay(5L)
         val accepted = mBLEController.dfuWriteControlExpectDisconnect(packet)
         Log.i(
             DFU_TRACE_TAG,
@@ -934,36 +904,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
             if (UiState.isInterfaceV3Activated) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    writeData(byteArray, command, typeCommand)
-                    onChunkSent()
-                }
+                bleCommandWriter.writeAsync(lifecycleScope, byteArray, command, typeCommand, onSent = onChunkSent)
             } else {
-                writeData(byteArray, command, typeCommand)
+                bleCommandWriter.write(byteArray, command, typeCommand)
                 onChunkSent()
             }
         }
     }
-    val writeLock = Any()
-    private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
-        synchronized(writeLock) {
-            canSendFlag = false
-            Log.d(
-                "BLE_Q",
-                "SEND cmd=$typeCommand uuid=$command size=${byteArray?.size ?: -1} thread=${Thread.currentThread().name}"
-            )
-            val dispatched = mBLEController.bleCommand(byteArray, command, typeCommand)
-            if (!dispatched) {
-                Log.w("BLE_Q", "Command not dispatched cmd=$typeCommand uuid=$command; release queue slot")
-                canSendFlag = true
-                return
-            }
-            Log.d("TestSendByteArray","send!!!!")
-            while (!canSendFlag) {
-                writeLock.wait()    // ждём, пока кто-то вызовет notify()
-            }
-            Log.d("TestSendByteArray","CallBack is BLEService was complete")
-        }
+    internal fun onBleWriteCompleted() {
+        bleCommandWriter.onWriteCompleted()
     }
 
     //не нарушая инкапсуляцию
@@ -1032,6 +981,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun observeSyncProgress() {
         platformLog("SyncProgressDialog","Main observeSyncProgress run ")
+        if (UiState.isInterfaceV3Activated) {
+            val viewModel = v3SyncViewModel
+            if (syncObservation == null) {
+                syncObservation = lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.onAction(V3SyncAction.ViewAttached)
+                        try {
+                            viewModel.uiState.collect { syncDialog.renderV3(it, ::setChromeVisible) }
+                        } finally {
+                            viewModel.onAction(V3SyncAction.ViewDetached)
+                        }
+                    }
+                }
+            } else if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                viewModel.onAction(V3SyncAction.ViewAttached)
+            }
+            return
+        }
         syncDialog.observeSyncProgress { visible ->
             setChromeVisible(visible)
         }
@@ -1111,6 +1078,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         setChromeVisible(false)
         // показываем диалог сразу, чтобы не было фликера
         syncDialog.show()
+        if (UiState.isInterfaceV3Activated) v3SyncViewModel.onAction(V3SyncAction.StartupShown)
         // подписка на состояние (дальше он сам закроется)
         ensureSyncDialogShown()
     }

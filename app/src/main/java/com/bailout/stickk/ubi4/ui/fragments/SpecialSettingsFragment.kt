@@ -1,8 +1,5 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
-import android.content.Context
-import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -17,6 +14,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.AutoLoginDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ui.dialog.SettingsProfileNameDialogHost
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfileNameRules
@@ -28,19 +29,14 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
-import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesRepositoryImpl
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SettingsProfileApplierV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsAction
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
-import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.DataFactoryV3SpecialSettingsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetMapper
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -57,6 +53,52 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var isMobileSettings = false
     private var selectorIndicatorAnimator: ObjectAnimator? = null
     private var v3SpecialSettingsViewModel: V3SpecialSettingsViewModel? = null
+    private val v3AutoLoginAdapter by lazy {
+        AutoLoginDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onCheckedChanged = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.AutoLoginChanged(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    private val v3SpinnerAdapter by lazy {
+        SpinnerDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            parameterKeys = v3SpinnerParameterKeys,
+            onAction = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SpinnerAction(it)) },
+            settingsProfilesFromState = v3SettingsProfilesFromState,
+            onSettingsProfileSelected = {
+                v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSelected(it))
+            },
+            onSettingsProfileCreateRequested = {
+                v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileCreateRequested)
+            },
+            onSettingsProfileRenameRequested = {
+                v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileRenameRequested(it))
+            },
+        )
+    }
+    private val v3ToggleSliderAdapter by lazy {
+        ToggleSliderDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            parameterKeys = v3ToggleSliderParameterKeys,
+            onAction = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ToggleSliderAction(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    private val v3SliderAdapter by lazy {
+        SliderDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onAction = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SliderAction(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    protected override val adapterWidgets: CompositeDelegateAdapter by lazy {
+        if (UiState.isInterfaceV3Activated) {
+            CompositeDelegateAdapter(v3AutoLoginAdapter, v3SpinnerAdapter, v3ToggleSliderAdapter, v3SliderAdapter)
+        } else {
+            super.adapterWidgets
+        }
+    }
     private var v3SpecialSettingsStateJob: Job? = null
     private val v3WidgetMapper = V3SpecialSettingsWidgetMapper()
     private var renderedV3Widgets: List<V3SpecialSettingsWidget>? = null
@@ -114,17 +156,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     private fun bindV3SpecialSettings() {
         if (!UiState.isInterfaceV3Activated) return
-        val repository = createV3DeviceSettingsRepository()
         val viewModel = ViewModelProvider(
             this,
-            V3SpecialSettingsViewModelFactory(
-                repository, DataFactoryV3SpecialSettingsWidgetsSource(), repository, repository,
-                V3SettingsProfilesRepositoryImpl(SettingsProfileApplierV3::apply),
-                V3AppSettingsRepositoryImpl(requireContext().applicationContext.getSharedPreferences(
-                    PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
-                )),
-                sessionRepository = V3DeviceSessionRepositoryImpl(),
-            ),
+            V3SpecialSettingsViewModelFactory.create(requireContext()),
         )[V3SpecialSettingsViewModel::class.java]
         v3SpecialSettingsViewModel = viewModel
         val owner = viewLifecycleOwner
@@ -156,36 +190,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
     }
 
-    override fun onV3AutoLoginChanged(enabled: Boolean) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.AutoLoginChanged(enabled))
-    }
-
     override fun areV3WidgetAnimationsEnabled(): Boolean =
         if (v3SpecialSettingsViewModel != null) v3AnimationsEnabled else super.areV3WidgetAnimationsEnabled()
-
-    override fun onV3SliderAction(action: V3SliderAction) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SliderAction(action))
-    }
-
-    override fun onV3ToggleSliderAction(action: V3ToggleSliderAction) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.ToggleSliderAction(action))
-    }
-
-    override fun onV3SpinnerAction(action: V3SpinnerAction) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SpinnerAction(action))
-    }
-
-    override fun onV3SettingsProfileCreateRequested() {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileCreateRequested)
-    }
-
-    override fun onV3SettingsProfileSelected(profileId: Int) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSelected(profileId))
-    }
-
-    override fun onV3SettingsProfileRenameRequested(profileId: Int) {
-        v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileRenameRequested(profileId))
-    }
 
     private fun renderSettingsProfileNameDialog(editor: V3SettingsProfileNameEditorUiState?) {
         if (renderedSettingsProfileNameRequest == editor?.requestId) return
@@ -234,11 +240,11 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         isMobileSettings = state.selectedSection == V3SpecialSettingsSection.APPLICATION
         val sectionChanged = previousMobileSettings == null || previousMobileSettings != isMobileSettings
         if (sectionChanged) clearSwitcherCache()
-        renderV3Sliders(state.sliders)
-        renderV3ToggleSliders(state.toggleSliders)
-        renderV3Spinners(state.spinners)
-        renderV3SettingsProfiles(state.settingsProfiles)
-        renderV3AutoLogin(state.autoLogin)
+        v3SliderAdapter.renderSliders(state.sliders)
+        v3ToggleSliderAdapter.renderToggleSliders(state.toggleSliders)
+        v3SpinnerAdapter.renderSpinners(state.spinners)
+        v3SpinnerAdapter.renderSettingsProfiles(state.settingsProfiles)
+        v3AutoLoginAdapter.render(state.autoLogin)
         if (sectionChanged || renderedV3Widgets != state.widgets) {
             adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets))
             renderedV3Widgets = state.widgets

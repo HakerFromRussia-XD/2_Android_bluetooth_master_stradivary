@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.emitAll
 
 class FakeV3AppSettingsRepository : V3AppSettingsRepository {
+    override fun getGestureEditorNames() = error("Editor names are not used by this fake")
+    override fun saveGestureEditorNames(names: List<String>) = error("Editor names are not used by this fake")
     var storedCustomGestureNames = V3CustomGestureNames()
     var customGestureNameReads = 0
     override fun getCustomGestureNames(): V3CustomGestureNames {

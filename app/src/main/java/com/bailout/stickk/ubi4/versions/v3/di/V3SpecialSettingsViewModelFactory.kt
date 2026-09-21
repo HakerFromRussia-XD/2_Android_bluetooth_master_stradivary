@@ -1,7 +1,15 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SettingsProfileApplierV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetAutoLoginEnabledUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetSpecialSettingsSectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.ObserveAutoLoginEnabledUseCaseV3
@@ -33,6 +41,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.RenameSetting
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.SelectSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfilesRepository
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.DataFactoryV3SpecialSettingsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetsSource
 
 class V3SpecialSettingsViewModelFactory(
@@ -44,6 +53,27 @@ class V3SpecialSettingsViewModelFactory(
     private val appSettingsRepository: V3AppSettingsRepository,
     private val sessionRepository: V3DeviceSessionRepository,
 ) : ViewModelProvider.Factory {
+    companion object {
+        fun create(context: Context): V3SpecialSettingsViewModelFactory = create(context) { packet ->
+            BleDependencies.v3CommandTransport.enqueue(packet)
+        }
+
+        fun create(context: Context, enqueuePacket: (ByteArray) -> Unit): V3SpecialSettingsViewModelFactory {
+            val repository = V3DeviceSettingsRepositoryImpl(enqueuePacket)
+            return V3SpecialSettingsViewModelFactory(
+                repository = repository,
+                widgetsSource = DataFactoryV3SpecialSettingsWidgetsSource(),
+                toggleSliderRepository = repository,
+                spinnerRepository = repository,
+                settingsProfilesRepository = V3SettingsProfilesRepositoryImpl(SettingsProfileApplierV3::apply),
+                appSettingsRepository = V3AppSettingsRepositoryImpl(context.applicationContext.getSharedPreferences(
+                    PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
+                )),
+                sessionRepository = V3DeviceSessionRepositoryImpl(),
+            )
+        }
+    }
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3SpecialSettingsViewModel::class.java)
         @Suppress("UNCHECKED_CAST")

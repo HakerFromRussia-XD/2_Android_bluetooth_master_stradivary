@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.ui.fragments.account.games
+package com.bailout.stickk.ubi4.data.games
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull

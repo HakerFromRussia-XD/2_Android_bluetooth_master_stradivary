@@ -1,7 +1,17 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceInfoRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceRoleRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.service.V3ProsthesisCalibrationRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -28,6 +38,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSpinne
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.DataFactoryV3ServiceWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidgetsSource
 
 class V3ServiceViewModelFactory(
@@ -39,6 +50,39 @@ class V3ServiceViewModelFactory(
     private val calibrationRepository: V3ProsthesisCalibrationRepository,
     private val sessionRepository: V3DeviceSessionRepository,
 ) : ViewModelProvider.Factory {
+    companion object {
+        fun create(
+            context: Context,
+            currentSerial: () -> String? = { MainActivityUBI4.main.getCurrentSerial() },
+            deviceName: () -> String? = { MainActivityUBI4.main.mDeviceName },
+            intentDeviceName: () -> String? = { MainActivityUBI4.main.intent?.getStringExtra(EXTRAS_DEVICE_NAME) },
+            applyDeviceName: (String) -> Unit = { MainActivityUBI4.main.applyDeviceNameImmediately(it) },
+            enqueuePacket: (ByteArray, () -> Unit) -> Unit = BleDependencies.v3CommandTransport::enqueue,
+        ): V3ServiceViewModelFactory {
+            val enqueueCommand: (ByteArray) -> Unit = { packet -> enqueuePacket(packet) {} }
+            val repository = V3DeviceSettingsRepositoryImpl(enqueueCommand)
+            val roleRepository = V3DeviceRoleRepositoryImpl(
+                context.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository,
+            )
+            val deviceInfoRepository = V3DeviceInfoRepositoryImpl(
+                currentSerial = currentSerial,
+                deviceName = deviceName,
+                intentDeviceName = intentDeviceName,
+                applyDeviceName = applyDeviceName,
+                enqueuePacket = enqueuePacket,
+            )
+            return V3ServiceViewModelFactory(
+                repository = repository,
+                widgetsSource = DataFactoryV3ServiceWidgetsSource(),
+                spinnerRepository = repository,
+                roleRepository = roleRepository,
+                deviceInfoRepository = deviceInfoRepository,
+                calibrationRepository = V3ProsthesisCalibrationRepositoryImpl(enqueueCommand),
+                sessionRepository = V3DeviceSessionRepositoryImpl(),
+            )
+        }
+    }
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3ServiceViewModel::class.java)
         @Suppress("UNCHECKED_CAST")

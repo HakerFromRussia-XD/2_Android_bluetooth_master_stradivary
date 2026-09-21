@@ -37,6 +37,7 @@ class V3ArchitectureTest {
         sources("data").forEach { file ->
             reject(file, imports(file).filter {
                 it.startsWith(prefix + "presentation.") || it.startsWith(prefix + "di.") ||
+                    it.startsWith("com.bailout.stickk.ubi4.di.") || it.startsWith("com.bailout.stickk.ubi4.ui.") ||
                     it.startsWith("androidx.lifecycle.") || it.startsWith("android.view.")
             })
         }
@@ -47,7 +48,8 @@ class V3ArchitectureTest {
         sources("presentation").forEach { file ->
             val code = file.readText()
             reject(file, repositories.filter { Regex("\\b$it\\b").containsMatchIn(code) })
-            reject(file, imports(file).filter { it.startsWith(prefix + "data.") || it.startsWith(prefix + "di.") })
+            reject(file, imports(file).filter { it.startsWith(prefix + "data.") || it.startsWith(prefix + "di.") ||
+                it.startsWith("com.bailout.stickk.ubi4.di.") })
             assertTrue(!Regex("\\b[A-Z]\\w*UseCaseV3\\s*\\(").containsMatchIn(code),
                 "${file.name} constructs a UseCase; assemble it in di")
         }
@@ -131,6 +133,43 @@ class V3ArchitectureTest {
         })
     }
 
+    @Test fun `base widgets fragment does not coordinate V3 sensors screen state or actions`() {
+        val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        reject(base, imports(base).filter { it.startsWith(prefix + "presentation.sensors.") })
+        val callbacks = listOf("renderV3Plot", "renderV3SensorsButtons", "onV3PlotAction", "onV3SensorsButtonsAction")
+        assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
+            "Sensors state and actions belong to SensorsFragment; retain only the common adapter set in Base")
+    }
+
+    @Test fun `base widgets fragment does not coordinate V3 special settings state or actions`() {
+        val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        reject(base, imports(base).filter { dependency ->
+            listOf("specialsettings", "settingsprofiles", "autologin", "togglesliders").any {
+                dependency.startsWith(prefix + "presentation.$it.")
+            }
+        })
+        val callbacks = listOf(
+            "renderV3ToggleSliders", "onV3ToggleSliderAction", "renderV3AutoLogin", "onV3AutoLoginChanged",
+            "renderV3SettingsProfiles", "onV3SettingsProfileSelected", "onV3SettingsProfileCreateRequested",
+            "onV3SettingsProfileRenameRequested",
+        )
+        assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
+            "Special settings state and actions belong to SpecialSettingsFragment; common consumers keep their adapters")
+    }
+
+    @Test fun `base widgets fragment does not coordinate V3 service state or actions`() {
+        val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        reject(base, imports(base).filter {
+            it.startsWith(prefix + "presentation.service.") || it.startsWith(prefix + "presentation.spinners.") ||
+                it.startsWith(prefix + "domain.service.")
+        })
+        val callbacks = listOf("renderV3Calibration", "renderV3TextInputs", "renderV3Spinners",
+            "onV3CalibrationButtonPressed", "onV3CalibrationButtonReleased", "onV3TextInputChanged",
+            "onV3TextInputPrefillRequested", "onV3TextInputSendClicked", "onV3SpinnerAction")
+        assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
+            "Service state and actions belong to ServiceFragment; common consumers keep their adapters")
+    }
+
     @Test fun `gesture visual catalog cannot read preferences or global application state`() {
         val catalog = File(root.parentFile.parentFile, "ui/gestures/GestureCollectionFactory.kt").readText()
         val forbidden = listOf("SharedPreferences", "getSharedPreferences", "applicationContext", "WDApplication",
@@ -143,6 +182,64 @@ class V3ArchitectureTest {
         val v3Rendering = fragment.substringAfter("private fun renderV3GesturesScreen(")
             .substringBefore("private fun openV3GestureSettings(")
         assertTrue(!v3Rendering.contains("CollectionGesturesProvider"))
+    }
+
+    @Test fun `V3 screen dependency assembly belongs to di instead of fragments`() {
+        val ui = File(root.parentFile.parentFile, "ui/fragments")
+        listOf("SensorsFragment.kt", "SpecialSettingsFragment.kt", "ServiceFragment.kt", "SprGestureFragment.kt").forEach { name ->
+            val fragment = File(ui, name)
+            reject(fragment, imports(fragment).filter {
+                it.startsWith(prefix + "data.") || it.contains("Repository") || it.contains("UseCase") ||
+                    it.contains("DataFactoryV3") || it.endsWith(".SettingsProfileApplierV3")
+            })
+            assertTrue(!Regex("\\b\\w*Repository\\w*\\b").containsMatchIn(fragment.readText()), name)
+            assertTrue(!fragment.readText().contains("getSharedPreferences"), name)
+            if (name == "SensorsFragment.kt") {
+                val forbidden = listOf("observeSyncProgress", "getBLEController", "refreshWidgetsV3BySwipe")
+                assertTrue(forbidden.none { fragment.readText().contains(it) },
+                    "Sensors synchronization callbacks belong to di, not the Fragment")
+            }
+            if (name == "ServiceFragment.kt") {
+                val forbidden = listOf("MainActivityUBI4", "EXTRAS_DEVICE_NAME", "getCurrentSerial",
+                    "mDeviceName", "applyDeviceNameImmediately")
+                assertTrue(forbidden.none { fragment.readText().contains(it) },
+                    "Service device-info callbacks belong to di, not the Fragment")
+            }
+        }
+        val base = File(ui, "base/BaseWidgetsFragment.kt")
+        reject(base, imports(base).filter {
+            it.startsWith(prefix + "data.sensors.") || it.startsWith(prefix + "data.settings.") ||
+                it.contains("Repository") || it.contains("UseCase")
+        })
+        assertTrue(!Regex("\\bcreateV3\\w*Repository\\b").containsMatchIn(base.readText()))
+    }
+
+    @Test fun `special settings sensors and service fragments do not assemble the V3 BLE transport`() {
+        listOf("SpecialSettingsFragment.kt", "SensorsFragment.kt", "ServiceFragment.kt").forEach { name ->
+            val fragment = File(root.parentFile.parentFile, "ui/fragments/$name")
+            reject(fragment, imports(fragment).filter { it.contains(".ble.") })
+            assertTrue(!fragment.readText().contains("bleCommandWithQueue"), name)
+        }
+    }
+
+    @Test fun `gestures V3 binding does not assemble BLE transport while shared UBI4 transport remains`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/SprGestureFragment.kt")
+        val binding = fragment.readText().substringAfter("private fun bindV3Gestures()")
+            .substringBefore("\n    private fun ")
+        assertTrue(!binding.contains("bleCommandWithQueue"))
+        reject(fragment, imports(fragment).filter { it.endsWith(".SERIALPORTCHAR_UUID") })
+    }
+
+    @Test fun `four V3 screen factories share transport without owning BLE dispatch`() {
+        listOf("V3Sensors", "V3Service", "V3SpecialSettings", "V3Gestures").forEach { name ->
+            val file = File(root, "di/${name}ViewModelFactory.kt")
+            reject(file, imports(file).filter { it.contains(".ble.") })
+            assertTrue(!file.readText().contains("bleCommandWithQueue"), name)
+            assertTrue(file.readText().contains("BleDependencies.v3CommandTransport"), name)
+        }
+        sources("data/transport").forEach { file ->
+            reject(file, imports(file).filter { it.contains(".ui.") || it.contains(".di.") || it.startsWith("android") })
+        }
     }
 
     @Test fun `account statistics UI only observes screen state and sends actions`() {
@@ -201,6 +298,18 @@ class V3ArchitectureTest {
                 it.contains(".data.") || it.contains(".persistence.") || it.contains("UseCase") || it.contains("Repository")
             })
         }
+    }
+
+    @Test fun `games V3 binding renders state without catalog package or network queries`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/account/games/AccountGamesFragment.kt")
+        val code = fragment.readText()
+        val binding = code.substringAfter("private fun bindV3Games(").substringBefore("private fun renderIdleState(")
+        assertTrue(binding.contains("uiState.collect"))
+        assertTrue(listOf("catalogClient", "getInstalledGameInfo", "GameCatalog.action", "refreshGameManifest", "UseCase", "Repository")
+            .none { binding.contains(it) })
+        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.") || it.contains("UseCase") })
+        val client = File(root.parentFile.parentFile, "data/games/GameCatalogClient.kt")
+        reject(client, imports(client).filter { it.contains(".ui.") || it.contains(".presentation.") })
     }
 
     @Test fun `domain setting identifiers match unchanged shared protocol keys`() {

@@ -2,34 +2,36 @@ package com.bailout.stickk.ubi4.ui.fragments.account.games
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentGamesBinding
 import com.bailout.stickk.ubi4.game.GameControlBridgeService
+import com.bailout.stickk.ubi4.data.games.*
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.versions.v3.di.V3GamesViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.games.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
 
 class AccountGamesFragment : Fragment() {
     private var _binding: Ubi4FragmentGamesBinding? = null
     private val binding get() = requireNotNull(_binding)
-    private val httpClient = OkHttpClient()
+    private val catalogClient = GameCatalogClient(BuildConfig.MOTORICA_STK_PACKAGE,
+        { getString(R.string.game_manifest_load_failed) })
+    private var v3ViewModel: V3GamesViewModel? = null
     private var manifestJob: Job? = null
     private var storeCheckJob: Job? = null
     private var remoteGame: RemoteGame? = null
@@ -46,7 +48,12 @@ class AccountGamesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val useV3 = UiState.isInterfaceV3Activated
         binding.gameActionBtn.setOnClickListener {
+            if (useV3) {
+                v3ViewModel?.onAction(V3GamesAction.PrimaryClicked)
+                return@setOnClickListener
+            }
             when (currentAction) {
                 GameAction.PLAY -> launchGame()
                 GameAction.INSTALL -> checkAvailabilityAndOpenRuStore()
@@ -54,22 +61,78 @@ class AccountGamesFragment : Fragment() {
                 GameAction.UNAVAILABLE -> refreshGameManifest(showErrors = true)
             }
         }
-        binding.gameDeleteBtn.setOnClickListener { uninstallGame() }
-        renderIdleState()
-        refreshGameManifest(showErrors = false)
+        binding.gameDeleteBtn.setOnClickListener {
+            if (useV3) v3ViewModel?.onAction(V3GamesAction.DeleteClicked) else uninstallGame()
+        }
+        if (useV3) bindV3Games() else {
+            renderIdleState()
+            refreshGameManifest(showErrors = false)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        renderIdleState()
-        refreshGameManifest(showErrors = false)
+        val viewModel = v3ViewModel
+        if (viewModel != null) viewModel.onAction(V3GamesAction.ViewResumed) else {
+            renderIdleState()
+            refreshGameManifest(showErrors = false)
+        }
     }
 
     override fun onDestroyView() {
+        v3ViewModel?.onAction(V3GamesAction.ViewDetached)
+        v3ViewModel = null
         manifestJob?.cancel()
         storeCheckJob?.cancel()
         _binding = null
         super.onDestroyView()
+    }
+
+    private fun bindV3Games() {
+        val viewModel = ViewModelProvider(this, V3GamesViewModelFactory.from(requireContext()))[V3GamesViewModel::class.java]
+        v3ViewModel = viewModel
+        viewModel.onAction(V3GamesAction.ViewAttached)
+        renderV3Games(viewModel.uiState.value)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::renderV3Games)
+            }
+        }
+    }
+
+    private fun renderV3Games(state: V3GamesUiState) {
+        state.availability?.let { availability ->
+            renderGame(availability.game.title, GameAction.valueOf(availability.action.name),
+                availability.isInstalled, state.isActionEnabled)
+        }
+        state.effects.forEach { effect ->
+            v3ViewModel?.onAction(V3GamesAction.EffectHandled(effect.id))
+            when (val command = effect.command) {
+                is V3GamesCommand.LaunchGame -> launchGame(command.game.packageName, command.game.launcherActivity)
+                V3GamesCommand.OpenStore -> openGameInRuStore()
+                V3GamesCommand.UninstallGame -> requestGameUninstall()
+                is V3GamesCommand.ShowMessage -> Toast.makeText(requireContext(),
+                    command.detail ?: getString(command.message.messageRes()), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun V3GamesMessage.messageRes(): Int = when (this) {
+        V3GamesMessage.MANIFEST_URL_MISSING -> R.string.game_manifest_url_missing
+        V3GamesMessage.MANIFEST_LOAD_FAILED -> R.string.game_manifest_load_failed
+        V3GamesMessage.NOT_PUBLISHED -> R.string.game_not_available_in_rustore
+        V3GamesMessage.STORE_CHECK_FAILED -> R.string.game_store_check_failed
+        V3GamesMessage.STORE_OPEN_FAILED -> R.string.game_store_open_failed
+        V3GamesMessage.LAUNCH_FAILED -> R.string.game_launch_failed
+        V3GamesMessage.UNINSTALL_FAILED -> R.string.game_uninstall_failed
+    }
+
+    private fun reportPlatformFailure(message: V3GamesMessage) {
+        val viewModel = v3ViewModel
+        if (viewModel != null) viewModel.onAction(V3GamesAction.PlatformActionFailed(message)) else {
+            if (message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
+            showToast(message.messageRes())
+        }
     }
 
     private fun renderIdleState() {
@@ -78,11 +141,15 @@ class AccountGamesFragment : Fragment() {
         val installedGame = getInstalledGameInfo(expectedPackageName)
         currentAction = GameCatalog.action(remoteGame, installedGame?.versionCode)
 
-        binding.gameActionBtn.isEnabled = currentAction != GameAction.UNAVAILABLE
-        binding.gameActionBackground.isEnabled = currentAction != GameAction.UNAVAILABLE
-        binding.gameTitleTv.text = game.title.ifBlank { getString(R.string.motorica_stk_title) }
+        renderGame(game.title, currentAction, installedGame != null, currentAction != GameAction.UNAVAILABLE)
+    }
 
-        when (currentAction) {
+    private fun renderGame(title: String, action: GameAction, isInstalled: Boolean, isActionEnabled: Boolean) {
+        binding.gameActionBtn.isEnabled = isActionEnabled
+        binding.gameActionBackground.isEnabled = isActionEnabled
+        binding.gameTitleTv.text = title.ifBlank { getString(R.string.motorica_stk_title) }
+
+        when (action) {
             GameAction.UPDATE -> {
                 binding.gameDescriptionTv.text = getString(R.string.game_status_update_available)
                 binding.gameActionTv.text = getString(R.string.update_game)
@@ -101,7 +168,6 @@ class AccountGamesFragment : Fragment() {
             }
         }
 
-        val isInstalled = installedGame != null
         binding.gameDeleteBtn.visibility = if (isInstalled) View.VISIBLE else View.GONE
         binding.gameDeleteIv.visibility = if (isInstalled) View.VISIBLE else View.GONE
     }
@@ -120,7 +186,7 @@ class AccountGamesFragment : Fragment() {
         manifestJob = viewLifecycleOwner.lifecycleScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    loadRemoteGame(manifestUrl)
+                    catalogClient.loadRemoteGame(manifestUrl)
                 }
             }
             result.onSuccess { game ->
@@ -140,42 +206,6 @@ class AccountGamesFragment : Fragment() {
         }
     }
 
-    private fun loadRemoteGame(manifestUrl: String): RemoteGame {
-        val request = Request.Builder().url(resolveManifestUrl(manifestUrl)).build()
-        httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) error(getString(R.string.game_manifest_load_failed))
-            val body = response.body?.string() ?: error(getString(R.string.game_manifest_load_failed))
-            return GameCatalog.parseStk(body, BuildConfig.MOTORICA_STK_PACKAGE)
-        }
-    }
-
-    private fun resolveManifestUrl(url: String): String {
-        if (!isYandexDiskPublicUrl(url)) return url
-        val uri = Uri.parse(url)
-        val publicKey = uri.buildUpon().clearQuery().fragment(null).build().toString()
-        val apiUrl = "https://cloud-api.yandex.net/v1/disk/public/resources/download"
-            .toHttpUrl()
-            .newBuilder()
-            .addQueryParameter("public_key", publicKey)
-            .apply {
-                uri.getQueryParameter("path")?.takeIf { it.isNotBlank() }?.let {
-                    addQueryParameter("path", it)
-                }
-            }
-            .build()
-        val request = Request.Builder().url(apiUrl).build()
-        httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) error(getString(R.string.game_manifest_load_failed))
-            val body = response.body?.string() ?: error(getString(R.string.game_manifest_load_failed))
-            return JSONObject(body).getString("href")
-        }
-    }
-
-    private fun isYandexDiskPublicUrl(url: String): Boolean {
-        val host = Uri.parse(url).host.orEmpty()
-        return host == "disk.yandex.ru" || host == "yadi.sk"
-    }
-
     private fun checkAvailabilityAndOpenRuStore() {
         val game = remoteGame ?: run {
             refreshGameManifest(showErrors = true)
@@ -187,7 +217,7 @@ class AccountGamesFragment : Fragment() {
         storeCheckJob = viewLifecycleOwner.lifecycleScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    isPublishedInRuStore(game.packageName)
+                    catalogClient.isPublishedInRuStore(game.packageName)
                 }
             }
             result.onSuccess { isPublished ->
@@ -200,20 +230,6 @@ class AccountGamesFragment : Fragment() {
                 showToast(R.string.game_store_check_failed)
             }
             renderIdleState()
-        }
-    }
-
-    private fun isPublishedInRuStore(packageName: String): Boolean {
-        val request = Request.Builder()
-            .url(ruStoreWebUrl(packageName))
-            .get()
-            .build()
-        httpClient.newCall(request).execute().use { response ->
-            return when {
-                response.isSuccessful -> true
-                response.code == 404 -> false
-                else -> error("RuStore returned HTTP ${response.code}")
-            }
         }
     }
 
@@ -237,12 +253,9 @@ class AccountGamesFragment : Fragment() {
         try {
             startActivity(fallback)
         } catch (_: ActivityNotFoundException) {
-            showToast(R.string.game_store_open_failed)
+            reportPlatformFailure(V3GamesMessage.STORE_OPEN_FAILED)
         }
     }
-
-    private fun ruStoreWebUrl(packageName: String): String =
-        "https://www.rustore.ru/catalog/app/$packageName"
 
     private fun uninstallGame() {
         val packageName = BuildConfig.MOTORICA_STK_PACKAGE
@@ -250,53 +263,40 @@ class AccountGamesFragment : Fragment() {
             renderIdleState()
             return
         }
+        requestGameUninstall()
+    }
+
+    private fun requestGameUninstall() {
+        val packageName = BuildConfig.MOTORICA_STK_PACKAGE
         requireContext().applicationContext.stopService(
             Intent(requireContext(), GameControlBridgeService::class.java)
         )
         try {
             startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:$packageName")))
         } catch (_: ActivityNotFoundException) {
-            showToast(R.string.game_uninstall_failed)
+            reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
         }
     }
 
     private fun launchGame() {
         val game = remoteGame ?: RemoteGame.localFallback(BuildConfig.MOTORICA_STK_PACKAGE)
+        launchGame(game.packageName, game.launcherActivity)
+    }
+
+    private fun launchGame(packageName: String, launcherActivity: String) {
         GameControlBridgeService.start(requireContext().applicationContext)
         val intent = Intent()
-            .setClassName(game.packageName, game.launcherActivity)
+            .setClassName(packageName, launcherActivity)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            renderIdleState()
-            showToast(R.string.game_launch_failed)
+            reportPlatformFailure(V3GamesMessage.LAUNCH_FAILED)
         }
     }
 
     private fun getInstalledGameInfo(packageName: String): InstalledGameInfo? =
-        try {
-            val packageInfo = requireContext().packageManager.getPackageInfoCompat(packageName)
-            InstalledGameInfo(packageInfo.versionCodeCompat())
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
-        }
-
-    private fun PackageManager.getPackageInfoCompat(packageName: String): PackageInfo =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-        } else {
-            @Suppress("DEPRECATION")
-            getPackageInfo(packageName, 0)
-        }
-
-    private fun PackageInfo.versionCodeCompat(): Long =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            longVersionCode
-        } else {
-            @Suppress("DEPRECATION")
-            versionCode.toLong()
-        }
+        requireContext().installedGameVersionCode(packageName)?.let(::InstalledGameInfo)
 
     private fun showToast(messageRes: Int) {
         Toast.makeText(requireContext(), messageRes, Toast.LENGTH_LONG).show()

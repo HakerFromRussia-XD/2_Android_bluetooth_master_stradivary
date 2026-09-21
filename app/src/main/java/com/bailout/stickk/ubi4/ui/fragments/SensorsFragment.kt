@@ -1,9 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsUiState
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.plot.V3PlotAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
@@ -23,10 +23,9 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.V3SensorsViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3SensorsViewModelFactory
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.DataFactoryV3SensorsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.widgets.V3SensorsWidgetMapper
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -37,6 +36,33 @@ class SensorsFragment : BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private val dataFactory = DataFactory()
     private var v3SensorsViewModel: V3SensorsViewModel? = null
+    private val v3PlotAdapter by lazy {
+        PlotDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onAction = { v3SensorsViewModel?.onAction(V3SensorsAction.PlotAction(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    private val v3SensorsButtonsAdapter by lazy {
+        SensorsButtonsDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onAction = { v3SensorsViewModel?.onAction(V3SensorsAction.ButtonsAction(it)) },
+        )
+    }
+    private val v3SliderAdapter by lazy {
+        SliderDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onAction = { v3SensorsViewModel?.onAction(V3SensorsAction.SliderAction(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    protected override val adapterWidgets: CompositeDelegateAdapter by lazy {
+        if (UiState.isInterfaceV3Activated) {
+            CompositeDelegateAdapter(v3PlotAdapter, v3SensorsButtonsAdapter, v3SliderAdapter)
+        } else {
+            super.adapterWidgets
+        }
+    }
     private var widgetsStateJob: Job? = null
     private val v3WidgetMapper = V3SensorsWidgetMapper()
     private var renderedV3Widgets: List<V3SensorsWidget>? = null
@@ -79,11 +105,7 @@ class SensorsFragment : BaseWidgetsFragment() {
 
     private fun bindV3Sensors() {
         val viewModel = ViewModelProvider(
-            this, V3SensorsViewModelFactory(
-                createV3DeviceSettingsRepository(), DataFactoryV3SensorsWidgetsSource(), createV3SensorsPlotRepository(),
-                createV3SensorsCommandsRepository(),
-                sessionRepository = V3DeviceSessionRepositoryImpl(),
-            ),
+            this, V3SensorsViewModelFactory.create(),
         )[V3SensorsViewModel::class.java]
         v3SensorsViewModel = viewModel
         renderV3Sensors(viewModel.uiState.value)
@@ -98,18 +120,6 @@ class SensorsFragment : BaseWidgetsFragment() {
                 }
             }
         }
-    }
-
-    override fun onV3SensorsButtonsAction(action: V3SensorsButtonsAction) {
-        v3SensorsViewModel?.onAction(V3SensorsAction.ButtonsAction(action))
-    }
-
-    override fun onV3PlotAction(action: V3PlotAction) {
-        v3SensorsViewModel?.onAction(V3SensorsAction.PlotAction(action))
-    }
-
-    override fun onV3SliderAction(action: V3SliderAction) {
-        v3SensorsViewModel?.onAction(V3SensorsAction.SliderAction(action))
     }
 
     override fun areV3WidgetAnimationsEnabled(): Boolean =
@@ -127,13 +137,13 @@ class SensorsFragment : BaseWidgetsFragment() {
             return
         }
         v3AnimationsEnabled = state.animationsEnabled
-        renderV3Plot(state.plot)
+        v3PlotAdapter.render(state.plot)
         if (renderedButtons != state.buttons) {
-            renderV3SensorsButtons(state.buttons)
+            v3SensorsButtonsAdapter.render(state.buttons)
             renderedButtons = state.buttons
         }
         if (renderedSliders != state.sliders) {
-            renderV3Sliders(state.sliders)
+            v3SliderAdapter.renderSliders(state.sliders)
             renderedSliders = state.sliders
         }
         if (renderedV3Widgets != state.widgets) {

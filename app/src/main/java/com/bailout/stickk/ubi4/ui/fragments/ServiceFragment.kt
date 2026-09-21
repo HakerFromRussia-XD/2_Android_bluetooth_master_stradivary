@@ -1,8 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import android.os.Bundle
-import android.content.Context
 import android.widget.Toast
 import android.view.LayoutInflater
 import android.view.View
@@ -16,19 +14,11 @@ import com.bailout.stickk.databinding.Ubi4FragmentServiceBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
-import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceRoleRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceInfoRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.data.service.V3ProsthesisCalibrationRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceTextInputUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3TextInputMessage
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3RolePinDialogHost
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
@@ -36,13 +26,18 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.DataFactoryV3ServiceWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidgetMapper
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.BleLogButtonDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.TextInputDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.contract.navigator
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -54,6 +49,48 @@ class ServiceFragment : BaseWidgetsFragment() {
     private val dataFactory = DataFactory()
     private val v3WidgetMapper = V3ServiceWidgetMapper()
     private var v3ServiceViewModel: V3ServiceViewModel? = null
+    private val v3CalibrationAdapter by lazy {
+        ProsthesisCalibrationDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onPressed = { v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonPressed(it)) },
+            onReleased = { v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonReleased(it)) },
+        )
+    }
+    private val v3TextInputAdapter by lazy {
+        TextInputDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onTextChanged = { field, text -> v3ServiceViewModel?.onAction(V3ServiceAction.TextInputChanged(field, text)) },
+            onPrefillRequested = { v3ServiceViewModel?.onAction(V3ServiceAction.TextInputPrefillRequested(it)) },
+            onSendClicked = { v3ServiceViewModel?.onAction(V3ServiceAction.TextInputSendClicked(it)) },
+        )
+    }
+    private val v3SpinnerAdapter by lazy {
+        SpinnerDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            parameterKeys = v3SpinnerParameterKeys,
+            onAction = ::onV3SpinnerAction,
+        )
+    }
+    private val v3SliderAdapter by lazy {
+        SliderDelegateAdapterV3(
+            onDestroyParent = ::registerDelegateCleanup,
+            onAction = { v3ServiceViewModel?.onAction(V3ServiceAction.SliderAction(it)) },
+            animationsEnabled = ::areV3WidgetAnimationsEnabled,
+        )
+    }
+    protected override val adapterWidgets: CompositeDelegateAdapter by lazy {
+        if (UiState.isInterfaceV3Activated) {
+            CompositeDelegateAdapter(
+                v3CalibrationAdapter,
+                BleLogButtonDelegateAdapter(onClick = { navigator().showBleLogScreen() }),
+                v3SpinnerAdapter,
+                v3TextInputAdapter,
+                v3SliderAdapter,
+            )
+        } else {
+            super.adapterWidgets
+        }
+    }
     private var widgetsStateJob: Job? = null
     private var renderedV3Widgets: List<V3ServiceWidget>? = null
     private var renderedSliders: Map<String, SliderUiStateV3>? = null
@@ -82,22 +119,8 @@ class ServiceFragment : BaseWidgetsFragment() {
     }
 
     private fun bindV3Service() {
-        val repository = createV3DeviceSettingsRepository()
-        val roleRepository = V3DeviceRoleRepositoryImpl(
-            requireContext().getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository)
-        val deviceInfoRepository = V3DeviceInfoRepositoryImpl(
-            currentSerial = { MainActivityUBI4.main.getCurrentSerial() },
-            deviceName = { MainActivityUBI4.main.mDeviceName },
-            intentDeviceName = { MainActivityUBI4.main.intent?.getStringExtra(EXTRAS_DEVICE_NAME) },
-            applyDeviceName = { MainActivityUBI4.main.applyDeviceNameImmediately(it) },
-            enqueuePacket = { packet, onSent -> MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE, onSent) },
-        )
-        val viewModel = ViewModelProvider(this, V3ServiceViewModelFactory(
-            repository, DataFactoryV3ServiceWidgetsSource(), repository, roleRepository, deviceInfoRepository,
-            V3ProsthesisCalibrationRepositoryImpl { packet ->
-                MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
-            },
-            sessionRepository = V3DeviceSessionRepositoryImpl(),
+        val viewModel = ViewModelProvider(this, V3ServiceViewModelFactory.create(
+            context = requireContext(),
         ))[V3ServiceViewModel::class.java]
         v3ServiceViewModel = viewModel
         renderV3Service(viewModel.uiState.value)
@@ -115,29 +138,7 @@ class ServiceFragment : BaseWidgetsFragment() {
         }
     }
 
-    override fun onV3SliderAction(action: V3SliderAction) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.SliderAction(action))
-    }
-
-    override fun onV3CalibrationButtonPressed(pressId: Long) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonPressed(pressId))
-    }
-
-    override fun onV3CalibrationButtonReleased(pressId: Long) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.CalibrationButtonReleased(pressId))
-    }
-
-    override fun onV3TextInputChanged(field: V3DeviceInfoField, text: String) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.TextInputChanged(field, text))
-    }
-    override fun onV3TextInputPrefillRequested(field: V3DeviceInfoField) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.TextInputPrefillRequested(field))
-    }
-    override fun onV3TextInputSendClicked(field: V3DeviceInfoField) {
-        v3ServiceViewModel?.onAction(V3ServiceAction.TextInputSendClicked(field))
-    }
-
-    override fun onV3SpinnerAction(action: V3SpinnerAction) {
+    private fun onV3SpinnerAction(action: V3SpinnerAction) {
         if (action is V3SpinnerAction.SpinnerValueSelected && action.parameterKey == P_KEY_DEVICE_ROLE) {
             v3ServiceViewModel?.uiState?.value?.role?.roles?.getOrNull(action.value)?.let {
                 v3ServiceViewModel?.onAction(V3ServiceAction.RoleSelected(it))
@@ -162,9 +163,9 @@ class ServiceFragment : BaseWidgetsFragment() {
             return
         }
         v3AnimationsEnabled = state.animationsEnabled
-        renderV3Calibration(state.calibration)
+        v3CalibrationAdapter.render(state.calibration)
         if (renderedTextInputs != state.textInputs) {
-            renderV3TextInputs(state.textInputs)
+            v3TextInputAdapter.renderTextInputs(state.textInputs)
             renderedTextInputs = state.textInputs
         }
         val role = state.role
@@ -172,11 +173,11 @@ class ServiceFragment : BaseWidgetsFragment() {
             mapOf(P_KEY_DEVICE_ROLE to SpinnerUiStateV3(it.displayedIndex, it.isEnabled))
         } ?: emptyMap())
         if (renderedSpinners != spinners) {
-            renderV3Spinners(spinners)
+            v3SpinnerAdapter.renderSpinners(spinners)
             renderedSpinners = spinners
         }
         if (renderedSliders != state.sliders) {
-            renderV3Sliders(state.sliders)
+            v3SliderAdapter.renderSliders(state.sliders)
             renderedSliders = state.sliders
         }
         val roleOptions = role?.roles?.map { roleName(it) }

@@ -27,6 +27,17 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.awaitCancellation
+import androidx.lifecycle.ViewModelProvider
+import com.bailout.stickk.ubi4.versions.v3.di.V3GestureEditorViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestureeditor.V3GestureEditorAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestureeditor.V3GestureEditorUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestureeditor.V3GestureEditorViewModel
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4LayoutGripperSettingsLeWithEncodersV3Binding
@@ -176,6 +187,10 @@ class UBI4GripperScreenWithEncodersActivityV3
     private var driverVersionS: String? = null
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
+    private var renderedNameEditMode: Boolean? = null
+    private val gestureEditorViewModel by lazy {
+        ViewModelProvider(this, V3GestureEditorViewModelFactory(this))[V3GestureEditorViewModel::class.java]
+    }
     private var mDeviceType: String? = null
 
     private var deviceAddress = 0
@@ -198,8 +213,10 @@ class UBI4GripperScreenWithEncodersActivityV3
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
-        gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
         useV3GestureProtocol = intent.getBooleanExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
+        if (!useV3GestureProtocol) {
+            gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
+        }
         deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
         parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
@@ -223,60 +240,66 @@ class UBI4GripperScreenWithEncodersActivityV3
         initBaseView(this)
 
 
-        lifecycleScope.launchWhenStarted {
-            BLEState.state.filter { it == BLEState.State.READY }
-                .first()
-            compileBLERead()
-        }
-
-        Log.d("gestureNameList" , "onCreate")
-        loadGestureNameList()
-        binding.gestureNameTv.text = gestureNameList[gestureNumber-1]
-        gestureNameList.forEach {
-            Log.d("gestureNameList" , "gestureNameList = $it   gestureNumber = ${gestureNumber-1}")
-        }
-
-
-        subscribeToGestureSettings()
-
-        RxView.clicks(findViewById(R.id.editGestureNameBtn))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
-                if (editMode) {
-                    binding.editGestureNameBtn.setImageResource(R.drawable.ic_edit_24)
-                    binding.gestureNameTv.visibility = View.VISIBLE
-                    imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
-                    binding.gestureNameTv.text = binding.gestureNameEt.text
-                    binding.gestureNameEt.visibility = View.GONE
-
-                    gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
-
-
-                    val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
-                    System.err.println("6 LAST_CONNECTION_MAC: $macKey")
-                    for (i in 0 until gestureNameList.size) {
-                        mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
-                    }
-
-                    editMode = false
-
-
-                    UiState.updateFlow.tryEmit(0) // перерисовать виджеты/списки
-
-                } else {
-                    //переезжаем на binding
-                    binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
-                    binding.gestureNameEt.visibility = View.VISIBLE
-                    binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
-                    binding.gestureNameTv.visibility = View.GONE
-                    binding.gestureNameEt.requestFocus()
-                    imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
-                    imm.showSoftInput(binding.gestureNameEt, 0)
-                    binding.gestureNameEt.isFocusableInTouchMode = true
-                    editMode = true
-                }
+        if (!useV3GestureProtocol) {
+            lifecycleScope.launchWhenStarted {
+                BLEState.state.filter { it == BLEState.State.READY }
+                    .first()
+                compileBLERead()
             }
+        }
+
+        if (useV3GestureProtocol) {
+            bindV3GestureEditor()
+        } else {
+            Log.d("gestureNameList" , "onCreate")
+            loadGestureNameList()
+            binding.gestureNameTv.text = gestureNameList[gestureNumber-1]
+            gestureNameList.forEach {
+                Log.d("gestureNameList" , "gestureNameList = $it   gestureNumber = ${gestureNumber-1}")
+            }
+
+            subscribeToGestureSettings()
+
+            RxView.clicks(findViewById(R.id.editGestureNameBtn))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+                    if (editMode) {
+                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_edit_24)
+                        binding.gestureNameTv.visibility = View.VISIBLE
+                        imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
+                        binding.gestureNameTv.text = binding.gestureNameEt.text
+                        binding.gestureNameEt.visibility = View.GONE
+
+                        gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
+
+
+                        val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
+                        System.err.println("6 LAST_CONNECTION_MAC: $macKey")
+                        for (i in 0 until gestureNameList.size) {
+                            mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                        }
+
+                        editMode = false
+
+
+                        UiState.updateFlow.tryEmit(0) // перерисовать виджеты/списки
+
+                    } else {
+                        //переезжаем на binding
+                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
+                        binding.gestureNameEt.visibility = View.VISIBLE
+                        binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
+                        binding.gestureNameTv.visibility = View.GONE
+                        binding.gestureNameEt.requestFocus()
+                        imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
+                        imm.showSoftInput(binding.gestureNameEt, 0)
+                        binding.gestureNameEt.isFocusableInTouchMode = true
+                        editMode = true
+                    }
+                }
+
+        }
 
         RxUpdateMainEventUbi4.getInstance().fingerAngleObservable
             .compose(bindToLifecycle())
@@ -322,7 +345,9 @@ class UBI4GripperScreenWithEncodersActivityV3
             .subscribe {
                 gestureState = States.GESTURE_SAVE_BUTTON.number
                 compileBLEMassage()
-                if (editMode) {
+                if (useV3GestureProtocol) {
+                    gestureEditorViewModel.onAction(V3GestureEditorAction.SaveNameRequested)
+                } else if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                     val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("1 LAST_CONNECTION_MAC: $macKey")
@@ -340,6 +365,98 @@ class UBI4GripperScreenWithEncodersActivityV3
 
         // initialize selector
         binding.gestureStateSelectorContainer.post { initSelector() }
+    }
+
+    private fun bindV3GestureEditor() {
+        val viewModel = gestureEditorViewModel
+        viewModel.onAction(V3GestureEditorAction.ViewCreated)
+        renderV3GestureName(viewModel.uiState.value)
+        binding.gestureNameEt.doAfterTextChanged { text ->
+            viewModel.onAction(V3GestureEditorAction.NameChanged(text.toString()))
+        }
+        RxView.clicks(binding.editGestureNameBtn)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                viewModel.onAction(V3GestureEditorAction.EditNameClicked)
+                // Keep focus/keyboard changes synchronous with the click, as before.
+                renderV3GestureName(viewModel.uiState.value)
+            }
+        // The previous Rx settings subscription lived until Activity destruction, including STOP.
+        lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            viewModel.uiState.collect { state ->
+                renderV3GestureName(state)
+                state.pendingSettings.forEach { update ->
+                    val settings = update.settings
+                    if (settings == null) {
+                        main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
+                    } else {
+                        loadGestureState(GestureV3(
+                            gestureId = settings.gestureId,
+                            openPosition1 = settings.openPositions[0],
+                            openPosition2 = settings.openPositions[1],
+                            openPosition3 = settings.openPositions[2],
+                            openPosition4 = settings.openPositions[3],
+                            openPosition5 = settings.openPositions[4],
+                            openPosition6 = settings.openPositions[5],
+                            closePosition1 = settings.closePositions[0],
+                            closePosition2 = settings.closePositions[1],
+                            closePosition3 = settings.closePositions[2],
+                            closePosition4 = settings.closePositions[3],
+                            closePosition5 = settings.closePositions[4],
+                            closePosition6 = settings.closePositions[5],
+                            openToCloseTimeShift1 = settings.openToCloseDelays[0],
+                            openToCloseTimeShift2 = settings.openToCloseDelays[1],
+                            openToCloseTimeShift3 = settings.openToCloseDelays[2],
+                            openToCloseTimeShift4 = settings.openToCloseDelays[3],
+                            openToCloseTimeShift5 = settings.openToCloseDelays[4],
+                            openToCloseTimeShift6 = settings.openToCloseDelays[5],
+                            closeToOpenTimeShift1 = settings.closeToOpenDelays[0],
+                            closeToOpenTimeShift2 = settings.closeToOpenDelays[1],
+                            closeToOpenTimeShift3 = settings.closeToOpenDelays[2],
+                            closeToOpenTimeShift4 = settings.closeToOpenDelays[3],
+                            closeToOpenTimeShift5 = settings.closeToOpenDelays[4],
+                            closeToOpenTimeShift6 = settings.closeToOpenDelays[5],
+                        ))
+                    }
+                    viewModel.onAction(V3GestureEditorAction.SettingsApplied(update.id))
+                }
+                if (state.initialOpenRequested) {
+                    viewModel.onAction(V3GestureEditorAction.InitialOpenHandled)
+                    pendingInitialTransition = true
+                    startInitialTransitionIfReady()
+                }
+            }
+        }
+        if (rendererFirstFrameReady) viewModel.onAction(V3GestureEditorAction.RendererReady)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onAction(V3GestureEditorAction.ViewStarted(gestureID))
+                try { awaitCancellation() }
+                finally { viewModel.onAction(V3GestureEditorAction.ViewStopped) }
+            }
+        }
+    }
+
+    private fun renderV3GestureName(state: V3GestureEditorUiState) {
+        binding.gestureNameTv.text = state.name
+        if (state.isEditingName && binding.gestureNameEt.text.toString() != state.nameInput) {
+            binding.gestureNameEt.setText(state.nameInput, TextView.BufferType.EDITABLE)
+        }
+        if (renderedNameEditMode == state.isEditingName) return
+        val previousMode = renderedNameEditMode
+        renderedNameEditMode = state.isEditingName
+        binding.editGestureNameBtn.setImageResource(if (state.isEditingName) R.drawable.ic_ok_24 else R.drawable.ic_edit_24)
+        binding.gestureNameTv.visibility = if (state.isEditingName) View.GONE else View.VISIBLE
+        binding.gestureNameEt.visibility = if (state.isEditingName) View.VISIBLE else View.GONE
+        val imm = getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (state.isEditingName) {
+            binding.gestureNameEt.requestFocus()
+            imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
+            imm.showSoftInput(binding.gestureNameEt, 0)
+            binding.gestureNameEt.isFocusableInTouchMode = true
+        } else if (previousMode == true) {
+            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
     }
 
     private fun resolveHandSide(): Int {
@@ -364,17 +481,6 @@ class UBI4GripperScreenWithEncodersActivityV3
     }
 
     private fun subscribeToGestureSettings() {
-        if (useV3GestureProtocol) {
-            RxUpdateMainEventUbi4.getInstance().uiGestureSettingsV3Observable
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { parameterInfo ->
-                    val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                    handleGestureSettings(parseGestureInfoSafely(parameter.data))
-                }
-            return
-        }
-
         RxUpdateMainEventUbi4.getInstance().uiGestureSettingsObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -430,11 +536,6 @@ class UBI4GripperScreenWithEncodersActivityV3
         closeToOpenTimeShift6 = closeToOpenTimeShift6
     )
 
-    private fun parseGestureInfoSafely(data: String): GestureV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<GestureV3>(data) }
-            .getOrNull()
-    }
     override fun initializeUI() {
         V3ModelLoadMetrics.init(applicationContext)
         V3ModelLoadMetrics.log(
@@ -461,7 +562,8 @@ class UBI4GripperScreenWithEncodersActivityV3
             withEncodersRendererV3 = UBI4GripperSettingsWithEncodersRendererV3(this, binding.glSurfaceViewLeWithEncodersV3)
             withEncodersRendererV3?.setOnFirstFrameRenderedListener {
                 rendererFirstFrameReady = true
-                startInitialTransitionIfReady()
+                if (useV3GestureProtocol) gestureEditorViewModel.onAction(V3GestureEditorAction.RendererReady)
+                else startInitialTransitionIfReady()
             }
 
             binding.glSurfaceViewLeWithEncodersV3.setRenderer(withEncodersRendererV3, displayMetrics.density)
@@ -873,7 +975,7 @@ class UBI4GripperScreenWithEncodersActivityV3
             validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
             validationRange(fingerCloseState1), validationRange(fingerCloseState5), validationRange(fingerCloseState6),
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
-            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0)
+            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, (if (useV3GestureProtocol) gestureEditorViewModel.uiState.value.name else gestureNameList[gestureNumber-1]),0)
         val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, gesture, gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
         if (useV3GestureProtocol) {
@@ -940,21 +1042,12 @@ class UBI4GripperScreenWithEncodersActivityV3
         SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
     }
     private fun compileBLERead () {
-        val command = if (useV3GestureProtocol) {
-            BLECommandsV3.requestGestureInfo(gestureID)
-        } else {
-            BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID)
-        }
+        val command = BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID)
         Log.i(
             FLOW_TAG,
             "BLE TX requestGesture gesture=$gestureID hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
-        val characteristic = if (useV3GestureProtocol) {
-            SERIALPORTCHAR_UUID
-        } else {
-            MAIN_CHANNEL_CHARACTERISTIC
-        }
-        main.bleCommandWithQueue(command, characteristic, WRITE){}
+        main.bleCommandWithQueue(command, MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     private fun validationRange(inputNumber: Int) : Int {
         var _inputNumber = inputNumber
@@ -1003,7 +1096,7 @@ class UBI4GripperScreenWithEncodersActivityV3
                 "open=${openPositionSummary()} close=${closePositionSummary()} " +
                 "current=${currentPositionSummary()}"
         )
-        if (!initialTransitionStarted) {
+        if (!useV3GestureProtocol && !initialTransitionStarted) {
             pendingInitialTransition = true
             startInitialTransitionIfReady()
         }
@@ -1144,6 +1237,7 @@ class UBI4GripperScreenWithEncodersActivityV3
     }
 
     override fun onDestroy() {
+        if (useV3GestureProtocol) gestureEditorViewModel.onAction(V3GestureEditorAction.ViewDestroyed)
         fingerTransitionAnimator?.cancel()
         fingerTransitionAnimator = null
         setFingerAnimationInProgress(false)

@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.data.appsettings
 
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GestureEditorNames
+import com.bailout.stickk.ubi4.data.state.UiState
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
@@ -11,6 +13,22 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 class V3AppSettingsRepositoryImpl(private val preferences: SharedPreferences) : V3AppSettingsRepository {
+    override fun getGestureEditorNames(): V3GestureEditorNames {
+        val number = preferences.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
+        val mac = preferences.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "load not work")
+        return V3GestureEditorNames(number, List(PreferenceKeysUbi4.NUM_GESTURES) { index ->
+            preferences.getString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + mac + index, "load not work").toString()
+        })
+    }
+
+    override fun saveGestureEditorNames(names: List<String>) {
+        val mac = preferences.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
+        names.forEachIndexed { index, name ->
+            preferences.edit().putString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + mac + index, name).apply()
+        }
+        UiState.updateFlow.tryEmit(0)
+    }
+
     override fun getCustomGestureNames(): V3CustomGestureNames {
         // Preserve both existing readers, including their different fallback MACs and names.
         val directMac = preferences.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "NOT SET!").toString()

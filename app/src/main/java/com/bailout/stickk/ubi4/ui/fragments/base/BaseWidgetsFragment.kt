@@ -2,14 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments.base
 
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.AutoLoginDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.V3AutoLoginUiState
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.buttons.V3SensorsButtonsUiState
-import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsPlotRepositoryImpl
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.plot.V3PlotAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.plot.V3PlotUiState
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
@@ -42,14 +35,11 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ProsthesisCalibrationUiState
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SwitcherDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.TextInputDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceTextInputUiState
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
@@ -81,14 +71,8 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerUiStateV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfilesUiState
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
-import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3SliderSettingsViewModelFactory
@@ -107,73 +91,11 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     protected open val v3SliderParameterKeys: Set<String> = emptySet()
     protected open val v3SpinnerParameterKeys: Set<String> = emptySet()
-    private val v3CalibrationAdapter by lazy {
-        ProsthesisCalibrationDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            onPressed = ::onV3CalibrationButtonPressed,
-            onReleased = ::onV3CalibrationButtonReleased,
-        )
-    }
-    protected open fun onV3CalibrationButtonPressed(pressId: Long) = Unit
-    protected open fun onV3CalibrationButtonReleased(pressId: Long) = Unit
-    protected fun renderV3Calibration(state: V3ProsthesisCalibrationUiState?) = v3CalibrationAdapter.render(state)
-    private val v3TextInputAdapter by lazy {
-        TextInputDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            onTextChanged = ::onV3TextInputChanged,
-            onPrefillRequested = ::onV3TextInputPrefillRequested,
-            onSendClicked = ::onV3TextInputSendClicked,
-        )
-    }
-    protected open fun onV3TextInputChanged(field: V3DeviceInfoField, text: String) = Unit
-    protected open fun onV3TextInputPrefillRequested(field: V3DeviceInfoField) = Unit
-    protected open fun onV3TextInputSendClicked(field: V3DeviceInfoField) = Unit
-    protected fun renderV3TextInputs(states: Map<V3DeviceInfoField, V3ServiceTextInputUiState>) = v3TextInputAdapter.renderTextInputs(states)
     protected open val v3SettingsProfilesFromState: Boolean = false
     protected open fun areV3WidgetAnimationsEnabled(): Boolean = !WidgetState.dbSnapshotAppliedWithCrc
-    private val v3AutoLoginAdapter by lazy {
-        AutoLoginDelegateAdapterV3(
-            onCheckedChanged = { onV3AutoLoginChanged(it) },
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            animationsEnabled = ::areV3WidgetAnimationsEnabled,
-        )
-    }
-    private val v3SpinnerAdapter by lazy {
-        SpinnerDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            parameterKeys = v3SpinnerParameterKeys,
-            onAction = { onV3SpinnerAction(it) },
-            settingsProfilesFromState = v3SettingsProfilesFromState,
-            onSettingsProfilesChanged = V3SettingsProfilesUpdates::notifyChanged,
-            onSettingsProfileSelected = { onV3SettingsProfileSelected(it) },
-            onSettingsProfileCreateRequested = { onV3SettingsProfileCreateRequested() },
-            onSettingsProfileRenameRequested = { onV3SettingsProfileRenameRequested(it) },
-        )
-    }
     protected open val v3ToggleSliderParameterKeys: Set<String> = emptySet()
-    private val v3ToggleSliderAdapter by lazy {
-        ToggleSliderDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            parameterKeys = v3ToggleSliderParameterKeys,
-            onAction = { onV3ToggleSliderAction(it) },
-            animationsEnabled = ::areV3WidgetAnimationsEnabled,
-        )
-    }
     private var v3SettingsViewModel: V3SliderSettingsViewModel? = null
     private var v3SliderStateJob: Job? = null
-    private val v3SensorsButtonsAdapter by lazy {
-        SensorsButtonsDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            onAction = ::onV3SensorsButtonsAction,
-        )
-    }
-    private val v3PlotAdapter by lazy {
-        PlotDelegateAdapterV3(
-            onDestroyParent = { onDestroyParentCallbacks.add(it) },
-            onAction = ::onV3PlotAction,
-            animationsEnabled = ::areV3WidgetAnimationsEnabled,
-        )
-    }
     private val v3SliderAdapter by lazy {
         SliderDelegateAdapterV3(
             onDestroyParent = { onDestroyParentCallbacks.add(it) },
@@ -189,12 +111,23 @@ abstract class BaseWidgetsFragment : Fragment() {
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            v3PlotAdapter,
+            PlotDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                onAction = {},
+                animationsEnabled = ::areV3WidgetAnimationsEnabled,
+            ),
             OneButtonDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            v3SensorsButtonsAdapter,
-            v3CalibrationAdapter,
+            SensorsButtonsDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                onAction = {},
+            ),
+            ProsthesisCalibrationDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                onPressed = {},
+                onReleased = {},
+            ),
             BleLogButtonDelegateAdapter(
                 onClick = { navigator().showBleLogScreen() }
             ),
@@ -327,7 +260,11 @@ abstract class BaseWidgetsFragment : Fragment() {
 //                },
 //                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
 //            ),
-            v3AutoLoginAdapter,
+            AutoLoginDelegateAdapterV3(
+                onCheckedChanged = {},
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                animationsEnabled = ::areV3WidgetAnimationsEnabled,
+            ),
             SwitcherDelegateAdapter(
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
@@ -344,8 +281,19 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            v3SpinnerAdapter,
-            v3TextInputAdapter,
+            SpinnerDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                parameterKeys = v3SpinnerParameterKeys,
+                onAction = {},
+                settingsProfilesFromState = v3SettingsProfilesFromState,
+                onSettingsProfilesChanged = V3SettingsProfilesUpdates::notifyChanged,
+            ),
+            TextInputDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                onTextChanged = { _, _ -> },
+                onPrefillRequested = {},
+                onSendClicked = {},
+            ),
             ToggleSliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, packedProgress ->
                     sendToggleSliderProgress(addressDevice, parameterID, packedProgress)
@@ -354,7 +302,12 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-            v3ToggleSliderAdapter,
+            ToggleSliderDelegateAdapterV3(
+                onDestroyParent = { onDestroyParentCallbacks.add(it) },
+                parameterKeys = v3ToggleSliderParameterKeys,
+                onAction = {},
+                animationsEnabled = ::areV3WidgetAnimationsEnabled,
+            ),
             SliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, progress ->
                     sendSliderProgress(
@@ -386,7 +339,9 @@ abstract class BaseWidgetsFragment : Fragment() {
     private fun bindV3SliderSettings() {
         if (!UiState.isInterfaceV3Activated || v3SliderParameterKeys.isEmpty()) return
         val viewModel = ViewModelProvider(this, V3SliderSettingsViewModelFactory(
-            repository = createV3DeviceSettingsRepository(),
+            enqueuePacket = { packet ->
+                MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
+            },
             sliderParameterKeys = v3SliderParameterKeys,
         ))[V3SliderSettingsViewModel::class.java]
         v3SettingsViewModel = viewModel
@@ -403,29 +358,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
 
-    protected fun createV3DeviceSettingsRepository(): V3DeviceSettingsRepositoryImpl =
-        V3DeviceSettingsRepositoryImpl(
-            enqueuePacket = { packet ->
-                MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {}
-            },
-        )
-
-    protected fun createV3SensorsPlotRepository() = V3SensorsPlotRepositoryImpl(
-        enqueuePacket = { packet -> MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {} },
-    )
-
-    protected fun createV3SensorsCommandsRepository() = V3SensorsCommandsRepositoryImpl(
-        enqueuePacket = { packet -> MainActivityUBI4.main.bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE) {} },
-        showSyncProgress = { MainActivityUBI4.main.observeSyncProgress() },
-        refreshWidgets = { MainActivityUBI4.main.getBLEController().refreshWidgetsV3BySwipe() },
-    )
-
-    protected open fun onV3SensorsButtonsAction(action: V3SensorsButtonsAction) = Unit
-    protected fun renderV3SensorsButtons(state: V3SensorsButtonsUiState) = v3SensorsButtonsAdapter.render(state)
-
-    protected open fun onV3PlotAction(action: V3PlotAction) = Unit
-    protected fun renderV3Plot(state: V3PlotUiState?) = v3PlotAdapter.render(state)
-
     protected open fun onV3SliderAction(action: V3SliderAction) {
         v3SettingsViewModel?.onAction(V3SliderSettingsAction.SliderAction(action))
     }
@@ -434,26 +366,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         v3SliderAdapter.renderSliders(states)
     }
 
-    protected open fun onV3ToggleSliderAction(action: V3ToggleSliderAction) = Unit
-
-    protected fun renderV3ToggleSliders(states: Map<String, ToggleSliderUiStateV3>) {
-        v3ToggleSliderAdapter.renderToggleSliders(states)
-    }
-
-    protected open fun onV3SpinnerAction(action: V3SpinnerAction) = Unit
-    protected open fun onV3SettingsProfileSelected(profileId: Int) = Unit
-    protected open fun onV3SettingsProfileCreateRequested() = Unit
-    protected open fun onV3SettingsProfileRenameRequested(profileId: Int) = Unit
-    protected open fun onV3AutoLoginChanged(enabled: Boolean) = Unit
-    protected fun renderV3AutoLogin(state: V3AutoLoginUiState) = v3AutoLoginAdapter.render(state)
-
-    protected fun renderV3Spinners(states: Map<String, SpinnerUiStateV3>) {
-        v3SpinnerAdapter.renderSpinners(states)
-    }
-
-    protected fun renderV3SettingsProfiles(state: V3SettingsProfilesUiState?) {
-        v3SpinnerAdapter.renderSettingsProfiles(state)
-    }
 
     override fun onResume() {
         super.onResume()

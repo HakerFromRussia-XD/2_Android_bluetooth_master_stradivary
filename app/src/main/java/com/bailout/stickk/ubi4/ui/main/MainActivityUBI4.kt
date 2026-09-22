@@ -6,10 +6,8 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -17,7 +15,6 @@ import android.graphics.drawable.RotateDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.view.View
@@ -33,12 +30,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.versions.v3.di.V3SyncViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3MainViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncViewModel
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -46,7 +46,6 @@ import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
-import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -54,8 +53,6 @@ import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
-import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
-import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
@@ -66,15 +63,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECT
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiInterfaceModeBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.DeviceNameBridgeV3
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
@@ -93,7 +84,8 @@ import com.bailout.stickk.ubi4.ui.fragments.account.games.AccountGamesFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
-import com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3.AccountFragmentStatisticsV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.AccountFragmentStatisticsV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.withAccountStatisticsCompatibility
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
@@ -107,11 +99,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import timber.log.Timber
 import java.lang.ref.WeakReference
 import com.bailout.stickk.ubi4.ble.BleCommandQueue
 import com.bailout.stickk.ubi4.di.BleDependencies
@@ -126,25 +116,30 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
     private var activeFragment: Fragment? = null
     var dialogManager: DialogManager? = null
-    private var currentSerial: String? = null
+    private var ubi4Serial: String? = null
     private var syncShownOnce = false
     private var syncObservation: Job? = null
     private val v3SyncViewModel by lazy {
         ViewModelProvider(this, V3SyncViewModelFactory)[V3SyncViewModel::class.java]
     }
-    private var bluetoothLeService: BluetoothLeService? = null
-    private lateinit var mServiceConnection: ServiceConnection
+    private val v3MainViewModel by lazy {
+        ViewModelProvider(this, V3MainViewModelFactory(this, this))[V3MainViewModel::class.java]
+    }
+    private var renderedNavigationRevision: Long? = null
+    private var renderedBatteryPercent: Int? = null
     private val transitionPauseHandler = Handler(Looper.getMainLooper())
     private var resumePlotPointsRunnable: Runnable? = null
     private var isImeVisible = false
     private var bottomNavHiddenByIme = false
     private var openingScanAfterDisconnect = false
-    private var appCloseUploadRequested = false
+    private var ubi4AppCloseUploadRequested = false
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
     internal var locate = ""
-    var mDeviceName: String? = null
+    private var ubi4DeviceName: String? = null
+    val mDeviceName: String?
+        get() = if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.deviceName else ubi4DeviceName
     var mDeviceAddress: String? = null
     var mDeviceType: String? = null
     var driverVersionS: String? = null
@@ -163,12 +158,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
     private lateinit var bottomNavigationController: BottomNavigationController
-    private lateinit var telemetryCoordinator: TelemetryCoordinator
     private var isV3BleEmulatorMode = false
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportFragmentManager.fragmentFactory = supportFragmentManager.fragmentFactory.withAccountStatisticsCompatibility()
         super.onCreate(savedInstanceState)
         Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=${BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY} version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
@@ -193,22 +188,26 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         //TODO проверить
 //        setContentView(view)
-        initAllVariables()
+        initializeDeviceSession()
         if (UiState.isInterfaceV3Activated) v3SyncViewModel.onAction(V3SyncAction.ViewCreated)
         if (!isV3BleEmulatorMode) {
             showStartupLoaderIfNeeded()
         }
-        WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.WidgetStorageInitializationRequested)
+        else WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         setupImeBottomNavBehavior()
-        //TODO проверить почему дубль
-        refreshBottomNavVisibility()
-        lifecycleScope.launch {
-            updateFlow.collect { refreshBottomNavVisibility() }
+        if (UiState.isInterfaceV3Activated) {
+            bindV3MainState()
+        } else {
+            refreshBottomNavVisibility()
+            lifecycleScope.launch {
+                updateFlow.collect { refreshBottomNavVisibility() }
+            }
+            observeBattery()
         }
-        observeBattery()
         // инициализация блютуз
 
         //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
@@ -218,25 +217,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 ensureSyncDialogShown()
             }
         }
-        telemetryCoordinator = TelemetryCoordinator(
-            scope = lifecycleScope,
-            preferences = mSettings!!,
-            requestTelemetryData = { mBLEController.requestTelemetryDataV3() },
-            fallbackDeviceIds = {
-                listOf(
-                    getCurrentSerial(),
-                    mDeviceName,
-                    connectedDeviceName,
-                    loadText(CONNECTED_DEVICE)
-                )
-            },
-            showToast = ::showToast
-        )
-        mBLEController.setOnConnectedListener {
-            if (UiState.isInterfaceV3Activated) {
-                telemetryCoordinator.sendTelemetry(showResultToast = false)
-            }
-        }
+        BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -247,29 +228,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 V3BleEmulatorTestHooks.injectInitialResponses(bleParserV3)
             }
         }
-        bluetoothLeService = BluetoothLeService()
         commandQueue.start()
-
-        bluetoothLeService = BluetoothLeService()
-        mServiceConnection = object : ServiceConnection {
-            override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
-                System.err.println("Check ServiceConnection onServiceConnected()")
-                bluetoothLeService = (service as BluetoothLeService.LocalBinder).service
-                bluetoothLeService?.let { service ->
-                    if (!service.initialize()) {
-                        Timber.e("Unable to initialize Bluetooth")
-                        finish()
-                    }
-                } ?: run {
-                    Timber.e("BluetoothLeService is null")
-                    finish()
-                }
-            }
-            override fun onServiceDisconnected(componentName: ComponentName) {
-                System.err.println("Service disconnected")
-                bluetoothLeService = null
-            }
-        }
 
 
         if (savedInstanceState == null) {
@@ -311,10 +270,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.statusBackBtn.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
-
-//        binding.runCommandBtn.setOnClickListener {
-//            telemetryCoordinator.sendTelemetry()
-//        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -380,6 +335,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        BleDependencies.updateLaunchIntent(this, intent)
 //        applyDfuDiagnostics(intent)
     }
 
@@ -408,8 +364,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-        appCloseUploadRequested = false
-        SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
+        else {
+            ubi4AppCloseUploadRequested = false
+            SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
+        }
         if (isV3BleEmulatorMode) {
             UiState.v3WidgetsInteractionEnabled.value = true
             return
@@ -419,15 +378,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         }
         if (mBLEController.getBluetoothLeService() != null) {
-            connectedDeviceName = getString(CONNECTED_DEVICE)
-            connectedDeviceAddress = getString(CONNECTED_DEVICE_ADDRESS)
-            System.err.println("onResume ${getString(CONNECTED_DEVICE_ADDRESS)}")
+            if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.SavedConnectionRestoreRequested)
+            else {
+                connectedDeviceName = getString(CONNECTED_DEVICE)
+                connectedDeviceAddress = getString(CONNECTED_DEVICE_ADDRESS)
+            }
+            System.err.println("onResume $connectedDeviceAddress")
         }
         if (!mBLEController.getStatusConnected()) {
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
-        lifecycleScope.launch {
+        if (!UiState.isInterfaceV3Activated) lifecycleScope.launch {
             val c = WidgetRepoProvider.get().count()
             platformLog("ROOM_CHECK", "Widget rows = $c")
         }
@@ -439,6 +401,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun onDestroy() {
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewDestroyed)
         enqueueAppCloseUploadIfNeeded()
         commandQueue.stop()
         job?.cancel()
@@ -454,13 +417,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun enqueueAppCloseUploadIfNeeded() {
-        if (openingScanAfterDisconnect || appCloseUploadRequested) return
+        if (UiState.isInterfaceV3Activated) {
+            v3MainViewModel.onAction(V3MainAction.ViewStopped(openingScanAfterDisconnect,
+                this::mBLEController.isInitialized && mBLEController.getStatusConnected(), locate))
+            return
+        }
+        if (openingScanAfterDisconnect || ubi4AppCloseUploadRequested) return
         if (!this::mBLEController.isInitialized || !mBLEController.getStatusConnected()) {
             platformLog("SettingsProfileUploadWork", "skip app close enqueue: device is not connected")
             return
         }
 
-        appCloseUploadRequested = true
+        ubi4AppCloseUploadRequested = true
         SettingsProfileUploadWorkScheduler.enqueueAppCloseUpload(
             context = this,
             lang = locate.takeIf { it.isNotBlank() } ?: "en"
@@ -714,51 +682,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         finish()
     }
     private fun resetLastMAC() {
-        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "null")
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.LastConnectionResetRequested)
+        else saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "null")
     }
 
     fun setPercentProgressLearningModel(p: Int) {
         percentProgressLearningModel.value = p.coerceIn(0, 100)
     }
 
-    private fun initAllVariables() {
-        connectedDeviceName = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME).orEmpty()
-        connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
-        val deviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE).orEmpty()
-        UiState.isInterfaceV3Activated = ConstantManager.V3_TYPES.any { marker ->
-            connectedDeviceName.contains(marker, ignoreCase = true) ||
-                deviceType.contains(marker, ignoreCase = true)
-        }
-        val selectedProfile = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_PROFILE)
-            ?.let { runCatching { V3DeviceProfile.valueOf(it) }.getOrNull() }
-        if (selectedProfile != null) {
-            UiInterfaceModeBridgeV3.setActiveProfile(selectedProfile)
-        } else {
-            UiInterfaceModeBridgeV3.updateFromDeviceName(connectedDeviceName)
-        }
-        setStaticVariables()
-        updateSerialNumberV3()
-
-        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+    private fun initializeDeviceSession() {
+        BleDependencies.initializeSession(intent, lifecycleScope, bleManager, this, bleCommandWriter, this)
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.DeviceConnected)
+        else saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
     }
     override fun sendWidgetsArray() {
         lifecycleScope.launch(Dispatchers.IO) {
             updateFlow.emit(1)
         }
-    }
-    private fun setStaticVariables() {
-        canSendNextChunkFlagFlow = MutableSharedFlow()
-        bleCommandWriter.reset()
-        bleManager.setBleCommandExecutor(this)
-        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
-        bleParserV3 = BLEParserV3(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
-        BleEnvironment.register(
-            manager = bleManager,
-            executor = this,
-            parser = bleParser,
-            parserV3 = bleParserV3
-        )
     }
 
     // сохранение и загрузка данных
@@ -924,60 +865,71 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
-    private fun updateSerialNumberV3() {
-        if (UiState.isInterfaceV3Activated) {
-            currentSerial = connectedDeviceName
-            val displayName = DeviceNameBridgeV3.displayName(connectedDeviceName)
-            runOnUiThread { binding.nameTv.text = displayName }
-            return
-        }
-    }
     override fun updateSerialNumber(info: DeviceInfoStructs) {
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0
         if (!isCpu || !uuidOk) return          // игнорируем саб-модули
         val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
-        mDeviceName = serial
-        currentSerial = mDeviceName
-        SettingsProfileManager.setCurrentSerial(currentSerial)
+        if (UiState.isInterfaceV3Activated) {
+            v3MainViewModel.onAction(V3MainAction.SerialNumberReceived(serial))
+            return
+        }
+        ubi4DeviceName = serial
+        ubi4Serial = ubi4DeviceName
+        SettingsProfileManager.setCurrentSerial(ubi4Serial)
         val displayName = DeviceNameBridgeV3.displayName(serial)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
-    fun applyDeviceNameImmediately(fullDeviceName: String) {
-        if (fullDeviceName.isBlank()) return
-
-        connectedDeviceName = fullDeviceName
-        mDeviceName = fullDeviceName
-        currentSerial = fullDeviceName
-
-        val displayName = DeviceNameBridgeV3.displayName(fullDeviceName)
-        runOnUiThread { binding.nameTv.text = displayName }
-    }
-
-    fun getCurrentSerial(): String? = currentSerial
+    fun getCurrentSerial(): String? =
+        if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.serial else ubi4Serial
 
 
     private fun observeBattery(){
-        val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
-        val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
-        val shapeDrawable = rotate.drawable as GradientDrawable
         lifecycleScope.launch {
             batteryPercentFlow.collect{ percent ->
-                binding.batteryProgressBar.progress = percent
-                val colorRes = when {
-                    percent < 20 -> R.color.ubi4_no_system_red
-                    percent <= 40 -> R.color.ubi4_no_system_yellow
-                    else -> R.color.ubi4_active
-                }
-                shapeDrawable.setColor(
-                    ContextCompat.getColor(this@MainActivityUBI4, colorRes)
-                )
+                renderBattery(percent)
             }
-
         }
     }
 
+    private fun renderBattery(percent: Int) {
+        val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
+        val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
+        val shapeDrawable = rotate.drawable as GradientDrawable
+        binding.batteryProgressBar.progress = percent
+        val colorRes = when {
+            percent < 20 -> R.color.ubi4_no_system_red
+            percent <= 40 -> R.color.ubi4_no_system_yellow
+            else -> R.color.ubi4_active
+        }
+        shapeDrawable.setColor(ContextCompat.getColor(this, colorRes))
+    }
+
+    private fun bindV3MainState() {
+        v3MainViewModel.onAction(V3MainAction.ViewCreated)
+        renderV3MainState(v3MainViewModel.uiState.value)
+        lifecycleScope.launch {
+            v3MainViewModel.uiState.collect(::renderV3MainState)
+        }
+    }
+
+    private fun renderV3MainState(state: V3MainUiState) {
+        state.deviceIdentity?.let { identity ->
+            if (binding.nameTv.text.toString() != identity.displayName) binding.nameTv.text = identity.displayName
+        }
+        if (renderedNavigationRevision != state.navigationRevision) {
+            renderedNavigationRevision = state.navigationRevision
+            bottomNavigationController.applyVisibility(state.visibleDisplays)
+            syncBottomNavigationContainerVisibility()
+        }
+        state.batteryPercent?.let { percent ->
+            if (renderedBatteryPercent != percent) {
+                renderedBatteryPercent = percent
+                renderBattery(percent)
+            }
+        }
+    }
 
     fun observeSyncProgress() {
         platformLog("SyncProgressDialog","Main observeSyncProgress run ")
@@ -1026,6 +978,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     fun refreshBottomNavVisibility() {
+        if (UiState.isInterfaceV3Activated) {
+            v3MainViewModel.onAction(V3MainAction.NavigationRefreshRequested)
+            // Existing callers expect navigation to be refreshed before returning.
+            renderV3MainState(v3MainViewModel.uiState.value)
+            return
+        }
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
         syncBottomNavigationContainerVisibility()
     }

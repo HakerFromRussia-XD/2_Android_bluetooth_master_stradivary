@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
+import androidx.lifecycle.ViewModelStoreOwner
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceInfoRepositoryImpl
@@ -53,10 +52,7 @@ class V3ServiceViewModelFactory(
     companion object {
         fun create(
             context: Context,
-            currentSerial: () -> String? = { MainActivityUBI4.main.getCurrentSerial() },
-            deviceName: () -> String? = { MainActivityUBI4.main.mDeviceName },
-            intentDeviceName: () -> String? = { MainActivityUBI4.main.intent?.getStringExtra(EXTRAS_DEVICE_NAME) },
-            applyDeviceName: (String) -> Unit = { MainActivityUBI4.main.applyDeviceNameImmediately(it) },
+            owner: ViewModelStoreOwner,
             enqueuePacket: (ByteArray, () -> Unit) -> Unit = BleDependencies.v3CommandTransport::enqueue,
         ): V3ServiceViewModelFactory {
             val enqueueCommand: (ByteArray) -> Unit = { packet -> enqueuePacket(packet) {} }
@@ -65,10 +61,7 @@ class V3ServiceViewModelFactory(
                 context.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository,
             )
             val deviceInfoRepository = V3DeviceInfoRepositoryImpl(
-                currentSerial = currentSerial,
-                deviceName = deviceName,
-                intentDeviceName = intentDeviceName,
-                applyDeviceName = applyDeviceName,
+                deviceIdentity = BleDependencies.deviceIdentity(owner),
                 enqueuePacket = enqueuePacket,
             )
             return V3ServiceViewModelFactory(

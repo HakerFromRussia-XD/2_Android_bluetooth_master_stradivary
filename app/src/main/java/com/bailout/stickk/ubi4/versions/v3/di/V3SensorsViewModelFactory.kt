@@ -45,7 +45,7 @@ class V3SensorsViewModelFactory(
             refreshWidgets: () -> Unit = { MainActivityUBI4.main.getBLEController().refreshWidgetsV3BySwipe() },
         ): V3SensorsViewModelFactory = V3SensorsViewModelFactory(
             enqueuePacket = { packet ->
-                BleDependencies.v3CommandTransport.enqueue(packet)
+                 BleDependencies.v3CommandTransport.enqueue(packet)
             },
             showSyncProgress = showSyncProgress,
             refreshWidgets = refreshWidgets,

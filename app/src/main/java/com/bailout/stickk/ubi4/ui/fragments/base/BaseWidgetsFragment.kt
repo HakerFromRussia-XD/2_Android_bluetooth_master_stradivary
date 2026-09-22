@@ -131,38 +131,6 @@ abstract class BaseWidgetsFragment : Fragment() {
             BleLogButtonDelegateAdapter(
                 onClick = { navigator().showBleLogScreen() }
             ),
-            //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
-//            GesturesDelegateAdapter(
-//                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
-//                gestureNameList = gestureNameList,
-//                onDeleteClick = { resultCb, gestureName ->
-//                    showDeleteGestureFromRotationGroupDialog(resultCb, gestureName)
-//                },
-//                onAddGesturesToRotationGroup = { onSaveDialogClick ->
-//                    showAddGestureToRotationGroupDialog(onSaveDialogClick)
-//                },
-//                onSendBLERotationGroup = { deviceAddress, parameterID ->
-//                    sendBLERotationGroup(deviceAddress, parameterID)
-//                },
-//                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
-//                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
-//                },
-//                onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
-//                    showGestureSettings(deviceAddress, parameterID, gestureID)
-//                },
-//                onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
-//                    requestGestureSettings(deviceAddress, parameterID, gestureID)
-//                },
-//                onRequestActiveGesture = { deviceAddress, parameterID ->
-//                    requestActiveGesture(deviceAddress, parameterID)
-//                },
-//                onRequestRotationGroup = { deviceAddress, parameterID ->
-//                    requestRotationGroup(deviceAddress, parameterID)
-//                },
-//                onDestroyParent = { onDestroyParent ->
-//                    onDestroyParentCallbacks.add(onDestroyParent)
-//                }
-//            ),
             GesturesOpticDelegateAdapter(
                 coroutineScope = main?.lifecycleScope,
                 gestureNameList = gestureNameList,
@@ -609,11 +577,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
 
-    }
-    private fun requestBindingGroupV3() {
-        platformLog("requestBindingGroupV3", "спросили группу биндингов")
-        if (!isAdded) return
-        transmitter().bleCommandWithQueue(BLECommandsV3.requestBindingGroup(), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun refreshWidgetsList() {
         if (UiState.isInterfaceV3Activated) {

@@ -13,13 +13,11 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_D
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoRepository
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 
 /** Keeps the existing transport, name update and send-completion behavior behind a domain contract. */
 class V3DeviceInfoRepositoryImpl(
-    private val currentSerial: () -> String?,
-    private val deviceName: () -> String?,
-    private val intentDeviceName: () -> String?,
-    private val applyDeviceName: (String) -> Unit,
+    private val deviceIdentity: V3DeviceIdentityStore,
     private val enqueuePacket: (ByteArray, () -> Unit) -> Unit,
     private val recordNameCustomization: () -> Unit = AchievementEventManager::recordDeviceNameCustomization,
     private val currentDeviceAddress: () -> String? = WidgetRepoProvider::mac,
@@ -27,10 +25,10 @@ class V3DeviceInfoRepositoryImpl(
 ) : V3DeviceInfoRepository {
     override val interactionEnabled = UiState.v3WidgetsInteractionEnabled
 
-    private fun currentDeviceName(): String? = currentSerial()?.takeUnless { it.isBlank() }
-        ?: deviceName()?.takeUnless { it.isBlank() }
+    private fun currentDeviceName(): String? = deviceIdentity.identity.value?.serial?.takeUnless { it.isBlank() }
+        ?: deviceIdentity.identity.value?.deviceName?.takeUnless { it.isBlank() }
         ?: connectedName()?.takeUnless { it.isBlank() }
-        ?: intentDeviceName()?.takeUnless { it.isBlank() }
+        ?: deviceIdentity.intentDeviceName?.takeUnless { it.isBlank() }
 
     override fun getTextForInput(field: V3DeviceInfoField): String? = when (field) {
         V3DeviceInfoField.DEVICE_NAME -> currentDeviceName()?.let(DeviceNameBridgeV3::displayName)
@@ -55,7 +53,7 @@ class V3DeviceInfoRepositoryImpl(
                 if (readPacket != null) enqueuePacket(readPacket) {}
             }
         }
-        if (isName) applyDeviceName(transportText)
+        if (isName) deviceIdentity.applyDeviceName(transportText)
         return true
     }
 }

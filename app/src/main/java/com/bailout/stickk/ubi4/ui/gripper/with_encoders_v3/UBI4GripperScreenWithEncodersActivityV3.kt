@@ -16,7 +16,6 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
@@ -47,34 +46,23 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
-import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.BLEState
-import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
-import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.ble.GestureV3
-import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3
 import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics
-import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperSettingsWithEncodersRendererV3
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -155,8 +143,6 @@ class UBI4GripperScreenWithEncodersActivityV3
     private val F56_TIMEOUT_MS = 12L
 
 
-    private var timerCheckReceivingData: CountDownTimer? = null
-
     private var gestureState = 1
     private enum class States(val number: Int) {
         GESTURE_STATE_OPEN  (0),
@@ -180,18 +166,14 @@ class UBI4GripperScreenWithEncodersActivityV3
         V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES
     )
 
-    private var firstRequest = true
-    private var countTick = 0
     private var mSettings: SharedPreferences? = null
     private var gestureNumber: Int = 0
-    private var driverVersionS: String? = null
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
     private var renderedNameEditMode: Boolean? = null
     private val gestureEditorViewModel by lazy {
         ViewModelProvider(this, V3GestureEditorViewModelFactory(this))[V3GestureEditorViewModel::class.java]
     }
-    private var mDeviceType: String? = null
 
     private var deviceAddress = 0
     private var parameterID = 0
@@ -212,9 +194,9 @@ class UBI4GripperScreenWithEncodersActivityV3
         setContentView(binding.root)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
-        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         useV3GestureProtocol = intent.getBooleanExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
         if (!useV3GestureProtocol) {
+            mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
             gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
         }
         deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
@@ -235,7 +217,12 @@ class UBI4GripperScreenWithEncodersActivityV3
         animationInProgress5 = false
         animationInProgress6 = false
         //control side in 3D
-        side = resolveHandSide()
+        side = if (useV3GestureProtocol) {
+            gestureEditorViewModel.onAction(V3GestureEditorAction.ViewCreated(gestureID))
+            gestureEditorViewModel.uiState.value.handSide
+        } else {
+            readUbi4HandSide()
+        }
 
         initBaseView(this)
 
@@ -310,6 +297,20 @@ class UBI4GripperScreenWithEncodersActivityV3
 //                                + parameters.numberFinger + "     fingerAngel = " + parameters.fingerAngel)
                 numberFinger = parameters.numberFinger
                 angleFinger = parameters.fingerAngel
+                if (useV3GestureProtocol) {
+                    // Animation scores belong to the UI; editable targets belong to the ViewModel.
+                    when (numberFinger) {
+                        1 -> score1 = angleFinger
+                        2 -> score2 = angleFinger
+                        3 -> score3 = angleFinger
+                        4 -> score4 = angleFinger
+                        5 -> score5 = validationRange(angleFinger)
+                        6 -> score6 = validationRange(angleFinger)
+                    }
+                    gestureEditorViewModel.onAction(V3GestureEditorAction.FingerPositionChanged(numberFinger, angleFinger))
+                    renderV3GestureTargets(gestureEditorViewModel.uiState.value)
+                    return@subscribe
+                }
                 if (numberFinger == 1) {
                     changeStateFinger1 (angleFinger)
                     compileBLEMassage ()
@@ -343,11 +344,13 @@ class UBI4GripperScreenWithEncodersActivityV3
         RxView.clicks(findViewById(R.id.gripperSaveBtn))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                if (useV3GestureProtocol) {
+                    gestureEditorViewModel.onAction(V3GestureEditorAction.SaveClicked)
+                    return@subscribe
+                }
                 gestureState = States.GESTURE_SAVE_BUTTON.number
                 compileBLEMassage()
-                if (useV3GestureProtocol) {
-                    gestureEditorViewModel.onAction(V3GestureEditorAction.SaveNameRequested)
-                } else if (editMode) {
+                if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                     val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("1 LAST_CONNECTION_MAC: $macKey")
@@ -369,12 +372,12 @@ class UBI4GripperScreenWithEncodersActivityV3
 
     private fun bindV3GestureEditor() {
         val viewModel = gestureEditorViewModel
-        viewModel.onAction(V3GestureEditorAction.ViewCreated)
         renderV3GestureName(viewModel.uiState.value)
         binding.gestureNameEt.doAfterTextChanged { text ->
             viewModel.onAction(V3GestureEditorAction.NameChanged(text.toString()))
         }
         RxView.clicks(binding.editGestureNameBtn)
+            .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 viewModel.onAction(V3GestureEditorAction.EditNameClicked)
@@ -385,41 +388,16 @@ class UBI4GripperScreenWithEncodersActivityV3
         lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.uiState.collect { state ->
                 renderV3GestureName(state)
+                renderV3GestureTargets(state)
                 state.pendingSettings.forEach { update ->
                     val settings = update.settings
                     if (settings == null) {
                         main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
-                    } else {
-                        loadGestureState(GestureV3(
-                            gestureId = settings.gestureId,
-                            openPosition1 = settings.openPositions[0],
-                            openPosition2 = settings.openPositions[1],
-                            openPosition3 = settings.openPositions[2],
-                            openPosition4 = settings.openPositions[3],
-                            openPosition5 = settings.openPositions[4],
-                            openPosition6 = settings.openPositions[5],
-                            closePosition1 = settings.closePositions[0],
-                            closePosition2 = settings.closePositions[1],
-                            closePosition3 = settings.closePositions[2],
-                            closePosition4 = settings.closePositions[3],
-                            closePosition5 = settings.closePositions[4],
-                            closePosition6 = settings.closePositions[5],
-                            openToCloseTimeShift1 = settings.openToCloseDelays[0],
-                            openToCloseTimeShift2 = settings.openToCloseDelays[1],
-                            openToCloseTimeShift3 = settings.openToCloseDelays[2],
-                            openToCloseTimeShift4 = settings.openToCloseDelays[3],
-                            openToCloseTimeShift5 = settings.openToCloseDelays[4],
-                            openToCloseTimeShift6 = settings.openToCloseDelays[5],
-                            closeToOpenTimeShift1 = settings.closeToOpenDelays[0],
-                            closeToOpenTimeShift2 = settings.closeToOpenDelays[1],
-                            closeToOpenTimeShift3 = settings.closeToOpenDelays[2],
-                            closeToOpenTimeShift4 = settings.closeToOpenDelays[3],
-                            closeToOpenTimeShift5 = settings.closeToOpenDelays[4],
-                            closeToOpenTimeShift6 = settings.closeToOpenDelays[5],
-                        ))
                     }
                     viewModel.onAction(V3GestureEditorAction.SettingsApplied(update.id))
+                    renderV3GestureTargets(viewModel.uiState.value)
                 }
+                if (state.closeRequested && !isFinishing) finish()
                 if (state.initialOpenRequested) {
                     viewModel.onAction(V3GestureEditorAction.InitialOpenHandled)
                     pendingInitialTransition = true
@@ -435,6 +413,35 @@ class UBI4GripperScreenWithEncodersActivityV3
                 finally { viewModel.onAction(V3GestureEditorAction.ViewStopped) }
             }
         }
+    }
+
+    private fun renderV3GestureTargets(state: V3GestureEditorUiState) {
+        val settings = state.settings
+        gestureState = state.command.code
+        fingerOpenState1 = settings.openPositions[3]
+        fingerOpenState2 = settings.openPositions[2]
+        fingerOpenState3 = settings.openPositions[1]
+        fingerOpenState4 = settings.openPositions[0]
+        fingerOpenState5 = settings.openPositions[4]
+        fingerOpenState6 = settings.openPositions[5]
+        fingerCloseState1 = settings.closePositions[3]
+        fingerCloseState2 = settings.closePositions[2]
+        fingerCloseState3 = settings.closePositions[1]
+        fingerCloseState4 = settings.closePositions[0]
+        fingerCloseState5 = settings.closePositions[4]
+        fingerCloseState6 = settings.closePositions[5]
+        fingerOpenStateDelay1 = settings.openToCloseDelays[0]
+        fingerOpenStateDelay2 = settings.openToCloseDelays[1]
+        fingerOpenStateDelay3 = settings.openToCloseDelays[2]
+        fingerOpenStateDelay4 = settings.openToCloseDelays[3]
+        fingerOpenStateDelay5 = settings.openToCloseDelays[4]
+        fingerOpenStateDelay6 = settings.openToCloseDelays[5]
+        fingerCloseStateDelay1 = settings.closeToOpenDelays[0]
+        fingerCloseStateDelay2 = settings.closeToOpenDelays[1]
+        fingerCloseStateDelay3 = settings.closeToOpenDelays[2]
+        fingerCloseStateDelay4 = settings.closeToOpenDelays[3]
+        fingerCloseStateDelay5 = settings.closeToOpenDelays[4]
+        fingerCloseStateDelay6 = settings.closeToOpenDelays[5]
     }
 
     private fun renderV3GestureName(state: V3GestureEditorUiState) {
@@ -459,21 +466,7 @@ class UBI4GripperScreenWithEncodersActivityV3
         }
     }
 
-    private fun resolveHandSide(): Int {
-        if (!useV3GestureProtocol) {
-            return legacyHandSide()
-        }
-        val handSideInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
-        val storedSide = (ParameterStoreV3.get(handSideInfo) as? ParameterTypedValueV3.Spinner)
-            ?.value
-            ?.spinnerValue
-            ?.coerceIn(0, 1)
-        if (storedSide != null) return storedSide
-
-        return legacyHandSide()
-    }
-
-    private fun legacyHandSide(): Int {
+    private fun readUbi4HandSide(): Int {
         return mSettings!!.getInt(
             mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE,
             1
@@ -677,13 +670,17 @@ class UBI4GripperScreenWithEncodersActivityV3
         if (selectorStateChanged) {
             updateSelectorUI(opening)
         }
-        if (sendBleCommand) {
-            gestureState = if (opening) {
-                States.GESTURE_OPEN_DELAY.number
-            } else {
-                States.GESTURE_CLOSE_DELAY.number
+        if (useV3GestureProtocol) {
+            if (sendBleCommand) gestureEditorViewModel.onAction(V3GestureEditorAction.PoseTransitionStarted(opening))
+        } else {
+            if (sendBleCommand) {
+                gestureState = if (opening) {
+                    States.GESTURE_OPEN_DELAY.number
+                } else {
+                    States.GESTURE_CLOSE_DELAY.number
+                }
+                compileBLEMassage()
             }
-            compileBLEMassage()
         }
         gestureState = if (opening) {
             States.GESTURE_STATE_OPEN.number
@@ -870,6 +867,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(1, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay1 = seekBar.progress
                     } else {
@@ -886,6 +887,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(2, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay2 = seekBar.progress
                     } else {
@@ -902,6 +907,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(3, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay3 = seekBar.progress
                     } else {
@@ -918,6 +927,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(4, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay4 = seekBar.progress
                     } else {
@@ -934,6 +947,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(5, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay5 = seekBar.progress
                     } else {
@@ -950,6 +967,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
+                    if (useV3GestureProtocol) {
+                        gestureEditorViewModel.onAction(V3GestureEditorAction.FingerDelayChanged(6, seekBar.progress))
+                        return
+                    }
                     if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay6 = seekBar.progress
                     } else {
@@ -975,17 +996,10 @@ class UBI4GripperScreenWithEncodersActivityV3
             validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
             validationRange(fingerCloseState1), validationRange(fingerCloseState5), validationRange(fingerCloseState6),
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
-            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, (if (useV3GestureProtocol) gestureEditorViewModel.uiState.value.name else gestureNameList[gestureNumber-1]),0)
+            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0)
         val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, gesture, gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        if (useV3GestureProtocol) {
-            persistGestureSettings(gesture)
-        }
-        val command = if (useV3GestureProtocol) {
-            BLECommandsV3.sendGestureInfo(gestureStateModel)
-        } else {
-            BLECommands.sendGestureInfo(gestureStateModel)
-        }
+        val command = BLECommands.sendGestureInfo(gestureStateModel)
         Log.i(
             FLOW_TAG,
             "BLE TX gesture=${gesture.gestureId} state=$gestureState " +
@@ -993,54 +1007,9 @@ class UBI4GripperScreenWithEncodersActivityV3
                 "close=${positionSummary(gesture.closePosition1, gesture.closePosition2, gesture.closePosition3, gesture.closePosition4, gesture.closePosition5, gesture.closePosition6)} " +
                 "hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
-        val characteristic = if (useV3GestureProtocol) {
-            SERIALPORTCHAR_UUID
-        } else {
-            MAIN_CHANNEL_CHARACTERISTIC
-        }
-        main.bleCommandWithQueue(command, characteristic, WRITE){}
+        main.bleCommandWithQueue(command, MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 
-    private fun persistGestureSettings(gesture: Gesture) {
-        val baseInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
-        val parameterInfo = ParameterInfo(
-            baseInfo.parameterID,
-            baseInfo.dataCode,
-            baseInfo.deviceAddress,
-            gesture.gestureId
-        )
-        val typedValue = ParameterTypedValueV3.GestureSettings(
-            GestureV3(
-                gestureId = gesture.gestureId,
-                openPosition1 = gesture.openPosition1,
-                openPosition2 = gesture.openPosition2,
-                openPosition3 = gesture.openPosition3,
-                openPosition4 = gesture.openPosition4,
-                openPosition5 = gesture.openPosition5,
-                openPosition6 = gesture.openPosition6,
-                closePosition1 = gesture.closePosition1,
-                closePosition2 = gesture.closePosition2,
-                closePosition3 = gesture.closePosition3,
-                closePosition4 = gesture.closePosition4,
-                closePosition5 = gesture.closePosition5,
-                closePosition6 = gesture.closePosition6,
-                openToCloseTimeShift1 = gesture.openToCloseTimeShift1,
-                openToCloseTimeShift2 = gesture.openToCloseTimeShift2,
-                openToCloseTimeShift3 = gesture.openToCloseTimeShift3,
-                openToCloseTimeShift4 = gesture.openToCloseTimeShift4,
-                openToCloseTimeShift5 = gesture.openToCloseTimeShift5,
-                openToCloseTimeShift6 = gesture.openToCloseTimeShift6,
-                closeToOpenTimeShift1 = gesture.closeToOpenTimeShift1,
-                closeToOpenTimeShift2 = gesture.closeToOpenTimeShift2,
-                closeToOpenTimeShift3 = gesture.closeToOpenTimeShift3,
-                closeToOpenTimeShift4 = gesture.closeToOpenTimeShift4,
-                closeToOpenTimeShift5 = gesture.closeToOpenTimeShift5,
-                closeToOpenTimeShift6 = gesture.closeToOpenTimeShift6
-            )
-        )
-        ParameterStoreV3.put(parameterInfo, typedValue)
-        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
-    }
     private fun compileBLERead () {
         val command = BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID)
         Log.i(

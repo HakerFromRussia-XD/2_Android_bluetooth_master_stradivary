@@ -1,10 +1,9 @@
-package com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3
+package com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics
 
 import android.content.Context
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ui.gestures.GestureCollectionFactory
 import com.bailout.stickk.ubi4.ui.widgets.GestureUsageChartItem
-import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.V3AccountStatisticsUiState
 
 internal object V3AccountStatisticsChartMapper {
     fun map(context: Context, state: V3AccountStatisticsUiState): List<GestureUsageChartItem> {

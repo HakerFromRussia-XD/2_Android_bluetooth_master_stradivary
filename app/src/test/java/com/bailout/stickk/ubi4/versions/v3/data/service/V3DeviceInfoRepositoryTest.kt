@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.versions.v3.domain.service.*
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField.*
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -16,18 +17,24 @@ class V3DeviceInfoRepositoryTest {
     private val originalProfile = UiState.activeV3DeviceProfile
     private val originalInteraction = UiState.v3WidgetsInteractionEnabled.value
     private val serialInfo = ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
-    private var serial: String? = null
-    private var name: String? = null
+    private val previousConnectionName = runCatching { ConnectionState.connectedDeviceName }.getOrDefault("")
+    private val identity = V3DeviceIdentityStore()
+    private var serial: String?
+        get() = identity.identity.value?.serial
+        set(value) { identity.update(value.orEmpty(), name) }
+    private var name: String?
+        get() = identity.identity.value?.deviceName
+        set(value) { identity.update(serial.orEmpty(), value) }
     private var connected: String? = null
-    private var intent: String? = null
+    private var intent: String?
+        get() = identity.intentDeviceName
+        set(value) { identity.intentDeviceName = value }
     private var address = "first"
     private val packets = mutableListOf<ByteArray>()
     private val callbacks = mutableListOf<() -> Unit>()
-    private val appliedNames = mutableListOf<String>()
     private var customizations = 0
     private val repository = V3DeviceInfoRepositoryImpl(
-        currentSerial = { serial }, deviceName = { name }, intentDeviceName = { intent },
-        applyDeviceName = { appliedNames += it },
+        deviceIdentity = identity,
         enqueuePacket = { packet, callback -> packets += packet; callbacks += callback },
         recordNameCustomization = { customizations++ }, currentDeviceAddress = { address },
         connectedName = { connected },
@@ -38,6 +45,7 @@ class V3DeviceInfoRepositoryTest {
         UiState.v3WidgetsInteractionEnabled.value = true
     }
     @AfterEach fun tearDown() {
+        ConnectionState.connectedDeviceName = previousConnectionName
         ParameterStoreV3.clear()
         UiState.activeV3DeviceProfile = originalProfile
         UiState.v3WidgetsInteractionEnabled.value = originalInteraction
@@ -61,7 +69,7 @@ class V3DeviceInfoRepositoryTest {
         serial = " "; name = " "; connected = " "
         assertEquals("INDY3-intent", repository.getTextForInput(SERIAL_NUMBER))
         assertTrue(packets.isEmpty())
-        assertTrue(appliedNames.isEmpty())
+        assertEquals(" ", identity.identity.value?.serial)
         assertEquals(0, customizations)
     }
 
@@ -71,7 +79,8 @@ class V3DeviceInfoRepositoryTest {
         UiState.activeV3DeviceProfile = profile
         serial = prefix + "Old"
         assertEquals(V3DeviceInfoWriteResult.SENT, SetDeviceInfoTextUseCaseV3(repository)(DEVICE_NAME, " Рука "))
-        assertEquals(listOf(prefix + "Рука"), appliedNames)
+        assertEquals(prefix + "Рука", identity.identity.value?.deviceName)
+        assertEquals(prefix + "Рука", ConnectionState.connectedDeviceName)
         assertTextPacket(packets.single(), 13, prefix + "Рука")
         assertEquals(0, customizations)
         callbacks.single().invoke(); callbacks.single().invoke()
@@ -84,7 +93,7 @@ class V3DeviceInfoRepositoryTest {
         serial = "FTHS3-Name"
         assertTrue(repository.sendText(DEVICE_NAME, "Name"))
         callbacks.single().invoke()
-        assertEquals(listOf("FTHS3-Name"), appliedNames)
+        assertEquals("FTHS3-Name", identity.identity.value?.deviceName)
         assertEquals(0, customizations)
         assertEquals(1, packets.size)
     }
@@ -96,7 +105,7 @@ class V3DeviceInfoRepositoryTest {
         assertEquals(V3DeviceInfoWriteResult.SENT, SetDeviceInfoTextUseCaseV3(repository)(SERIAL_NUMBER, " $text "))
         assertTextPacket(packets.single(), 11, text)
         assertEquals(ParameterTypedValueV3.Text("previous"), ParameterStoreV3.get(serialInfo))
-        assertTrue(appliedNames.isEmpty())
+        assertNull(identity.identity.value)
         val onSent = callbacks.single()
         onSent(); onSent()
         assertEquals(2, packets.size)

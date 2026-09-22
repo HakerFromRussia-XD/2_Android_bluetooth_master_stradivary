@@ -72,6 +72,10 @@ class SensorsFragment : BaseWidgetsFragment() {
     private var v3AnimationsEnabled = true
     private var pendingRender: Runnable? = null
 
+    protected override fun loadGestureNameList() {
+        if (!UiState.isInterfaceV3Activated) super.loadGestureNameList()
+    }
+
     override fun onResume() {
         super.onResume()
         UiState.updateFlow.tryEmit(0)

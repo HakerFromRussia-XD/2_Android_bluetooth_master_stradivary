@@ -48,7 +48,13 @@ class V3ArchitectureTest {
         sources("presentation").forEach { file ->
             val code = file.readText()
             reject(file, repositories.filter { Regex("\\b$it\\b").containsMatchIn(code) })
-            reject(file, imports(file).filter { it.startsWith(prefix + "data.") || it.startsWith(prefix + "di.") ||
+            // This screen obtains its ViewModel from DI; it does not assemble domain/data dependencies.
+            val screenFactory = when (file.relativeTo(root).invariantSeparatorsPath) {
+                "presentation/accountstatistics/AccountFragmentStatisticsV3.kt" -> prefix + "di.V3AccountStatisticsViewModelFactory"
+                else -> null
+            }
+            reject(file, imports(file).filter { it.startsWith(prefix + "data.") ||
+                (it.startsWith(prefix + "di.") && it != screenFactory) ||
                 it.startsWith("com.bailout.stickk.ubi4.di.") })
             assertTrue(!Regex("\\b[A-Z]\\w*UseCaseV3\\s*\\(").containsMatchIn(code),
                 "${file.name} constructs a UseCase; assemble it in di")
@@ -243,8 +249,10 @@ class V3ArchitectureTest {
     }
 
     @Test fun `account statistics UI only observes screen state and sends actions`() {
-        val ui = File(root.parentFile.parentFile, "ui/fragments/account/statisticsFragmentV3")
-        ui.listFiles()!!.filter { it.extension == "kt" }.forEach { file ->
+        val ui = File(root, "presentation/accountstatistics")
+        listOf("AccountFragmentStatisticsV3.kt", "V3AccountStatisticsChartMapper.kt").forEach { name ->
+            val file = File(ui, name)
+            assertTrue(file.isFile, "Missing statistics UI: $name")
             reject(file, imports(file).filter {
                 it.contains(".data.") || it.contains(".persistence.") || it.contains(".ble.") ||
                     it.contains("Repository") || it.contains("UseCase") || it.endsWith(".CollectionGesturesProvider") ||

@@ -934,3 +934,341 @@ C4.27 завершён без правок production-кода и тестов. 
 
 Новые сборки и аппаратные проверки не запускались: изменена только документация.
 Результаты 770 тестов и Samsung выше относятся к C4.26.
+
+## D2.1 — вкладки и заряд главного экрана V3 (2026-09-21)
+
+По решению пользователя зависимости Activity/Base очищаются перед D1.
+Введена V3MainViewModel с V3MainUiState для доступных display и процента
+батареи. Activity передаёт ViewCreated/NavigationRefreshRequested/ViewDestroyed,
+отображает состояние и сохраняет Android-маршруты, IME и анимации панелей.
+V3SyncViewModel остаётся владельцем самостоятельного состояния диалога
+синхронизации; смешивать эти состояния в этом шаге не потребовалось.
+
+GetMainVisibleDisplaysUseCaseV3 и ObserveMainUpdatesUseCaseV3 обращаются к
+V3MainRepository; реализация читает UiState.updateFlow и batteryPercentFlow.
+DataFactory.prepareData остаётся в data как временная совместимость: наличие
+метаданных display само по себе не гарантирует отображаемый виджет, поэтому
+прежняя фильтрация 0..4 сохранена. Domain получает только Set<Int>/Int и
+события, без List<Any>, Android Views или структур виджетов. Полное удаление
+зависимости V3 от DataFactory относится к D2.5, а не объявлено завершённым.
+
+Первое вычисление вкладок и публичный refreshBottomNavVisibility остаются
+синхронными. navigationRevision позволяет повторно применить UI-правила
+скрытой вкладки/IME при неизменном наборе display; батарея эту ревизию не
+меняет и не запускает повторный расчёт/переключение вкладок. Проценты
+не ограничиваются дополнительно; цвета сохранены: <20 красный, 20..40
+жёлтый, >40 зелёный. Подписки живут до DESTROY, включая STOP, как прежние
+подписки Activity; пересоздание отменяет старую подписку, очистка VM
+не позволяет её запустить заново.
+
+UBI4 по-прежнему использует прежние DataFactory/потоки в Activity; вынесено
+только общее отображение батареи в renderBattery. Методы инициализации,
+имени/serial, DFU, синхронизации и управления видимостью панелей сохранены.
+MainActivity пока не стала меньше: добавлено связывание нового UiState,
+а UBI4-реализация остаётся необходимой. BaseWidgetsFragment в этом шаге
+не изменён. Следующий D2.2 — его ненужное чтение имён на V3-экранах;
+Sensors V3 уже имеет RefreshRequested, Advanced и общие fallback-пути
+не следует переносить как новую ответственность V3.
+
+Проверки: 815 app-тестов, 0 ошибок/падений/пропусков, debug/release собраны
+(`/tmp/v3-main-state-build.log`). Добавлены проверки фильтрации неизвестных
+виджетов и диапазона display, replay/повторных событий, независимости заряда
+от навигации, неизменяемого снимка и отмены/пересоздания подписок.
+
+Release установлен на Samsung R8YX900N0JK с V3 `00001`. Синхронизация,
+«Жесты» → «Спецнастройки» → фон/возврат → «Датчики» → «Жесты» прошли.
+Индикатор батареи отображается; XML «Спецнастроек» до/после фона совпал,
+исходный экран «Жесты» восстановлен с тем же XML. Crash-buffer не изменился.
+Пороговые цвета проверены по сохранённому коду, разряд устройства до порогов
+не выполнялся. Физические INDY3/UBI4, iOS и переходы с клавиатурой в этом
+шаге не проверялись. Shared, парсеры и прошивка не изменены.
+Артефакты: `/tmp/v3-main-state-crash-before.log`,
+`/tmp/v3-main-state-crash-final.log`, `/tmp/v3-main-state-sensors.png`,
+`/tmp/v3-account-main-state-final.xml`.
+
+## D2.2 — ненужное чтение имён жестов на V3-экранах
+
+Базовый gestureNameList используется только общим GesturesOpticDelegateAdapter.
+V3-адаптеры SensorsFragment, ServiceFragment и SpecialSettingsFragment его
+не используют; SprGestureFragment уже пропускает базовую загрузку для V3.
+В этих трёх экранах добавлено такое же переопределение loadGestureNameList:
+super вызывается только для UBI4. Тем самым при onCreate/onResume V3 больше
+не читаются MAC и 14 имён из preferences через navigator.
+
+BaseWidgetsFragment, AdvancedFragment и общие lifecycle-вызовы не изменены.
+notifyDataSetChanged при onResume сохранён; загрузка/обновление имён «Жестов»
+из ViewModel сохраняется. Для UBI4 базовый метод вызывается как прежде,
+Advanced по-прежнему наследует его. Новых классов и тестов для трёх простых
+условий не добавлено; это удаление ненужного чтения, не новый Repository.
+
+Проверка: 815 app-тестов, включая архитектурные, без ошибок/падений/пропусков;
+debug/release собраны (`/tmp/v3-base-names-build.log`). На Samsung R8YX900N0JK
+с 00001 проверены Датчики, Спецнастройки, Служебные настройки и фон/возврат
+в Service. В логе нового процесса нет строк базового loadGestureNameList.
+XML Service до/после фона совпадает; служебная вкладка снова скрыта,
+исходный экран Жесты восстановлен с тем же XML. Crash-buffer не изменился.
+Параметры устройства не редактировались; физические UBI4/INDY3 не проверялись.
+Артефакты: `/tmp/v3-base-names-phone.log`,
+`/tmp/v3-base-names-crash-before.log`, `/tmp/v3-base-names-crash-final.log`.
+
+Далее D2.3: сначала имя/serial главного экрана, затем startup/session.
+DataFactory и прочие общие зависимости остаются по плану; Base не объявлен
+полностью очищенным. DFU по-прежнему отложен до merge реализации коллеги.
+
+### D2.3.1 — имя и serial шапки V3
+
+V3MainViewModel владеет V3MainDeviceIdentity в UiState. Подключение и
+существующие callbacks Activity передают Action; UpdateMainDeviceIdentityUseCaseV3
+обращается к V3MainRepository. Доступ к ConnectionState и форматированию
+DeviceNameBridgeV3 находится в data. mDeviceName/getCurrentSerial для V3
+читают состояние синхронно; аккаунт, Service и телеметрия сохраняют свои
+прежние getters и порядок fallback. Activity отображает displayName из состояния.
+
+Сохранены три разных пути: подключение задаёт serial, оставляя deviceName null;
+переименование обновляет полное имя соединения и оба значения, игнорируя blank;
+ответ DeviceInfo обновляет оба значения и SettingsProfileManager, но не имя
+соединения. Подключение/переименование не обновляют serial профилей. Пробелы
+и префиксы в полном имени сохраняются; отображение использует прежний bridge.
+Общий CPU/UUID-фильтр и формирование serial в callback не перерабатывались.
+
+820 app-тестов (включая архитектурные) прошли, debug/release собраны:
+`/tmp/v3-main-identity-build.log`. Проверены инициализация до привязки UI,
+три пути обновления, пустое имя, отсутствие повторных записей при обновлении
+экрана, смена устройства и запрет действий после очистки ViewModel.
+
+На Samsung R8YX900N0JK установлена release-сборка и проверено подключение
+к 00001, имя в шапке на Датчиках/Спецнастройках/Жестах и фон/возврат.
+XML Спецнастроек до/после фона совпал; crash-buffer не изменился, в логе
+нового процесса нет FATAL EXCEPTION. Имя/serial реального устройства не
+редактировались: сценарии записи проверены unit-тестами. Артефакты:
+`/tmp/v3-main-identity-phone.log`, `/tmp/v3-main-identity-crash-final.log`.
+
+Это ещё не полное отделение сессии: startup и DI callbacks Service через
+Activity остаются до следующих шагов D2.3.2; телеметрия — D2.4, DataFactory — D2.5.
+UBI4 сохраняет свои поля и прежние операции. Shared/iOS, парсеры, Advanced и DFU
+в этом шаге не изменялись; физическая проверка UBI4/INDY3 остаётся открытой.
+
+### D2.3.2 — регистрация BLE и удаление неиспользуемого блока
+
+setStaticVariables удалён из MainActivityUBI4; его последовательность перенесена
+в существующий BleDependencies.registerSession: новый flow подтверждения чанков,
+reset writer, executor менеджера, оба парсера и BleEnvironment.register.
+Вызов остаётся на прежнем месте initAllVariables, до DeviceConnected,
+сохранения MAC, WidgetRepoProvider.setCurrentMac и запуска BLEController.
+Используются те же экземпляры manager/writer/executor и тот же lifecycleScope.
+Это сборка зависимостей в di; новые UseCase/Repository для конструкторов не нужны.
+
+Удалены два ручных BluetoothLeService() и приватные bluetoothLeService /
+mServiceConnection в Activity. Проверка всех ссылок показала: callback Activity
+никогда не передавался bindService и не читался; эти экземпляры сервиса не
+подключались и не использовались для команд. Конструирование создавало только
+локальные объекты/Handler, без подключения или запланированных задач.
+Настоящий ServiceConnection, bind/unbind и обработка GATT находятся в
+BLEController и не изменялись. Общая регистрация UBI4 сохранена без новых
+ветвлений; реализация обоих парсеров и код shared/iOS/DFU не менялись.
+
+Относительно начала этого шага MainActivityUBI4: 1249 → 1201 строк (−48);
+BleDependencies: 12 → 37 (+25); рабочий код суммарно −23, новых классов нет.
+Остаются контекст запуска и связи Service с Activity (D2.3.3), телеметрия (D2.4)
+и DataFactory (D2.5); это не завершение рефакторинга всей Activity.
+
+Проверка D2.3.2: 820 app-тестов, включая архитектурные и BLE-тесты, без
+падений/ошибок/пропусков; debug/release собраны (`/tmp/v3-ble-registration-build.log`).
+На Samsung R8YX900N0JK с 00001 проверены новое подключение (GATT_SUCCESS),
+завершение синхронизации до экрана Датчиков, Спецнастройки, фон/возврат и Жесты.
+XML Спецнастроек до/после фона совпал; crash-buffer не изменился, FATAL EXCEPTION
+в новом процессе нет (`/tmp/v3-ble-registration-phone.log`). Параметры не
+редактировались, команды движения/калибровки не запускались. Физические
+UBI4/INDY3 не проверялись; для общей сборки зависимостей проверены сохранность
+обоих парсеров, аргументов и последовательности вызовов относительно исходника.
+
+### D2.3.3 — контекст запуска
+
+Из Activity удалён разбор name/address/type/profile из Intent. Общий Android
+data-адаптер DeviceConnectionInitializer сохраняет этот алгоритм без изменения
+правил и вызывается из BleDependencies.initializeSession до регистрации парсеров.
+Он находится вне versions/v3, поскольку выбирает V3/UBI4 ещё до создания
+экранной ViewModel. Это адаптация параметров Android-запуска к существующему
+общему контексту, а не новый сценарий пользовательского редактирования.
+V3-операции экранов по-прежнему идут через ViewModel → UseCase → Repository.
+
+Сохранены исходные ключи, пустые значения при отсутствии extras, отсутствие
+нормализации полного имени/адреса, приоритет валидного явного профиля (включая
+NOT_V3) над именем и прежний fallback при неизвестном enum. Предварительная
+проверка deviceType тоже сохранена: последующий bridge, как раньше, задаёт
+итоговый профиль по явному значению или имени. Классификатор не продублирован.
+onNewIntent, восстановление имени/адреса при onResume, сохранение последнего MAC,
+WidgetRepoProvider и порядок подключения не менялись. Парсеры, shared/iOS,
+Advanced и DFU не изменялись. Activity: 1201 → 1184 строк.
+
+Открытая часть D2.3.3 — callbacks Service к Activity. Полного удаления глобального
+ConnectionState этот шаг не заявляет; общий контекст остаётся для старых потребителей.
+
+Проверка: 824 app-теста без падений/ошибок/пропусков, debug/release собраны
+(`/tmp/v3-connection-context-build.log`). Новые проверки фиксируют выбор
+STANDARD_V3/INDY3/NOT_V3, приоритет extras, неверный enum, различие type/name,
+смену контекста и пустые extras. На Samsung R8YX900N0JK с 00001 подтверждены
+GATT_SUCCESS, завершение синхронизации и шапка 00001; XML Датчиков совпал
+до/после фона, исходный экран Жесты восстановлен. Crash-buffer не изменился,
+в логе нового процесса нет FATAL EXCEPTION (`/tmp/v3-connection-context-phone.log`).
+Параметры устройства не редактировались. UBI4/INDY3 проверены тестами выбора
+контекста, без физической проверки этих устройств.
+
+### D2.3.3 — Service без обратных вызовов в Activity
+
+V3DeviceInfoRepositoryImpl и V3MainRepositoryImpl используют один
+V3DeviceIdentityStore. Он содержит текущее имя/serial и fallback из Intent,
+без Activity/Context. DI выдаёт экземпляр по главному ViewModelStore:
+пересоздание Activity сохраняет источник, независимые главные экраны получают
+разные экземпляры. WeakHashMap не удерживает завершённые scope и Activity.
+Модель переименована в V3DeviceIdentity и находится в domain/device.
+
+После enqueue имя обновляется в этом источнике; главная ViewModel получает
+изменения через ObserveMainUpdatesUseCaseV3 и отображает их в UiState.
+Поток identity наблюдается напрямую, без промежуточного merge/channel;
+main-immediate сохраняет обновление шапки при синхронной отправке с UI-потока.
+Наблюдение живёт до ViewDestroyed как прежние подписки Activity и возобновляет
+последнее состояние при ViewCreated. Serial из DeviceInfo по-прежнему обновляет
+SettingsProfileManager, переименование — нет.
+
+Из фабрики Service удалены currentSerial/deviceName/intentDeviceName/applyDeviceName
+callbacks и импорт MainActivityUBI4. Из Activity удалён applyDeviceNameImmediately
+(проверены все Kotlin/Java-потребители, оставшихся вызовов нет), из Main Action
+удалён DeviceNameChanged. Существующие getters аккаунта/телеметрии продолжают
+читать Main UiState. onNewIntent обновляет только fallback имени, не текущую
+идентификацию или подключение; соответствующая прежняя семантика сохранена.
+Пакеты, ACK/achievement, read-after-write serial и проверки адреса/профиля не менялись.
+
+MainActivityUBI4: 1184 → 1170 строк. Добавлен один data-источник вместо цепочки
+Service Repository → Activity → Main ViewModel. Следующий этап D2.4 — телеметрия;
+UBI4, shared/iOS, Advanced, парсеры и DFU в этом шаге не перерабатывались.
+
+Проверка: 827 app-тестов без ошибок/падений/пропусков, debug/release собраны
+(`/tmp/v3-service-identity-build.log`). Сквозной тест соединяет реальные
+Service/Main repositories, Store и Main ViewModel: enqueue предшествует
+локальному имени, UiState меняется до ACK, команда одна, serial профилей
+не изменяется. Проверены blank, повторная подписка, очистка ViewModel,
+изоляция scope и обновление fallback Intent. Прежние проверки пакетов,
+read-after-write и поздних ACK сохранены.
+
+Samsung R8YX900N0JK / 00001: GATT_SUCCESS, синхронизация завершилась, поле имени
+в Service подставило 00001 и сохранило его после фона; шапка тоже 00001.
+Записать не нажималось. Служебная вкладка снова скрыта, исходный экран Жесты
+восстановлен. Crash-buffer не изменился, FATAL EXCEPTION в новом процессе нет
+(`/tmp/v3-service-identity-phone.log`). Физические UBI4/INDY3 не проверялись.
+
+### D2.4.1 — зависимости телеметрии
+
+Activity вызывает BleDependencies.bindTelemetry до initBLEStructure/connect.
+DI создаёт прежний TelemetryCoordinator с тем же lifecycleScope/preferences,
+подключает запрос BLE и showToast, регистрирует тот же onConnectedListener:
+проверка UiState.isInterfaceV3Activated при событии, sendTelemetry(false).
+BLEController.cleanup по-прежнему удаляет listener; новых подписок нет.
+
+Coordinator читает fallback в data: текущий serial, имя, connectedDeviceName,
+preferences CONNECTED_DEVICE с прежним значением по умолчанию "null".
+Первые два значения поступают из уже существующего V3DeviceIdentityStore
+главного scope. Список формируется только когда Sender запросит его после
+ожидания BLE-ответа; пробелы/null/порядок не нормализуются дополнительно.
+Shared Sender, выбор UUID, payload и протокол не изменены. Правила 24 часов,
+sendInProgress, запись timestamp после успеха, ошибки/отмена и Toast сохранены.
+
+Из Activity удалены поле coordinator, fallback callback и устаревший
+закомментированный обработчик ручной отправки. Activity: 1170 → 1146 строк;
+во всех трёх рабочих файлах суммарно +1 строка, новых рабочих классов нет.
+Это перенос сборки и источников данных; правило 24 часов пока остаётся в
+Coordinator. Следом D2.4.2 (выгрузка при уходе), затем D2.4.3 (правила телеметрии).
+
+Проверка: 831 app-тест без ошибок/падений/пропусков, debug/release собраны
+(`/tmp/v3-telemetry-wiring-build.log`). Новые тесты с подменённым Sender проверяют
+живые данные после ожидания ответа, порядок/null/пробелы fallback, интервал,
+повторную отправку, сохранение timestamp только после успеха, ошибки и отмену
+с возможностью повтора. Сеть и реальное устройство в unit-тестах не использовались.
+2026-09-22 пользователь самостоятельно переустановил приложение и подключил
+Samsung R8YX900N0JK. Выполнена проверка чтением: экран Датчики, устройство 00001,
+в текущем процессе PID 12601 есть GATT_SUCCESS, нет FATAL EXCEPTION/ANR;
+crash-buffer совпадает с сохранённым до проверки. В 13:08:31 по времени телефона
+TelemetryV3 сообщает пропуск отправки: предыдущая была менее 24 часов назад.
+Логи: /tmp/v3-telemetry-wiring-phone.log. Отправка на сервер не проверена.
+SHA-256 установленного APK не совпадает с локальными проверенными debug/release;
+это не доказывает устаревший код, но не позволяет подтвердить аппаратную проверку
+именно этих сборок. Установка и запуск агентом не выполнялись; эмулятор не
+использовался. Полная проверка этого шага на V3, а также UBI4/INDY3 остаётся открытой.
+
+### D2.4.2 — планирование выгрузки профилей при уходе в фон
+
+V3: onResume → ViewResumed → Main ViewModel → ScheduleProfileUploadUseCaseV3
+сбрасывает guard и отменяет app-close задачу через V3MainRepositoryImpl.
+onStop и прежний fallback onDestroy передают ViewStopped с текущим фактом
+BLE-соединения, переходом к сканированию и исходным locate. Activity остаётся
+владельцем BLEController; Android/BLE-типы не поступают во ViewModel/domain.
+UseCase проверяет условия, ставит guard до обращения к scheduler, выбирает
+"en" только для пустого/пробельного языка. ViewCreated сбрасывает guard нового
+экземпляра Activity при сохранённой ViewModel. ViewDestroyed отменяет наблюдения,
+но не блокирует последующий fallback планирования; очищенная ViewModel игнорирует Actions.
+
+Репозиторий хранит только applicationContext и вызывает существующий scheduler.
+WorkManager: прежние 3 секунды, REPLACE, ограничение сети, serial из
+SettingsProfileManager и общий connection-guard. Worker, сетевой payload и
+UBI4-ветка не изменены. Удалённая из V3 ветки диагностика отсутствия соединения
+больше не печатается; само условие пропуска сохранено в UseCase.
+Новый рабочий класс один; Activity 1146 → 1154 строки из-за разделения путей V3/UBI4.
+
+837 app-тестов без ошибок/пропусков; debug/release собраны
+(/tmp/v3-profile-upload-build.log). Проверены stop/destroy, возврат, пересоздание,
+нет соединения/переход к сканированию, язык, исключение scheduler, отсутствие
+записей при render/после clear и applicationContext в data. Scheduler подменён
+в unit-тесте: реальная отправка не выполнялась. Новая сборка на телефоне не
+устанавливалась и не проверялась; прежняя проверка телефона относится к D2.4.1.
+
+### D2.4.3 — правила автоматической телеметрии
+
+BLE callback → существующий TelemetryCoordinator → SendTelemetryUseCaseV3 →
+V3TelemetryRepositoryImpl → неизменённый Ubi4TelemetrySender. Это автоматическая
+операция соединения, без нового экранного состояния/Action или отдельной ViewModel.
+Coordinator сохраняет прежний Activity lifecycleScope и вывод логов/Toast;
+данные устройства, preferences и правила из него удалены (86 → 42 строки).
+UseCase и repository собираются в BleDependencies на каждый listener, как раньше
+создавался coordinator. Callback, проверка V3, cleanup listener и scope не изменены.
+
+Domain решает: при активной отправке — пропуск; положительный timestamp моложе
+24 часов — пропуск; 0/отрицательный timestamp и ровно 24 часа разрешают отправку.
+Время успеха читается после завершения отправки. Guard освобождается в finally,
+включая ошибку и отмену; отмена не превращается в пользовательскую ошибку.
+Repository сохраняет timestamp в прежнем ключе через apply(), поздно читает
+fallback в прежнем порядке и переводит три специальных исключения Sender в
+domain-ошибки. DTO Sender не выходит из data; результат содержит только grips.
+Общий Sender сохраняет выбор UUID, ожидание BLE и сетевой payload. iOS/shared
+не изменены. Автоматический вызов по-прежнему не показывает Toast.
+
+843 app-теста без ошибок/пропусков, debug/release собраны
+(/tmp/v3-telemetry-domain-build.log). Проверены граница интервала и будущее время,
+параллельный запрос, timestamp завершения, ошибки отправки/сохранения, отмена
+ожидания при завершении scope и прежние тексты сообщений. Сохранены проверки
+fallback после BLE и режима без Toast. Сетевой Sender в тестах подменён;
+новая сборка не устанавливалась на телефон, реальная отправка не проверена.
+
+### Решение пользователя о формировании виджетов
+
+Замена источников DataFactory на Android-каталоги отменена. Пользователь откатил
+два последних изменения: отдельный каталог «Спецнастроек» и начатый единый каталог.
+Состав экранов по-прежнему задают generatedHardcodeWidgets/generatedHardcodeWidgetsINDY3
+с display/widgetPosition. DataFactory и DataFactoryV3*WidgetsSource сохраняются;
+внедрённые ранее UiState/Action и цепочки UseCase/Repository не отменяются.
+
+### D2.3.4 — сохранённое подключение V3
+
+MainActivity передаёт операции в Main ViewModel → ManageMainConnectionUseCaseV3 →
+V3MainRepositoryImpl. Последний MAC сохраняется после подготовки identity;
+MAC хранилища устанавливается отдельно в прежней точке onCreate, до UI/BLE.
+Восстановление имени/адреса остаётся под проверкой наличия BLE service в onResume,
+перед reconnect; сброс последнего MAC выполняется до перехода на ScanActivity.
+UiState не запускает повторные записи. Сохраняются исходные строки, ключи,
+apply(), fallback «NOT SET!» и строковый маркер «null». Восстановление не меняет
+identity, серийный номер профиля или MAC хранилища. Диагностический count Room
+на V3 удалён; UBI4-путь оставлен. Формирование виджетов, shared и iOS не менялись.
+846 app-тестов без ошибок/пропусков, debug/release собраны
+(/tmp/v3-main-connection-build.log). Проверены исходные значения preferences,
+сброс без удаления сохранённого подключения, отсутствие повторных операций при
+обновлении UiState и запрет действий после очистки ViewModel. Новая сборка
+на телефоне не проверялась; аппаратная приёмка остаётся открытой.

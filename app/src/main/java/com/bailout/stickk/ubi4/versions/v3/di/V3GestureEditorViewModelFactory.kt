@@ -4,6 +4,9 @@ import com.bailout.stickk.ubi4.di.BleDependencies
 import com.bailout.stickk.ubi4.versions.v3.data.gestureeditor.V3GestureEditorRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.ObserveGestureSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.RequestGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.EditGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.GetGestureEditorHandSideUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.WriteGestureSettingsUseCaseV3
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -20,9 +23,11 @@ class V3GestureEditorViewModelFactory(context: Context) : ViewModelProvider.Fact
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == V3GestureEditorViewModel::class.java)
         val repository = V3AppSettingsRepositoryImpl(preferences)
-        val editorRepository = V3GestureEditorRepositoryImpl({ BleDependencies.v3CommandTransport.enqueue(it) })
+        val editorRepository = V3GestureEditorRepositoryImpl(preferences, { BleDependencies.v3CommandTransport.enqueue(it) })
         @Suppress("UNCHECKED_CAST")
         return V3GestureEditorViewModel(GetGestureEditorNamesUseCaseV3(repository), SaveGestureEditorNamesUseCaseV3(repository),
-            ObserveGestureSettingsUseCaseV3(editorRepository), RequestGestureSettingsUseCaseV3(editorRepository)) as T
+            ObserveGestureSettingsUseCaseV3(editorRepository), RequestGestureSettingsUseCaseV3(editorRepository),
+            EditGestureSettingsUseCaseV3(), WriteGestureSettingsUseCaseV3(editorRepository),
+            GetGestureEditorHandSideUseCaseV3(editorRepository)) as T
     }
 }

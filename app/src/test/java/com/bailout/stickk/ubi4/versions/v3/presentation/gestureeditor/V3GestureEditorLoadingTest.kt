@@ -19,23 +19,25 @@ class V3GestureEditorLoadingTest {
     private val ready = MutableStateFlow(false)
     private val requests = mutableListOf<Int>()
     private val repository = object : V3GestureEditorRepository {
+        override fun getHandSide() = 1
         override fun observeSettings() = events
         override suspend fun awaitReady() { ready.first { it } }
         override fun requestSettings(gestureId: Int) { requests.add(gestureId) }
+        override fun writeSettings(settings: V3GestureSettings, command: V3GestureCommand, name: String) = error("Loading must not write")
     }
     private val preferences = mockk<V3AppSettingsRepository> {
         every { getGestureEditorNames() } returns V3GestureEditorNames(1, listOf("One"))
     }
     private val vm = V3GestureEditorViewModel(GetGestureEditorNamesUseCaseV3(preferences),
         SaveGestureEditorNamesUseCaseV3(preferences), ObserveGestureSettingsUseCaseV3(repository),
-        RequestGestureSettingsUseCaseV3(repository))
+        RequestGestureSettingsUseCaseV3(repository), EditGestureSettingsUseCaseV3(), WriteGestureSettingsUseCaseV3(repository), GetGestureEditorHandSideUseCaseV3(repository))
     private val store = ViewModelStore()
     private val settings = V3GestureSettings(7, listOf(1,2,3,4,5,6), listOf(11,12,13,14,15,16),
         listOf(21,22,23,24,25,26), listOf(31,32,33,34,35,36))
     @BeforeEach fun setup() {
         Dispatchers.setMain(dispatcher)
         store.put("editor", vm)
-        vm.onAction(V3GestureEditorAction.ViewCreated)
+        vm.onAction(V3GestureEditorAction.ViewCreated())
     }
     @AfterEach fun cleanup() { store.clear(); Dispatchers.resetMain() }
     private fun drain() = dispatcher.scheduler.runCurrent()
@@ -120,7 +122,7 @@ class V3GestureEditorLoadingTest {
         vm.onAction(V3GestureEditorAction.ViewDestroyed)
         drain()
         assertEquals(0, events.subscriptionCount.value)
-        vm.onAction(V3GestureEditorAction.ViewCreated)
+        vm.onAction(V3GestureEditorAction.ViewCreated())
         assertNull(vm.uiState.value.loadedSettings)
         assertTrue(vm.uiState.value.pendingSettings.isEmpty())
         assertEquals(1, events.subscriptionCount.value)
@@ -134,7 +136,7 @@ class V3GestureEditorLoadingTest {
         drain()
         assertTrue(requests.isEmpty())
         store.clear()
-        vm.onAction(V3GestureEditorAction.ViewCreated)
+        vm.onAction(V3GestureEditorAction.ViewCreated())
         vm.onAction(V3GestureEditorAction.ViewStarted(7))
         drain()
         assertEquals(0, events.subscriptionCount.value)

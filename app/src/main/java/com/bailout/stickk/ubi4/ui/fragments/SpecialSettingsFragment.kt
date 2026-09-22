@@ -107,6 +107,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val settingsProfileNameDialogHost = SettingsProfileNameDialogHost()
     private var renderedSettingsProfileNameRequest: Long? = null
 
+    protected override fun loadGestureNameList() {
+        if (!UiState.isInterfaceV3Activated) super.loadGestureNameList()
+    }
 
     override fun onResume() {
         super.onResume()

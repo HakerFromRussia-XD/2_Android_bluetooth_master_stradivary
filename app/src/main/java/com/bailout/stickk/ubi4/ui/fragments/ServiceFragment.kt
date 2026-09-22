@@ -101,6 +101,10 @@ class ServiceFragment : BaseWidgetsFragment() {
     private var v3AnimationsEnabled = true
     private var pendingRender: Runnable? = null
 
+    protected override fun loadGestureNameList() {
+        if (!UiState.isInterfaceV3Activated) super.loadGestureNameList()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = Ubi4FragmentServiceBinding.inflate(inflater, container, false)
         return binding.root
@@ -121,6 +125,7 @@ class ServiceFragment : BaseWidgetsFragment() {
     private fun bindV3Service() {
         val viewModel = ViewModelProvider(this, V3ServiceViewModelFactory.create(
             context = requireContext(),
+            owner = requireActivity(),
         ))[V3ServiceViewModel::class.java]
         v3ServiceViewModel = viewModel
         renderV3Service(viewModel.uiState.value)

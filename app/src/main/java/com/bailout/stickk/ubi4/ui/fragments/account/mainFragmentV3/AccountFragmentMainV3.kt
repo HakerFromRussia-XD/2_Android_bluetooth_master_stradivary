@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -56,12 +55,10 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.properties.Delegates
 
 class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
-    private var mSettings: SharedPreferences? = null
 
     private val profileViewModel: V3AccountProfileViewModel by viewModels {
         V3AccountProfileViewModelFactory.from(requireContext())
@@ -71,7 +68,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     private lateinit var accountAdapter: AccountMainAdapterUBI4
     private lateinit var bootloaderAdapter: BootloaderAdapterUBI4
-    private lateinit var concatAdapter: ConcatAdapter
 
     private var _binding: Ubi4FragmentPersonalAccountMainBinding? = null
     private val binding get() = requireNotNull(_binding)
@@ -98,9 +94,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mSettings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        val settings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         UiState.isServiceEngineerRole.value =
-            mSettings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
+            settings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
                 ROLE_SERVICE_ENGINEER_INDEX
 
         profileViewModel.onAction(V3AccountProfileAction.ViewAttached(
@@ -119,8 +115,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             setupRefreshLayout()
         }
 
-        accountMainList = ArrayList()
-        initializeUI()
+        initAdapter()
+        binding.backBtn.setOnClickListener { handleBackPress() }
         refreshFirmwareCatalog()
 
         val hasCachedContent = applyCachedContentIfAvailable()
@@ -201,11 +197,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
     }
 
-    private fun initializeUI() {
-        initAdapter()
-        binding.backBtn.setOnClickListener { handleBackPress() }
-    }
-
     private fun initAdapter() {
         val accountClickListener = object : OnAccountMainUBI4ClickListener {
             override fun onCustomerServiceClicked() { navigator().showAccountCustomerServiceScreen() }
@@ -238,7 +229,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 bootloaderAdapter.preloadLocalVersions(requireContext())
             }
         }
-        concatAdapter = ConcatAdapter(accountAdapter, BootloaderCardAdapter(bootloaderAdapter))
+        val concatAdapter = ConcatAdapter(accountAdapter, BootloaderCardAdapter(bootloaderAdapter))
         binding.accountRv.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = concatAdapter
@@ -558,7 +549,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         isBoardsRendered = false
         systemBackCallback = null
         mContext = null
-        mSettings = null
         main = null
         _binding = null
         super.onDestroyView()
@@ -570,6 +560,5 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         private const val ROLE_SERVICE_ENGINEER_INDEX = 1
         private const val ROLE_DEFAULT_INDEX = 2
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
-        var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }
 }

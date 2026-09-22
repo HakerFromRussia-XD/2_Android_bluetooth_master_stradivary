@@ -1,11 +1,10 @@
-package com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3
+package com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics
 
 import android.content.Context
 import android.graphics.Color
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.V3GestureUsage
-import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.V3AccountStatisticsUiState
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

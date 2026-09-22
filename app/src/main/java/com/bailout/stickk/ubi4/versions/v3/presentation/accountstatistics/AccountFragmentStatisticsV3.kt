@@ -1,17 +1,16 @@
-package com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3
+package com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentAccountStatisticsV3Binding
 import com.bailout.stickk.ubi4.versions.v3.di.V3AccountStatisticsViewModelFactory
-import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.V3AccountStatisticsAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.accountstatistics.V3AccountStatisticsViewModel
 import kotlinx.coroutines.launch
 
 class AccountFragmentStatisticsV3 : Fragment() {
@@ -46,5 +45,18 @@ class AccountFragmentStatisticsV3 : Fragment() {
         viewModel.onAction(V3AccountStatisticsAction.ViewDetached)
         _binding = null
         super.onDestroyView()
+    }
+}
+
+/** FragmentManager may restore a back stack saved before this screen changed package. */
+internal fun FragmentFactory.withAccountStatisticsCompatibility(): FragmentFactory {
+    val delegate = this
+    return object : FragmentFactory() {
+        override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+            val restoredName = if (className == "com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3.AccountFragmentStatisticsV3") {
+                AccountFragmentStatisticsV3::class.java.name
+            } else className
+            return delegate.instantiate(classLoader, restoredName)
+        }
     }
 }

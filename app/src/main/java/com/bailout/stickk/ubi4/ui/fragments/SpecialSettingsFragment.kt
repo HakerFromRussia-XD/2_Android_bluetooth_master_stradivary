@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -14,10 +15,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.AutoLoginDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ToggleSliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.AutoLoginDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ui.dialog.SettingsProfileNameDialogHost
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfileNameRules
@@ -66,6 +67,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             parameterKeys = v3SpinnerParameterKeys,
             onAction = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SpinnerAction(it)) },
             settingsProfilesFromState = v3SettingsProfilesFromState,
+            applyProfileValues = createSettingsProfileValueApplier(requireContext()),
             onSettingsProfileSelected = {
                 v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSelected(it))
             },

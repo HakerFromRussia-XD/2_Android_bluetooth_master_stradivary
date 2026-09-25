@@ -11,6 +11,11 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVIC
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.service.*
 import io.mockk.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -69,9 +74,26 @@ class V3DeviceRoleRepositoryTest {
         val expected = if (value == 1) V3DeviceRole.SERVICE_ENGINEER else V3DeviceRole.USER
         assertEquals(expected, RestoreDeviceRoleUseCaseV3(repository)())
         assertEquals(value == 1, UiState.isServiceEngineerRole.value)
+        assertEquals(value == 1, repository.serviceEngineerAccess.value)
         assertEquals(value, stored)
         assertEquals("{}", cache.data)
         assertNull(ParameterStoreV3.get(info))
+        assertTrue(events.isEmpty())
+        assertTrue(packets.isEmpty())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun `access observation follows existing shared flag without changing preferences or sending commands`() = runTest {
+        UiState.isServiceEngineerRole.value = false
+        val access = ObserveServiceEngineerAccessUseCaseV3(repository)()
+        assertFalse(access is MutableStateFlow<*>)
+        val observed = mutableListOf<Boolean>()
+        backgroundScope.launch { access.collect { observed += it } }
+        runCurrent()
+        UiState.isServiceEngineerRole.value = true; runCurrent()
+        repository.updateRoleAccess(V3DeviceRole.USER); runCurrent()
+        assertEquals(listOf(false, true, false), observed)
+        assertEquals(2, stored)
         assertTrue(events.isEmpty())
         assertTrue(packets.isEmpty())
     }

@@ -8,6 +8,7 @@ data class V3AccountProfileUiState(
     val hasCachedProfile: Boolean = false,
     val isContentVisible: Boolean = false,
     val isTokenLoaded: Boolean = false,
+    val areBoardServiceActionsVisible: Boolean = false,
     val refreshCompletionId: Long = 0,
     val messages: List<V3AccountProfileMessage> = emptyList(),
 )

@@ -21,7 +21,6 @@ class V3SensorsCommandsRepositoryTest {
     private val events = mutableListOf<String>()
     private val repository = V3SensorsCommandsRepositoryImpl(
         enqueuePacket = { packets += it },
-        showSyncProgress = { assertTrue(UiState.fullInitInProgress.value); events += "dialog" },
         refreshWidgets = { assertTrue(UiState.fullInitInProgress.value); events += "refresh" },
     )
     private val start = StartProsthesisMovementUseCaseV3(repository)
@@ -89,17 +88,17 @@ class V3SensorsCommandsRepositoryTest {
     }
 
     @Test
-    fun `refresh preserves dialog then controller order and blocks reentry until controller completion`() {
+    fun `refresh sets its flag before dispatch and blocks reentry until controller completion`() {
         UiState.v3WidgetsInteractionEnabled.value = false
         assertTrue(refresh("first-device"))
-        assertEquals(listOf("dialog", "refresh"), events)
+        assertEquals(listOf("refresh"), events)
         assertTrue(UiState.fullInitInProgress.value)
         assertFalse(refresh("first-device"))
         assertFalse(repository.refreshSensors("first-device"))
-        assertEquals(2, events.size)
+        assertEquals(1, events.size)
         UiState.fullInitInProgress.value = false
         assertTrue(refresh("first-device"))
-        assertEquals(listOf("dialog", "refresh", "dialog", "refresh"), events)
+        assertEquals(listOf("refresh", "refresh"), events)
         assertTrue(packets.isEmpty())
     }
 

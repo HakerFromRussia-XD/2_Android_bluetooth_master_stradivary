@@ -52,7 +52,7 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GesturesUiSta
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3GestureSettingsUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.V3RotationGroupSelectionDialogHost
 import com.bailout.stickk.ubi4.versions.v3.di.V3GesturesViewModelFactory
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesTwoSectionDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.gestures.GesturesTwoSectionDelegateAdapterV3
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers.Main

@@ -452,8 +452,8 @@ KMM-менеджера, отмена/другой serial, поздний отв�
 [strings]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/shared/src/commonMain/moko-resources/strings/ru/strings.xml:823
 [fragment]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/ui/fragments/SpecialSettingsFragment.kt:30
 [base]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/ui/fragments/base/BaseWidgetsFragment.kt:325
-[toggle]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdaptersV3/ToggleSliderDelegateAdapterV3.kt:68
-[spinner]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdaptersV3/SpinnerDelegateAdapterV3.kt:77
+[toggle]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/togglesliders/ToggleSliderDelegateAdapterV3.kt:66
+[spinner]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/spinners/SpinnerDelegateAdapterV3.kt:77
 [store]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/data/state/ParameterStoreV3.kt:49
 [globalstate]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/data/state/UiState.kt:11
 [controller]: /Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/app/src/main/java/com/bailout/stickk/ubi4/ble/BLEController.kt:881

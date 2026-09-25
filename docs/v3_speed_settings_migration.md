@@ -149,7 +149,7 @@ toggle-slider, этот сценарий работает с одним целы
 - `shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/data/parser/BLEParserV3.kt`: `generatedHardcodeWidgets()`, `generatedHardcodeWidgetsINDY3()`, `parseWidgets()`.
 - `shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/persistence/preference/PreferenceKeysUbi4.kt`: `ParameterInfoRegistry`, `ProsthesisModuleControlEnum`.
 - `shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/data/widget/endStructures/SliderParameterWidgetSStruct.kt`.
-- `app/src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdaptersV3/SliderDelegateAdapterV3.kt`: `onBind()`.
+- `app/src/main/java/com/bailout/stickk/ubi4/versions/v3/presentation/sliders/SliderDelegateAdapterV3.kt`: `onBind()`.
 
 | Свойство | Текущее значение |
 | --- | --- |

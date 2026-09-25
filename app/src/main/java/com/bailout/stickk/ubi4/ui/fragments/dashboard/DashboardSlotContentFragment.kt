@@ -7,25 +7,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.DashboardSlotContentState
+import com.bailout.stickk.ubi4.data.state.DashboardSlotContentUiState
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotContentAction
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotContentScreen
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.di.V3DashboardSlotContentViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.dashboard.V3DashboardSlotContentTarget
+import com.bailout.stickk.ubi4.versions.v3.presentation.dashboard.V3DashboardSlotContentAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.dashboard.V3DashboardSlotContentUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.dashboard.V3DashboardSlotContentViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class DashboardSlotContentFragment : Fragment() {
+    private var v3ViewModel: V3DashboardSlotContentViewModel? = null
+    private var v3ResetAllDialog: Dialog? = null
     private val deviceAddress: Int
         get() = requireArguments().getInt(ARG_DEVICE_ADDRESS)
 
@@ -48,24 +59,63 @@ class DashboardSlotContentFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        ComposeView(requireContext()).apply {
+    ): View {
+        v3ViewModel = if (UiState.isInterfaceV3Activated) {
+            ViewModelProvider(this, V3DashboardSlotContentViewModelFactory.create())[V3DashboardSlotContentViewModel::class.java]
+        } else null
+        return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val state by DashboardSlotContentState.stateFlow.collectAsState()
+                val content: DashboardSlotContentUiState
+                val viewModel = v3ViewModel
+                if (viewModel != null) {
+                    val state by viewModel.uiState.collectAsState()
+                    content = state.toSharedUiState()
+                    LaunchedEffect(state.resetAllConfirmationId) {
+                        renderResetAllConfirmation(state.resetAllConfirmationId, viewModel)
+                    }
+                } else {
+                    val state by DashboardSlotContentState.stateFlow.collectAsState()
+                    content = state
+                }
                 DashboardSlotContentScreen(
-                    state = state,
-                    onActionClick = ::handleActionClick
+                    state = content,
+                    onActionClick = { handleActionClick(it, viewModel) }
                 )
             }
         }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestSlotContent()
+        val viewModel = v3ViewModel
+        if (viewModel != null) viewModel.onAction(V3DashboardSlotContentAction.ViewCreated(
+            V3DashboardSlotContentTarget(deviceAddress, dataCode, slotTitle, version, subVersion, declaredSize)
+        ))
+        else requestSlotContent()
     }
 
-    private fun handleActionClick(action: DashboardSlotContentAction) {
+    override fun onDestroyView() {
+        v3ViewModel?.onAction(V3DashboardSlotContentAction.ViewDestroyed)
+        v3ResetAllDialog?.dismiss()
+        v3ResetAllDialog = null
+        v3ViewModel = null
+        super.onDestroyView()
+    }
+
+    private fun handleActionClick(action: DashboardSlotContentAction, viewModel: V3DashboardSlotContentViewModel?) {
+        if (viewModel != null) {
+            viewModel.onAction(when (action) {
+                DashboardSlotContentAction.Refresh -> V3DashboardSlotContentAction.Refresh
+                DashboardSlotContentAction.Send -> V3DashboardSlotContentAction.Send
+                is DashboardSlotContentAction.ParameterChanged -> V3DashboardSlotContentAction.ParameterChanged(action.path, action.value)
+                DashboardSlotContentAction.Save -> V3DashboardSlotContentAction.Save
+                DashboardSlotContentAction.Reset -> V3DashboardSlotContentAction.Reset
+                DashboardSlotContentAction.ResetAll -> V3DashboardSlotContentAction.ResetAll
+            })
+            return
+        }
+        // Original UBI4 actions; V3 callbacks keep their ViewModel even after view destruction.
         when (action) {
             DashboardSlotContentAction.Refresh -> requestSlotContent()
             DashboardSlotContentAction.Send -> sendCurrentSlotData()
@@ -85,7 +135,22 @@ class DashboardSlotContentFragment : Fragment() {
         }
     }
 
-    private fun showResetAllConfirmationDialog() {
+    private fun renderResetAllConfirmation(requestId: Long?, viewModel: V3DashboardSlotContentViewModel) {
+        v3ResetAllDialog?.dismiss()
+        v3ResetAllDialog = requestId?.let { id ->
+            showResetAllConfirmationDialog(
+                onConfirm = { viewModel.onAction(V3DashboardSlotContentAction.ResetAllConfirmed(id)) },
+                onDismiss = { viewModel.onAction(V3DashboardSlotContentAction.ResetAllDismissed(id)) },
+            )
+        }
+    }
+
+    private fun showResetAllConfirmationDialog(
+        onConfirm: () -> Unit = {
+            sendCommand("RESET_TO_FACTORY_ALL", BLECommandsV3.resetAllSlots(deviceAddress))
+        },
+        onDismiss: () -> Unit = {},
+    ): Dialog {
         val dialogView = layoutInflater.inflate(R.layout.ubi4_dialog_reset_all_slots, null)
         val dialog = Dialog(requireContext()).apply {
             setContentView(dialogView)
@@ -96,16 +161,16 @@ class DashboardSlotContentFragment : Fragment() {
 
         dialogView.findViewById<View>(R.id.ubi4DialogConfirmResetAllSlotsBtn)
             .setOnClickListener {
-                sendCommand(
-                    commandName = "RESET_TO_FACTORY_ALL",
-                    packet = BLECommandsV3.resetAllSlots(deviceAddress)
-                )
+                onConfirm()
                 dialog.dismiss()
             }
         dialogView.findViewById<View>(R.id.ubi4DialogCancelResetAllSlotsBtn)
             .setOnClickListener { dialog.dismiss() }
+        dialog.setOnDismissListener { onDismiss() }
+        return dialog
     }
 
+    // Original UBI4 read path. V3 reads go through its screen ViewModel.
     private fun requestSlotContent() {
         DashboardSlotContentState.requestStarted(
             deviceAddress = deviceAddress,
@@ -150,6 +215,7 @@ class DashboardSlotContentFragment : Fragment() {
         }
     }
 
+    // Original UBI4 send path. V3 sends the current draft through its ViewModel.
     private fun sendCurrentSlotData() {
         val current = DashboardSlotContentState.stateFlow.value
         if (current.data.isEmpty()) {
@@ -234,6 +300,24 @@ class DashboardSlotContentFragment : Fragment() {
                 }
             }
     }
+}
+
+// Boundary with the unchanged shared Compose screen; no shared state enters the V3 ViewModel.
+internal fun V3DashboardSlotContentUiState.toSharedUiState(): DashboardSlotContentUiState = with(content) {
+    DashboardSlotContentUiState(
+        deviceAddress = slot.deviceAddress,
+        dataCode = slot.dataCode,
+        title = slot.title,
+        version = slot.version,
+        subVersion = slot.subVersion,
+        declaredSize = slot.declaredSize,
+        isLoading = isLoading,
+        data = data,
+        loadedSize = loadedSize,
+        editedValues = editedValues,
+        statusMessage = statusMessage,
+        errorMessage = errorMessage,
+    )
 }
 
 private fun chunkCount(size: Int): Int =

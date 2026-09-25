@@ -137,8 +137,8 @@ class V3ServiceWidgetsSourceTest {
         assertEquals(V3ServiceWidget.BleLog, snapshot.widgets.last())
         assertEquals((0 until snapshot.widgets.size - 1).toList(), expected.mapNotNull { base(it)?.widgetPosition })
         assertEquals(expected, mapper.toItems(snapshot.widgets))
-        val calibrationAdapter = com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3({}, {}, {})
-        val sensorsAdapter = com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3({}, {})
+        val calibrationAdapter = com.bailout.stickk.ubi4.versions.v3.presentation.service.ProsthesisCalibrationDelegateAdapterV3({}, {}, {})
+        val sensorsAdapter = com.bailout.stickk.ubi4.versions.v3.presentation.sensors.SensorsButtonsDelegateAdapterV3({}, {})
         val allButtons = (0..4).flatMap { factory.prepareData(display = it) }.filterIsInstance<ButtonsItemV3>()
         assertEquals(2, allButtons.size)
         allButtons.forEach { item ->

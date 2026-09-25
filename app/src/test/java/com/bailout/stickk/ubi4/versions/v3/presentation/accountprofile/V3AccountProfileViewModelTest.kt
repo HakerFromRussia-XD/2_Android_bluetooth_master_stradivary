@@ -3,11 +3,14 @@ package com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.versions.v3.di.V3AccountProfileViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.FakeV3DeviceRoleRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -16,15 +19,77 @@ class V3AccountProfileViewModelTest {
     private val store = ViewModelStore()
     private val remote = FakeAccountProfileRemote()
     private val local = FakeAccountProfileLocal()
+    private val role = FakeV3DeviceRoleRepository()
     private lateinit var vm: V3AccountProfileViewModel
     @BeforeEach fun setUp() {
         Dispatchers.setMain(dispatcher)
-        vm = V3AccountProfileViewModelFactory(remote, local).create(V3AccountProfileViewModel::class.java)
+        vm = V3AccountProfileViewModelFactory(remote, local, role).create(V3AccountProfileViewModel::class.java)
         store.put("account", vm)
     }
     @AfterEach fun tearDown() { store.clear(); Dispatchers.resetMain() }
     private fun attach(background: Boolean = true, boards: Boolean = false) = vm.onAction(V3AccountProfileAction.ViewAttached(background, boards))
     private fun load() = vm.onAction(V3AccountProfileAction.LoadRequested)
+
+    @ParameterizedTest @EnumSource(V3DeviceRole::class)
+    fun `stored role determines initial board actions before rendering without writes`(selected: V3DeviceRole) = runTest(dispatcher) {
+        role.selected = selected
+        val allowed = selected == V3DeviceRole.SERVICE_ENGINEER
+        role.serviceEngineerAccess.value = !allowed
+        role.interactionEnabled.value = false
+        attach()
+        assertEquals(allowed, vm.uiState.value.areBoardServiceActionsVisible)
+        runCurrent()
+        assertEquals(allowed, vm.uiState.value.areBoardServiceActionsVisible)
+        assertEquals(selected, role.access)
+        assertTrue(role.writes.isEmpty())
+        assertTrue(local.writes.isEmpty())
+        assertEquals(0, local.cacheWrites)
+        assertEquals(0, remote.tokenCalls)
+    }
+
+    @Test fun `access changes affect only board actions without reloading or recaching the profile`() = runTest(dispatcher) {
+        attach(); load(); runCurrent()
+        val before = vm.uiState.value
+        vm.onAction(V3AccountProfileAction.HeaderRendered(before.headerRevision))
+        val writes = local.writes.toList()
+        role.updateRoleAccess(V3DeviceRole.SERVICE_ENGINEER); runCurrent()
+        assertEquals(before.copy(areBoardServiceActionsVisible = true), vm.uiState.value)
+        role.interactionEnabled.value = false; runCurrent()
+        assertTrue(vm.uiState.value.areBoardServiceActionsVisible)
+        role.updateRoleAccess(V3DeviceRole.USER); runCurrent()
+        assertEquals(before, vm.uiState.value)
+        assertEquals(1, remote.tokenCalls)
+        assertEquals(1, local.cacheWrites)
+        assertEquals(writes, local.writes)
+        assertTrue(role.writes.isEmpty())
+    }
+
+    @Test fun `detaching cancels role observation and reattaching restores the current role once`() = runTest(dispatcher) {
+        attach(); attach(); runCurrent()
+        assertEquals(1, role.serviceEngineerAccess.subscriptionCount.value)
+        vm.onAction(V3AccountProfileAction.ViewDetached)
+        val detached = vm.uiState.value
+        role.setSelectedRole(V3DeviceRole.SERVICE_ENGINEER); runCurrent()
+        assertEquals(0, role.serviceEngineerAccess.subscriptionCount.value)
+        assertEquals(detached, vm.uiState.value)
+        attach()
+        assertTrue(vm.uiState.value.areBoardServiceActionsVisible)
+        runCurrent()
+        assertEquals(1, role.serviceEngineerAccess.subscriptionCount.value)
+        assertEquals(listOf(V3DeviceRole.SERVICE_ENGINEER), role.writes)
+        assertEquals(0, remote.tokenCalls)
+    }
+
+    @Test fun `clearing the screen cancels role observation and late attach cannot restart it`() = runTest(dispatcher) {
+        attach(); runCurrent()
+        store.clear()
+        val cleared = vm.uiState.value
+        role.setSelectedRole(V3DeviceRole.SERVICE_ENGINEER)
+        attach(); runCurrent()
+        assertEquals(cleared, vm.uiState.value)
+        assertEquals(0, role.serviceEngineerAccess.subscriptionCount.value)
+        assertEquals(0, remote.tokenCalls)
+    }
 
     @Test fun `background attach shows initial header without requesting or caching until transition action`() = runTest(dispatcher) {
         attach(); attach(); runCurrent()

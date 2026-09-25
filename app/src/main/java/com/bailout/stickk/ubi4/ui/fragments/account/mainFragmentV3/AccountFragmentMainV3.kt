@@ -54,6 +54,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class AccountFragmentMainV3 : BaseWidgetsFragment() {
@@ -94,11 +96,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val settings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
-        UiState.isServiceEngineerRole.value =
-            settings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
-                ROLE_SERVICE_ENGINEER_INDEX
-
         profileViewModel.onAction(V3AccountProfileAction.ViewAttached(
             BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND, !cachedBootloaderBoards.isNullOrEmpty(),
         ))
@@ -142,9 +139,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                     }
                 }
                 launch {
-                    UiState.isServiceEngineerRole.collect {
-                        refreshServiceRoleUi()
-                    }
+                    profileViewModel.uiState.map { it.areBoardServiceActionsVisible }
+                        .distinctUntilChanged()
+                        .collect { refreshServiceRoleUi() }
                 }
             }
         }
@@ -216,8 +213,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         )
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,
-            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation,
-            showUpdateButtonProvider = ::isServiceFragmentVisibleInBottomNavigation,
+            showSettingsButtonProvider = ::areBoardServiceActionsVisible,
+            showUpdateButtonProvider = ::areBoardServiceActionsVisible,
             loadLocalVersionsOnBind = !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
         )
         if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
@@ -512,8 +509,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
     }
 
-    private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =
-        UiState.isServiceEngineerRole.value
+    private fun areBoardServiceActionsVisible(): Boolean =
+        profileViewModel.uiState.value.areBoardServiceActionsVisible
 
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshServiceRoleUi() {
@@ -557,8 +554,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     companion object {
         private const val BOARD_LOG_TAG = "AccountBoardsV3"
         private const val FIRMWARE_LOG_TAG = "FirmwareCatalogV3"
-        private const val ROLE_SERVICE_ENGINEER_INDEX = 1
-        private const val ROLE_DEFAULT_INDEX = 2
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
     }
 }

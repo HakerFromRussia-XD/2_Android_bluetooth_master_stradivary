@@ -1,13 +1,17 @@
 package com.bailout.stickk.ubi4.di
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import com.bailout.stickk.ubi4.ble.BleCommandWriter
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
+import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
+import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import com.bailout.stickk.ubi4.versions.v3.data.telemetry.V3TelemetryRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.SendTelemetryUseCaseV3
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
@@ -22,13 +26,51 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.data.transport.V3CommandTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal object BleDependencies {
-    val v3CommandTransport = V3CommandTransport { MainActivityUBI4.main }
+    @Volatile private var commandExecutorRef: WeakReference<BleCommandExecutor>? = null
+    @Volatile private var sensorsRefresh: (() -> Unit)? = null
+    val v3CommandTransport = V3CommandTransport {
+        commandExecutorRef?.get() ?: error("BLE command executor is not registered")
+    }
+
+    @Synchronized
+    fun bindCommandExecutor(executor: BleCommandExecutor) {
+        sensorsRefresh = null
+        commandExecutorRef = WeakReference(executor)
+    }
+
+    @Synchronized
+    fun unbindCommandExecutor(executor: BleCommandExecutor) {
+        // A previous Activity can finish after the next session has already registered.
+        if (commandExecutorRef?.get() === executor) {
+            sensorsRefresh = null
+            commandExecutorRef = null
+        }
+    }
+
+    @Synchronized
+    fun bindSensorsRefresh(
+        executor: BleCommandExecutor,
+        controller: BLEController,
+        observeSyncProgress: () -> Unit,
+    ) {
+        check(commandExecutorRef?.get() === executor) { "Cannot bind sensors refresh outside the active BLE session" }
+        // These callbacks belong to this session and are released on replacement or unbind.
+        sensorsRefresh = {
+            observeSyncProgress()
+            controller.refreshWidgetsV3BySwipe()
+        }
+    }
+
+    fun refreshSensors() {
+        val refresh = sensorsRefresh ?: error("Sensors refresh is not registered")
+        refresh()
+    }
+
     // ViewModelStore survives recreation; weak keys do not retain finished Activity scopes.
     private val deviceIdentities = WeakHashMap<ViewModelStore, V3DeviceIdentityStore>()
 
@@ -67,7 +109,10 @@ internal object BleDependencies {
         executor: BleCommandExecutor,
         commandWriter: BleCommandWriter,
         owner: ViewModelStoreOwner,
+        context: Context,
     ) {
+        bindCommandExecutor(executor)
+        Ubi4SettingsProfileReceiver.defaultApplyProfileValues = createSettingsProfileValueApplier(context)
         DeviceConnectionInitializer.initialize(intent)
         updateLaunchIntent(owner, intent)
         canSendNextChunkFlagFlow = MutableSharedFlow()

@@ -3,6 +3,8 @@ package com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
+import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveServiceEngineerAccessUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.RestoreDeviceRoleUseCaseV3
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -15,6 +17,8 @@ class V3AccountProfileViewModel(
     private val getViewData: GetAccountProfileViewDataUseCaseV3,
     private val loadProfile: LoadAccountProfileUseCaseV3,
     private val cacheHeader: CacheAccountProfileHeaderUseCaseV3,
+    private val restoreDeviceRole: RestoreDeviceRoleUseCaseV3,
+    private val observeServiceEngineerAccess: ObserveServiceEngineerAccessUseCaseV3,
 ) : ViewModel() {
     private val state = MutableStateFlow(V3AccountProfileUiState())
     val uiState = state.asStateFlow()
@@ -31,6 +35,8 @@ class V3AccountProfileViewModel(
         when (action) {
             is V3AccountProfileAction.ViewAttached -> {
                 if (viewScope != null) return
+                restoreDeviceRole()
+                val serviceEngineerAccess = observeServiceEngineerAccess()
                 val data = getViewData(context)
                 context = data.context
                 session = V3AccountProfileLoadSession(context)
@@ -41,9 +47,15 @@ class V3AccountProfileViewModel(
                     headerRevision = ++nextHeaderRevision,
                     hasCachedProfile = data.cachedHeader != null,
                     isContentVisible = action.loadInBackground || data.cachedHeader != null || action.hasCachedBoards,
+                    areBoardServiceActionsVisible = serviceEngineerAccess.value,
                 )
                 // The old adapter was initialized before the current device versions were read.
                 currentHeader = currentHeader.copy(versions = data.versions)
+                viewScope?.launch {
+                    serviceEngineerAccess.collect { allowed ->
+                        state.value = state.value.copy(areBoardServiceActionsVisible = allowed)
+                    }
+                }
             }
             V3AccountProfileAction.ViewDetached -> detachView()
             V3AccountProfileAction.LoadRequested -> {

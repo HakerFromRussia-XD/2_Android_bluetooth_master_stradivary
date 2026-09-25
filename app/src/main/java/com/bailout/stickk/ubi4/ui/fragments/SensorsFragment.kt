@@ -12,9 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.PlotDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.SensorsButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment

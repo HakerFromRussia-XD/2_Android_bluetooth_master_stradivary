@@ -217,6 +217,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 ensureSyncDialogShown()
             }
         }
+        if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
         BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
@@ -412,6 +413,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
+        BleDependencies.unbindCommandExecutor(this)
         clearMainIfSame(this)
         super.onDestroy()
     }
@@ -691,7 +693,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun initializeDeviceSession() {
-        BleDependencies.initializeSession(intent, lifecycleScope, bleManager, this, bleCommandWriter, this)
+        BleDependencies.initializeSession(intent, lifecycleScope, bleManager, this, bleCommandWriter, this, applicationContext)
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.DeviceConnected)
         else saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )

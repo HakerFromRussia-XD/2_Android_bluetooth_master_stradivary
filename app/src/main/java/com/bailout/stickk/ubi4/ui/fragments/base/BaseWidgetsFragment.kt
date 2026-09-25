@@ -1,8 +1,9 @@
 package com.bailout.stickk.ubi4.ui.fragments.base
 
+import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.AutoLoginDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SensorsButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.AutoLoginDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.SensorsButtonsDelegateAdapterV3
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
@@ -34,13 +35,13 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAd
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SwitcherDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.TextInputDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ToggleSliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.ProsthesisCalibrationDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.PlotDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.switchers.SwitcherDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.TextInputDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -255,6 +256,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onAction = {},
                 settingsProfilesFromState = v3SettingsProfilesFromState,
                 onSettingsProfilesChanged = V3SettingsProfilesUpdates::notifyChanged,
+                applyProfileValues = createSettingsProfileValueApplier(requireContext()),
             ),
             TextInputDelegateAdapterV3(
                 onDestroyParent = { onDestroyParentCallbacks.add(it) },

@@ -9,20 +9,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
+import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotUiItem
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotsScreen
 import com.bailout.stickk.ubi4.ui.dashboard.toDashboardSlotUiItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.di.V3DashboardSlotsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.dashboard.V3DashboardSlot
+import com.bailout.stickk.ubi4.versions.v3.presentation.dashboard.V3DashboardSlotsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.dashboard.V3DashboardSlotsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class DashboardSlotsFragment : Fragment() {
+    private var v3ViewModel: V3DashboardSlotsViewModel? = null
     private val deviceAddress: Int
         get() = requireArguments().getInt(ARG_DEVICE_ADDRESS)
 
@@ -30,15 +39,32 @@ class DashboardSlotsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        ComposeView(requireContext()).apply {
+    ): View {
+        v3ViewModel = if (UiState.isInterfaceV3Activated) {
+            ViewModelProvider(this, V3DashboardSlotsViewModelFactory.create())[V3DashboardSlotsViewModel::class.java]
+        } else null
+        return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val state by DashboardSlotsState.stateFlow.collectAsState()
+                val slots: List<DashboardSlotUiItem>
+                val isLoading: Boolean
+                val errorMessage: String?
+                val viewModel = v3ViewModel
+                if (viewModel != null) {
+                    val state by viewModel.uiState.collectAsState()
+                    slots = state.slots.map { it.toUiItem() }
+                    isLoading = state.isLoading
+                    errorMessage = state.errorMessage
+                } else {
+                    val state by DashboardSlotsState.stateFlow.collectAsState()
+                    slots = state.slots.map { it.toDashboardSlotUiItem() }
+                    isLoading = state.isLoading
+                    errorMessage = state.errorMessage
+                }
                 DashboardSlotsScreen(
-                    slots = state.slots.map { it.toDashboardSlotUiItem() },
-                    isLoading = state.isLoading,
-                    errorMessage = state.errorMessage,
+                    slots = slots,
+                    isLoading = isLoading,
+                    errorMessage = errorMessage,
                     onSlotClick = { slot ->
                         navigator().showDashboardSlotContentScreen(
                             deviceAddress = slot.deviceAddress,
@@ -52,12 +78,22 @@ class DashboardSlotsFragment : Fragment() {
                 )
             }
         }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestSlots()
+        val viewModel = v3ViewModel
+        if (viewModel != null) viewModel.onAction(V3DashboardSlotsAction.ViewCreated(deviceAddress))
+        else requestSlots()
     }
 
+    override fun onDestroyView() {
+        v3ViewModel?.onAction(V3DashboardSlotsAction.ViewDestroyed)
+        v3ViewModel = null
+        super.onDestroyView()
+    }
+
+    // Original UBI4 request path; V3 loading is owned by its ViewModel.
     private fun requestSlots() {
         DashboardSlotsState.requestStarted(deviceAddress)
         val packet = BLECommandsV3.requestAvailableSlots(deviceAddress)
@@ -93,6 +129,11 @@ class DashboardSlotsFragment : Fragment() {
             }
     }
 }
+
+// Reuse the shared title/version mapping without changing KMM or exposing shared state to the ViewModel.
+internal fun V3DashboardSlot.toUiItem(): DashboardSlotUiItem = DashboardSlotInfo(
+    deviceAddress, dataCode, dataType, dataTypeVersion, dataTypeSubVersion, dataSize, startAddressShift, crc,
+).toDashboardSlotUiItem()
 
 private fun ByteArray.toHexLog(): String =
     joinToString(" ") { (it.toInt() and 0xFF).toHexByte() }

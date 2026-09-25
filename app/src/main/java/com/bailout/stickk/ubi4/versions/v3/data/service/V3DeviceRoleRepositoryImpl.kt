@@ -7,12 +7,14 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVIC
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
+import kotlinx.coroutines.flow.asStateFlow
 
 class V3DeviceRoleRepositoryImpl(
     private val preferences: SharedPreferences,
     private val settings: V3SpinnerSettingsRepository,
 ) : V3DeviceRoleRepository {
     override val interactionEnabled = settings.spinnerInteractionEnabled
+    override val serviceEngineerAccess = UiState.isServiceEngineerRole.asStateFlow()
 
     // The disabled prosthetist role and unknown stored values display as User, as before.
     override fun getSelectedRole() = if (preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, 2) == 1) {

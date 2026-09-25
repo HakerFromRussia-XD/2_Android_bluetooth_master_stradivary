@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import android.os.Bundle
 import android.widget.Toast
 import android.view.LayoutInflater
@@ -32,10 +33,10 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.BleLogButtonDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ProsthesisCalibrationDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.TextInputDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.ProsthesisCalibrationDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.TextInputDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.contract.navigator
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
@@ -69,6 +70,7 @@ class ServiceFragment : BaseWidgetsFragment() {
             onDestroyParent = ::registerDelegateCleanup,
             parameterKeys = v3SpinnerParameterKeys,
             onAction = ::onV3SpinnerAction,
+            applyProfileValues = createSettingsProfileValueApplier(requireContext()),
         )
     }
     private val v3SliderAdapter by lazy {

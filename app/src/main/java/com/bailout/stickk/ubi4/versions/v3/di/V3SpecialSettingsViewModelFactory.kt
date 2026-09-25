@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SettingsProfileApplierV3
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileApplyValue
+import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.SettingsProfileApplierV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
@@ -65,7 +66,7 @@ class V3SpecialSettingsViewModelFactory(
                 widgetsSource = DataFactoryV3SpecialSettingsWidgetsSource(),
                 toggleSliderRepository = repository,
                 spinnerRepository = repository,
-                settingsProfilesRepository = V3SettingsProfilesRepositoryImpl(SettingsProfileApplierV3::apply),
+                settingsProfilesRepository = V3SettingsProfilesRepositoryImpl(createSettingsProfileValueApplier(context, enqueuePacket)),
                 appSettingsRepository = V3AppSettingsRepositoryImpl(context.applicationContext.getSharedPreferences(
                     PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
                 )),
@@ -105,3 +106,12 @@ class V3SpecialSettingsViewModelFactory(
         ) as T
     }
 }
+
+/** Also supplies the existing Spinner fallback and the server-import entry point. */
+internal fun createSettingsProfileValueApplier(
+    context: Context,
+    enqueuePacket: (ByteArray) -> Unit = { BleDependencies.v3CommandTransport.enqueue(it) },
+): (List<SettingsProfileApplyValue>) -> Unit = SettingsProfileApplierV3(
+    enqueuePacket,
+    context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
+)::apply

@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.versions.v3.di
 import androidx.lifecycle.ViewModel
 import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceSessionRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsPlotRepositoryImpl
@@ -41,26 +40,23 @@ class V3SensorsViewModelFactory(
 ) : ViewModelProvider.Factory {
     companion object {
         fun create(
-            showSyncProgress: () -> Unit = { MainActivityUBI4.main.observeSyncProgress() },
-            refreshWidgets: () -> Unit = { MainActivityUBI4.main.getBLEController().refreshWidgetsV3BySwipe() },
+            refreshWidgets: () -> Unit = BleDependencies::refreshSensors,
         ): V3SensorsViewModelFactory = V3SensorsViewModelFactory(
             enqueuePacket = { packet ->
                  BleDependencies.v3CommandTransport.enqueue(packet)
             },
-            showSyncProgress = showSyncProgress,
             refreshWidgets = refreshWidgets,
         )
     }
 
     constructor(
         enqueuePacket: (ByteArray) -> Unit,
-        showSyncProgress: () -> Unit,
         refreshWidgets: () -> Unit,
     ) : this(
         repository = V3DeviceSettingsRepositoryImpl(enqueuePacket),
         widgetsSource = DataFactoryV3SensorsWidgetsSource(),
         plotRepository = V3SensorsPlotRepositoryImpl(enqueuePacket),
-        commandsRepository = V3SensorsCommandsRepositoryImpl(enqueuePacket, showSyncProgress, refreshWidgets),
+        commandsRepository = V3SensorsCommandsRepositoryImpl(enqueuePacket, refreshWidgets),
         sessionRepository = V3DeviceSessionRepositoryImpl(),
     )
 

@@ -19,7 +19,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct

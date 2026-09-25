@@ -9,7 +9,6 @@ import com.bailout.stickk.ubi4.versions.v3.domain.sensors.V3SensorsCommandsRepos
 
 class V3SensorsCommandsRepositoryImpl(
     private val enqueuePacket: (ByteArray) -> Unit,
-    private val showSyncProgress: () -> Unit,
     private val refreshWidgets: () -> Unit,
 ) : V3SensorsCommandsRepository {
     override val interactionEnabled = UiState.v3WidgetsInteractionEnabled
@@ -33,7 +32,6 @@ class V3SensorsCommandsRepositoryImpl(
         if (!isCurrentDevice(deviceAddress) || !UiState.isInterfaceV3Activated || refreshInProgress.value) return false
         // Retain the old BaseWidgetsFragment order; BLEController owns completion and retries.
         UiState.fullInitInProgress.value = true
-        showSyncProgress()
         refreshWidgets()
         return true
     }

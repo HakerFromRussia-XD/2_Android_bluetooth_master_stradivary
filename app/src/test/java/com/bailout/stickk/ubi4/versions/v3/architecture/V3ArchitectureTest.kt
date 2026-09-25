@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingKeys
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -38,9 +39,24 @@ class V3ArchitectureTest {
             reject(file, imports(file).filter {
                 it.startsWith(prefix + "presentation.") || it.startsWith(prefix + "di.") ||
                     it.startsWith("com.bailout.stickk.ubi4.di.") || it.startsWith("com.bailout.stickk.ubi4.ui.") ||
+                    it.startsWith("com.bailout.stickk.ubi4.adapters.") ||
                     it.startsWith("androidx.lifecycle.") || it.startsWith("android.view.")
             })
         }
+    }
+
+    @Test fun `profile import and application do not depend on UI adapters or composition`() {
+        val receiver = File(root.parentFile.parentFile, "data/network/Ubi4SettingsProfileReceiver.kt")
+        val applier = File(root, "data/settingsprofiles/SettingsProfileApplierV3.kt")
+        assertTrue(applier.isFile)
+        listOf(receiver, applier).forEach { file ->
+            reject(file, imports(file).filter {
+                it.contains(".adapters.") || it.contains(".ui.") ||
+                    it.contains(".presentation.") || it.contains(".di.")
+            })
+        }
+        assertTrue(!File(root.parentFile.parentFile,
+            "adapters/widgetDelegateAdaptersV3/SettingsProfileApplierV3.kt").exists())
     }
 
     @Test fun `presentation does not hold repositories or build use cases`() {
@@ -93,15 +109,100 @@ class V3ArchitectureTest {
         }
     }
 
-    @Test fun `shared UI compatibility is restricted to existing widget composition adapters`() {
+    @Test fun `shared UI compatibility is restricted to composition adapters and inherited adapter imports`() {
         val compatibilityFiles = setOf(
             "DataFactoryV3SensorsWidgetsSource.kt", "DataFactoryV3ServiceWidgetsSource.kt",
             "DataFactoryV3SpecialSettingsWidgetsSource.kt", "V3SensorsWidgetMapper.kt",
             "V3ServiceWidgetMapper.kt", "V3SpecialSettingsWidgetMapper.kt",
             "DataFactoryV3GesturesWidgetsSource.kt", "V3GesturesWidgetMapper.kt",
         )
+        // Package-only relocation preserves these existing dependencies; their cleanup is deferred.
+        // Keep exact imports per file so this baseline cannot admit new storage/BLE access elsewhere.
+        // Import names below are relative to com.bailout.stickk.ubi4.
+        val inheritedAdapterImports = mapOf(
+            "presentation/autologin/AutoLoginDelegateAdapterV3.kt" to setOf(
+                "persistence.preference.PreferenceKeysUbi4.MobileSettingsKey",
+            ),
+            "presentation/gestures/GesturesTwoSectionDelegateAdapterV3.kt" to setOf(
+                "data.widget.subStructures.BaseParameterWidgetEStruct",
+                "data.widget.subStructures.BaseParameterWidgetSStruct",
+                "data.local.Gesture",
+                "persistence.preference.PreferenceKeysUbi4",
+            ),
+            "presentation/sensors/PlotDelegateAdapterV3.kt" to setOf(
+                "data.widget.endStructures.PlotParameterWidgetEStruct",
+                "data.widget.endStructures.PlotParameterWidgetSStruct",
+            ),
+            "presentation/sensors/SensorsButtonsDelegateAdapterV3.kt" to setOf(
+                "data.widget.endStructures.CommandParameterWidgetSStruct",
+            ),
+            "presentation/service/ProsthesisCalibrationDelegateAdapterV3.kt" to setOf(
+                "data.widget.endStructures.CommandParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+            "presentation/service/TextInputDelegateAdapterV3.kt" to setOf(
+                "data.widget.endStructures.CommandParameterWidgetEStruct",
+                "data.widget.endStructures.CommandParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+            "presentation/sliders/SliderDelegateAdapterV3.kt" to setOf(
+                "data.widget.endStructures.SliderParameterWidgetEStruct",
+                "data.widget.endStructures.SliderParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+            "presentation/spinners/SpinnerDelegateAdapterV3.kt" to setOf(
+                "ble.BLECommandsV3",
+                "ble.ParameterProvider",
+                "ble.SampleGattAttributes.SERIALPORTCHAR_UUID",
+                "ble.SampleGattAttributes.WRITE",
+                "data.local.repository.SettingsProfileInfo",
+                // Existing fallback payload is now passed to an injected callback, not a UI applier.
+                "data.local.repository.SettingsProfileApplyValue",
+                "data.local.repository.SettingsProfileManager",
+                "data.state.UiState",
+                "data.parser.ParameterCodecRegistryV3",
+                "data.state.ParameterStoreV3",
+                "data.state.ParameterTypedValueV3",
+                "data.widget.endStructures.SpinnerParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+            "presentation/switchers/SwitcherDelegateAdapterV3.kt" to setOf(
+                "ble.BLECommandsV3",
+                "ble.ParameterProvider",
+                "ble.SampleGattAttributes.SERIALPORTCHAR_UUID",
+                "ble.SampleGattAttributes.WRITE",
+                "data.local.repository.SettingsProfileManager",
+                "data.parser.ParameterCodecRegistryV3",
+                "data.state.ParameterStoreV3",
+                "data.state.ParameterTypedValueV3",
+                "data.state.UiState",
+                "data.state.WidgetState",
+                "data.widget.endStructures.SwitchParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4",
+                "persistence.preference.PreferenceKeysUbi4.MobileSettingsKey",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+            "presentation/togglesliders/ToggleSliderDelegateAdapterV3.kt" to setOf(
+                "ble.BLECommandsV3",
+                "ble.ParameterProvider",
+                "ble.SampleGattAttributes.SERIALPORTCHAR_UUID",
+                "ble.SampleGattAttributes.WRITE",
+                "data.local.repository.SettingsProfileManager",
+                "data.state.UiState",
+                "data.parser.ParameterCodecRegistryV3",
+                "data.state.WidgetState",
+                "data.state.ParameterStoreV3",
+                "data.state.ParameterTypedValueV3",
+                "data.widget.endStructures.ToggleSliderParameterWidgetEStruct",
+                "data.widget.endStructures.ToggleSliderParameterWidgetSStruct",
+                "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
+            ),
+        )
         sources("presentation").forEach { file ->
+            val inheritedImports = inheritedAdapterImports[file.relativeTo(root).invariantSeparatorsPath].orEmpty()
             reject(file, imports(file).filter { dependency ->
+                if (dependency.removePrefix("com.bailout.stickk.ubi4.") in inheritedImports) return@filter false
                 when {
                     dependency == "com.bailout.stickk.ubi4.data.DataFactory" -> file.name !in compatibilityFiles
                     dependency.startsWith("com.bailout.stickk.ubi4.data.widget.") -> file.name !in compatibilityFiles
@@ -115,7 +216,7 @@ class V3ArchitectureTest {
     }
 
     @Test fun `gesture adapters do not access rotation storage or send device commands`() {
-        val adapters = File(root.parentFile.parentFile, "adapters/widgetDelegateAdaptersV3")
+        val adapters = File(root, "presentation/gestures")
         val forbidden = listOf(
             "ParameterProvider", "ParameterStoreV3", "ParameterTypedValueV3", "ParameterCodecRegistryV3",
             "SettingsProfileManager", "rotationGroupGestures", "BLECommandsV3", "RotationGroupV3",
@@ -141,7 +242,13 @@ class V3ArchitectureTest {
 
     @Test fun `base widgets fragment does not coordinate V3 sensors screen state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
-        reject(base, imports(base).filter { it.startsWith(prefix + "presentation.sensors.") })
+        val commonAdapters = setOf(
+            prefix + "presentation.sensors.PlotDelegateAdapterV3",
+            prefix + "presentation.sensors.SensorsButtonsDelegateAdapterV3",
+        )
+        reject(base, imports(base).filter {
+            it.startsWith(prefix + "presentation.sensors.") && it !in commonAdapters
+        })
         val callbacks = listOf("renderV3Plot", "renderV3SensorsButtons", "onV3PlotAction", "onV3SensorsButtonsAction")
         assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
             "Sensors state and actions belong to SensorsFragment; retain only the common adapter set in Base")
@@ -149,8 +256,12 @@ class V3ArchitectureTest {
 
     @Test fun `base widgets fragment does not coordinate V3 special settings state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        val commonAdapters = setOf(
+            prefix + "presentation.autologin.AutoLoginDelegateAdapterV3",
+            prefix + "presentation.togglesliders.ToggleSliderDelegateAdapterV3",
+        )
         reject(base, imports(base).filter { dependency ->
-            listOf("specialsettings", "settingsprofiles", "autologin", "togglesliders").any {
+            dependency !in commonAdapters && listOf("specialsettings", "settingsprofiles", "autologin", "togglesliders").any {
                 dependency.startsWith(prefix + "presentation.$it.")
             }
         })
@@ -165,9 +276,14 @@ class V3ArchitectureTest {
 
     @Test fun `base widgets fragment does not coordinate V3 service state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
+        val commonAdapters = setOf(
+            prefix + "presentation.service.ProsthesisCalibrationDelegateAdapterV3",
+            prefix + "presentation.service.TextInputDelegateAdapterV3",
+            prefix + "presentation.spinners.SpinnerDelegateAdapterV3",
+        )
         reject(base, imports(base).filter {
-            it.startsWith(prefix + "presentation.service.") || it.startsWith(prefix + "presentation.spinners.") ||
-                it.startsWith(prefix + "domain.service.")
+            it !in commonAdapters && (it.startsWith(prefix + "presentation.service.") ||
+                it.startsWith(prefix + "presentation.spinners.") || it.startsWith(prefix + "domain.service."))
         })
         val callbacks = listOf("renderV3Calibration", "renderV3TextInputs", "renderV3Spinners",
             "onV3CalibrationButtonPressed", "onV3CalibrationButtonReleased", "onV3TextInputChanged",
@@ -236,6 +352,60 @@ class V3ArchitectureTest {
         reject(fragment, imports(fragment).filter { it.endsWith(".SERIALPORTCHAR_UUID") })
     }
 
+    @Test fun `dashboard slots use screen actions for V3 while the UBI4 request stays separate`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/dashboard/DashboardSlotsFragment.kt")
+        reject(fragment, imports(fragment).filter {
+            it.startsWith(prefix + "data.") || it.contains("UseCase") || it.endsWith("Repository")
+        })
+        val code = fragment.readText()
+        assertTrue(code.contains("if (UiState.isInterfaceV3Activated)"))
+        assertTrue(code.contains("viewModel.uiState.collectAsState()"))
+        val created = code.substringAfter("override fun onViewCreated").substringBefore("override fun onDestroyView")
+        assertTrue(created.contains("viewModel.onAction(V3DashboardSlotsAction.ViewCreated(deviceAddress))"))
+        assertTrue(created.contains("else requestSlots()"))
+        assertTrue(!created.contains("bleCommandWithQueue") && !created.contains("DashboardSlotsState"))
+        assertTrue(code.contains("v3ViewModel?.onAction(V3DashboardSlotsAction.ViewDestroyed)"))
+    }
+
+    @Test fun `all dashboard content actions use the V3 viewmodel while UBI4 stays separate`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/dashboard/DashboardSlotContentFragment.kt")
+        reject(fragment, imports(fragment).filter {
+            it.startsWith(prefix + "data.") || it.contains("UseCase") || it.endsWith("Repository")
+        })
+        val code = fragment.readText()
+        assertTrue(code.contains("if (UiState.isInterfaceV3Activated)"))
+        assertTrue(code.contains("viewModel.uiState.collectAsState()"))
+        val created = code.substringAfter("override fun onViewCreated").substringBefore("override fun onDestroyView")
+        assertTrue(created.contains("viewModel.onAction(V3DashboardSlotContentAction.ViewCreated("))
+        assertTrue(created.contains("else requestSlotContent()"))
+        assertTrue(!created.contains("bleCommandWithQueue") && !created.contains("DashboardSlotContentState"))
+        val actions = code.substringAfter("private fun handleActionClick").substringBefore("private fun renderResetAllConfirmation")
+        val v3 = actions.substringBefore("            return")
+        assertTrue(v3.contains("if (viewModel != null)") && v3.contains("viewModel.onAction(when (action)"))
+        listOf("Refresh", "Send", "Save", "Reset", "ResetAll").forEach { action ->
+            assertTrue(v3.contains("DashboardSlotContentAction.$action -> V3DashboardSlotContentAction.$action"), action)
+        }
+        assertTrue(v3.contains("V3DashboardSlotContentAction.ParameterChanged(action.path, action.value)"))
+        assertTrue(listOf("BLECommandsV3", "sendCommand(", "DashboardSlotContentState", "requestSlotContent(", "sendCurrentSlotData(")
+            .none { v3.contains(it) })
+        val ubi4 = actions.substringAfter("            return")
+        assertTrue(ubi4.contains("DashboardSlotContentAction.Refresh -> requestSlotContent()"))
+        assertTrue(ubi4.contains("DashboardSlotContentAction.Send -> sendCurrentSlotData()"))
+        assertTrue(ubi4.contains("DashboardSlotContentState.updateParameterValue("))
+        assertTrue(ubi4.contains("BLECommandsV3.saveSlots(deviceAddress)"))
+        assertTrue(ubi4.contains("BLECommandsV3.resetSlot(deviceAddress, dataCode)"))
+        assertTrue(ubi4.contains("DashboardSlotContentAction.ResetAll -> showResetAllConfirmationDialog()"))
+        assertTrue(code.contains("onActionClick = { handleActionClick(it, viewModel) }"))
+        assertTrue(code.contains("v3ViewModel?.onAction(V3DashboardSlotContentAction.ViewDestroyed)"))
+        val dialog = code.substringAfter("private fun renderResetAllConfirmation").substringBefore("private fun showResetAllConfirmationDialog")
+        assertTrue(dialog.contains("viewModel.onAction(V3DashboardSlotContentAction.ResetAllConfirmed(id))"))
+        assertTrue(dialog.contains("viewModel.onAction(V3DashboardSlotContentAction.ResetAllDismissed(id))"))
+        assertTrue(!dialog.contains("BLECommandsV3") && !dialog.contains("sendCommand("))
+        assertTrue(code.contains("LaunchedEffect(state.resetAllConfirmationId)"))
+        assertTrue(code.substringAfter("override fun onDestroyView").substringBefore("private fun handleActionClick")
+            .contains("v3ResetAllDialog?.dismiss()"))
+    }
+
     @Test fun `four V3 screen factories share transport without owning BLE dispatch`() {
         listOf("V3Sensors", "V3Service", "V3SpecialSettings", "V3Gestures").forEach { name ->
             val file = File(root, "di/${name}ViewModelFactory.kt")
@@ -246,6 +416,35 @@ class V3ArchitectureTest {
         sources("data/transport").forEach { file ->
             reject(file, imports(file).filter { it.contains(".ui.") || it.contains(".di.") || it.startsWith("android") })
         }
+    }
+
+    @Test fun `V3 command composition uses an explicitly bound executor without an Activity singleton`() {
+        val dependencies = File(root.parentFile.parentFile, "di/BleDependencies.kt")
+        val code = dependencies.readText()
+        reject(dependencies, imports(dependencies).filter { it.contains(".ui.") })
+        assertFalse(code.contains("MainActivityUBI4"))
+        val initialization = code.substringAfter("fun initializeSession(")
+        assertTrue(initialization.contains("bindCommandExecutor(executor)"))
+        assertTrue(initialization.indexOf("bindCommandExecutor(executor)") < initialization.indexOf("BleEnvironment.register("))
+        val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
+        val destruction = activity.substringAfter("override fun onDestroy()").substringBefore("private fun enqueueAppCloseUploadIfNeeded")
+        assertTrue(destruction.contains("BleDependencies.unbindCommandExecutor(this)"))
+    }
+
+    @Test fun `sensors refresh resolves a registered operation without UI access in factory or repository`() {
+        val factory = File(root, "di/V3SensorsViewModelFactory.kt")
+        val repository = File(root, "data/sensors/V3SensorsCommandsRepositoryImpl.kt")
+        listOf(factory, repository).forEach { file ->
+            reject(file, imports(file).filter { it.contains(".ui.") })
+            val forbidden = listOf("MainActivityUBI4", "getBLEController", "showSyncProgress", "observeSyncProgress")
+            assertTrue(forbidden.none { file.readText().contains(it) }, file.name)
+        }
+        assertTrue(factory.readText().contains("BleDependencies::refreshSensors"))
+        val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
+        val creation = activity.substringAfter("override fun onCreate(").substringBefore("override fun onNewIntent(")
+        assertTrue(creation.contains("if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)"))
+        assertTrue(creation.indexOf("mBLEController = BLEController(") < creation.indexOf("BleDependencies.bindSensorsRefresh("))
+        assertTrue(creation.indexOf("BleDependencies.bindSensorsRefresh(") < creation.indexOf("mBLEController.connectToSavedDeviceNow()"))
     }
 
     @Test fun `account statistics UI only observes screen state and sends actions`() {
@@ -262,14 +461,18 @@ class V3ArchitectureTest {
         }
     }
 
-    @Test fun `account profile fragment no longer requests or stores server profile data`() {
+    @Test fun `account profile fragment gets profile and role access from screen state`() {
         val fragment = File(root.parentFile.parentFile, "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")
         val code = fragment.readText()
         val forbidden = listOf("Ubi4RequestsApi", "NetworkResult", "EncryptionManagerUtilsUbi4", "requestToken",
             "requestUserData", "requestDeviceList", "requestDeviceInfo", "saveManagerInfo", "saveDeviceInfo",
-            "cachedProfileItem", "attemptedRequest", "ACCOUNT_MANAGER_FIO", "ACCOUNT_MODEL_PROSTHESIS")
+            "cachedProfileItem", "attemptedRequest", "ACCOUNT_MANAGER_FIO", "ACCOUNT_MODEL_PROSTHESIS",
+            "getSharedPreferences", "KEY_DEVICE_ROLE_SELECTED", "isServiceEngineerRole")
         assertTrue(forbidden.none { Regex("\\b$it\\b").containsMatchIn(code) })
-        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.accountprofile.") || it.contains("UseCase") })
+        reject(fragment, imports(fragment).filter {
+            it.startsWith(prefix + "data.") ||
+                (it.startsWith(prefix + "domain.") && it.contains("Repository")) || it.contains("UseCase")
+        })
     }
 
     @Test fun `customer service V3 binding uses state without storage or request access`() {

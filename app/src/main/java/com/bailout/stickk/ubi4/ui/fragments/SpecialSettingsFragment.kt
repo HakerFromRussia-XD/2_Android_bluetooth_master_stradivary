@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -43,9 +42,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
-    override val v3SettingsProfilesFromState = true
-    override val v3SpinnerParameterKeys = V3SpecialSettingsViewModel.spinnerParameterKeys
-    override val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
+    private val v3SpinnerParameterKeys = V3SpecialSettingsViewModel.spinnerParameterKeys
+    private val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
     private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
     private val binding get() = requireNotNull(_binding)
     private val mDataFactory: DataFactory = DataFactory()
@@ -66,8 +64,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             onDestroyParent = ::registerDelegateCleanup,
             parameterKeys = v3SpinnerParameterKeys,
             onAction = { v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SpinnerAction(it)) },
-            settingsProfilesFromState = v3SettingsProfilesFromState,
-            applyProfileValues = createSettingsProfileValueApplier(requireContext()),
+            settingsProfilesFromState = true,
             onSettingsProfileSelected = {
                 v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSelected(it))
             },
@@ -244,7 +241,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
         isMobileSettings = state.selectedSection == V3SpecialSettingsSection.APPLICATION
         val sectionChanged = previousMobileSettings == null || previousMobileSettings != isMobileSettings
-        if (sectionChanged) clearSwitcherCache()
         v3SliderAdapter.renderSliders(state.sliders)
         v3ToggleSliderAdapter.renderToggleSliders(state.toggleSliders)
         v3SpinnerAdapter.renderSpinners(state.spinners)

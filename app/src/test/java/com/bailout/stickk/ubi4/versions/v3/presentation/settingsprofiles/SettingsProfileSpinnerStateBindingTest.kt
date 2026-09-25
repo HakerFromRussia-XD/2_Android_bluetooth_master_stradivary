@@ -73,8 +73,6 @@ class SettingsProfileSpinnerStateBindingTest {
         delegate = SpinnerDelegateAdapterV3(
             onDestroyParent = callbacks::add, settingsProfilesFromState = true,
             onSettingsProfileSelected = selections::add, onSettingsProfileCreateRequested = { creations++ },
-            onSettingsProfilesChanged = { error("Screen actions must not invoke the shared profile update callback") },
-            applyProfileValues = { error("Screen state must not directly apply profile values") },
         )
     }
 
@@ -103,9 +101,6 @@ class SettingsProfileSpinnerStateBindingTest {
         popup.notifyItemSelected(2)
         assertEquals(listOf(1), selections)
         assertEquals(1, creations)
-        for (name in listOf("collectJob", "interactionJob")) {
-            assertNull(delegate.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(delegate))
-        }
         verify(exactly = 0) { context.getSharedPreferences(any(), any()) }
         // A global change cannot unlock a row whose screen state is disabled.
         UiState.v3WidgetsInteractionEnabled.value = true

@@ -33,14 +33,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 internal object BleDependencies {
     @Volatile private var commandExecutorRef: WeakReference<BleCommandExecutor>? = null
     @Volatile private var sensorsRefresh: (() -> Unit)? = null
+    @Volatile private var telemetryRequest: (() -> Unit)? = null
+    @Volatile var currentDeviceIdentity: V3DeviceIdentityStore? = null
+        private set
     val v3CommandTransport = V3CommandTransport {
         commandExecutorRef?.get() ?: error("BLE command executor is not registered")
     }
 
     @Synchronized
-    fun bindCommandExecutor(executor: BleCommandExecutor) {
+    fun bindCommandExecutor(executor: BleCommandExecutor, identity: V3DeviceIdentityStore? = null) {
         sensorsRefresh = null
+        telemetryRequest = null
         commandExecutorRef = WeakReference(executor)
+        currentDeviceIdentity = identity
     }
 
     @Synchronized
@@ -48,7 +53,9 @@ internal object BleDependencies {
         // A previous Activity can finish after the next session has already registered.
         if (commandExecutorRef?.get() === executor) {
             sensorsRefresh = null
+            telemetryRequest = null
             commandExecutorRef = null
+            currentDeviceIdentity = null
         }
     }
 
@@ -87,13 +94,22 @@ internal object BleDependencies {
     fun createCommandWriter(dispatch: (ByteArray?, String, String) -> Boolean) =
         BleCommandWriter(dispatch)
 
+    fun requestV3TelemetryData() {
+        // Statistics previously skipped the request when there was no current Activity.
+        telemetryRequest?.invoke()
+    }
+
+    @Synchronized
     fun bindTelemetry(
         owner: ViewModelStoreOwner,
         scope: CoroutineScope,
         preferences: SharedPreferences,
         controller: BLEController,
         showToast: (String) -> Unit,
+        executor: BleCommandExecutor,
     ) {
+        check(commandExecutorRef?.get() === executor) { "Cannot bind telemetry outside the active BLE session" }
+        telemetryRequest = controller::requestTelemetryDataV3
         val repository = V3TelemetryRepositoryImpl(preferences, controller::requestTelemetryDataV3, deviceIdentity(owner))
         val coordinator = TelemetryCoordinator(scope, SendTelemetryUseCaseV3(repository), showToast)
         controller.setOnConnectedListener {
@@ -111,7 +127,7 @@ internal object BleDependencies {
         owner: ViewModelStoreOwner,
         context: Context,
     ) {
-        bindCommandExecutor(executor)
+        bindCommandExecutor(executor, deviceIdentity(owner))
         Ubi4SettingsProfileReceiver.defaultApplyProfileValues = createSettingsProfileValueApplier(context)
         DeviceConnectionInitializer.initialize(intent)
         updateLaunchIntent(owner, intent)

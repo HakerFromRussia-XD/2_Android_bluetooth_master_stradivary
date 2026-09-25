@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.di.BleDependencies
 import com.bailout.stickk.ubi4.versions.v3.data.accountstatistics.V3AccountStatisticsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.ObserveAccountStatisticsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
@@ -27,8 +27,7 @@ class V3AccountStatisticsViewModelFactory(
         fun from(context: Context) = V3AccountStatisticsViewModelFactory(
             V3AccountStatisticsRepositoryImpl(
                 context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
-                // Resolve the current host at request time; never retain an old Activity in the ViewModel.
-                requestTelemetry = { MainActivityUBI4.mainOrNull?.getBLEController()?.requestTelemetryDataV3() },
+                requestTelemetry = BleDependencies::requestV3TelemetryData,
             ),
         )
     }

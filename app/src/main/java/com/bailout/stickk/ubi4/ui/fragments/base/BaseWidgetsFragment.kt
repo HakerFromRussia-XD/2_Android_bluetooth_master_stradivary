@@ -1,9 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments.base
 
-import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
-import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.AutoLoginDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.SensorsButtonsDelegateAdapterV3
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
@@ -25,7 +22,6 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.BleLogButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GestureUsageChartDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
@@ -35,16 +31,9 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAd
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.ProsthesisCalibrationDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.sensors.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerDelegateAdapterV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.switchers.SwitcherDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.service.TextInputDelegateAdapterV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -73,7 +62,6 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getC
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
-import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3SliderSettingsViewModelFactory
@@ -88,13 +76,9 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var onClearSwitcherCache : () -> Unit = {}
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
-    private lateinit var bleController: BLEController
 
     protected open val v3SliderParameterKeys: Set<String> = emptySet()
-    protected open val v3SpinnerParameterKeys: Set<String> = emptySet()
-    protected open val v3SettingsProfilesFromState: Boolean = false
     protected open fun areV3WidgetAnimationsEnabled(): Boolean = !WidgetState.dbSnapshotAppliedWithCrc
-    protected open val v3ToggleSliderParameterKeys: Set<String> = emptySet()
     private var v3SettingsViewModel: V3SliderSettingsViewModel? = null
     private var v3SliderStateJob: Job? = null
     private val v3SliderAdapter by lazy {
@@ -106,31 +90,14 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
 
     protected open val adapterWidgets : CompositeDelegateAdapter by lazy {
-        // [new widgets V3] тут подключаем DelegateAdapter нового типа виджета в общий CompositeDelegateAdapter
+        // V3 screens assemble their own adapters; this set serves the remaining common UI.
         CompositeDelegateAdapter(
             GestureUsageChartDelegateAdapter(),
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            PlotDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                onAction = {},
-                animationsEnabled = ::areV3WidgetAnimationsEnabled,
-            ),
             OneButtonDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-            ),
-            SensorsButtonsDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                onAction = {},
-            ),
-            ProsthesisCalibrationDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                onPressed = {},
-                onReleased = {},
-            ),
-            BleLogButtonDelegateAdapter(
-                onClick = { navigator().showBleLogScreen() }
             ),
             GesturesOpticDelegateAdapter(
                 coroutineScope = main?.lifecycleScope,
@@ -200,40 +167,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-//            TrainingFragmentDelegateAdapter(
-//                onConfirmClick = {
-//                    if (!isAdded) return@TrainingFragmentDelegateAdapter
-//                    // Получаем ссылку на текущий SprTrainingFragment
-//                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
-//                    spr.showConfirmTrainingDialogWithLoader {
-//                        navigator().showMotionTrainingScreen {
-//                            parentFragmentManager.beginTransaction()
-//                                .replace(R.id.fragmentContainer, spr)
-//                                .commit()
-//                        }
-//                    }
-//
-//                },
-//                onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
-//                onShowEmg8Files = {
-//                    if (isAdded) {
-//                        val spr = this@BaseWidgetsFragment as? SprTrainingFragment
-//                        if (spr != null) {
-//                            spr.showModelEmg8FilesDialog(preselectName = null) { selectedFiles ->
-//                                spr.startUploadSelectedTrainingFiles(selectedFiles)
-//                            }
-//
-//
-//                        }
-//                    }
-//                },
-//                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
-//            ),
-            AutoLoginDelegateAdapterV3(
-                onCheckedChanged = {},
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                animationsEnabled = ::areV3WidgetAnimationsEnabled,
-            ),
             SwitcherDelegateAdapter(
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
@@ -250,20 +183,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            SpinnerDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                parameterKeys = v3SpinnerParameterKeys,
-                onAction = {},
-                settingsProfilesFromState = v3SettingsProfilesFromState,
-                onSettingsProfilesChanged = V3SettingsProfilesUpdates::notifyChanged,
-                applyProfileValues = createSettingsProfileValueApplier(requireContext()),
-            ),
-            TextInputDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                onTextChanged = { _, _ -> },
-                onPrefillRequested = {},
-                onSendClicked = {},
-            ),
             ToggleSliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, packedProgress ->
                     sendToggleSliderProgress(addressDevice, parameterID, packedProgress)
@@ -271,12 +190,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent ->
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
-            ),
-            ToggleSliderDelegateAdapterV3(
-                onDestroyParent = { onDestroyParentCallbacks.add(it) },
-                parameterKeys = v3ToggleSliderParameterKeys,
-                onAction = {},
-                animationsEnabled = ::areV3WidgetAnimationsEnabled,
             ),
             SliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, progress ->
@@ -302,7 +215,6 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         bindV3SliderSettings()
     }
 
@@ -556,10 +468,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun sendBLEBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-    }
-    open fun sendBLEBindingGroupV3(bindingGestureGroup: BindingGestureGroup) {
-        if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommandsV3.sendBindingGroup(bindingGestureGroup), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) { return }

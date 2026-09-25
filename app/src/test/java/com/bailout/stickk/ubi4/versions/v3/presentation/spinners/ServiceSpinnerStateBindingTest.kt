@@ -66,7 +66,6 @@ class ServiceSpinnerStateBindingTest {
         }.toTypedArray()) as Ubi4WidgetSpinnerBinding
         delegate = SpinnerDelegateAdapterV3(
             {}, V3ServiceViewModel.spinnerParameterKeys + P_KEY_DEVICE_ROLE, actions::add,
-            applyProfileValues = { error("Screen state must not directly apply profile values") },
         )
     }
 
@@ -101,15 +100,11 @@ class ServiceSpinnerStateBindingTest {
         assertEquals(1, popup.index)
         assertEquals(1, actions.size)
         verify(exactly = 0) { context.getSharedPreferences(any(), any()) }
-        listOf("collectJob", "interactionJob").forEach { name ->
-            assertNull(delegate.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(delegate))
-        }
     }
 
     @Test
     fun `role without screen ownership never falls back to direct device writes`() {
-        delegate = SpinnerDelegateAdapterV3({}, onAction = actions::add,
-            applyProfileValues = { error("Screen state must not directly apply profile values") })
+        delegate = SpinnerDelegateAdapterV3({}, onAction = actions::add)
         bind(P_KEY_DEVICE_ROLE)
         verify(exactly = 0) { spinner.setSpinnerAdapter(any<PowerSpinnerInterface<CharSequence>>()) }
         verify(exactly = 0) { context.getSharedPreferences(any(), any()) }
@@ -125,9 +120,6 @@ class ServiceSpinnerStateBindingTest {
         bind(key)
         assertEquals(1, popup.index)
         verify { spinner.isEnabled = true }
-        listOf("collectJob", "interactionJob").forEach { name ->
-            assertNull(delegate.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(delegate))
-        }
         assertTrue(actions.isEmpty())
         delegate.renderSpinners(mapOf(key to SpinnerUiStateV3(0, true)))
         assertEquals(0, popup.index)

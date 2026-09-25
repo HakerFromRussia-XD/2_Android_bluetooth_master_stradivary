@@ -218,7 +218,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
-        BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast)
+        BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast, executor = this)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -468,43 +468,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(fragment, withSlideAnimation = true)
     }
     override fun showAccountCustomerServiceScreen() {
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-
-        val preserveCurrentFragmentView =
-            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
-        launchFragmentWithStack(
-            fragment = AccountFragmentCustomerServiceUBI4(),
-            withSlideAnimation = true,
-            preserveCurrentFragmentView = preserveCurrentFragmentView
-        )
+        showAccountDetailsScreen { AccountFragmentCustomerServiceUBI4() }
     }
 
     override fun showAccountProsthesisInformationScreen() {
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-
-        val preserveCurrentFragmentView =
-            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
-        launchFragmentWithStack(
-            fragment = AccountFragmentProsthesisInformationUBI4(),
-            withSlideAnimation = true,
-            preserveCurrentFragmentView = preserveCurrentFragmentView
-        )
+        showAccountDetailsScreen { AccountFragmentProsthesisInformationUBI4() }
     }
 
     override fun showAccountStatisticsScreen() {
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-
-        launchFragmentWithStack(
-            fragment = AccountFragmentStatisticsV3(),
-            withSlideAnimation = true,
+        showAccountDetailsScreen(
             preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
-        )
+        ) { AccountFragmentStatisticsV3() }
     }
 
     override fun showAchievementsScreen() {
@@ -519,17 +493,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun showDashboardSlotsScreen(deviceAddress: Int) {
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-
-        val preserveCurrentFragmentView =
-            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
-        launchFragmentWithStack(
-            fragment = DashboardSlotsFragment.newInstance(deviceAddress),
-            withSlideAnimation = true,
-            preserveCurrentFragmentView = preserveCurrentFragmentView
-        )
+        showAccountDetailsScreen { DashboardSlotsFragment.newInstance(deviceAddress) }
     }
 
     override fun showDashboardSlotContentScreen(
@@ -540,34 +504,33 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         subVersion: Int,
         declaredSize: Int
     ) {
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-
-        launchFragmentWithStack(
-            fragment = DashboardSlotContentFragment.newInstance(
+        showAccountDetailsScreen(preserveCurrentFragmentView = true) {
+            DashboardSlotContentFragment.newInstance(
                 deviceAddress = deviceAddress,
                 dataCode = dataCode,
                 title = title,
                 version = version,
                 subVersion = subVersion,
                 declaredSize = declaredSize
-            ),
-            withSlideAnimation = true,
-            preserveCurrentFragmentView = true
-        )
+            )
+        }
     }
 
     override fun showGamesScreen() {
         if (activeFragment is AccountGamesFragment) return
+        showAccountDetailsScreen { AccountGamesFragment() }
+    }
+
+    private fun showAccountDetailsScreen(
+        preserveCurrentFragmentView: Boolean =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3,
+        createFragment: () -> Fragment,
+    ) {
         showTopStatusBar()
         setStatusBarBackMode(enabled = true)
         hideBottomNavigationAnimated()
-
-        val preserveCurrentFragmentView =
-            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
         launchFragmentWithStack(
-            fragment = AccountGamesFragment(),
+            fragment = createFragment(),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
         )

@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.di.BleDependencies
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.V3AccountProfileLocalRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.V3AccountProfileRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.toAccountProfileDeviceContext
 import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceRoleRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
@@ -47,8 +47,4 @@ class V3AccountProfileViewModelFactory(
 internal fun createAccountProfileLocalRepository(context: Context) =
     V3AccountProfileLocalRepositoryImpl(context.applicationContext.getSharedPreferences(
         PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
-    ), deviceContext = {
-        val host = MainActivityUBI4.mainOrNull
-        V3AccountProfileDeviceContext(host?.mDeviceName, host?.locate, host?.mDeviceAddress,
-            host?.mDeviceType, host?.driverVersionS)
-    })
+    ), deviceContext = { BleDependencies.currentDeviceIdentity.toAccountProfileDeviceContext() })

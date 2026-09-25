@@ -2,12 +2,17 @@ package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
-import kotlinx.coroutines.channels.SendChannel
+
+internal fun V3DeviceIdentityStore?.toAccountProfileDeviceContext() = V3AccountProfileDeviceContext(
+    name = this?.identity?.value?.deviceName,
+    // These Activity fields were never populated. Preserve defaults and "null" preference prefixes.
+    language = if (this == null) null else "", address = null, type = null, driverVersion = null,
+)
 
 class V3AccountProfileMemoryCache {
     var header: V3AccountProfileHeader? = null
-
 }
 
 class V3AccountProfileLocalRepositoryImpl(

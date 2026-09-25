@@ -151,20 +151,7 @@ class V3ArchitectureTest {
                 "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
             ),
             "presentation/spinners/SpinnerDelegateAdapterV3.kt" to setOf(
-                "ble.BLECommandsV3",
-                "ble.ParameterProvider",
-                "ble.SampleGattAttributes.SERIALPORTCHAR_UUID",
-                "ble.SampleGattAttributes.WRITE",
-                "data.local.repository.SettingsProfileInfo",
-                // Existing fallback payload is now passed to an injected callback, not a UI applier.
-                "data.local.repository.SettingsProfileApplyValue",
-                "data.local.repository.SettingsProfileManager",
-                "data.state.UiState",
-                "data.parser.ParameterCodecRegistryV3",
-                "data.state.ParameterStoreV3",
-                "data.state.ParameterTypedValueV3",
                 "data.widget.endStructures.SpinnerParameterWidgetSStruct",
-                "persistence.preference.PreferenceKeysUbi4",
                 "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
             ),
             "presentation/switchers/SwitcherDelegateAdapterV3.kt" to setOf(
@@ -179,21 +166,9 @@ class V3ArchitectureTest {
                 "data.state.UiState",
                 "data.state.WidgetState",
                 "data.widget.endStructures.SwitchParameterWidgetSStruct",
-                "persistence.preference.PreferenceKeysUbi4",
-                "persistence.preference.PreferenceKeysUbi4.MobileSettingsKey",
                 "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
             ),
             "presentation/togglesliders/ToggleSliderDelegateAdapterV3.kt" to setOf(
-                "ble.BLECommandsV3",
-                "ble.ParameterProvider",
-                "ble.SampleGattAttributes.SERIALPORTCHAR_UUID",
-                "ble.SampleGattAttributes.WRITE",
-                "data.local.repository.SettingsProfileManager",
-                "data.state.UiState",
-                "data.parser.ParameterCodecRegistryV3",
-                "data.state.WidgetState",
-                "data.state.ParameterStoreV3",
-                "data.state.ParameterTypedValueV3",
                 "data.widget.endStructures.ToggleSliderParameterWidgetEStruct",
                 "data.widget.endStructures.ToggleSliderParameterWidgetSStruct",
                 "persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry",
@@ -242,26 +217,18 @@ class V3ArchitectureTest {
 
     @Test fun `base widgets fragment does not coordinate V3 sensors screen state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
-        val commonAdapters = setOf(
-            prefix + "presentation.sensors.PlotDelegateAdapterV3",
-            prefix + "presentation.sensors.SensorsButtonsDelegateAdapterV3",
-        )
         reject(base, imports(base).filter {
-            it.startsWith(prefix + "presentation.sensors.") && it !in commonAdapters
+            it.startsWith(prefix + "presentation.sensors.")
         })
         val callbacks = listOf("renderV3Plot", "renderV3SensorsButtons", "onV3PlotAction", "onV3SensorsButtonsAction")
         assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
-            "Sensors state and actions belong to SensorsFragment; retain only the common adapter set in Base")
+            "Sensors adapters, state and actions belong to SensorsFragment")
     }
 
     @Test fun `base widgets fragment does not coordinate V3 special settings state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
-        val commonAdapters = setOf(
-            prefix + "presentation.autologin.AutoLoginDelegateAdapterV3",
-            prefix + "presentation.togglesliders.ToggleSliderDelegateAdapterV3",
-        )
         reject(base, imports(base).filter { dependency ->
-            dependency !in commonAdapters && listOf("specialsettings", "settingsprofiles", "autologin", "togglesliders").any {
+            listOf("specialsettings", "settingsprofiles", "autologin", "togglesliders").any {
                 dependency.startsWith(prefix + "presentation.$it.")
             }
         })
@@ -271,25 +238,20 @@ class V3ArchitectureTest {
             "onV3SettingsProfileRenameRequested",
         )
         assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
-            "Special settings state and actions belong to SpecialSettingsFragment; common consumers keep their adapters")
+            "Special settings adapters, state and actions belong to SpecialSettingsFragment")
     }
 
     @Test fun `base widgets fragment does not coordinate V3 service state or actions`() {
         val base = File(root.parentFile.parentFile, "ui/fragments/base/BaseWidgetsFragment.kt")
-        val commonAdapters = setOf(
-            prefix + "presentation.service.ProsthesisCalibrationDelegateAdapterV3",
-            prefix + "presentation.service.TextInputDelegateAdapterV3",
-            prefix + "presentation.spinners.SpinnerDelegateAdapterV3",
-        )
         reject(base, imports(base).filter {
-            it !in commonAdapters && (it.startsWith(prefix + "presentation.service.") ||
+            (it.startsWith(prefix + "presentation.service.") ||
                 it.startsWith(prefix + "presentation.spinners.") || it.startsWith(prefix + "domain.service."))
         })
         val callbacks = listOf("renderV3Calibration", "renderV3TextInputs", "renderV3Spinners",
             "onV3CalibrationButtonPressed", "onV3CalibrationButtonReleased", "onV3TextInputChanged",
             "onV3TextInputPrefillRequested", "onV3TextInputSendClicked", "onV3SpinnerAction")
         assertTrue(callbacks.none { Regex("\\b$it\\b").containsMatchIn(base.readText()) },
-            "Service state and actions belong to ServiceFragment; common consumers keep their adapters")
+            "Service adapters, state and actions belong to ServiceFragment")
     }
 
     @Test fun `gesture visual catalog cannot read preferences or global application state`() {
@@ -424,8 +386,8 @@ class V3ArchitectureTest {
         reject(dependencies, imports(dependencies).filter { it.contains(".ui.") })
         assertFalse(code.contains("MainActivityUBI4"))
         val initialization = code.substringAfter("fun initializeSession(")
-        assertTrue(initialization.contains("bindCommandExecutor(executor)"))
-        assertTrue(initialization.indexOf("bindCommandExecutor(executor)") < initialization.indexOf("BleEnvironment.register("))
+        assertTrue(initialization.contains("bindCommandExecutor(executor, deviceIdentity(owner))"))
+        assertTrue(initialization.indexOf("bindCommandExecutor(executor, deviceIdentity(owner))") < initialization.indexOf("BleEnvironment.register("))
         val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
         val destruction = activity.substringAfter("override fun onDestroy()").substringBefore("private fun enqueueAppCloseUploadIfNeeded")
         assertTrue(destruction.contains("BleDependencies.unbindCommandExecutor(this)"))
@@ -447,6 +409,22 @@ class V3ArchitectureTest {
         assertTrue(creation.indexOf("BleDependencies.bindSensorsRefresh(") < creation.indexOf("mBLEController.connectToSavedDeviceNow()"))
     }
 
+    @Test fun `account statistics requests registered telemetry without an Activity lookup`() {
+        val factory = File(root, "di/V3AccountStatisticsViewModelFactory.kt")
+        val repository = File(root, "data/accountstatistics/V3AccountStatisticsRepositoryImpl.kt")
+        listOf(factory, repository).forEach { file ->
+            reject(file, imports(file).filter { it.contains(".ui.") })
+            assertTrue(listOf("MainActivityUBI4", "getBLEController", "mainOrNull")
+                .none { file.readText().contains(it) }, file.name)
+        }
+        assertTrue(factory.readText().contains("BleDependencies::requestV3TelemetryData"))
+        val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
+        val creation = activity.substringAfter("override fun onCreate(").substringBefore("override fun onNewIntent(")
+        assertTrue(creation.contains("BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast, executor = this)"))
+        assertTrue(creation.indexOf("mBLEController = BLEController(") < creation.indexOf("BleDependencies.bindTelemetry("))
+        assertTrue(creation.indexOf("BleDependencies.bindTelemetry(") < creation.indexOf("mBLEController.connectToSavedDeviceNow()"))
+    }
+
     @Test fun `account statistics UI only observes screen state and sends actions`() {
         val ui = File(root, "presentation/accountstatistics")
         listOf("AccountFragmentStatisticsV3.kt", "V3AccountStatisticsChartMapper.kt").forEach { name ->
@@ -462,8 +440,14 @@ class V3ArchitectureTest {
     }
 
     @Test fun `account profile fragment gets profile and role access from screen state`() {
+        val factory = File(root, "di/V3AccountProfileViewModelFactory.kt")
+        reject(factory, imports(factory).filter { it.contains(".ui.") })
+        assertFalse(factory.readText().contains("MainActivityUBI4"))
+        assertTrue(factory.readText().contains("BleDependencies.currentDeviceIdentity.toAccountProfileDeviceContext()"))
         val fragment = File(root.parentFile.parentFile, "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")
         val code = fragment.readText()
+        assertTrue(code.contains("class AccountFragmentMainV3 : Fragment()"))
+        assertFalse(code.contains("BaseWidgetsFragment"), "Account must not initialize unrelated widget adapters")
         val forbidden = listOf("Ubi4RequestsApi", "NetworkResult", "EncryptionManagerUtilsUbi4", "requestToken",
             "requestUserData", "requestDeviceList", "requestDeviceInfo", "saveManagerInfo", "saveDeviceInfo",
             "cachedProfileItem", "attemptedRequest", "ACCOUNT_MANAGER_FIO", "ACCOUNT_MODEL_PROSTHESIS",
@@ -473,6 +457,16 @@ class V3ArchitectureTest {
             it.startsWith(prefix + "data.") ||
                 (it.startsWith(prefix + "domain.") && it.contains("Repository")) || it.contains("UseCase")
         })
+    }
+
+    @Test fun `BLE log uses state and actions without a second store subscription`() {
+        val fragment = File(root.parentFile.parentFile, "ui/fragments/BleLogFragment.kt")
+        val code = fragment.readText()
+        assertTrue(code.contains("uiState.collect"))
+        assertTrue(code.contains("V3BleLogAction.GraphStreamFilterChanged"))
+        assertTrue(listOf("BleLogStore", "getSharedPreferences", "PreferenceKeysUbi4", "Repository", "UseCase")
+            .none { code.contains(it) })
+        reject(fragment, imports(fragment).filter { it.startsWith(prefix + "data.") || it.contains("UseCase") })
     }
 
     @Test fun `customer service V3 binding uses state without storage or request access`() {

@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,7 +43,6 @@ import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.*
-import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.di.V3AccountProfileViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileHeader
@@ -58,7 +58,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class AccountFragmentMainV3 : BaseWidgetsFragment() {
+class AccountFragmentMainV3 : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
 

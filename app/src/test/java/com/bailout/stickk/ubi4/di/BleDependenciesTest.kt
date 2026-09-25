@@ -1,12 +1,21 @@
 package com.bailout.stickk.ubi4.di
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.versions.v3.data.accountstatistics.V3AccountStatisticsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.di.createAccountProfileLocalRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileDeviceContext
+import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.RefreshSensorsUseCaseV3
 import io.mockk.*
 import org.junit.jupiter.api.AfterEach
@@ -168,5 +177,109 @@ class BleDependenciesTest {
         assertSame(failure, assertThrows(IllegalStateException::class.java) { refresh("test-device") })
         assertTrue(UiState.fullInitInProgress.value)
         verify { controller wasNot Called }
+    }
+
+    private fun bindTelemetry(executor: BleCommandExecutor, controller: BLEController) {
+        val owner = mockk<ViewModelStoreOwner> { every { viewModelStore } returns ViewModelStore() }
+        BleDependencies.bindTelemetry(owner, mockk(), mockk(), controller, {}, executor)
+    }
+
+    private fun statisticsRequest() = RequestAccountStatisticsUseCaseV3(
+        V3AccountStatisticsRepositoryImpl(mockk(), BleDependencies::requestV3TelemetryData),
+    )
+
+    @Test fun `statistics skips unavailable telemetry and resolves a later binding without retaining the controller`() {
+        UiState.isInterfaceV3Activated = true
+        val request = statisticsRequest()
+        val controller = mockk<BLEController>(relaxed = true)
+        BleDependencies.bindCommandExecutor(first)
+        request()
+        bindTelemetry(first, controller)
+        request()
+        BleDependencies.unbindCommandExecutor(first)
+        BleDependencies.unbindCommandExecutor(first)
+        request()
+
+        verify(exactly = 1) { controller.requestTelemetryDataV3() }
+        verify { first wasNot Called }
+    }
+
+    @Test fun `statistics follows session replacement and ignores stale cleanup without allowing stale telemetry binding`() {
+        UiState.isInterfaceV3Activated = true
+        val request = statisticsRequest()
+        val oldController = mockk<BLEController>(relaxed = true)
+        val currentController = mockk<BLEController>(relaxed = true)
+        BleDependencies.bindCommandExecutor(first)
+        bindTelemetry(first, oldController)
+        request()
+
+        BleDependencies.bindCommandExecutor(second)
+        request() // No callback from the old session during replacement.
+        bindTelemetry(second, currentController)
+        BleDependencies.unbindCommandExecutor(first)
+        request()
+        assertThrows(IllegalStateException::class.java) { bindTelemetry(first, oldController) }
+        request()
+
+        verify(exactly = 1) { oldController.requestTelemetryDataV3() }
+        verify(exactly = 1) { oldController.setOnConnectedListener(any()) }
+        verify(exactly = 2) { currentController.requestTelemetryDataV3() }
+    }
+
+    @Test fun `statistics preserves the V3 guard and propagates controller errors without retry`() {
+        val request = statisticsRequest()
+        val controller = mockk<BLEController>(relaxed = true)
+        val failure = IllegalStateException("Telemetry unavailable")
+        every { controller.requestTelemetryDataV3() } throws failure
+        BleDependencies.bindCommandExecutor(first)
+        bindTelemetry(first, controller)
+
+        UiState.isInterfaceV3Activated = false
+        request()
+        UiState.isInterfaceV3Activated = true
+        assertSame(failure, assertThrows(IllegalStateException::class.java) { request() })
+
+        verify(exactly = 1) { controller.requestTelemetryDataV3() }
+    }
+
+    private fun accountRepository(preferences: SharedPreferences) = createAccountProfileLocalRepository(
+        mockk<Context> {
+            every { applicationContext } answers { self as Context }
+            every { getSharedPreferences(any(), Context.MODE_PRIVATE) } returns preferences
+        },
+    )
+
+    @Test fun `account uses current identity without filling historical defaults or changing preference keys`() {
+        val keys = mutableListOf<String>()
+        val preferences = mockk<SharedPreferences> {
+            every { getInt(any(), 1) } answers { keys += firstArg<String>(); 1 }
+        }
+        val repository = accountRepository(preferences)
+        val identity = V3DeviceIdentityStore().apply { intentDeviceName = "scan name" }
+        BleDependencies.bindCommandExecutor(first, identity)
+        assertEquals(V3AccountProfileDeviceContext(null, "", null, null, null), repository.getEnvironment().device)
+        identity.update("FTHS3-00001", "FTHS3-00001")
+        assertEquals(V3AccountProfileDeviceContext("FTHS3-00001", "", null, null, null), repository.getEnvironment().device)
+        identity.update("FEST-new", "FEST-new")
+        assertEquals("FEST-new", repository.getEnvironment().device.name)
+        assertEquals(9, keys.size)
+        assertTrue(keys.all { it.startsWith("null") })
+        verify(exactly = 0) { preferences.edit() }
+    }
+
+    @Test fun `account follows replacement identity and loses the context only when the active owner closes`() {
+        val repository = accountRepository(mockk { every { getInt(any(), 1) } returns 1 })
+        val absent = V3AccountProfileDeviceContext(null, null, null, null, null)
+        assertEquals(absent, repository.getEnvironment().device)
+        val oldIdentity = V3DeviceIdentityStore().apply { update("old", "old") }
+        val currentIdentity = V3DeviceIdentityStore().apply { update("current", "current") }
+        BleDependencies.bindCommandExecutor(first, oldIdentity)
+        assertEquals("old", repository.getEnvironment().device.name)
+        BleDependencies.bindCommandExecutor(second, currentIdentity)
+        BleDependencies.unbindCommandExecutor(first)
+        oldIdentity.update("late", "late")
+        assertEquals("current", repository.getEnvironment().device.name)
+        BleDependencies.unbindCommandExecutor(second)
+        assertEquals(absent, repository.getEnvironment().device)
     }
 }

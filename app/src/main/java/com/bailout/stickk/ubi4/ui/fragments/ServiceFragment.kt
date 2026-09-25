@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import android.os.Bundle
 import android.widget.Toast
 import android.view.LayoutInflater
@@ -43,7 +42,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ServiceFragment : BaseWidgetsFragment() {
-    override val v3SpinnerParameterKeys = V3ServiceViewModel.spinnerParameterKeys + P_KEY_DEVICE_ROLE
+    private val v3SpinnerParameterKeys = V3ServiceViewModel.spinnerParameterKeys + P_KEY_DEVICE_ROLE
 
     private var _binding: Ubi4FragmentServiceBinding? = null
     private val binding get() = requireNotNull(_binding)
@@ -70,7 +69,6 @@ class ServiceFragment : BaseWidgetsFragment() {
             onDestroyParent = ::registerDelegateCleanup,
             parameterKeys = v3SpinnerParameterKeys,
             onAction = ::onV3SpinnerAction,
-            applyProfileValues = createSettingsProfileValueApplier(requireContext()),
         )
     }
     private val v3SliderAdapter by lazy {

@@ -1,21 +1,25 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentBleLogBinding
 import com.bailout.stickk.ubi4.adapters.BleLogAdapter
-import com.bailout.stickk.ubi4.blelog.BleLogStore
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.blelog.BleLogDirection
+import com.bailout.stickk.ubi4.blelog.BleLogEntry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.versions.v3.di.V3BleLogViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.blelog.V3BleLogAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.blelog.V3BleLogUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.blelog.V3BleLogViewModel
 import kotlinx.coroutines.launch
 
 class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
@@ -23,7 +27,8 @@ class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
     private var _binding: Ubi4FragmentBleLogBinding? = null
     private val binding get() = requireNotNull(_binding)
     private val adapter = BleLogAdapter()
-    private var lastEntryId = 0L
+    private var v3ViewModel: V3BleLogViewModel? = null
+    private var renderingV3State = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,7 +36,7 @@ class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
 
         setupSystemBack()
         initUi()
-        observeLog()
+        bindV3Log()
     }
 
     private fun setupSystemBack() {
@@ -46,57 +51,49 @@ class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
     private fun initUi() = with(binding) {
         bleLogRv.layoutManager = LinearLayoutManager(requireContext())
         bleLogRv.adapter = adapter
-        setupGraphStreamFilter()
         root.isFocusableInTouchMode = true
         root.requestFocus()
     }
 
-    private fun setupGraphStreamFilter() = with(binding) {
-        val prefs = requireContext().getSharedPreferences(
-            PreferenceKeysUbi4.APP_PREFERENCES,
-            Context.MODE_PRIVATE
-        )
-        graphStreamFilterSwitch.isChecked = prefs.getBoolean(
-            PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM,
-            true
-        )
-        BleLogStore.setHideGraphStream(graphStreamFilterSwitch.isChecked)
-        graphStreamFilterSwitch.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit()
-                .putBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, isChecked)
-                .apply()
-            BleLogStore.setHideGraphStream(isChecked)
+    private fun bindV3Log() {
+        val viewModel = ViewModelProvider(this, V3BleLogViewModelFactory.from(requireContext()))[V3BleLogViewModel::class.java]
+        v3ViewModel = viewModel
+        viewModel.onAction(V3BleLogAction.ViewCreated)
+        binding.graphStreamFilterSwitch.isChecked = viewModel.uiState.value.hideGraphStream
+        binding.graphStreamFilterSwitch.setOnCheckedChangeListener { _, checked ->
+            if (!renderingV3State) viewModel.onAction(V3BleLogAction.GraphStreamFilterChanged(checked))
         }
-        graphStreamFilterContainer.setOnClickListener {
-            graphStreamFilterSwitch.isChecked = !graphStreamFilterSwitch.isChecked
+        binding.graphStreamFilterContainer.setOnClickListener {
+            binding.graphStreamFilterSwitch.toggle()
         }
-    }
-
-    private fun observeLog() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val initialEntries = BleLogStore.snapshot()
-                lastEntryId = initialEntries.lastOrNull()?.id ?: 0L
-                adapter.replaceEntries(initialEntries)
-                binding.emptyTv.isVisible = initialEntries.isEmpty()
-                if (initialEntries.isNotEmpty()) {
-                    binding.bleLogRv.scrollToPosition(initialEntries.lastIndex)
-                }
-
-                BleLogStore.version.collect {
-                    val shouldStickToBottom = isNearBottom()
-                    val newEntries = BleLogStore.entriesAfter(lastEntryId)
-                    if (newEntries.isEmpty()) return@collect
-
-                    adapter.appendEntries(newEntries)
-                    lastEntryId = newEntries.last().id
-                    binding.emptyTv.isVisible = false
-                    if (shouldStickToBottom) {
-                        binding.bleLogRv.scrollToPosition(adapter.itemCount - 1)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onAction(V3BleLogAction.ViewStarted)
+                var initial = true
+                try {
+                    viewModel.uiState.collect { state ->
+                        renderV3Log(state, initial)
+                        initial = false
                     }
+                } finally {
+                    viewModel.onAction(V3BleLogAction.ViewStopped)
                 }
             }
         }
+    }
+
+    private fun renderV3Log(state: V3BleLogUiState, initial: Boolean) = with(binding) {
+        renderingV3State = true
+        graphStreamFilterSwitch.isChecked = state.hideGraphStream
+        renderingV3State = false
+        val shouldStickToBottom = initial || isNearBottom()
+        val entries = (if (initial) state.entries else state.entries.drop(adapter.itemCount)).map {
+            BleLogEntry(it.id, it.timestampMillis,
+                if (it.isOutgoing) BleLogDirection.OUTGOING else BleLogDirection.INCOMING, it.bytesHex)
+        }
+        if (initial) adapter.replaceEntries(entries) else adapter.appendEntries(entries)
+        emptyTv.isVisible = state.entries.isEmpty()
+        if (entries.isNotEmpty() && shouldStickToBottom) bleLogRv.scrollToPosition(adapter.itemCount - 1)
     }
 
     private fun isNearBottom(): Boolean {
@@ -120,6 +117,8 @@ class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
     }
 
     override fun onDestroyView() {
+        v3ViewModel?.onAction(V3BleLogAction.ViewDestroyed)
+        v3ViewModel = null
         _binding = null
         super.onDestroyView()
     }

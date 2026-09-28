@@ -32,8 +32,15 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
         if (running || journal != null) return
         running = true
         try {
-            val saved = backend.readJournal()?.takeIf { it.isNotBlank() && it != "null" }
+            val loaded = backend.readJournal()?.takeIf { it.isNotBlank() && it != "null" }
                 ?.let { Json.decodeFromString<UserFirmwareJournal>(it) }
+            val saved = loaded?.takeIf { it.formatVersion >= 2 }
+            if (loaded != null && saved == null) {
+                // Older journals did not persist a successful GOOD_CRC step,
+                // so they can only deadlock a resumed user update.
+                backend.writeJournal("null")
+                platformLog("USER_DFU", "discarded obsolete user-update journal")
+            }
             if (saved != null) {
                 require(saved.deviceId == deviceId) { "Session belongs to another device" }
                 journal = saved
@@ -48,7 +55,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                 if (queue.isEmpty()) {
                     mutableState.value = UserFirmwareUiState()
                 } else {
-                    journal = UserFirmwareJournal(deviceId, queue)
+                    journal = UserFirmwareJournal(deviceId, queue, formatVersion = 2)
                     publish("offered")
                 }
             }
@@ -74,7 +81,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                 } catch (error: Exception) {
                     currentCoroutineContext().ensureActive()
                     if (!backend.isSameDevice()) {
-                        publish("waiting", detail = error.message.orEmpty())
+                        publish("verifying", detail = error.message.orEmpty())
                         backend.awaitChange()
                     }
                     // The device is still connected: immediately repeat the
@@ -90,6 +97,11 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                         check(backend.isSameDevice()) { "Waiting for the original device" }
                         publish("verifying")
                         val board = backend.probe(address)
+                        platformLog(
+                            "USER_DFU",
+                            "probe address=$address target=${target.version} installed=${board.version} " +
+                                "main=${board.isMain} attempted=${address in journal!!.attempted}"
+                        )
                         if (UserFirmwarePolicy.completed(board, target)) {
                             journal = journal!!.copy(completed = journal!!.completed + address)
                             persist()
@@ -98,24 +110,50 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                         val firstAttempt = address !in journal!!.attempted
                         val mayStart = firstAttempt && board.version != null && board.version < target.version
                         if (!mayStart && !UserFirmwarePolicy.retry(board, target)) {
-                            publish("waiting", detail = "Waiting for confirmed board state and firmware version")
+                            platformLog(
+                                "USER_DFU",
+                                "waiting address=$address firstAttempt=$firstAttempt installed=${board.version} " +
+                                    "target=${target.version} main=${board.isMain}"
+                            )
+                            publish("verifying", detail = "Waiting for confirmed board state and firmware version")
                             backend.awaitChange()
                             continue
                         }
                         journal = journal!!.copy(attempted = journal!!.attempted + address)
                         persist()
                         publish("updating")
+                        var transferred = false
                         try {
                             backend.transfer(target) { publish("updating", it) }
-                        } catch (_: Exception) {
+                            transferred = true
+                        } catch (error: Exception) {
                             currentCoroutineContext().ensureActive()
+                            platformLog(
+                                "USER_DFU",
+                                "transfer failed address=$address target=${target.version} " +
+                                    "${error::class.simpleName}: ${error.message}"
+                            )
                             // A failed transfer immediately returns to fresh state/version reads.
                             // There is no delay, retry count limit or partial-byte resume here.
                         }
+                        if (transferred) {
+                            // GOOD_CRC is the bootloader confirmation that this
+                            // board's main program was received successfully.
+                            // Continue the frozen queue from this callback; the
+                            // next board must not wait for a later advertisement.
+                            journal = journal!!.copy(completed = journal!!.completed + address)
+                            persist()
+                            break
+                        }
                     } catch (error: Exception) {
                         currentCoroutineContext().ensureActive()
+                        platformLog(
+                            "USER_DFU",
+                            "state probe failed address=$address target=${target.version} " +
+                                "${error::class.simpleName}: ${error.message}"
+                        )
                         if (!backend.isSameDevice()) {
-                            publish("waiting", detail = error.message.orEmpty())
+                            publish("verifying", detail = error.message.orEmpty())
                             backend.awaitChange()
                         }
                         // A transfer/probe failure on an active BLE session is

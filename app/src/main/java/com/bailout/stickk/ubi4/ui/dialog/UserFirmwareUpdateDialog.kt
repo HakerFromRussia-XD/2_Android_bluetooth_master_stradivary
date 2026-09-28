@@ -52,7 +52,15 @@ class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : Use
         if (state.blocksInteraction) {
             activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             val existing = activity.supportFragmentManager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog
-            if (existing != null) existing.render(state)
+            // A user update owns one modal from consent until completion.
+            // BLE probes and reconnect callbacks are internal queue work, not
+            // separate user-visible dialogs. Keep displaying the update modal.
+            val displayState = if (state.phase in setOf("preparing", "verifying")) {
+                state.copy(phase = "updating")
+            } else {
+                state
+            }
+            if (existing != null) existing.render(displayState)
             else if (!activity.supportFragmentManager.isStateSaved) UserFirmwareUpdateDialog().showNow(activity.supportFragmentManager, TAG)
         } else {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -129,10 +137,7 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         val status = when (state.phase) {
             "offered" -> context.getString(SharedRes.strings.user_firmware_offer.resourceId)
             "complete" -> context.getString(SharedRes.strings.user_firmware_complete.resourceId)
-            "updating" -> context.getString(SharedRes.strings.user_firmware_updating.resourceId, state.boardNumber, state.boardCount)
-            "verifying" -> context.getString(SharedRes.strings.user_firmware_verifying.resourceId)
-            "waiting" -> context.getString(SharedRes.strings.user_firmware_waiting.resourceId)
-            else -> context.getString(SharedRes.strings.user_firmware_preparing.resourceId)
+            else -> context.getString(SharedRes.strings.user_firmware_updating.resourceId, state.boardNumber, state.boardCount)
         }
         title?.text = if (needsProgressLayout) status else context.getString(
             if (state.phase == "complete") SharedRes.strings.user_firmware_complete_title.resourceId

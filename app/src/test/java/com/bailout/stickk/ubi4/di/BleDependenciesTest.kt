@@ -9,7 +9,10 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.network.TelemetryMessagesRequest
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.accountstatistics.V3AccountStatisticsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
@@ -18,6 +21,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfil
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.RefreshSensorsUseCaseV3
 import io.mockk.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -181,12 +186,58 @@ class BleDependenciesTest {
 
     private fun bindTelemetry(executor: BleCommandExecutor, controller: BLEController) {
         val owner = mockk<ViewModelStoreOwner> { every { viewModelStore } returns ViewModelStore() }
-        BleDependencies.bindTelemetry(owner, mockk(), mockk(), controller, {}, executor)
+        BleDependencies.bindTelemetry(owner, mockk(), mockk(), controller, executor)
     }
 
     private fun statisticsRequest() = RequestAccountStatisticsUseCaseV3(
         V3AccountStatisticsRepositoryImpl(mockk(), BleDependencies::requestV3TelemetryData),
     )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun `connection upload keeps V3 guard daily limit and owner cancellation through DI`() = runTest {
+        val scope = CoroutineScope(StandardTestDispatcher(testScheduler) + SupervisorJob())
+        val owner = mockk<ViewModelStoreOwner> { every { viewModelStore } returns ViewModelStore() }
+        val controller = mockk<BLEController>(relaxed = true)
+        val connected = slot<() -> Unit>()
+        every { controller.setOnConnectedListener(capture(connected)) } just Runs
+        var lastTimestamp = 0L
+        val editor = mockk<SharedPreferences.Editor>(relaxed = true)
+        every { editor.putLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, any()) } answers {
+            lastTimestamp = secondArg(); editor
+        }
+        val preferences = mockk<SharedPreferences> {
+            every { getLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, 0L) } answers { lastTimestamp }
+            every { edit() } returns editor
+        }
+        mockkConstructor(Ubi4TelemetrySender::class)
+        try {
+            coEvery { anyConstructed<Ubi4TelemetrySender>().sendTelemetry(any(), any()) } coAnswers {
+                firstArg<() -> Unit>().invoke()
+                TelemetryMessagesRequest(emptyList())
+            }
+            BleDependencies.bindCommandExecutor(first)
+            BleDependencies.bindTelemetry(owner, scope, preferences, controller, first)
+            UiState.isInterfaceV3Activated = false
+            connected.captured(); runCurrent()
+            coVerify(exactly = 0) { anyConstructed<Ubi4TelemetrySender>().sendTelemetry(any(), any()) }
+
+            UiState.isInterfaceV3Activated = true
+            connected.captured(); runCurrent()
+            assertTrue(lastTimestamp > 0L)
+            connected.captured(); runCurrent()
+            coVerify(exactly = 1) { anyConstructed<Ubi4TelemetrySender>().sendTelemetry(any(), any()) }
+            verify(exactly = 1) { controller.requestTelemetryDataV3() }
+
+            scope.cancel()
+            lastTimestamp = 0L
+            connected.captured(); runCurrent()
+            coVerify(exactly = 1) { anyConstructed<Ubi4TelemetrySender>().sendTelemetry(any(), any()) }
+            assertEquals(0L, lastTimestamp)
+        } finally {
+            scope.cancel()
+            unmockkConstructor(Ubi4TelemetrySender::class)
+        }
+    }
 
     @Test fun `statistics skips unavailable telemetry and resolves a later binding without retaining the controller`() {
         UiState.isInterfaceV3Activated = true

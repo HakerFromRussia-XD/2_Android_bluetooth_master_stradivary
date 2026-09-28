@@ -19,8 +19,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSS
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
@@ -60,7 +58,6 @@ class SwitcherDelegateAdapterV3(
 
         var parameterInfo: ParameterInfo<Int, Int, Int, Int>? = null
         var switchChecked = false
-        var keyMobileSettings = ""
         var widgetPosition = 0
 
         when (val widget = item.widget) {
@@ -68,21 +65,17 @@ class SwitcherDelegateAdapterV3(
                 parameterInfo = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0)
                 switchChecked = widget.switchChecked
-                keyMobileSettings = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
             }
         }
 
         val currentParameterInfo = parameterInfo ?: return
-        val isMobileSetting = keyMobileSettings.isNotEmpty()
 
         val currentSwitchInfo = WidgetSwitchInfoV3(
             parameterInfo = currentParameterInfo,
             isChecked = switchChecked,
             widgetSwitch = widgetSwitchSc,
-            widgetPosition = widgetPosition,
-            isMobileSettings = isMobileSetting,
-            keyMobileSettings = keyMobileSettings
+            widgetPosition = widgetPosition
         )
         currentSwitchInfo.instanceId = switchInfoCounter++
         widgetInfoList.removeAll {
@@ -94,12 +87,7 @@ class SwitcherDelegateAdapterV3(
         }
         widgetInfoList.add(currentSwitchInfo)
 
-        if (isMobileSetting) {
-            val saved = main.getBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false)
-            updateSwitchState(saved, widgetSwitchSc)
-        } else {
-            updateSwitchState(switchChecked, widgetSwitchSc)
-        }
+        updateSwitchState(switchChecked, widgetSwitchSc)
 
         widgetDescriptionTv.text = item.title
 
@@ -116,44 +104,38 @@ class SwitcherDelegateAdapterV3(
             )
             currentSwitchInfo.isChecked = isChecked
 
-            if (!isMobileSetting) {
-                sendStateSwitcher(currentParameterInfo, isChecked)
-            }
-
-            processingMobileSettings(keyMobileSettings, widgetSwitchSc)
+            sendStateSwitcher(currentParameterInfo, isChecked)
         }
 
-        if (!isMobileSetting) {
-            currentSwitchInfo.responseReceived.set(false)
+        currentSwitchInfo.responseReceived.set(false)
 
-            if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(
-                    currentParameterInfo.deviceAddress,
-                    currentParameterInfo.parameterID
-                )
-            ) {
-                RetryUtils.sendRequestWithRetry(
-                    request = {
-                        Log.d(
-                            "SwitcherRequestV3",
-                            "parameterInfo = $currentParameterInfo"
-                        )
-                        main.bleCommandWithQueue(
-                            BLECommandsV3.request(currentParameterInfo.dataCode),
-                            SERIALPORTCHAR_UUID,
-                            WRITE
-                        ) {}
-                    },
-                    isResponseReceived = {
-                        currentSwitchInfo.responseReceived.get()
-                    },
-                    maxRetries = 5,
-                    delayMillis = 1000L,
-                    scope = scope
-                )
-            } else { setUI(currentParameterInfo, widgetPosition = currentSwitchInfo.widgetPosition) }
+        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(
+                currentParameterInfo.deviceAddress,
+                currentParameterInfo.parameterID
+            )
+        ) {
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    Log.d(
+                        "SwitcherRequestV3",
+                        "parameterInfo = $currentParameterInfo"
+                    )
+                    main.bleCommandWithQueue(
+                        BLECommandsV3.request(currentParameterInfo.dataCode),
+                        SERIALPORTCHAR_UUID,
+                        WRITE
+                    ) {}
+                },
+                isResponseReceived = {
+                    currentSwitchInfo.responseReceived.get()
+                },
+                maxRetries = 5,
+                delayMillis = 1000L,
+                scope = scope
+            )
+        } else { setUI(currentParameterInfo, widgetPosition = currentSwitchInfo.widgetPosition) }
 
-            switchCollect()
-        }
+        switchCollect()
 
         observeInteractionState()
         applySwitchLockState(currentSwitchInfo)
@@ -220,20 +202,6 @@ class SwitcherDelegateAdapterV3(
         programmaticChange = false
     }
 
-    private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {
-        if (keyMobileSettings.isNotEmpty()) {
-            when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> {
-                    main.saveBoolean(
-                        PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION,
-                        switch.isChecked
-                    )
-                    SettingsProfileManager.saveMobileBoolean(keyMobileSettings, switch.isChecked)
-                }
-            }
-        }
-    }
-
     private fun switchCollect() {
         if (collectJob?.isActive == true) return
 
@@ -273,20 +241,16 @@ class SwitcherDelegateAdapterV3(
             return
         }
 
-        val targetState = if (widgetInfo.isMobileSettings) {
-            main.getBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false)
-        } else {
-            widgetInfo.isChecked
-        }
-
         switch.isEnabled = true
         switch.isClickable = true
-        updateSwitchState(targetState, switch)
+        updateSwitchState(widgetInfo.isChecked, switch)
     }
 
 
-    override fun isForViewType(item: Any): Boolean =
-        item is SwitchItemV3 && item.widget is SwitchParameterWidgetSStruct
+    override fun isForViewType(item: Any): Boolean {
+        val widget = (item as? SwitchItemV3)?.widget as? SwitchParameterWidgetSStruct ?: return false
+        return widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings.isEmpty()
+    }
     override fun SwitchItemV3.getItemId(): Any = when (val w = widget) {
         is SwitchParameterWidgetSStruct -> {
             val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
@@ -315,8 +279,6 @@ data class WidgetSwitchInfoV3(
     var isChecked: Boolean = false,
     var widgetSwitch: Switch,
     var widgetPosition: Int = 0,
-    var isMobileSettings: Boolean = false,
-    var keyMobileSettings: String = "",
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false)
 )

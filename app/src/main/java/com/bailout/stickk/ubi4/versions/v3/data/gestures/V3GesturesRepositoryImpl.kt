@@ -94,13 +94,7 @@ class V3GesturesRepositoryImpl(
             id(0), id(0), id(1), id(1), id(2), id(2), id(3), id(3),
             id(4), id(4), id(5), id(5), id(6), id(6), id(7), id(7),
         ))
-        ParameterStoreV3.put(rotationGroupInfo, typed)
-        saveBleValue(rotationGroupInfo, typed)
-        ParameterInfoRegistry.getMeta(rotationGroupInfo)?.let { meta ->
-            ParameterCodecRegistryV3.encodeToSerialized(meta.codecId, typed)?.let { encoded ->
-                ParameterProvider.getParameterV3(rotationGroupInfo).data = encoded
-            }
-        }
+        saveTypedValue(rotationGroupInfo, typed)
         enqueuePacket(packet)
         return true
     }
@@ -116,6 +110,12 @@ class V3GesturesRepositoryImpl(
         val info = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
         val typed = ParameterTypedValueV3.CurrentGesture(CurrentGestureV3(currentGesture = gestureId))
         // Preserve the optimistic value, profile persistence and packet order from the adapter.
+        saveTypedValue(info, typed)
+        enqueuePacket(BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), gestureId))
+        return true
+    }
+
+    private fun saveTypedValue(info: ParameterInfo<Int, Int, Int, Int>, typed: ParameterTypedValueV3) {
         ParameterStoreV3.put(info, typed)
         saveBleValue(info, typed)
         ParameterInfoRegistry.getMeta(info)?.let { meta ->
@@ -123,8 +123,6 @@ class V3GesturesRepositoryImpl(
                 ParameterProvider.getParameterV3(info).data = encoded
             }
         }
-        enqueuePacket(BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), gestureId))
-        return true
     }
 
     private fun canSendTo(address: String): Boolean = getActiveGesture().let {

@@ -33,6 +33,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTI
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.localizedString
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
+import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.AutoLoginDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.switchers.SwitcherDelegateAdapterV3
 import dev.icerock.moko.resources.StringResource
 import io.mockk.Called
 import io.mockk.every
@@ -166,6 +168,9 @@ class V3SpecialSettingsWidgetsSourceTest {
         // DataFactory still supplies the same shared SwitchItem; only V3 renders the typed Android row.
         assertTrue(factory.mobileWidgets().single() is SwitchItem)
         assertEquals(mobile, mapper.toItems(mobile))
+        val row = mapper.toItems(mobile).single()
+        assertTrue(AutoLoginDelegateAdapterV3({}, {}) { false }.isForViewType(row))
+        assertFalse(SwitcherDelegateAdapterV3({}).isForViewType(row))
 
         // Subscribing to replay and invalidations only reads the existing composition.
         val observed = mutableListOf<V3SpecialSettingsWidgetsSnapshot>()

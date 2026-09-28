@@ -105,15 +105,14 @@ internal object BleDependencies {
         scope: CoroutineScope,
         preferences: SharedPreferences,
         controller: BLEController,
-        showToast: (String) -> Unit,
         executor: BleCommandExecutor,
     ) {
         check(commandExecutorRef?.get() === executor) { "Cannot bind telemetry outside the active BLE session" }
         telemetryRequest = controller::requestTelemetryDataV3
         val repository = V3TelemetryRepositoryImpl(preferences, controller::requestTelemetryDataV3, deviceIdentity(owner))
-        val coordinator = TelemetryCoordinator(scope, SendTelemetryUseCaseV3(repository), showToast)
+        val coordinator = TelemetryCoordinator(scope, SendTelemetryUseCaseV3(repository))
         controller.setOnConnectedListener {
-            if (UiState.isInterfaceV3Activated) coordinator.sendTelemetry(showResultToast = false)
+            if (UiState.isInterfaceV3Activated) coordinator.sendTelemetry()
         }
     }
 

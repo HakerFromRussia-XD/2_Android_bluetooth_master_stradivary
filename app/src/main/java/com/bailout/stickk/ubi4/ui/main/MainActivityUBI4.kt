@@ -218,7 +218,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
-        BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast, executor = this)
+        BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, executor = this)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()

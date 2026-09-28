@@ -420,7 +420,7 @@ class V3ArchitectureTest {
         assertTrue(factory.readText().contains("BleDependencies::requestV3TelemetryData"))
         val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
         val creation = activity.substringAfter("override fun onCreate(").substringBefore("override fun onNewIntent(")
-        assertTrue(creation.contains("BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, ::showToast, executor = this)"))
+        assertTrue(creation.contains("BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, executor = this)"))
         assertTrue(creation.indexOf("mBLEController = BLEController(") < creation.indexOf("BleDependencies.bindTelemetry("))
         assertTrue(creation.indexOf("BleDependencies.bindTelemetry(") < creation.indexOf("mBLEController.connectToSavedDeviceNow()"))
     }

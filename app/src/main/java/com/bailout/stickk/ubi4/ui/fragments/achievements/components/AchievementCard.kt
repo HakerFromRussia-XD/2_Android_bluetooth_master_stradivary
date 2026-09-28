@@ -1,9 +1,11 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +48,8 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
 import java.text.NumberFormat
 
+private val ProgressTextGap = 4.dp
+
 @Composable
 internal fun AchievementCard(
     achievement: AchievementUiModel,
@@ -55,119 +59,105 @@ internal fun AchievementCard(
     val title = stringResource(achievement.titleRes)
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         backgroundColor = AchievementsColors.Card,
         elevation = 3.dp
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
         ) {
-            Text(
-                text = title,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 14.dp, top = 10.dp, end = 44.dp),
-                color = AchievementsColors.White,
-                fontFamily = AchievementsFontFamily,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            IconButton(
-                onClick = onInfoClick,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(40.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_achievement_info),
-                    contentDescription = stringResource(
-                        R.string.achievement_show_description,
-                        title
-                    ),
-                    modifier = Modifier.size(24.dp),
-                    tint = AchievementsColors.White
+                Text(
+                    text = title,
+                    modifier = Modifier.weight(1f),
+                    color = AchievementsColors.White,
+                    fontFamily = AchievementsFontFamily,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
+                IconButton(onClick = onInfoClick, modifier = Modifier.size(40.dp)) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_achievement_info),
+                        contentDescription = stringResource(R.string.achievement_show_description, title),
+                        modifier = Modifier.size(24.dp),
+                        tint = AchievementsColors.White
+                    )
+                }
             }
 
-            androidx.compose.foundation.Image(
-                painter = painterResource(achievement.iconRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(88.dp)
-                    .achievementTierOutline(achievement.achievedTier)
-            )
-
+            Box(Modifier.fillMaxWidth()) {
+                AchievementArtwork(
+                    achievement = achievement,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                AchievementStars(
+                    tier = achievement.achievedTier,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+            // Stars overlay the artwork; the counter and progress bar keep their positions.
+            Spacer(Modifier.height(ProgressTextGap))
             AchievementStageProgress(
                 progress = achievement.progress,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
 }
 
-private fun Modifier.achievementTierOutline(tier: AchievementTier?): Modifier {
-    val achievedTier = tier ?: return this
-    val outlineColors = achievedTier.outlineColors()
-    val highlightColor = achievedTier.outlineHighlightColor()
-
-    return drawWithContent {
-        drawContent()
-
-        val strokeWidth = 4.dp.toPx()
-        val radius = (size.minDimension - strokeWidth) / 2f
-        drawCircle(
-            brush = Brush.sweepGradient(outlineColors),
-            radius = radius,
-            style = Stroke(width = strokeWidth)
-        )
-        drawCircle(
-            color = highlightColor.copy(alpha = 0.9f),
-            radius = radius - 1.5.dp.toPx(),
-            style = Stroke(width = 0.75.dp.toPx())
-        )
+@Composable
+private fun AchievementStars(tier: AchievementTier?, modifier: Modifier = Modifier) {
+    if (tier == null) return
+    val count = when (tier) {
+        null -> 0
+        AchievementTier.BRONZE -> 1
+        AchievementTier.SILVER -> 2
+        AchievementTier.GOLD -> 3
     }
-}
-
-private fun AchievementTier.outlineColors(): List<Color> = when (this) {
-    AchievementTier.BRONZE -> listOf(
-        Color(0xFFFFD19A),
-        Color(0xFF7A3E12),
-        Color(0xFFDC8A3D),
-        Color(0xFFA75C24),
-        Color(0xFFFFD19A)
-    )
-
-    AchievementTier.SILVER -> listOf(
-        Color(0xFFFFFFFF),
-        Color(0xFF8E8E8E),
-        Color(0xFFF5F5F5),
-        Color(0xFFB8B8B8),
-        Color(0xFFFFFFFF)
-    )
-
-    AchievementTier.GOLD -> listOf(
-        Color(0xFFFFF2A8),
-        Color(0xFFB57900),
-        Color(0xFFFFD700),
-        Color(0xFFD69A00),
-        Color(0xFFFFF2A8)
-    )
-}
-
-private fun AchievementTier.outlineHighlightColor(): Color = when (this) {
-    AchievementTier.BRONZE -> Color(0xFFFFE1BD)
-    AchievementTier.SILVER -> AchievementsColors.White
-    AchievementTier.GOLD -> Color(0xFFFFF6C7)
+    val resource = when (tier) {
+        AchievementTier.SILVER -> R.drawable.achievement_star_silver
+        AchievementTier.GOLD -> R.drawable.achievement_star_gold
+        else -> R.drawable.achievement_star_bronze
+    }
+    Row(
+        modifier = modifier
+            .drawBehind {
+                // Extend half a star beyond the actual star row on every side.
+                // Draw outside the layout bounds so stars and counters do not move.
+                val starSize = 18.dp.toPx()
+                val outset = starSize / 2f
+                val fadeWidth = size.width - 10.dp.toPx() + 2f * outset
+                val fadeHeight = starSize + 2f * outset
+                val fadeRadius = fadeWidth / 2f
+                scale(scaleX = 1f, scaleY = fadeHeight / fadeWidth) {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            0f to Color.Black,
+                            0.45f to Color.Black.copy(alpha = 0.75f),
+                            0.75f to Color.Black.copy(alpha = 0.33f),
+                            1f to Color.Transparent,
+                            center = center,
+                            radius = fadeRadius
+                        ),
+                        radius = fadeRadius
+                    )
+                }
+            }
+            .padding(horizontal = 5.dp, vertical = 3.dp)
+            .height(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(count) { AchievementStar(resource, Modifier.size(18.dp)) }
+    }
 }
 
 @Composable
@@ -194,7 +184,7 @@ private fun AchievementStageProgress(
             text = progressValueText,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 4.dp),
+                .padding(bottom = ProgressTextGap),
             color = AchievementsColors.White,
             fontFamily = AchievementsFontFamily,
             fontSize = 10.sp,
@@ -230,7 +220,7 @@ private fun AchievementStageProgress(
     showBackground = true,
     backgroundColor = 0xFF2A2A2A,
     widthDp = 190,
-    heightDp = 190
+    heightDp = 250
 )
 @Composable
 private fun AchievementCardPreview() {

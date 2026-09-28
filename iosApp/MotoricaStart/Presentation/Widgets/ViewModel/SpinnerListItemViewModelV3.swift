@@ -38,10 +38,12 @@ extension SpinnerListItemViewModelV3 {
 
         if let spinnerS = widget.widget?.value as? SpinnerParameterWidgetSStruct {
             self.items = spinnerS.dataSpinnerParameterWidgetStruct.spinnerItems.map { "\($0)" }
-            self.initialSelectedIndex = Int(spinnerS.dataSpinnerParameterWidgetStruct.selectedIndex)
+            self.initialSelectedIndex = binding.map { UserFirmwareRoleAccess.isRoleSelector(parameterID: $0.parameterID, dataCode: $0.dataCode) } == true
+                ? UserFirmwareRoleAccess.selectedRole : Int(spinnerS.dataSpinnerParameterWidgetStruct.selectedIndex)
         } else if let spinnerE = widget.widget?.value as? SpinnerParameterWidgetEStruct {
             self.items = spinnerE.dataSpinnerParameterWidgetStruct.spinnerItems.map { "\($0)" }
-            self.initialSelectedIndex = Int(spinnerE.dataSpinnerParameterWidgetStruct.selectedIndex)
+            self.initialSelectedIndex = binding.map { UserFirmwareRoleAccess.isRoleSelector(parameterID: $0.parameterID, dataCode: $0.dataCode) } == true
+                ? UserFirmwareRoleAccess.selectedRole : Int(spinnerE.dataSpinnerParameterWidgetStruct.selectedIndex)
         } else {
             self.items = []
             self.initialSelectedIndex = 0
@@ -59,6 +61,9 @@ extension SpinnerListItemViewModelV3 {
 
     func sendSelectedIndex(_ index: Int) {
         guard let binding else { return }
+        if UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) {
+            UserDefaults.standard.set(index, forKey: UserFirmwareRoleAccess.key)
+        }
         if isHandSideSelector {
             NSLog("[V3HandSide] source=widget selectedIndex=%d address=%d parameter=0x%02X dataCode=0x%02X",
                   index,
@@ -90,11 +95,13 @@ extension SpinnerListItemViewModelV3 {
     }
 
     func selectedIndex(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
-        V3SnapshotParser.intField(from: snapshot.serializedValue, field: "spinnerValue")
+        if binding.map { UserFirmwareRoleAccess.isRoleSelector(parameterID: $0.parameterID, dataCode: $0.dataCode) } == true { return UserFirmwareRoleAccess.selectedRole }
+        return V3SnapshotParser.intField(from: snapshot.serializedValue, field: "spinnerValue")
     }
 
     func currentSelectedIndex() -> Int? {
         guard let binding else { return nil }
+        if UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) { return UserFirmwareRoleAccess.selectedRole }
         let value = Int(WidgetStateBridgeV3.shared.getSpinnerValueOrDefault(
             addressDevice: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),

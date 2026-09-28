@@ -694,6 +694,9 @@
     <string name="gesture_usage_total">Total:\n%1$d</string>
     <string name="no_user_data_on_server">No user data on server</string>
     <string name="select_firmware_file">Select firmware file</string>
+    <string name="firmware_source_catalog">From catalog</string>
+    <string name="firmware_source_zip">Choose ZIP file</string>
+    <string name="gui_firmware_zip_invalid">Cannot open this file. Select a valid GUI main firmware ZIP.</string>
     <string name="update_firmware">Update</string>
     <string name="firmware_catalog_unavailable">Firmware data is unavailable</string>
     <string name="firmware_not_found_for_board">No firmware found for this board</string>

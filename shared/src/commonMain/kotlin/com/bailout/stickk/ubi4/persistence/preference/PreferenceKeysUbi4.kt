@@ -676,6 +676,7 @@ object PreferenceKeysUbi4 {
         }
     }
     enum class CheckNewFwStatus(val code: Int) {
+        BOARD_INCOMPATIBLE (0),
         NEW_FW_ACCEPT      (1),
         READY_TO_UPDATE    (2),
         PART_WRITTEN       (3),

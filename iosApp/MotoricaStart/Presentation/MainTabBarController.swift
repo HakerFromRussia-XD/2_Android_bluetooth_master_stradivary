@@ -28,6 +28,8 @@ final class MainTabBarController: UITabBarController {
         static let serviceSettings = 4
     }
 
+    private var userFirmwareUpdates: UserFirmwareUpdatePresenter?
+
     private let appDIContainer: AppDIContainer
     private var didUpdateTabBarFonts = false
     private var didDisableTabBarContinuousInteractionGestures = false
@@ -152,6 +154,8 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        if userFirmwareUpdates == nil { userFirmwareUpdates = UserFirmwareUpdatePresenter(owner: self) }
+        userFirmwareUpdates?.foreground()
         setNeedsStatusBarAppearanceUpdate()
         scheduleTabBarColorRefreshBurst()
         dumpTabBarIfNeeded()

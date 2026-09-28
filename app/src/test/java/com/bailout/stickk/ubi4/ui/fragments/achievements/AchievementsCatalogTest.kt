@@ -18,23 +18,24 @@ class AchievementsCatalogTest {
         assertEquals(items.size, items.map(AchievementUiModel::id).distinct().size)
         assertEquals(
             listOf(
-                R.drawable.ic_achievement_bionic,
-                R.drawable.ic_achievement_cyborg,
-                R.drawable.ic_achievement_streak,
-                R.drawable.ic_achievement_long_haul,
-                R.drawable.ic_achievement_scientist,
-                R.drawable.ic_achievement_daily_challenge,
-                R.drawable.ic_achievement_precision,
-                R.drawable.ic_achievement_power,
-                R.drawable.ic_achievement_get_a_grip,
-                R.drawable.ic_achievement_alter_ego,
-                R.drawable.ic_achievement_anniversary,
-                R.drawable.ic_achievement_personalisation,
-                R.drawable.ic_achievement_always_connected,
-                R.drawable.ic_achievement_champion
+                R.drawable.achievement_bionic,
+                R.drawable.achievement_cyborg,
+                R.drawable.achievement_streak,
+                R.drawable.achievement_long_haul,
+                R.drawable.achievement_scientist,
+                R.drawable.achievement_daily_challenge,
+                R.drawable.achievement_precision,
+                R.drawable.achievement_power,
+                R.drawable.achievement_get_a_grip,
+                R.drawable.achievement_alter_ego,
+                R.drawable.achievement_anniversary,
+                R.drawable.achievement_personalisation,
+                R.drawable.achievement_phone,
+                R.drawable.achievement_champion
             ),
             items.map(AchievementUiModel::iconRes)
         )
+        assertTrue(items.all { (it.artworkBounds?.width ?: 0) > 0 && (it.artworkBounds?.height ?: 0) > 0 })
         assertTrue(items.all { it.achievedTier == null })
         assertTrue(items.all { it.progress.nextTarget > 0L })
         assertTrue(

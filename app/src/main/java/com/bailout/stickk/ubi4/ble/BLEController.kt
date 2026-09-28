@@ -61,6 +61,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModu
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.mainOrNull
@@ -68,6 +69,11 @@ import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -75,6 +81,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.internal.notifyAll
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 
@@ -218,6 +225,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             "reconnect_flag=$reconnectThreadFlag dfu_active=$dfuReconnectActive intentional=$mDisconnected"
                     )
                     isTransferFlowActive = false
+                    BLEState.publishDisconnect()
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
@@ -271,7 +279,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        val serialSupportsWriteWithoutResponse =
+                        val supportsBulkWrite =
                             mBluetoothLeService?.supportsWriteWithoutResponse(SERIALPORTCHAR_UUID) == true
                         if (firmwareUpdateSessionActive && !dfuReconnectActive) {
                             main.lifecycleScope.launch {
@@ -282,11 +290,21 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                         "generation=$gattServicesGeneration"
                                 )
                             }
-                        } else if (!dfuReconnectActive) {
-                            // Normal V3 firmware also supports WRITE_NO_RESPONSE.
-                            // Transport capabilities do not identify bootloader mode;
-                            // active firmware sessions/reconnects are handled above or below.
+                        } else if (!dfuReconnectActive && (!supportsBulkWrite || UiState.isInterfaceV3Activated)) {
                             main.lifecycleScope.launch {
+                            // FAM main also exposes WWR to bridge GUI DFU. Read its actual mode.
+                            if (UiState.isInterfaceV3Activated && supportsBulkWrite) {
+                                val programType = readConnectedProgramTypeV3()
+                                if (dfuReconnectActive || firmwareUpdateSessionActive) return@launch
+                                Log.i(DFU_TRACE_TAG, "controller startup program_type=$programType bulk_write=true")
+                                if (programType != 1) {
+                                    UiState.startupInProgress.value = false
+                                    if (programType !in setOf(2, 3)) {
+                                        main.showToast("Не удалось определить режим устройства. Подключитесь повторно")
+                                    }
+                                    return@launch
+                                }
+                            }
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
@@ -310,7 +328,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 DFU_TRACE_TAG,
                                 "controller normal_init suppressed dfu_active=$dfuReconnectActive " +
                                     "firmware_session=$firmwareUpdateSessionActive " +
-                                    "serial_wwr=$serialSupportsWriteWithoutResponse"
+                                    "bulk_write=$supportsBulkWrite"
                             )
                         }
                     }
@@ -392,7 +410,23 @@ class BLEController(private val bleManager: BleManagerKmm) {
             baseDelayMs = 100L
         )
         Log.i(DFU_TRACE_TAG, "firmware_session serial_notify_ready=$ready generation=$gattServicesGeneration")
+        if (ready) com.bailout.stickk.ubi4.data.state.BLEState.publishReady()
         return ready
+    }
+
+    private suspend fun readConnectedProgramTypeV3(): Int? = coroutineScope {
+        if (!prepareFirmwareSessionNotifications()) return@coroutineScope null
+        val response = async(start = CoroutineStart.UNDISPATCHED) {
+            withTimeoutOrNull(1500L) {
+                FirmwareInfoState.addressedFirmwareResponseFlow.first { (address, bytes) ->
+                    address == 0 && bytes.size >= 2 && bytes[0].toInt() == 1
+                }.second[1].toInt() and 0xFF
+            }
+        }
+        bleManager.sendBytesKmm(
+            BLECommandsV3.requestRunProgramTypeFw(0), SERIALPORTCHAR_UUID, WRITE
+        ) {}
+        response.await()
     }
     private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
@@ -884,6 +918,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
+            BLEState.publishReady()
+            if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) return
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
@@ -1017,6 +1053,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }
+    internal fun resumeAfterUserFirmwareUpdate() {
+        firmwareUpdateSessionActive = false
+        main.lifecycleScope.launch { initRequestsV3() }
+    }
     internal fun setFirmwareUpdateSessionActive(state: Boolean) {
         firmwareUpdateSessionActive = state
         Log.i(DFU_TRACE_TAG, "firmware_session active=$state generation=$gattServicesGeneration")
@@ -1361,6 +1401,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 baseDelayMs = 20L
             )
         ) { "Android DFU SERIALPORT notification subscription failed" }
+        BLEState.publishReady()
         Log.i("DFU_METRIC", "serial_notifications_ready=true")
         Log.i(
             DFU_TRACE_TAG,

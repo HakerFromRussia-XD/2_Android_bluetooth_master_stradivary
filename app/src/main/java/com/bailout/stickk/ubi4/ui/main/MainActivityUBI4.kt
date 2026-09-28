@@ -138,9 +138,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     internal var locate = ""
     private var ubi4DeviceName: String? = null
-    val mDeviceName: String?
+    var mDeviceName: String?
         get() = if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.deviceName else ubi4DeviceName
     var mDeviceAddress: String? = null
+    var userFirmwareUpdates: com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController? = null
+        private set
     var mDeviceType: String? = null
     var driverVersionS: String? = null
 
@@ -219,6 +221,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
         BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, executor = this)
+        userFirmwareUpdates = com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController(this)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -365,6 +368,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+        userFirmwareUpdates?.foreground()
+        appCloseUploadRequested = false
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
         else {
             ubi4AppCloseUploadRequested = false
@@ -412,6 +417,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager?.onDestroy()
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
+        userFirmwareUpdates?.close()
+        userFirmwareUpdates = null
         mBLEController.cleanup()
         BleDependencies.unbindCommandExecutor(this)
         clearMainIfSame(this)
@@ -482,13 +489,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun showAchievementsScreen() {
-        hideTopStatusBar()
+        if (activeFragment is AchievementsFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
         hideBottomNavigationAnimated()
 
         launchFragmentWithStack(
             fragment = AchievementsFragment(),
             withSlideAnimation = true,
-            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
+            preserveCurrentFragmentView =
+                activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
         )
     }
 

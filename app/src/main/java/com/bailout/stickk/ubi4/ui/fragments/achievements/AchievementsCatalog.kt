@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements
 
 import com.bailout.stickk.R
+import androidx.compose.ui.unit.IntRect
 import com.bailout.stickk.ubi4.achievements.AchievementDefinitions
 import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.achievements.AchievementProgressCalculator
@@ -10,6 +11,8 @@ object AchievementsCatalog {
     val items: List<AchievementUiModel> = listOf(
         achievement(
             id = AchievementId.BIONIC,
+            iconRes = R.drawable.achievement_bionic,
+            artworkBounds = IntRect(0, 30, 256, 226),
             titleRes = R.string.achievement_bionic_title,
             bronzeRes = R.string.achievement_bionic_bronze,
             silverRes = R.string.achievement_bionic_silver,
@@ -17,6 +20,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.CYBORG,
+            iconRes = R.drawable.achievement_cyborg,
+            artworkBounds = IntRect(1, 0, 256, 256),
             titleRes = R.string.achievement_cyborg_title,
             bronzeRes = R.string.achievement_cyborg_bronze,
             silverRes = R.string.achievement_cyborg_silver,
@@ -24,6 +29,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.STREAK,
+            iconRes = R.drawable.achievement_streak,
+            artworkBounds = IntRect(0, 0, 256, 256),
             titleRes = R.string.achievement_streak_title,
             bronzeRes = R.string.achievement_streak_bronze,
             silverRes = R.string.achievement_streak_silver,
@@ -31,6 +38,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.LONG_HAUL,
+            iconRes = R.drawable.achievement_long_haul,
+            artworkBounds = IntRect(0, 49, 256, 256),
             titleRes = R.string.achievement_long_haul_title,
             bronzeRes = R.string.achievement_long_haul_bronze,
             silverRes = R.string.achievement_long_haul_silver,
@@ -38,6 +47,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.SCIENTIST,
+            iconRes = R.drawable.achievement_scientist,
+            artworkBounds = IntRect(0, 7, 256, 256),
             titleRes = R.string.achievement_scientist_title,
             bronzeRes = R.string.achievement_scientist_bronze,
             silverRes = R.string.achievement_scientist_silver,
@@ -45,6 +56,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.DAILY_CHALLENGE,
+            iconRes = R.drawable.achievement_daily_challenge,
+            artworkBounds = IntRect(0, 17, 256, 241),
             titleRes = R.string.achievement_daily_challenge_title,
             bronzeRes = R.string.achievement_daily_challenge_bronze,
             silverRes = R.string.achievement_daily_challenge_silver,
@@ -52,6 +65,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.PRECISION,
+            iconRes = R.drawable.achievement_precision,
+            artworkBounds = IntRect(0, 18, 253, 236),
             titleRes = R.string.achievement_precision_title,
             bronzeRes = R.string.achievement_precision_bronze,
             silverRes = R.string.achievement_precision_silver,
@@ -59,6 +74,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.POWER,
+            iconRes = R.drawable.achievement_power,
+            artworkBounds = IntRect(0, 0, 256, 256),
             titleRes = R.string.achievement_power_title,
             bronzeRes = R.string.achievement_power_bronze,
             silverRes = R.string.achievement_power_silver,
@@ -66,6 +83,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.GET_A_GRIP,
+            iconRes = R.drawable.achievement_get_a_grip,
+            artworkBounds = IntRect(0, 0, 256, 256),
             titleRes = R.string.achievement_get_a_grip_title,
             bronzeRes = R.string.achievement_get_a_grip_bronze,
             silverRes = R.string.achievement_get_a_grip_silver,
@@ -73,6 +92,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.ALTER_EGO,
+            iconRes = R.drawable.achievement_alter_ego,
+            artworkBounds = IntRect(30, 3, 245, 254),
             titleRes = R.string.achievement_alter_ego_title,
             bronzeRes = R.string.achievement_alter_ego_bronze,
             silverRes = R.string.achievement_alter_ego_silver,
@@ -80,6 +101,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.ANNIVERSARY,
+            iconRes = R.drawable.achievement_anniversary,
+            artworkBounds = IntRect(0, 0, 256, 256),
             titleRes = R.string.achievement_anniversary_title,
             bronzeRes = R.string.achievement_anniversary_bronze,
             silverRes = R.string.achievement_anniversary_silver,
@@ -94,6 +117,8 @@ object AchievementsCatalog {
 //        ),
         achievement(
             id = AchievementId.PERSONALISATION,
+            iconRes = R.drawable.achievement_personalisation,
+            artworkBounds = IntRect(1, 34, 255, 224),
             titleRes = R.string.achievement_personalisation_title,
             bronzeRes = R.string.achievement_personalisation_bronze,
             silverRes = R.string.achievement_personalisation_silver,
@@ -101,6 +126,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.ALWAYS_CONNECTED,
+            iconRes = R.drawable.achievement_phone,
+            artworkBounds = IntRect(0, 0, 256, 256),
             titleRes = R.string.achievement_always_connected_title,
             bronzeRes = R.string.achievement_always_connected_bronze,
             silverRes = R.string.achievement_always_connected_silver,
@@ -108,6 +135,8 @@ object AchievementsCatalog {
         ),
         achievement(
             id = AchievementId.CHAMPION,
+            iconRes = R.drawable.achievement_champion,
+            artworkBounds = IntRect(1, 0, 255, 251),
             titleRes = R.string.achievement_champion_title,
             bronzeRes = R.string.achievement_champion_bronze,
             silverRes = R.string.achievement_champion_silver,
@@ -118,6 +147,8 @@ object AchievementsCatalog {
     private fun achievement(
         id: AchievementId,
         titleRes: Int,
+        iconRes: Int,
+        artworkBounds: IntRect,
         bronzeRes: Int,
         silverRes: Int,
         goldRes: Int
@@ -129,28 +160,12 @@ object AchievementsCatalog {
             AchievementStageUiModel(AchievementTier.SILVER, silverRes),
             AchievementStageUiModel(AchievementTier.GOLD, goldRes)
         ),
-        iconRes = iconRes(id),
+        iconRes = iconRes,
+        artworkBounds = artworkBounds,
         progress = AchievementProgressCalculator.calculate(
             currentValue = 0L,
             definition = AchievementDefinitions[id]
         )
     )
 
-    private fun iconRes(id: AchievementId): Int = when (id) {
-        AchievementId.BIONIC -> R.drawable.ic_achievement_bionic
-        AchievementId.CYBORG -> R.drawable.ic_achievement_cyborg
-        AchievementId.STREAK -> R.drawable.ic_achievement_streak
-        AchievementId.LONG_HAUL -> R.drawable.ic_achievement_long_haul
-        AchievementId.SCIENTIST -> R.drawable.ic_achievement_scientist
-        AchievementId.DAILY_CHALLENGE -> R.drawable.ic_achievement_daily_challenge
-        AchievementId.PRECISION -> R.drawable.ic_achievement_precision
-        AchievementId.POWER -> R.drawable.ic_achievement_power
-        AchievementId.GET_A_GRIP -> R.drawable.ic_achievement_get_a_grip
-        AchievementId.ALTER_EGO -> R.drawable.ic_achievement_alter_ego
-        AchievementId.ANNIVERSARY -> R.drawable.ic_achievement_anniversary
-        AchievementId.PERSONALISATION -> R.drawable.ic_achievement_personalisation
-        AchievementId.ALWAYS_CONNECTED -> R.drawable.ic_achievement_always_connected
-        AchievementId.CHAMPION -> R.drawable.ic_achievement_champion
-        AchievementId.SQUARE_EYES -> R.drawable.trophy
-    }
 }

@@ -35,7 +35,6 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetC
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.synchronized
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
@@ -227,6 +226,7 @@ actual class BleManagerKmm actual constructor() {
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             reconnectTargetUuid = didConnectPeripheral.identifier.UUIDString()
+            com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress = reconnectTargetUuid!!
             pendingManualConnectUuid = null
             didConnectPeripheral.delegate = this
             didNotifyCharacteristicsReady = false
@@ -703,6 +703,8 @@ actual class BleManagerKmm actual constructor() {
                     }
                 }
             }
+        } else if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) {
+            connectionScope.launch { enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID) }
         } else if (UiState.isInterfaceV3Activated) {
             launchV3SynchronizationPipeline()
         }
@@ -785,6 +787,7 @@ actual class BleManagerKmm actual constructor() {
                 continue
             }
 
+            if (com.bailout.stickk.ubi4.firmware.user.UserFirmwareActivity.isActive) return
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 platformLog("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")

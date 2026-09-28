@@ -162,8 +162,13 @@ class AccountFragmentMainV3 : Fragment() {
                 if (!canRenderBoards) return@collect
                 val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
                 if (idx != -1) {
-                    bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
-                    bootloaderAdapter.notifyItemChanged(idx)
+                    val updated = bootloaderBoardsList.map { board ->
+                        if (board.deviceAddress == addr) board.copy(isInBootLoader = runType.isBootloader) else board.copy()
+                    }
+                    bootloaderBoardsList.clear()
+                    bootloaderBoardsList.addAll(updated)
+                    cachedBootloaderBoards = updated
+                    bootloaderAdapter.submitBoards(updated)
                 }
             }
         }
@@ -209,7 +214,7 @@ class AccountFragmentMainV3 : Fragment() {
         accountAdapter = AccountMainAdapterUBI4(
             onAccountClickListener = accountClickListener,
             showStatisticsItem = true,
-            showAchievementsItem = false
+            showAchievementsItem = true
         )
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,
@@ -314,7 +319,7 @@ class AccountFragmentMainV3 : Fragment() {
                 deviceAddress = sub.deviceAddress,
                 canUpdate = true,
                 version = fw,
-                isInBootLoader = false,
+                isInBootLoader = bootloaderBoardsList.firstOrNull { it.deviceAddress == sub.deviceAddress }?.isInBootLoader ?: false,
                 isUpdateAvailable = isUpdateAvailable
             )
         }.distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }

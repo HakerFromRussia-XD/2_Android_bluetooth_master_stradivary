@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ui.fragments.achievements
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.IntRect
 import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.achievements.AchievementProgress
 import com.bailout.stickk.ubi4.achievements.AchievementTier
@@ -19,7 +20,8 @@ data class AchievementUiModel(
     @StringRes val titleRes: Int,
     val stages: List<AchievementStageUiModel>,
     @DrawableRes val iconRes: Int,
-    val progress: AchievementProgress = AchievementProgress()
+    val progress: AchievementProgress = AchievementProgress(),
+    val artworkBounds: IntRect? = null
 ) {
     val achievedTier: AchievementTier?
         get() = progress.achievedTier

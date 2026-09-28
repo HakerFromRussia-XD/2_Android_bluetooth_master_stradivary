@@ -84,6 +84,9 @@ object BLECommandsV3 {
     }
 
     fun requestRunProgramTypeFw(deviceAddress: Int): ByteArray {
+        com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runTypeReplyRouter.requested(
+            deviceAddress, com.bailout.stickk.ubi4.utility.currentTimeMillis()
+        )
         return sendCommand(
             WRITE_FW_COMMAND.number.toInt(),
             FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number.toInt(),

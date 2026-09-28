@@ -1,0 +1,10 @@
+gradle.projectsEvaluated {
+    def feature = gradle.rootProject.project(':shared')
+    def kotlin = feature.extensions.getByName('kotlin')
+    kotlin.sourceSets.getByName('commonTest').kotlin.setSrcDirs([
+        feature.file('src/commonTest/kotlin/com/bailout/stickk/ubi4/firmware/user')
+    ])
+    kotlin.sourceSets.getByName('androidUnitTest').kotlin.setSrcDirs([
+        feature.file('src/androidUnitTest/kotlin/com/bailout/stickk/ubi4/firmware/user')
+    ])
+}

@@ -41,6 +41,12 @@ actual object PlatformClientProvider {
 
     private val sharedFirmwareClient: HttpClient by lazy {
         HttpClient(OkHttp) {
+            engine {
+                // Yandex Disk is reachable from the device over IPv4/HTTP 1.1.
+                // The stock engine can attempt an unavailable route first and consume
+                // the whole connection budget before it reaches that route.
+                preconfigured = okHttpClient
+            }
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true; isLenient = true })
             }
@@ -57,6 +63,6 @@ actual object PlatformClientProvider {
     actual val firmwareClient: HttpClient get() = sharedFirmwareClient
 
     private const val FIRMWARE_CONNECT_TIMEOUT_MS = 15_000L
-    private const val FIRMWARE_REQUEST_TIMEOUT_MS = 60_000L
-    private const val FIRMWARE_SOCKET_TIMEOUT_MS = 60_000L
+    private const val FIRMWARE_REQUEST_TIMEOUT_MS = 30_000L
+    private const val FIRMWARE_SOCKET_TIMEOUT_MS = 30_000L
 }

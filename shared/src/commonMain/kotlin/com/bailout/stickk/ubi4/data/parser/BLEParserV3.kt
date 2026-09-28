@@ -444,6 +444,7 @@ class BLEParserV3(
         val subcommand = payload.u8(0)
         val status = payload.getOrZero(1)
         val commandStatus = subcommand to status
+        FirmwareInfoState.addressedFirmwareResponseFlow.tryEmit(packet.address to payload.toByteArray())
 
         platformLog(
             "FW_FLOW_V3",
@@ -454,8 +455,11 @@ class BLEParserV3(
             PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number.toInt() -> {
                 val runType = PreferenceKeysUbi4.RunProgramType.values()
                     .firstOrNull { it.code == status }
-                    ?: PreferenceKeysUbi4.RunProgramType.MAIN_APP
-                FirmwareInfoState.runProgramTypeFlow.tryEmit(packet.address to runType)
+                    ?: return
+                val target = FirmwareInfoState.runTypeReplyRouter.resolve(
+                    packet.address, com.bailout.stickk.ubi4.utility.currentTimeMillis()
+                ) ?: return
+                FirmwareInfoState.runProgramTypeFlow.tryEmit(target to runType)
             }
 
             PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number.toInt() -> {

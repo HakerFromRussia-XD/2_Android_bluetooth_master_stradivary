@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.ubi4.data.state.AchievementsState
-import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -37,7 +36,6 @@ class AchievementsFragment : Fragment() {
                 }
             }
             AchievementsScreen(
-                onBackClick = { navigator().goingBackUbi4() },
                 achievements = achievements,
                 pendingCelebration = pendingCelebration,
                 onCelebrationAcknowledged = AchievementsState::markCelebrated
@@ -51,18 +49,10 @@ class AchievementsFragment : Fragment() {
             AchievementsState.refreshAnniversaryProgress(
                 loadText(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS)
             )
-            hideTopStatusBar()
             if (UiState.isInterfaceV3Activated) {
                 getBLEController()?.requestTelemetryDataV3()
             }
         }
     }
 
-    override fun onDestroyView() {
-        (activity as? MainActivityUBI4)?.apply {
-            showTopStatusBar()
-            setStatusBarBackMode(enabled = true)
-        }
-        super.onDestroyView()
-    }
 }

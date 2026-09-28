@@ -44,6 +44,7 @@ import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress

@@ -138,7 +138,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     internal var locate = ""
     private var ubi4DeviceName: String? = null
-    var mDeviceName: String?
+    var mDeviceName: String? = null
         get() = if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.deviceName else ubi4DeviceName
     var mDeviceAddress: String? = null
     var userFirmwareUpdates: com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController? = null
@@ -365,11 +365,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //    }
 
 
+
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
         userFirmwareUpdates?.foreground()
-        appCloseUploadRequested = false
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
         else {
             ubi4AppCloseUploadRequested = false
@@ -426,6 +426,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun enqueueAppCloseUploadIfNeeded() {
+
         if (UiState.isInterfaceV3Activated) {
             v3MainViewModel.onAction(V3MainAction.ViewStopped(openingScanAfterDisconnect,
                 this::mBLEController.isInitialized && mBLEController.getStatusConnected(), locate))

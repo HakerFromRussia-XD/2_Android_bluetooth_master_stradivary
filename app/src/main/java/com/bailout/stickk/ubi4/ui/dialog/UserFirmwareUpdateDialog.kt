@@ -189,7 +189,7 @@ class UserFirmwareUpdateDialog : DialogFragment() {
     private fun View.findActionLabel(title: TextView?, message: TextView?): TextView? {
         if (this is TextView && this !== title && this !== message) return this
         if (this !is ViewGroup) return null
-        for (index in 0 until childCount) childAt(index).findActionLabel(title, message)?.let { return it }
+        for (index in 0 until childCount) getChildAt(index).findActionLabel(title, message)?.let { return it }
         return null
     }
 }

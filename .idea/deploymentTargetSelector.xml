@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-18T22:20:56.042655Z">
+        <DropdownSelection timestamp="2026-09-16T13:58:22.055643Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/motoricallc/.android/avd/AtomGo_API34.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/tmp/motorica-achievements/avd-stars" />
             </handle>
           </Target>
         </DropdownSelection>

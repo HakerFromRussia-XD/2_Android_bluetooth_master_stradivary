@@ -44,13 +44,13 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         }
         scope.launch {
             FirmwareInfoState.boardListUpdatedFlow.collect {
-                if (coordinator?.state?.value?.phase == "waiting") changed.trySend(Unit)
+                if (coordinator?.state?.value?.phase == "verifying") changed.trySend(Unit)
                 if (operation?.isActive != true && coordinator?.state?.value?.blocksInteraction != true) checkIfNeeded()
             }
         }
         scope.launch {
             FirmwareInfoState.runProgramTypeFlow.collect {
-                if (coordinator?.state?.value?.phase == "waiting") changed.trySend(Unit)
+                if (coordinator?.state?.value?.phase == "verifying") changed.trySend(Unit)
             }
         }
     }
@@ -85,6 +85,10 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
     fun acknowledge() {
         if (operation?.isActive == true) return
         operation = scope.launch { coordinator?.acknowledge() }
+    }
+
+    fun postpone() {
+        coordinator?.postpone()
     }
 
     fun close() { scope.cancel(); UserFirmwareActivity.isActive = false }
@@ -172,9 +176,14 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
             // V3 updaters already inspect the mode and skip the jump when in a bootloader.
             run {
                 val updater = FirmwareUpdateCoordinator(
-                    Ubi4FirmwareUpdater(PlatformFirmwareCommandSender),
-                    V3FirmwareUpdater(PlatformFirmwareCommandSender, PlatformFirmwareBulkTransport),
-                    LegacyV3FirmwareUpdater(PlatformFirmwareCommandSender)
+                    Ubi4FirmwareUpdater(PlatformFirmwareCommandSender, UserFirmwareUpdateLogger),
+                    V3FirmwareUpdater(
+                        PlatformFirmwareCommandSender,
+                        PlatformFirmwareBulkTransport,
+                        UserFirmwareUpdateLogger
+                    ),
+                    LegacyV3FirmwareUpdater(PlatformFirmwareCommandSender, UserFirmwareUpdateLogger),
+                    UserFirmwareUpdateLogger
                 )
                 val result = updater.runFirmwareUpdate(FirmwareUpdateProtocol.V3, target.module.address,
                     archive.packageFor(target.module.file)) { offset, total -> progress(if (total > 0) (offset * 100 / total).coerceIn(0, 100) else 0) }
@@ -187,4 +196,12 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         override suspend fun writeJournal(text: String) = writeFirmwareJournal(journalPath, text)
         override suspend fun awaitChange() { changed.receive() }
     }
+}
+
+private object UserFirmwareUpdateLogger : FirmwareUpdateLogger {
+    override fun debug(tag: String, message: String) = platformLog("USER_DFU/$tag", message)
+    override fun info(tag: String, message: String) = platformLog("USER_DFU/$tag", message)
+    override fun warn(tag: String, message: String) = platformLog("USER_DFU/$tag", "WARN $message")
+    override fun error(tag: String, message: String, throwable: Throwable?) =
+        platformLog("USER_DFU/$tag", "ERROR $message${throwable?.let { ": ${it.message}" }.orEmpty()}")
 }

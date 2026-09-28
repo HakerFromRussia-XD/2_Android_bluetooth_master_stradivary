@@ -876,6 +876,7 @@
     <string name="user_firmware_title">Обновление ПО</string>
     <string name="user_firmware_offer">Для электроники вашего протеза есть более стабильная версия программного обеспечения.</string>
     <string name="user_firmware_install">Установить обновление</string>
+    <string name="user_firmware_remind_later">Напомнить позже</string>
     <string name="user_firmware_complete_title">Обновление завершено</string>
     <string name="user_firmware_complete">Поздравляем! Вы используете последнюю версию программного обеспечения.</string>
     <string name="user_firmware_preparing">Подготовка прошивок…</string>

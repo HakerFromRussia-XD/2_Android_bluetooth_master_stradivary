@@ -876,6 +876,7 @@
     <string name="user_firmware_title">Software update</string>
     <string name="user_firmware_offer">A more stable software version is available for your prosthesis electronics.</string>
     <string name="user_firmware_install">Install update</string>
+    <string name="user_firmware_remind_later">Remind me later</string>
     <string name="user_firmware_complete_title">Update complete</string>
     <string name="user_firmware_complete">Congratulations! You are using the latest software version.</string>
     <string name="user_firmware_preparing">Preparing firmware…</string>

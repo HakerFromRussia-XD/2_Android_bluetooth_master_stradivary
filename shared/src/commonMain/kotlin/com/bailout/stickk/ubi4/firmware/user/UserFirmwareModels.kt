@@ -114,7 +114,8 @@ data class UserFirmwareJournal(
     val deviceId: String,
     val targets: List<UserFirmwareTarget>,
     val completed: Set<Int> = emptySet(),
-    val attempted: Set<Int> = emptySet()
+    val attempted: Set<Int> = emptySet(),
+    val formatVersion: Int = 1
 )
 
 object UserFirmwarePolicy {
@@ -139,7 +140,7 @@ data class UserFirmwareUiState(
     val progress: Int = 0,
     val detail: String = ""
 ) {
-    val blocksInteraction: Boolean get() = phase in setOf("offered", "preparing", "updating", "verifying", "waiting", "complete")
+    val blocksInteraction: Boolean get() = phase in setOf("offered", "preparing", "updating", "verifying", "complete")
 }
 
 object UserFirmwareActivity { var isActive: Boolean = false

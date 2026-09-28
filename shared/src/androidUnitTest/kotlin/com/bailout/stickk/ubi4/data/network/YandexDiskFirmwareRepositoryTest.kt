@@ -10,6 +10,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.errors.IOException
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -20,6 +21,39 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class YandexDiskFirmwareRepositoryTest {
+
+    @Test
+    fun `public file retries with a freshly resolved download URL`() = runBlocking {
+        var linkRequests = 0
+        val client = mockClient { request ->
+            when (request.url.encodedPath) {
+                "/v1/disk/public/resources/download" -> {
+                    linkRequests += 1
+                    respond(
+                        content = "{\"href\":\"https://download.yandex.test/$linkRequests.zip\"}",
+                        status = HttpStatusCode.OK,
+                        headers = jsonHeaders
+                    )
+                }
+
+                "/1.zip" -> throw IOException("first CDN endpoint timed out")
+                "/2.zip" -> respond(content = ByteReadChannel(byteArrayOf(2, 4, 6)))
+                else -> error("Unexpected URL: ${request.url}")
+            }
+        }
+        try {
+            val bytes = YandexDiskFirmwareRepository(
+                client = client,
+                publicUrl = "https://disk.yandex.test/public",
+                apiBaseUrl = "https://cloud-api.yandex.test/"
+            ).readPublicFile("FAM/current.zip")
+
+            assertContentEquals(byteArrayOf(2, 4, 6), bytes)
+            assertEquals(2, linkRequests)
+        } finally {
+            client.close()
+        }
+    }
 
     @Test
     fun `catalog loads zip files from every known board folder`() = runBlocking {

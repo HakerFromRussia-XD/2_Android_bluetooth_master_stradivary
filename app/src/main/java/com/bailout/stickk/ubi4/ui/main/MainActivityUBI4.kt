@@ -70,6 +70,10 @@ import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
+import com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateDialogHost
+import com.bailout.stickk.ubi4.versions.v3.di.V3UserFirmwareViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareViewModel
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.BleLogFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -141,8 +145,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     var mDeviceName: String? = null
         get() = if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.deviceName else ubi4DeviceName
     var mDeviceAddress: String? = null
-    var userFirmwareUpdates: com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController? = null
-        private set
+    private var userFirmwareDialogHost: UserFirmwareUpdateDialogHost? = null
+    private val v3UserFirmwareViewModel by lazy {
+        ViewModelProvider(this, V3UserFirmwareViewModelFactory(this))[V3UserFirmwareViewModel::class.java]
+    }
     var mDeviceType: String? = null
     var driverVersionS: String? = null
 
@@ -221,7 +227,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
         BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, executor = this)
-        userFirmwareUpdates = com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController(this)
+        BleDependencies.bindUserFirmwareSession(this, mBLEController)
+        v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewCreated)
+        userFirmwareDialogHost = UserFirmwareUpdateDialogHost(this, v3UserFirmwareViewModel)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -369,7 +377,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-        userFirmwareUpdates?.foreground()
+        v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewResumed)
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
         else {
             ubi4AppCloseUploadRequested = false
@@ -417,8 +425,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager?.onDestroy()
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
-        userFirmwareUpdates?.close()
-        userFirmwareUpdates = null
+        userFirmwareDialogHost?.close()
+        userFirmwareDialogHost = null
+        v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewDestroyed)
         mBLEController.cleanup()
         BleDependencies.unbindCommandExecutor(this)
         clearMainIfSame(this)

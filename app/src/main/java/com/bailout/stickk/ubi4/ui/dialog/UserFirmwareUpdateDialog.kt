@@ -1,10 +1,6 @@
 package com.bailout.stickk.ubi4.ui.dialog
 
-import android.content.SharedPreferences
-import android.net.ConnectivityManager
-import android.net.Network
 import android.os.Bundle
-import android.util.Log
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -12,98 +8,44 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.app.Dialog
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareViewModel
+import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.firmware.user.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import kotlinx.coroutines.*
-import java.io.File
-import java.util.zip.ZipFile
 
-class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : UserFirmwareHost {
-    private val preferences = activity.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, 0)
-    val updates = UserFirmwareUpdates(File(activity.filesDir, "user_firmware").apply { mkdirs() }.path, this)
-    private val roleListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED) refreshRole()
-    }
-    private val connectivity = activity.getSystemService(ConnectivityManager::class.java)
-    private val network = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) { activity.runOnUiThread { updates.environmentChanged() } }
-    }
-    private var lastState = UserFirmwareUiState()
-    private val observation: Job
-    init {
-        preferences.registerOnSharedPreferenceChangeListener(roleListener)
-        connectivity.registerDefaultNetworkCallback(network)
-        observation = updates.observe(::render)
-        refreshRole()
-    }
-    private fun render(state: UserFirmwareUiState) {
-        val completedNow = state.phase == "complete" && lastState.phase != "complete"
-        lastState = state
-        activity.getBLEController().setFirmwareUpdateSessionActive(state.blocksInteraction && state.phase !in listOf("offered", "complete"))
-        if (completedNow) activity.getBLEController().resumeAfterUserFirmwareUpdate()
-        if (state.blocksInteraction) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            val existing = activity.supportFragmentManager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog
-            // A user update owns one modal from consent until completion.
-            // BLE probes and reconnect callbacks are internal queue work, not
-            // separate user-visible dialogs. Keep displaying the update modal.
-            val displayState = if (state.phase in setOf("preparing", "verifying")) {
-                state.copy(phase = "updating")
-            } else {
-                state
+/** Owns only the modal window; update work continues while the Activity is in the background. */
+class UserFirmwareUpdateDialogHost(
+    private val activity: MainActivityUBI4,
+    viewModel: V3UserFirmwareViewModel,
+) {
+    private val observation = activity.lifecycleScope.launch {
+        activity.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiState.collect { state ->
+                val manager = activity.supportFragmentManager
+                val existing = manager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog
+                if (state.isVisible) {
+                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    if (existing == null && !manager.isStateSaved) UserFirmwareUpdateDialog().showNow(manager, TAG)
+                } else {
+                    activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    existing?.dismissAllowingStateLoss()
+                }
             }
-            if (existing != null) existing.render(displayState)
-            else if (!activity.supportFragmentManager.isStateSaved) UserFirmwareUpdateDialog().showNow(activity.supportFragmentManager, TAG)
-        } else {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            (activity.supportFragmentManager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog)?.dismissAllowingStateLoss()
-            if (state.phase == "unavailable") Log.w("USER_DFU", state.detail)
         }
     }
-    fun state() = lastState
-    private fun refreshRole() {
-        val role = preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, 2)
-        val enabled = UiState.isInterfaceV3Activated && role == 2
-        Log.i("USER_DFU", "roleGate enabled=$enabled v3=${UiState.isInterfaceV3Activated} role=$role")
-        updates.setUserRole(enabled)
-    }
-    fun foreground() { refreshRole(); updates.environmentChanged(); render(lastState) }
-    fun close() {
-        preferences.unregisterOnSharedPreferenceChangeListener(roleListener)
-        connectivity.unregisterNetworkCallback(network)
-        observation.cancel()
-        updates.close()
-        activity.getBLEController().setFirmwareUpdateSessionActive(false)
-    }
-    override fun read(path: String, callback: (UserFirmwareArchive?) -> Unit) {
-        activity.lifecycleScope.launch {
-            val archive = withContext(Dispatchers.IO) {
-                runCatching {
-                    ZipFile(path).use { zip ->
-                        val entries = zip.entries().toList().filterNot { it.isDirectory }
-                        val descriptor = entries.single { it.name.substringAfterLast('/').equals("FW_ini.ini", true) }
-                        val image = entries.single { it.name.endsWith(".bin", true) }
-                        UserFirmwareArchive(zip.getInputStream(descriptor).use { it.readBytes().toString(Charsets.UTF_8) },
-                            zip.getInputStream(image).use { it.readBytes() })
-                    }
-                }.getOrNull()
-            }
-            callback(archive)
-        }
-    }
-    override fun prepareTransfer(callback: (Boolean) -> Unit) {
-        activity.lifecycleScope.launch { callback(activity.getBLEController().prepareFirmwareSessionNotifications()) }
-    }
+
+    fun close() { observation.cancel() }
+
     companion object { const val TAG = "user_firmware_update" }
 }
 
@@ -116,8 +58,17 @@ class UserFirmwareUpdateDialog : DialogFragment() {
     private var secondaryAction: TextView? = null
     private var secondaryActionArea: View? = null
     private var layout: String? = null
-    private val controller get() = (requireActivity() as MainActivityUBI4).userFirmwareUpdates
-    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); isCancelable = false }
+    private val viewModel: V3UserFirmwareViewModel by activityViewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        isCancelable = false
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::render)
+            }
+        }
+    }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(requireContext()).apply {
             setCancelable(false)
@@ -125,8 +76,8 @@ class UserFirmwareUpdateDialog : DialogFragment() {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
-    override fun onStart() { super.onStart(); controller?.let { render(it.state()) } }
-    fun render(state: UserFirmwareUiState) {
+    override fun onStart() { super.onStart(); render(viewModel.uiState.value) }
+    private fun render(state: V3UserFirmwareUiState) {
         if (dialog == null) return
         val context = requireContext()
         val requestedLayout = when (state.phase) {
@@ -154,15 +105,15 @@ class UserFirmwareUpdateDialog : DialogFragment() {
             text = context.getString(if (state.phase == "complete") SharedRes.strings.ok.resourceId else SharedRes.strings.user_firmware_install.resourceId)
             setOnClickListener {
                 isEnabled = false
-                if (state.phase == "complete") controller?.updates?.acknowledge() else controller?.updates?.start()
+                if (state.phase == "complete") viewModel.onAction(V3UserFirmwareAction.CompletionAcknowledged) else viewModel.onAction(V3UserFirmwareAction.InstallClicked)
             }
             isEnabled = true
         }
         actionArea?.setOnClickListener {
-            if (state.phase == "complete") controller?.updates?.acknowledge() else controller?.updates?.start()
+            if (state.phase == "complete") viewModel.onAction(V3UserFirmwareAction.CompletionAcknowledged) else viewModel.onAction(V3UserFirmwareAction.InstallClicked)
         }
         secondaryAction?.text = context.getString(SharedRes.strings.user_firmware_remind_later.resourceId)
-        secondaryActionArea?.setOnClickListener { controller?.updates?.postpone() }
+        secondaryActionArea?.setOnClickListener { viewModel.onAction(V3UserFirmwareAction.RemindLaterClicked) }
     }
 
     /** Uses the shipped UBIv3 XML dialogs directly; no parallel visual design. */
@@ -204,6 +155,18 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         message = content.findViewById(R.id.ubi4DialogRotationGroupMessageTv)
         actionArea = content.findViewById(R.id.ubi4CompletedTrainingBtn)
         action = content.findActionLabel(title, message)
+    }
+
+    override fun onDestroyView() {
+        progress = null
+        title = null
+        message = null
+        action = null
+        actionArea = null
+        secondaryAction = null
+        secondaryActionArea = null
+        layout = null
+        super.onDestroyView()
     }
 
     private fun View.findActionLabel(title: TextView?, message: TextView?): TextView? {

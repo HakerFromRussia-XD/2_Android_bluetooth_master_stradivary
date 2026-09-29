@@ -101,6 +101,36 @@ class BleDependenciesTest {
         verify(exactly = 1) { second.bleCommandWithQueue(refEq(packet), SERIALPORTCHAR_UUID, WRITE, any()) }
     }
 
+    @Test fun `firmware callbacks follow the current controller and stale owners cannot replace it`() = runTest {
+        val oldController = mockk<BLEController>(relaxed = true)
+        val newController = mockk<BLEController>(relaxed = true)
+        coEvery { oldController.prepareFirmwareSessionNotifications() } returns true
+        coEvery { newController.prepareFirmwareSessionNotifications() } returns false
+        BleDependencies.bindCommandExecutor(first)
+        BleDependencies.bindUserFirmwareSession(first, oldController)
+        assertTrue(BleDependencies.prepareUserFirmwareTransfer())
+        BleDependencies.bindCommandExecutor(second)
+        assertFalse(BleDependencies.prepareUserFirmwareTransfer())
+        BleDependencies.bindUserFirmwareSession(second, newController)
+        BleDependencies.unbindCommandExecutor(first)
+        assertThrows(IllegalStateException::class.java) {
+            BleDependencies.bindUserFirmwareSession(first, oldController)
+        }
+        assertFalse(BleDependencies.prepareUserFirmwareTransfer())
+        BleDependencies.setUserFirmwareSessionActive(true)
+        BleDependencies.resumeAfterUserFirmwareUpdate()
+        BleDependencies.unbindCommandExecutor(second)
+        BleDependencies.setUserFirmwareSessionActive(false)
+        BleDependencies.resumeAfterUserFirmwareUpdate()
+        assertFalse(BleDependencies.prepareUserFirmwareTransfer())
+        coVerify(exactly = 1) { oldController.prepareFirmwareSessionNotifications() }
+        coVerify(exactly = 1) { newController.prepareFirmwareSessionNotifications() }
+        verify(exactly = 1) { newController.setFirmwareUpdateSessionActive(true) }
+        verify(exactly = 1) { newController.resumeAfterUserFirmwareUpdate() }
+        verify(exactly = 0) { oldController.setFirmwareUpdateSessionActive(any()); oldController.resumeAfterUserFirmwareUpdate() }
+        verify(exactly = 0) { newController.setFirmwareUpdateSessionActive(false) }
+    }
+
     private fun sensorsRefresh(): RefreshSensorsUseCaseV3 {
         WidgetRepoProvider.setCurrentMac("test-device")
         UiState.isInterfaceV3Activated = true

@@ -34,6 +34,29 @@ class V3ArchitectureTest {
         }
     }
 
+    @Test fun `user firmware UI renders state and sends actions without reading archives or controlling BLE`() {
+        val dialog = File(root.parentFile.parentFile, "ui/dialog/UserFirmwareUpdateDialog.kt")
+        reject(dialog, imports(dialog).filter {
+            it.contains(".data.") || it.contains(".ble.") || it.contains(".firmware.user.") ||
+                it.contains(".persistence.") || it.contains("Repository") || it.contains("UseCase") ||
+                it.startsWith("java.io.") || it.startsWith("java.util.zip.") || it.startsWith("android.net.")
+        })
+        val code = dialog.readText()
+        assertTrue(code.contains("by activityViewModels()"))
+        assertTrue(code.contains("viewModel.uiState.collect(::render)"))
+        assertTrue(code.contains("V3UserFirmwareAction.InstallClicked"))
+        assertFalse(code.contains("UserFirmwareUpdateControllerUserFirmwareUpdateController"))
+        assertFalse(code.contains("getBLEController"))
+        assertFalse(code.contains("getSharedPreferences"))
+        val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
+        assertTrue(activity.contains("V3UserFirmwareAction.ViewCreated"))
+        assertTrue(activity.indexOf("V3UserFirmwareAction.ViewDestroyed") < activity.indexOf("mBLEController.cleanup()"))
+        assertFalse(activity.contains("UserFirmwareUpdateController"))
+        sources("presentation/firmware").forEach { file ->
+            reject(file, imports(file).filter { it.contains(".firmware.user.") })
+        }
+    }
+
     @Test fun `data never depends on presentation or dependency factories`() {
         sources("data").forEach { file ->
             reject(file, imports(file).filter {

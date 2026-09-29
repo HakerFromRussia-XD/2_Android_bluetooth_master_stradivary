@@ -34,6 +34,7 @@ internal object BleDependencies {
     @Volatile private var commandExecutorRef: WeakReference<BleCommandExecutor>? = null
     @Volatile private var sensorsRefresh: (() -> Unit)? = null
     @Volatile private var telemetryRequest: (() -> Unit)? = null
+    @Volatile private var firmwareControllerRef: WeakReference<BLEController>? = null
     @Volatile var currentDeviceIdentity: V3DeviceIdentityStore? = null
         private set
     val v3CommandTransport = V3CommandTransport {
@@ -44,6 +45,7 @@ internal object BleDependencies {
     fun bindCommandExecutor(executor: BleCommandExecutor, identity: V3DeviceIdentityStore? = null) {
         sensorsRefresh = null
         telemetryRequest = null
+        firmwareControllerRef = null
         commandExecutorRef = WeakReference(executor)
         currentDeviceIdentity = identity
     }
@@ -54,6 +56,7 @@ internal object BleDependencies {
         if (commandExecutorRef?.get() === executor) {
             sensorsRefresh = null
             telemetryRequest = null
+            firmwareControllerRef = null
             commandExecutorRef = null
             currentDeviceIdentity = null
         }
@@ -76,6 +79,23 @@ internal object BleDependencies {
     fun refreshSensors() {
         val refresh = sensorsRefresh ?: error("Sensors refresh is not registered")
         refresh()
+    }
+
+    @Synchronized
+    fun bindUserFirmwareSession(executor: BleCommandExecutor, controller: BLEController) {
+        check(commandExecutorRef?.get() === executor) { "Cannot bind firmware outside the active BLE session" }
+        firmwareControllerRef = WeakReference(controller)
+    }
+
+    suspend fun prepareUserFirmwareTransfer(): Boolean =
+        firmwareControllerRef?.get()?.prepareFirmwareSessionNotifications() ?: false
+
+    fun setUserFirmwareSessionActive(active: Boolean) {
+        firmwareControllerRef?.get()?.setFirmwareUpdateSessionActive(active)
+    }
+
+    fun resumeAfterUserFirmwareUpdate() {
+        firmwareControllerRef?.get()?.resumeAfterUserFirmwareUpdate()
     }
 
     // ViewModelStore survives recreation; weak keys do not retain finished Activity scopes.

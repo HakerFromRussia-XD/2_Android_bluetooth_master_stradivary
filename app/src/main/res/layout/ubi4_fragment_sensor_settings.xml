@@ -9,6 +9,7 @@
 
     <View
         android:id="@+id/ubi4TitleClickBlockBtn"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@+id/ubi4MainSv"
@@ -85,14 +86,15 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
         android:background="@color/ubi4_back"
         tools:ignore="UselessParent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="26dp">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/ubi4BeginGuideline"
@@ -211,67 +213,54 @@
                         app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
                         app:layout_constraintTop_toBottomOf="@+id/ubi4TextView17" />
 
-                    <ImageView
-                        android:id="@+id/ubi4ImageView4"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginTop="16dp"
-                        android:src="@drawable/help_image_7"
-                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView52"
-                        tools:ignore="ContentDescription" />
-
-                    <TextView
-                        android:id="@+id/ubi4TextView26"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/closing_sensor"
-                        android:textColor="@color/ubi4_white"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@+id/ubi4ImageView4"
-                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
-                        app:layout_constraintStart_toEndOf="@+id/ubi4ImageView4"
-                        app:layout_constraintTop_toTopOf="@+id/ubi4ImageView4" />
-
-                    <ImageView
-                        android:id="@+id/ubi4ImageView5"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginTop="16dp"
-                        android:src="@drawable/help_image_8"
-                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/ubi4ImageView4"
-                        app:tint="@color/ubi4_white"
-                        tools:ignore="ContentDescription" />
-
-                    <TextView
+                    <com.bailout.stickk.ubi4.ui.widgets.HelpSensorLegendRow
                         android:id="@+id/ubi4TextView27"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="8dp"
+                        android:paddingStart="26dp"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:lineHeight="20dp"
                         android:fontFamily="@font/font_open_sans_regular"
+                        android:tag="opening"
                         android:text="@string/opening_sensor"
-                        android:textColor="@color/ubi4_white"
+                        android:textColor="@color/ubi4_deactivate_text"
                         android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@+id/ubi4ImageView5"
                         app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
-                        app:layout_constraintStart_toEndOf="@+id/ubi4ImageView4"
-                        app:layout_constraintTop_toTopOf="@+id/ubi4ImageView5" />
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView52" />
+
+                    <com.bailout.stickk.ubi4.ui.widgets.HelpSensorLegendRow
+                        android:id="@+id/ubi4TextView26"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="0dp"
+                        android:paddingStart="26dp"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:lineHeight="20dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:tag="closing"
+                        android:text="@string/closing_sensor"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView27" />
 
                     <TextView
                         android:id="@+id/ubi4TextView19"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="46dp"
+                        android:layout_marginTop="38dp"
                         android:fontFamily="@font/font_inter_semi_bold"
                         android:text="@string/what_is_sensitivity_responsible_for"
                         android:textColor="@color/ubi4_white"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline_2"
                         app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/ubi4ImageView5" />
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView26" />
 
 
                     <TextView

@@ -1,0 +1,42 @@
+{
+  "configuration": "Debug",
+  "sdk": "iphonesimulator26.5",
+  "architecture": "arm64",
+  "baseline_bytes": 132144161,
+  "current_bytes": 131687766,
+  "bytes_saved": 456395,
+  "same_build_settings": true,
+  "extra_files": [],
+  "build": "BUILD SUCCEEDED",
+  "ui_verification": "Manual visual review pending; automated scroll checks removed at user request",
+  "changed_file_sizes": {
+    "MotoricaStart.debug.dylib": {
+      "before": 23800376,
+      "after": 23821496
+    },
+    "Frameworks/shared.framework/shared": {
+      "before": 63229784,
+      "after": 63306792
+    },
+    "Frameworks/shared.framework/Headers/shared.h": {
+      "before": 1172587,
+      "after": 1178289
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/Assets.car": {
+      "before": 8072760,
+      "after": 7498312
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/en.lproj/Localizable.strings": {
+      "before": 68671,
+      "after": 72537
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/Base.lproj/Localizable.strings": {
+      "before": 68671,
+      "after": 72537
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/ru.lproj/Localizable.strings": {
+      "before": 97051,
+      "after": 103542
+    }
+  }
+}

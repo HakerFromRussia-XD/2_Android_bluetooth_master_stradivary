@@ -1,0 +1,155 @@
+{
+  "figma_file": "YyKUU1lMucdDkGyA5OeoRg",
+  "baseline_image_bytes": 480967,
+  "ru_en_image_bytes": 122493,
+  "image_bytes_saved": 358474,
+  "assets": [
+    {
+      "name": "ubi4_help_widget_1_ru@3x.png",
+      "bytes": 7597,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "6149ce74525fa6b0df482ed7b71cde8fe301e66f7255ace00751682bdc6a28af"
+    },
+    {
+      "name": "ubi4_help_widget_1_en@3x.png",
+      "bytes": 7407,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "d68fdc969031b9686e02110a12d178bb6fccc3e1452077a13b60e6f86206201f"
+    },
+    {
+      "name": "ubi4_help_widget_2_ru@3x.png",
+      "bytes": 7356,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "57e8583e93b2471f6ed208a2594a7e24a2ecc5fbd41b2ae65469216232ba1d66"
+    },
+    {
+      "name": "ubi4_help_widget_2_en@3x.png",
+      "bytes": 7123,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "e30b9cdca7265a3b44a21fb6d0bab5fbc4b1cfdec2870f2cc21aa2d46d4889f4"
+    },
+    {
+      "name": "ubi4_help_widget_3_ru@3x.png",
+      "bytes": 7001,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "1d755affff7b55f64e474f330a74cfe4cc9a921eb1aa980f50822d63090fbd98"
+    },
+    {
+      "name": "ubi4_help_widget_3_en@3x.png",
+      "bytes": 6170,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "9c9af48f81f8ada2d0f79b30ae5cb3194a130f2622805db602c46c90d536da93"
+    },
+    {
+      "name": "ubi4_help_widget_4_ru@3x.png",
+      "bytes": 6645,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "a289591a924f6f08181aa626ddf1c9fb71cde006023fab0b8028c7ad4bb1957a"
+    },
+    {
+      "name": "ubi4_help_widget_4_en@3x.png",
+      "bytes": 5752,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "afe08627b21539208978ae49c0cd719ef996f951666a3d34e8a557d25433cf58"
+    },
+    {
+      "name": "ubi4_help_widget_5_ru@3x.png",
+      "bytes": 5040,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "dc15c527876d2f16862892af1c0cb0543b3364ea58fc8ad5722222da38c3dc3c"
+    },
+    {
+      "name": "ubi4_help_widget_5_en@3x.png",
+      "bytes": 4687,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "8252558580d3481b822d0b402d974ef4221c5bfa235b0b1c21c3bda1f7147aeb"
+    },
+    {
+      "name": "ubi4_help_widget_6_ru@3x.png",
+      "bytes": 5343,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "a392e87695913313fad4bd851852207bc8ff12285b123c18f86000b7bc2fe63a"
+    },
+    {
+      "name": "ubi4_help_widget_6_en@3x.png",
+      "bytes": 5194,
+      "pixels": [
+        888,
+        141
+      ],
+      "rgba_sha256": "0e5e3c46431a8acde46591b4d2521431912a1881b51611763e2dacb713c620ca"
+    },
+    {
+      "name": "ubi4_help_widget_7_ru@3x.png",
+      "bytes": 15546,
+      "pixels": [
+        888,
+        433
+      ],
+      "rgba_sha256": "330b8b57522edf5004a80090b6dde50c5a3cc2df4c49008f89a0ffec85a25094"
+    },
+    {
+      "name": "ubi4_help_widget_7_en@3x.png",
+      "bytes": 13765,
+      "pixels": [
+        888,
+        433
+      ],
+      "rgba_sha256": "61b1c5953f44cb158ddb237704bb4d129a933c2a65f9a0d0d9989069aeed900f"
+    },
+    {
+      "name": "ubi4_help_widget_8_ru@3x.png",
+      "bytes": 9491,
+      "pixels": [
+        888,
+        237
+      ],
+      "rgba_sha256": "51cbaf3d472d3881c52adf29d439936b1c3f8b1eadbf348f7d7a7e00a5103b56"
+    },
+    {
+      "name": "ubi4_help_widget_8_en@3x.png",
+      "bytes": 8376,
+      "pixels": [
+        888,
+        237
+      ],
+      "rgba_sha256": "763597a63165d0a1114394b60089916abbd4637272916e40ded54e7d49e61535"
+    }
+  ],
+  "apk_bytes": 58512969,
+  "baseline_apk_bytes": 79533453,
+  "apk_bytes_saved": 21020484
+}

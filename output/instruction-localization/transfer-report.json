@@ -1,0 +1,309 @@
+{
+  "source_thread": "01a0f749-5fdb-7be1-885d-6311f4aa0dad",
+  "source_checkout": "/Users/motoricallc/Documents/denis/2_Android_bluetooth_master_stradivary",
+  "target_checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "source_head": "7c9c24675b345942987de1ef7c25ee260ce29938",
+  "target_head": "aee8e4a979b4ee2f45b87f7b3e6143ecc91c8278",
+  "backup": "/tmp/stradivary-instruction-before-transfer",
+  "files": [
+    {
+      "path": "iosApp/MotoricaStart/Presentation/Help/HelpViewController.swift",
+      "sha256": "5564d9c30db37e5e060f830c58b9bf9b598a8e0b3946882276f4205492a8c9ed",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/bridges/InstructionBridge.kt",
+      "sha256": "653b5edfc3465f1de7a3fc73d84a056ba51b7702cd63ee9a94dcca811408e59b",
+      "identical_to_source": false,
+      "adaptation": "User requested app-standard 14sp subheadings and 16dp/8dp spacing between mode/action descriptions"
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/strings/base/strings.xml",
+      "sha256": "58229f857d56a9fa1e532a8a33f84f98f4776f7568bc123fcc112ef34c988910",
+      "identical_to_source": false
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/strings/ru/strings.xml",
+      "sha256": "77d51ad8ec8c708cef78bc9964a128a08bfdd974b74a4ee9bcc4a337984b0e8b",
+      "identical_to_source": false
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_advanced_settings_help.xml",
+      "sha256": "479bc1f4d401fae1efe49deed9ab63c0c6e9b3a9c8a3aa4b46a3116f83c7767d",
+      "identical_to_source": false,
+      "adaptation": "User requested app-standard 14sp subheadings and 16dp/8dp spacing between mode/action descriptions"
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_care_of_prosthetic_hand.xml",
+      "sha256": "ae91daf6a7b4391ce6bc8ae0dd44fa8221fefd385ffcad44d303621915cb773c",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_charging_the_prosthesis.xml",
+      "sha256": "82813ecf1f057fd930c6542f53fad5073b92e426344ad83dd44f684c82b4fb23",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_complete_set.xml",
+      "sha256": "7be1d6fa21a8df29baa8ee07276bd8b5954ad86c7c6cb915ade3483908b42bf5",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_gesture_settings.xml",
+      "sha256": "622fea2cb90eb00ad7cd3e3faa85b0378651ec43b18b645d81a4cf98f1a0cf69",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_help.xml",
+      "sha256": "84ca90cfd1dd99ed9edd695ca91e72ac9f4387c01c7f14c8cdf510b773290996",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_how_prosthesis_works.xml",
+      "sha256": "4db7679e71c204affc071983e211db398fe63cd26a7371c33f54eb7f712c3d82",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_how_to_put_on_a_prosthesis_socket.xml",
+      "sha256": "43dcb45ccf1916203c201937b2e2ccb32e2dbefb0920039556b3f4dc60f2c958",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_sensor_settings.xml",
+      "sha256": "30522c26ad5cf11b11f3a1bfa45df62dc13f20753b35ccc2526f7b8fed3d55ed",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/layout/ubi4_fragment_service_and_warranty.xml",
+      "sha256": "1e5ba0099968a8cb870fa97f35889b460f1a856cfb47650414de48ea23ffcec7",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_1@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_2@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_3@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_4@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_5@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_6@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_7@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_image_advanced_settings_8@1x.png",
+      "sha256": null,
+      "identical_to_source": null
+    },
+    {
+      "path": "app/src/main/java/com/bailout/stickk/ubi4/ui/main/MainActivityUBI4.kt",
+      "sha256": "b50bc9835c1545e0ed3b5ada108407d283552a2b28b4871d87680d29d3337ea6",
+      "identical_to_source": false
+    },
+    {
+      "path": "iosApp/MotoricaStart.xcodeproj/project.pbxproj",
+      "sha256": "86d350cedd21486576b498985660df3347a79e6cbe031de5f54973c90463abc7",
+      "identical_to_source": false
+    },
+    {
+      "path": "app/src/androidTest/java/com/bailout/stickk/ubi4/AdvancedInstructionLocalizationTest.kt",
+      "sha256": "41b222a15d97252890963e329ef36666ff876d3a541f378629278b9ea71a666e",
+      "identical_to_source": false,
+      "adaptation": "User requested app-standard 14sp subheadings and 16dp/8dp spacing between mode/action descriptions"
+    },
+    {
+      "path": "app/src/main/java/com/bailout/stickk/ubi4/ui/widgets/HelpSensorLegendRow.java",
+      "sha256": "b065a78dd40860c2ad5d912c5039bb417f70a44cfffd104695fc34fd6c2980f0",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/values-ru/help_advanced_drawables.xml",
+      "sha256": "2d3597f9cb0a2df6234e95062b5528d55bc341fecaf3777ed1b1d0da6478574d",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/values/help_advanced_drawables.xml",
+      "sha256": "a13c54a258bd3d48a7004b5b5819ab50b1d40305d780d053e39947e186e619f9",
+      "identical_to_source": true
+    },
+    {
+      "path": "app/src/main/res/values/help_sensor_colors.xml",
+      "sha256": "b98b50ce3f48f7b47349e7d22c9dc162197cb4d4590c06070f160c91be998d5c",
+      "identical_to_source": true
+    },
+    {
+      "path": "iosApp/MotoricaStartTests/HelpInstructionLocalizationTests.swift",
+      "sha256": "78203c84bcd089d98c954651e7caf8294e5a0ddac725497d3c389a2013831ec0",
+      "identical_to_source": false,
+      "adaptation": "User requested app-standard 14sp subheadings and 16dp/8dp spacing between mode/action descriptions"
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_1_en@3x.png",
+      "sha256": "ffbbd15d57f6d7168e03addabe7074e54bcff09cc300d5b2a267d7cf0786b4c2",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_1_ru@3x.png",
+      "sha256": "3ad7d94107e1097f7cfdadaad3cae02798e133c3c3849c8e71d84f972da38bfb",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_2_en@3x.png",
+      "sha256": "9e143500f0789b0f18241149a0cdfa3f39e5525e292b609cf900f4fc3be81a2c",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_2_ru@3x.png",
+      "sha256": "866640ebe85a0de12428460cac7e7613a9754a19d1b004af4788ca1b3bafbcc0",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_3_en@3x.png",
+      "sha256": "8c1a7a1a213733c49bb27b51cab126b06fb3ea8b751b6baa947554021a8dc966",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_3_ru@3x.png",
+      "sha256": "ddafd2b25d01b682d1de98ca5004d0107e1d7f3f3dbe3cc55754830f120b651d",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_4_en@3x.png",
+      "sha256": "4df106eca08ea28a50c69209f5e4d1b6466dfa7f65ebed8bfadefbb68926c0a7",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_4_ru@3x.png",
+      "sha256": "084d2753ffa69aeb5a0bdd38bd0c8d167be2a4c9fb2ec2f31d5de1b2494fc805",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_5_en@3x.png",
+      "sha256": "d1008586fb015253a3141649132b4fa1bb50454b8b3f82ceef298cf21986de84",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_5_ru@3x.png",
+      "sha256": "ef7f55cd7404638501d54765d567c54cb87bb56c1407861584ffe08c8d4014bb",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_6_en@3x.png",
+      "sha256": "0140d34774727d61aa650f27b441e742bf8d5b4ad3f65be4b6760b30001dd56a",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_6_ru@3x.png",
+      "sha256": "8d9b1d134dc1f2730ab35e717a0728515c538e7e2688a1187d6d29ce675e5bcd",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_7_en@3x.png",
+      "sha256": "a78c68c7ede1122321616ce33c08eff3758850587394719a03e1e3d97e85c7d3",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_7_ru@3x.png",
+      "sha256": "c045aae1db4520cc42085a21b74563eea125c8a0015fdb4e70e7a95194fd1798",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_8_en@3x.png",
+      "sha256": "a7520f23a4d17117ada083a024575b9dbac8aa5788683784f9d829ee6e03b1c5",
+      "identical_to_source": true
+    },
+    {
+      "path": "shared/src/commonMain/moko-resources/images/ubi4_help_widget_8_ru@3x.png",
+      "sha256": "d4ccde61c8ed93845eb560103dd7cad52673e580d3262e7f12965a9b73eabef1",
+      "identical_to_source": true
+    },
+    {
+      "path": "tools/instruction_assets/advanced-settings.json",
+      "sha256": "d79fa3a79ebc110e405cf9f8bbc94015ddd6ddbca31c770da56aa5ae0d5ba071",
+      "identical_to_source": true
+    },
+    {
+      "path": "tools/instruction_assets/figma-nodes.json",
+      "sha256": "0ad38db23216527138efc60fba67af5264033e3a74302a9e20e342827ffcbfc9",
+      "identical_to_source": true
+    },
+    {
+      "path": "tools/instruction_assets/verify.py",
+      "sha256": "c4c3062972bb4bb05c0218cded5c1ea6b1138338225d96fed60f7e9a2bd098d7",
+      "identical_to_source": false,
+      "adaptation": "Verify optimized PNG packaging, locale aliases and required runtime R classes in DEX"
+    },
+    {
+      "path": "gradle.properties",
+      "sha256": "ef086e48efbada7371bacf0a07d2abb868477c4ba99d5dd937b129ff1d169f25",
+      "identical_to_source": false,
+      "adaptation": "Keep Android Studio Run app APK non-test-only"
+    }
+  ],
+  "scope": "Instruction localization, original Figma widget exports, sensor legend and help scroll gap; newer target app changes preserved",
+  "historical_evidence": "previous-checkout contains prior reports, screenshots and helper project; not validation of this checkout",
+  "manual_visual_review": "User will verify visual appearance; removed scroll tests remain removed",
+  "ios_build_settings_transferred": {
+    "native_project": "iosApp/MotoricaStart.xcodeproj/project.pbxproj",
+    "jdk_selection": "Prefer available ARM64 JBR 17 on Apple Silicon; system JDK 17 fallback retained",
+    "gradle_max_workers": 1,
+    "gradle_heap": "2g",
+    "native_compiler_heap": "2g",
+    "original_project_backup": "/tmp/stradivary-instruction-native-project-before-java.pbxproj"
+  },
+  "android_validation": "Previous localized release built, installed and startup confirmed; newer typography revision build in progress",
+  "latest_user_revision": {
+    "advanced_subheadings": "Match other instruction pages: Inter SemiBold 14",
+    "mode_action_paragraph_spacing": "16 before subsection titles, 8 before descriptions",
+    "android_build": "BUILD SUCCESSFUL; normal release installed with latest typography, then restored after Studio overwrote it",
+    "ios_build": "Pending; build canceled to prioritize Android crash repair at user request for speed"
+  },
+  "android_studio_crash_repair": {
+    "error": "NoClassDefFoundError: androidx.startup.R$string",
+    "generated_classes_missing_before": 533,
+    "repair": "Backed up and rebuilt generated release DEX outputs without cache; removed matching stale build-cache entry; refreshed Studio Gradle model",
+    "classes_after": 29734,
+    "runtime_r_classes_missing_after": 0,
+    "repeat_with_cache": "BUILD SUCCESSFUL",
+    "phone_run_after_repair": "pending - disconnected from ADB",
+    "report": "output/instruction-localization/android-ide-apk-validation.json"
+  },
+  "current_ios_validation": {
+    "build": "BUILD SUCCEEDED",
+    "configuration": "Debug / iphonesimulator26.5 / arm64",
+    "report": "output/instruction-localization/ios-size-validation.json",
+    "baseline_bytes": 132418288,
+    "current_bytes": 131962069,
+    "bytes_saved": 456219,
+    "packaged_widget_assets": 16,
+    "packaged_advanced_text_blocks_per_locale": 32,
+    "manual_visual_review": "pending - user will verify"
+  },
+  "remaining_acceptance": [
+    "Android Studio Run on physical phone after DEX cache repair; phone disconnected",
+    "User manual visual review of RU and EN help screens on Android and iOS"
+  ]
+}

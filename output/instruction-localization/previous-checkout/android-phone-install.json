@@ -1,0 +1,29 @@
+{
+  "device_serial": "dcbf845e",
+  "device_model": "23124RA7EO",
+  "application_id": "com.bailout.stickk",
+  "version_name": "3.3.1827",
+  "version_code": 19,
+  "variant": "release",
+  "debuggable": false,
+  "certificate_sha256": "d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8",
+  "install": "adb install --no-incremental -r: Success",
+  "data_preserved": true,
+  "first_install_time": "2026-09-07 16:13:47",
+  "test_apk_installed": false,
+  "apk_bytes": 52006245,
+  "runtime_checks": [
+    "App launched; native RU sensor instruction screen visible",
+    "Advanced instruction native RU title and body text observed in UI hierarchy"
+  ],
+  "not_verified": [
+    "Android EN runtime",
+    "Sensor legend runtime comparison"
+  ],
+  "scroll_fix_install": "adb install --no-incremental -r: Success",
+  "scroll_fix_update_time": "2026-10-01 16:41:58",
+  "scroll_fix_validation": "Installed; manual visual review by user is pending",
+  "scroll_viewport_bounds_before_host_fix": "[0,257][1080,2270]",
+  "host_scroll_fix_install": "adb install --no-incremental -r: Success",
+  "host_scroll_fix_update_time": "2026-10-01 16:57:12"
+}

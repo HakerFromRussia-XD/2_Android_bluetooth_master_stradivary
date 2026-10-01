@@ -44,7 +44,10 @@ data class InstructionBlock(
     val imageHeight: Int,
     val imageWidth: Int,
     val topMargin: Int,
-    val quantities: List<StringResource> = emptyList()
+    val quantities: List<StringResource> = emptyList(),
+    val englishImage: ImageResource? = null,
+    val textSize: Int = 14,
+    val textLineHeight: Double = 0.0
 )
 
 enum class InstructionBlockType {
@@ -136,8 +139,8 @@ object InstructionBridge {
                     heading(SharedRes.strings.sensor_settingss),
                     paragraph(SharedRes.strings.the_prostheses_is_controlled_with_emg_sensors_by_configuring_two_indicators_sensitivity_and_threshold, 24),
                     paragraph(SharedRes.strings.each_sensor_has_its_own_color, 14),
-                    iconText(SharedRes.images.help_image_7, SharedRes.strings.closing_sensor, 16),
-                    iconText(SharedRes.images.help_image_8, SharedRes.strings.opening_sensor, 16),
+                    iconText(SharedRes.images.help_image_8, SharedRes.strings.opening_sensor, 8),
+                    iconText(SharedRes.images.help_image_7, SharedRes.strings.closing_sensor, 0),
                     heading(SharedRes.strings.what_is_sensitivity_responsible_for, 46),
                     paragraph(SharedRes.strings.the_sensitivity_determines_how_much_muscle_tension_is_required_for_the_sensor_to_read_the_signal_decrease_the_sensitivity_if_there_is_a_lot_of_background_noise_and_increase_it_if_you_have_to_strain_the_muscle_too_much_when_controlling_the_prostheses, 16),
                     paragraph(SharedRes.strings.by_dragging_these_sliders_you_can_change_the_sensitivity_levels_of_the_sensors, 16),
@@ -224,14 +227,78 @@ object InstructionBridge {
         id = PAGE_ADVANCED,
         title = SharedRes.strings.advanced_settings,
         cards = listOf(
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_1),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_2),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_3),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_4),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_5),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_6),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_7),
-            imageCard(SharedRes.images.ubi4_help_image_advanced_settings_8)
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_sensor_gestures_title),
+                    paragraph(SharedRes.strings.help_advanced_sensor_gestures_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_1_ru, SharedRes.images.ubi4_help_widget_1_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_emg_lock_title),
+                    paragraph(SharedRes.strings.help_advanced_emg_lock_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_2_ru, SharedRes.images.ubi4_help_widget_2_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_screen_timeout_title),
+                    paragraph(SharedRes.strings.help_advanced_screen_timeout_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_3_ru, SharedRes.images.ubi4_help_widget_3_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_sensor_gain_title),
+                    paragraph(SharedRes.strings.help_advanced_sensor_gain_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_4_ru, SharedRes.images.ubi4_help_widget_4_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_force_title),
+                    paragraph(SharedRes.strings.help_advanced_force_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_5_ru, SharedRes.images.ubi4_help_widget_5_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_speed_title),
+                    paragraph(SharedRes.strings.help_advanced_speed_body, 14, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_6_ru, SharedRes.images.ubi4_help_widget_6_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_control_mode_title),
+                    paragraph(SharedRes.strings.help_advanced_control_mode_body, 14, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_normal_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_normal_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_sport_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_sport_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_proportional_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_proportional_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_proportional_speed_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_proportional_speed_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_proportional_grip_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_proportional_grip_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_proportional_both_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_proportional_both_body, 8, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_7_ru, SharedRes.images.ubi4_help_widget_7_en)
+                )
+            ),
+            InstructionCard(
+                blocks = listOf(
+                    heading(SharedRes.strings.help_advanced_gesture_action_title),
+                    paragraph(SharedRes.strings.help_advanced_gesture_action_body, 14, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_none_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_none_body, 8, textLineHeight = 20.8),
+                    heading(SharedRes.strings.help_advanced_open_title, 16),
+                    paragraph(SharedRes.strings.help_advanced_open_body, 8, textLineHeight = 20.8),
+                    localizedImage(SharedRes.images.ubi4_help_widget_8_ru, SharedRes.images.ubi4_help_widget_8_en)
+                )
+            )
         ),
         relatedItems = relatedAppItems(),
         relatedTitle = SharedRes.strings.app_control
@@ -422,11 +489,11 @@ object InstructionBridge {
         relatedTitle = SharedRes.strings.prostheses_use
     )
 
-    private fun heading(text: StringResource, topMargin: Int = 0): InstructionBlock =
-        InstructionBlock(InstructionBlockType.HEADING, text, null, emptyList(), 0, 0, topMargin)
+    private fun heading(text: StringResource, topMargin: Int = 0, textSize: Int = 14): InstructionBlock =
+        InstructionBlock(InstructionBlockType.HEADING, text, null, emptyList(), 0, 0, topMargin, textSize = textSize, textLineHeight = if (textSize == 18) 22.0 else 0.0)
 
-    private fun paragraph(text: StringResource, topMargin: Int = 0): InstructionBlock =
-        InstructionBlock(InstructionBlockType.PARAGRAPH, text, null, emptyList(), 0, 0, topMargin)
+    private fun paragraph(text: StringResource, topMargin: Int = 0, textLineHeight: Double = 0.0): InstructionBlock =
+        InstructionBlock(InstructionBlockType.PARAGRAPH, text, null, emptyList(), 0, 0, topMargin, textLineHeight = textLineHeight)
 
     private fun emphasis(text: StringResource, topMargin: Int = 0): InstructionBlock =
         InstructionBlock(InstructionBlockType.EMPHASIS, text, null, emptyList(), 0, 0, topMargin)
@@ -450,6 +517,6 @@ object InstructionBridge {
     private fun image(image: ImageResource, height: Int, width: Int = 0, topMargin: Int = 0): InstructionBlock =
         InstructionBlock(InstructionBlockType.IMAGE, null, image, emptyList(), height, width, topMargin)
 
-    private fun imageCard(image: ImageResource): InstructionCard =
-        InstructionCard(listOf(image(image, 0)))
+    private fun localizedImage(russian: ImageResource, english: ImageResource): InstructionBlock =
+        InstructionBlock(InstructionBlockType.IMAGE, null, russian, emptyList(), 0, 0, 14, englishImage = english)
 }

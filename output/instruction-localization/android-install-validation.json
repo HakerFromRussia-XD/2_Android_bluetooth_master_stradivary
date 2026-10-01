@@ -1,0 +1,43 @@
+{
+  "device_serial": "dcbf845e",
+  "package": "com.bailout.stickk",
+  "version_name": "3.3.1827",
+  "install_result": "Success",
+  "install_mode": "--no-incremental -r",
+  "package_flags": [
+    "HAS_CODE",
+    "ALLOW_CLEAR_USER_DATA",
+    "ALLOW_BACKUP"
+  ],
+  "test_only": false,
+  "debuggable": false,
+  "first_install_time": "2026-09-07 16:13:47",
+  "first_install_time_unchanged": true,
+  "last_update_time": "2026-10-01 18:28:21",
+  "installed_apk_sha256": "7f3477a399cef743f8ff6e4671be0efa3252b5cfacc8f1a50cd64e4dcb73b15b",
+  "installed_apk_matches_validated_release": true,
+  "manual_visual_review": "pending - user will verify",
+  "raw_package_dump": "/tmp/stradivary-instruction-android-phone-styles.txt",
+  "launch_status": "Historical verified release restored; fixed Studio APK Run pending",
+  "foreground_activity": "com.bailout.stickk/.ubi4.ui.main.MainActivityUBI4",
+  "new_crash_log_empty_after_fixed_install": null,
+  "previous_failed_install": {
+    "installed_apk_sha256": "6facd3b225f7d8819259877d49521b3940cb91e2695c775fe82d610be833150e",
+    "installed_apk_bytes": 46156571,
+    "test_only": true,
+    "crash": "NoClassDefFoundError: androidx.startup.R$string",
+    "installed_apk_differed_from_validated_release": true
+  },
+  "fixed_release_copy": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary/output/instruction-localization/stradivary-3.3.1827-instructions-release.apk",
+  "latest_typography_spacing_revision": true,
+  "studio_overwrote_verified_install": true,
+  "restoration_after_second_crash": {
+    "install": "Success",
+    "source_apk": "stradivary-3.3.1827-instructions-release.apk",
+    "source_sha256": "7f3477a399cef743f8ff6e4671be0efa3252b5cfacc8f1a50cd64e4dcb73b15b",
+    "launch": "Status: ok / COLD",
+    "process_id_seen_after_restore": "13163",
+    "note": "Phone disconnected afterwards; fixed Studio APK device Run pending"
+  },
+  "current_device_connection": "disconnected"
+}

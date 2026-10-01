@@ -9,6 +9,7 @@
 
     <View
         android:id="@+id/ubi4TitleClickBlockBtn"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@+id/ubi4MainSv"
@@ -65,13 +66,14 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="0dp"
         android:background="@color/ubi4_back"
         tools:ignore="UselessParent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="26dp"
             android:paddingBottom="24dp">
 
             <androidx.constraintlayout.widget.Guideline
@@ -127,13 +129,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSensorGesturesTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_sensor_gestures_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSensorGesturesBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_sensor_gestures_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget1Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_1"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_sensor_gestures_title"
+                            android:src="@drawable/ubi4_help_widget_1" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -154,13 +180,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedEmgLockTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_emg_lock_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedEmgLockBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_emg_lock_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget2Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_2"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_emg_lock_title"
+                            android:src="@drawable/ubi4_help_widget_2" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -181,13 +231,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedScreenTimeoutTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_screen_timeout_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedScreenTimeoutBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_screen_timeout_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget3Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_3"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_screen_timeout_title"
+                            android:src="@drawable/ubi4_help_widget_3" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -208,13 +282,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSensorGainTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_sensor_gain_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSensorGainBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_sensor_gain_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget4Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_4"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_sensor_gain_title"
+                            android:src="@drawable/ubi4_help_widget_4" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -235,13 +333,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedForceTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_force_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedForceBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_force_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget5Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_5"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_force_title"
+                            android:src="@drawable/ubi4_help_widget_5" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -262,13 +384,37 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSpeedTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_speed_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSpeedBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_speed_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget6Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_6"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_speed_title"
+                            android:src="@drawable/ubi4_help_widget_6" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -289,13 +435,175 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedControlModeTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_control_mode_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedControlModeBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_control_mode_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedNormalTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_normal_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedNormalBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_normal_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSportTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_sport_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedSportBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_sport_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_proportional_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_proportional_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalSpeedTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_proportional_speed_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalSpeedBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_proportional_speed_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalGripTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_proportional_grip_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalGripBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_proportional_grip_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalBothTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_proportional_both_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedProportionalBothBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_proportional_both_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget7Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_7"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_control_mode_title"
+                            android:src="@drawable/ubi4_help_widget_7" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -315,13 +623,83 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <ImageView
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedGestureActionTitleTv"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_gesture_action_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedGestureActionBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_gesture_action_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedNoneTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_none_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedNoneBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_none_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedOpenTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_advanced_open_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpAdvancedOpenBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_advanced_open_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpAdvancedWidget8Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ubi4_help_image_advanced_settings_8"
-                            tools:ignore="ContentDescription" />
+                            android:contentDescription="@string/help_advanced_gesture_action_title"
+                            android:src="@drawable/ubi4_help_widget_8" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>

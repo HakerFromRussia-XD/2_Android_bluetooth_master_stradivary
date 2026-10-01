@@ -1,0 +1,9 @@
+{
+  "checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "apk": "/tmp/stradivary-instruction-correct-folder-baseline.apk",
+  "bytes": 52519450,
+  "sha256": "9aa8e38c6da420850ed3d5c7bebf0a7ff76d2652aeb9a2f458a0c151e648f472",
+  "build": "BUILD SUCCESSFUL",
+  "variant": "release",
+  "log": "/tmp/stradivary-instruction-correct-folder-baseline.log"
+}

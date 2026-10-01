@@ -884,4 +884,38 @@
     <string name="user_firmware_verifying">Checking board state and software version…</string>
     <string name="user_firmware_waiting">Waiting for the device or network. The update will continue automatically.</string>
     <string name="user_firmware_unavailable">Unable to check for software updates.</string>
+
+    <!-- Advanced settings: editable descriptions, separate Figma widget assets. -->
+    <string name="help_advanced_sensor_gestures_title">Switching gestures with sensors</string>
+    <string name="help_advanced_sensor_gestures_body">Allows you to switch gestures using the sensors without selecting them on the screen. After the prosthesis is fully open, send another opening signal to switch gestures. The slider sets the minimum duration of this signal required to trigger the switch.</string>
+    <string name="help_advanced_emg_lock_title">Locking movement with EMG</string>
+    <string name="help_advanced_emg_lock_body">Allows you to lock prosthesis movement using EMG signals. To enable or disable the lock, send signals to both the opening and closing sensors at the same time and hold them for at least the specified duration.</string>
+    <string name="help_advanced_screen_timeout_title">Screen timeout</string>
+    <string name="help_advanced_screen_timeout_body">Sets how long the prosthesis screen stays on when there is no activity. After the specified time, the screen turns off automatically to save battery power.</string>
+    <string name="help_advanced_sensor_gain_title">Maximum sensor sensitivity</string>
+    <string name="help_advanced_sensor_gain_body">Enables increased sensitivity of the EMG sensors. In this mode, the prosthesis responds faster to muscle signals, but may be more sensitive to interference and false triggers.</string>
+    <string name="help_advanced_force_title">Grip force</string>
+    <string name="help_advanced_force_body">Adjusts the grip force used when grasping objects. This value determines how firmly the prosthesis squeezes and holds an object before movement stops.</string>
+    <string name="help_advanced_speed_title">Movement speed</string>
+    <string name="help_advanced_speed_body">Adjusts the movement speed of the prosthesis when performing a grip. This value determines how quickly the prosthesis opens and closes.</string>
+    <string name="help_advanced_control_mode_title">Prosthesis control mode</string>
+    <string name="help_advanced_control_mode_body">Selects how the prosthesis responds to EMG sensor signals.</string>
+    <string name="help_advanced_normal_title">Normal</string>
+    <string name="help_advanced_normal_body">The standard prosthesis control mode. Movement starts when one signal is below its threshold and the other crosses its activation threshold.</string>
+    <string name="help_advanced_sport_title">Sport</string>
+    <string name="help_advanced_sport_body">A mode with a faster response to signal changes. Unlike Normal mode, movement starts as soon as one signal is below its threshold and the other is above its threshold, even if the first signal has not yet fully returned below its threshold. This makes switching between movements faster and more continuous.</string>
+    <string name="help_advanced_proportional_title">Proportional force control</string>
+    <string name="help_advanced_proportional_body">Allows gradual control of movement parameters based on muscle signal strength. There is no movement below the threshold. As the signal rises above the threshold, the controlled parameter increases up to the value set in the settings.</string>
+    <string name="help_advanced_proportional_speed_title">Proportional speed control</string>
+    <string name="help_advanced_proportional_speed_body">Movement speed changes gradually with the signal level.</string>
+    <string name="help_advanced_proportional_grip_title">Proportional grip force</string>
+    <string name="help_advanced_proportional_grip_body">Grip force changes gradually with the signal level.</string>
+    <string name="help_advanced_proportional_both_title">Proportional force and speed control</string>
+    <string name="help_advanced_proportional_both_body">Both movement speed and grip force are adjusted gradually with the signal level.</string>
+    <string name="help_advanced_gesture_action_title">Action on gesture change</string>
+    <string name="help_advanced_gesture_action_body">Selects what the prosthesis does immediately after switching to another gesture.</string>
+    <string name="help_advanced_none_title">No action</string>
+    <string name="help_advanced_none_body">After the gesture changes, the prosthesis keeps its current position without any additional movement.</string>
+    <string name="help_advanced_open_title">Move to open position</string>
+    <string name="help_advanced_open_body">After the gesture changes, the prosthesis opens automatically so that the new gesture starts from the initial position.</string>
 </resources>

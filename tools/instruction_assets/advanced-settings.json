@@ -1,0 +1,211 @@
+{
+  "fileKey": "YyKUU1lMucdDkGyA5OeoRg",
+  "cards": [
+    {
+      "index": 1,
+      "source": "575:1080",
+      "widget": "576:1333",
+      "key": "sensor_gestures",
+      "title": [
+        "Переключение жестов сенсорами",
+        "Switching gestures with sensors"
+      ],
+      "body": [
+        "Позволяет переключать жесты с помощью сенсоров без выбора на экране. Для переключения необходимо после полного открытия протеза повторно подать сигнал на открытие, а слайдер задаёт минимальную длительность этого сигнала для срабатывания переключения.",
+        "Allows you to switch gestures using the sensors without selecting them on the screen. After the prosthesis is fully open, send another opening signal to switch gestures. The slider sets the minimum duration of this signal required to trigger the switch."
+      ]
+    },
+    {
+      "index": 2,
+      "source": "576:1348",
+      "widget": "576:1351",
+      "key": "emg_lock",
+      "title": [
+        "Блокировка движения с ЭМГ",
+        "Locking movement with EMG"
+      ],
+      "body": [
+        "Позволяет блокировать движение протеза с помощью сигналов ЭМГ. Блокировка включается или отключается, если одновременно подать сигналы на датчики открытия и закрытия и удерживать их не менее заданного времени.",
+        "Allows you to lock prosthesis movement using EMG signals. To enable or disable the lock, send signals to both the opening and closing sensors at the same time and hold them for at least the specified duration."
+      ]
+    },
+    {
+      "index": 3,
+      "source": "576:1368",
+      "widget": "576:1371",
+      "key": "screen_timeout",
+      "title": [
+        "Время работы экрана",
+        "Screen timeout"
+      ],
+      "body": [
+        "Позволяет задать, как долго экран протеза остаётся включённым при отсутствии действий. По истечении установленного времени экран автоматически гаснет для экономии заряда.",
+        "Sets how long the prosthesis screen stays on when there is no activity. After the specified time, the screen turns off automatically to save battery power."
+      ]
+    },
+    {
+      "index": 4,
+      "source": "577:1386",
+      "widget": "577:1389",
+      "key": "sensor_gain",
+      "title": [
+        "Максимальная чувствительность датчиков",
+        "Maximum sensor sensitivity"
+      ],
+      "body": [
+        "Позволяет включить повышенную чувствительность ЭМГ-датчиков. В этом режиме протез быстрее реагирует на мышечные сигналы, но может быть более чувствителен к помехам и ложным срабатываниям.",
+        "Enables increased sensitivity of the EMG sensors. In this mode, the prosthesis responds faster to muscle signals, but may be more sensitive to interference and false triggers."
+      ]
+    },
+    {
+      "index": 5,
+      "source": "578:1098",
+      "widget": "578:1101",
+      "key": "force",
+      "title": [
+        "Настройка силы",
+        "Grip force"
+      ],
+      "body": [
+        "Позволяет регулировать силу сжатия протеза при захвате предметов. Значение определяет, с каким усилием протез будет сжимать и удерживать предмет перед остановкой движения.",
+        "Adjusts the grip force used when grasping objects. This value determines how firmly the prosthesis squeezes and holds an object before movement stops."
+      ]
+    },
+    {
+      "index": 6,
+      "source": "578:1112",
+      "widget": "578:1115",
+      "key": "speed",
+      "title": [
+        "Настройка скорости",
+        "Movement speed"
+      ],
+      "body": [
+        "Позволяет регулировать скорость движения протеза при выполнении захвата. Значение определяет, насколько быстро протез будет открываться и закрываться при выполнении движения.",
+        "Adjusts the movement speed of the prosthesis when performing a grip. This value determines how quickly the prosthesis opens and closes."
+      ]
+    },
+    {
+      "index": 7,
+      "source": "583:1080",
+      "widget": "583:1098",
+      "list": "593:1080",
+      "key": "control_mode",
+      "title": [
+        "Режим работы протеза",
+        "Prosthesis control mode"
+      ],
+      "body": [
+        "Позволяет выбрать алгоритм реакции протеза на сигналы ЭМГ-датчиков.",
+        "Selects how the prosthesis responds to EMG sensor signals."
+      ],
+      "sections": [
+        {
+          "key": "normal",
+          "title": [
+            "Нормальный",
+            "Normal"
+          ],
+          "body": [
+            "Стандартный режим работы протеза. Движение начинается, когда один сигнал находится ниже порога, а второй пересекает порог срабатывания.",
+            "The standard prosthesis control mode. Movement starts when one signal is below its threshold and the other crosses its activation threshold."
+          ]
+        },
+        {
+          "key": "sport",
+          "title": [
+            "Спортивный",
+            "Sport"
+          ],
+          "body": [
+            "Режим с более быстрым откликом на смену сигналов. В отличие от нормального режима, движение начинается уже тогда, когда один сигнал ниже порога, а второй выше порога, даже если первый ещё не успел полностью вернуться ниже своего порога. Это делает переключение между движениями более быстрым и непрерывным.",
+            "A mode with a faster response to signal changes. Unlike Normal mode, movement starts as soon as one signal is below its threshold and the other is above its threshold, even if the first signal has not yet fully returned below its threshold. This makes switching between movements faster and more continuous."
+          ]
+        },
+        {
+          "key": "proportional",
+          "title": [
+            "Плавное управление силой",
+            "Proportional force control"
+          ],
+          "body": [
+            "Позволяет плавно управлять параметрами движения в зависимости от силы мышечного сигнала. Если сигнал ниже порога, движение не происходит. Чем выше сигнал над порогом, тем сильнее выражен управляемый параметр, вплоть до значения, заданного в настройках.",
+            "Allows gradual control of movement parameters based on muscle signal strength. There is no movement below the threshold. As the signal rises above the threshold, the controlled parameter increases up to the value set in the settings."
+          ]
+        },
+        {
+          "key": "proportional_speed",
+          "title": [
+            "Плавное управление скоростью",
+            "Proportional speed control"
+          ],
+          "body": [
+            "Скорость движения изменяется плавно в зависимости от уровня сигнала.",
+            "Movement speed changes gradually with the signal level."
+          ]
+        },
+        {
+          "key": "proportional_grip",
+          "title": [
+            "Пропорциональная сила",
+            "Proportional grip force"
+          ],
+          "body": [
+            "Сила сжатия изменяется плавно в зависимости от уровня сигнала.",
+            "Grip force changes gradually with the signal level."
+          ]
+        },
+        {
+          "key": "proportional_both",
+          "title": [
+            "Плавное управление силой и скоростью",
+            "Proportional force and speed control"
+          ],
+          "body": [
+            "Одновременно плавно регулируются и скорость движения, и сила сжатия в зависимости от уровня сигнала.",
+            "Both movement speed and grip force are adjusted gradually with the signal level."
+          ]
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "source": "585:1145",
+      "widget": "585:1148",
+      "list": "594:1102",
+      "key": "gesture_action",
+      "title": [
+        "Действие при смене жеста",
+        "Action on gesture change"
+      ],
+      "body": [
+        "Позволяет выбрать, что должен сделать протез сразу после переключения на другой жест.",
+        "Selects what the prosthesis does immediately after switching to another gesture."
+      ],
+      "sections": [
+        {
+          "key": "none",
+          "title": [
+            "Без действия",
+            "No action"
+          ],
+          "body": [
+            "После смены жеста протез сохраняет текущее положение и не выполняет дополнительного движения.",
+            "After the gesture changes, the prosthesis keeps its current position without any additional movement."
+          ]
+        },
+        {
+          "key": "open",
+          "title": [
+            "Перейти в открытое положение",
+            "Move to open position"
+          ],
+          "body": [
+            "После смены жеста протез автоматически переводится в открытое положение, чтобы начать работу с новым жестом из исходного состояния.",
+            "After the gesture changes, the prosthesis opens automatically so that the new gesture starts from the initial position."
+          ]
+        }
+      ]
+    }
+  ]
+}

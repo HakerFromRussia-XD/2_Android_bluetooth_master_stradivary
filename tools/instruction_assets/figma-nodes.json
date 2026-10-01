@@ -1,0 +1,135 @@
+{
+  "fileKey": "YyKUU1lMucdDkGyA5OeoRg",
+  "widgetBoard": "2299:1345",
+  "englishBoard": "2299:1348",
+  "assets": [
+    {
+      "index": 1,
+      "locale": "ru",
+      "id": "2299:1349",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_1_ru"
+    },
+    {
+      "index": 1,
+      "locale": "en",
+      "id": "2299:1364",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_1_en"
+    },
+    {
+      "index": 2,
+      "locale": "ru",
+      "id": "2299:1397",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_2_ru"
+    },
+    {
+      "index": 2,
+      "locale": "en",
+      "id": "2299:1412",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_2_en"
+    },
+    {
+      "index": 3,
+      "locale": "ru",
+      "id": "2299:1445",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_3_ru"
+    },
+    {
+      "index": 3,
+      "locale": "en",
+      "id": "2299:1460",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_3_en"
+    },
+    {
+      "index": 4,
+      "locale": "ru",
+      "id": "2299:1493",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_4_ru"
+    },
+    {
+      "index": 4,
+      "locale": "en",
+      "id": "2299:1503",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_4_en"
+    },
+    {
+      "index": 5,
+      "locale": "ru",
+      "id": "2299:1526",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_5_ru"
+    },
+    {
+      "index": 5,
+      "locale": "en",
+      "id": "2299:1536",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_5_en"
+    },
+    {
+      "index": 6,
+      "locale": "ru",
+      "id": "2299:1559",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_6_ru"
+    },
+    {
+      "index": 6,
+      "locale": "en",
+      "id": "2299:1569",
+      "width": 296,
+      "height": 46.80082321166992,
+      "name": "ubi4_help_widget_6_en"
+    },
+    {
+      "index": 7,
+      "locale": "ru",
+      "id": "2299:1592",
+      "width": 296,
+      "height": 144.14285278320312,
+      "name": "ubi4_help_widget_7_ru"
+    },
+    {
+      "index": 7,
+      "locale": "en",
+      "id": "2299:1622",
+      "width": 296,
+      "height": 144.14285278320312,
+      "name": "ubi4_help_widget_7_en"
+    },
+    {
+      "index": 8,
+      "locale": "ru",
+      "id": "2299:1697",
+      "width": 296,
+      "height": 78.85714721679688,
+      "name": "ubi4_help_widget_8_ru"
+    },
+    {
+      "index": 8,
+      "locale": "en",
+      "id": "2299:1714",
+      "width": 296,
+      "height": 78.85714721679688,
+      "name": "ubi4_help_widget_8_en"
+    }
+  ]
+}

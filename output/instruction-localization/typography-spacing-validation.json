@@ -1,0 +1,14 @@
+{
+  "headings": 16,
+  "font": "Inter SemiBold",
+  "text_size": 14,
+  "section_gap_dp": 16,
+  "title_description_gap_dp": 8,
+  "platform_sources": [
+    "Android XML",
+    "shared iOS instruction model"
+  ],
+  "source_validation": "passed",
+  "manual_visual_review": "pending",
+  "user_requested_revision": true
+}

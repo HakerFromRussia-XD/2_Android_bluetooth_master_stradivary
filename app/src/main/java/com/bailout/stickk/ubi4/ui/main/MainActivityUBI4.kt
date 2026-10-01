@@ -18,6 +18,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -161,6 +162,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private lateinit var bottomNavigationController: BottomNavigationController
     private var isV3BleEmulatorMode = false
+    private var defaultDividerContentGap = 0
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -170,6 +172,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=${BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY} version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
+        defaultDividerContentGap = (binding.dividerV.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentViewCreated(fm: FragmentManager, fragment: Fragment, fragmentView: View, state: Bundle?) {
+                    if (fragment.id == R.id.fragmentContainer) updateHelpContentGap(fragmentView)
+                }
+            },
+            false
+        )
+        updateHelpContentGap(supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.view)
 //        applyDfuDiagnostics(intent)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
@@ -251,6 +263,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            updateHelpContentGap(activeFragment?.view)
         }
 
         dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
@@ -951,6 +964,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return (0..4)
             .filter { display -> factory.prepareData(display).isNotEmpty() }
             .toSet()
+    }
+
+    private fun updateHelpContentGap(contentView: View?) {
+        val isHelpPage = contentView?.findViewById<View>(R.id.ubi4HelpTitleInContentTv) != null
+        val params = binding.dividerV.layoutParams as ViewGroup.MarginLayoutParams
+        val gap = if (isHelpPage) 0 else defaultDividerContentGap
+        if (params.bottomMargin != gap) {
+            params.bottomMargin = gap
+            binding.dividerV.layoutParams = params
+        }
     }
 
     fun refreshBottomNavVisibility() {

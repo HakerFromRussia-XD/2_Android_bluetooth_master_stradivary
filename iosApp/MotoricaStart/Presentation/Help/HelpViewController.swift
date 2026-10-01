@@ -115,12 +115,12 @@ final class HelpViewController: UIViewController {
         scrollView.addSubview(contentStack)
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: statusBarView.bottomAnchor, constant: 8),
+            scrollView.topAnchor.constraint(equalTo: statusBarView.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 8),
             contentStack.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor),
             contentStack.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor),
             contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -20)
@@ -325,9 +325,9 @@ final class HelpViewController: UIViewController {
     private func makeBlockView(_ block: InstructionBlock) -> UIView {
         switch block.type {
         case .heading:
-            return makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.interSemiBold(14), color: textColor)
+            return makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.interSemiBold(CGFloat(block.textSize)), color: textColor, lineHeight: CGFloat(block.textLineHeight))
         case .paragraph:
-            return makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.openSansRegular(14), color: textColor)
+            return makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.openSansRegular(14), color: textColor, lineHeight: CGFloat(block.textLineHeight))
         case .emphasis:
             return makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.openSansSemiBold(14), color: textColor)
         case .notice:
@@ -345,8 +345,15 @@ final class HelpViewController: UIViewController {
         case .iconText:
             return makeIconTextRow(block)
         case .image:
-            guard let image = block.image?.toUIImage() else { return UIView() }
+            // Match the bundle that resolves the description, including region variants.
+            let language = SharedRes.strings().help_advanced_sensor_gestures_title.bundle.preferredLocalizations.first
+            let isRussian = language?.split(separator: "-").first == "ru"
+            let resource = isRussian ? block.image : (block.englishImage ?? block.image)
+            guard let image = resource?.toUIImage() else { return UIView() }
             let imageView = UIImageView(image: image)
+            if block.englishImage != nil {
+                imageView.accessibilityIdentifier = "help.widget.\(resource?.assetImageName ?? "")"
+            }
             imageView.contentMode = .scaleAspectFit
             imageView.translatesAutoresizingMaskIntoConstraints = false
             if block.imageWidth > 0 {
@@ -363,13 +370,22 @@ final class HelpViewController: UIViewController {
         }
     }
 
-    private func makeLabel(_ text: String, font: UIFont, color: UIColor) -> UILabel {
+    private func makeLabel(_ text: String, font: UIFont, color: UIColor, lineHeight: CGFloat = 0) -> UILabel {
         let label = UILabel()
         label.text = text
         label.font = font
         label.textColor = color
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
+        if lineHeight > 0 {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.minimumLineHeight = lineHeight
+            paragraphStyle.maximumLineHeight = lineHeight
+            label.attributedText = NSAttributedString(string: text, attributes: [
+                .font: font, .foregroundColor: color, .paragraphStyle: paragraphStyle,
+                .kern: font.pointSize < 18 ? 0.15 : 0
+            ])
+        }
         return label
     }
 
@@ -403,18 +419,20 @@ final class HelpViewController: UIViewController {
         stack.spacing = 12
 
         let text = block.text?.desc().localized() ?? ""
-        if isClosingSensorColorBlock(text) {
+        let isOpeningSensor = isOpeningSensorColorBlock(text)
+        let isClosingSensor = isClosingSensorColorBlock(text)
+        if isClosingSensor {
             stack.addArrangedSubview(
                 makeColorIndicator(
-                    color: inactiveTextColor,
+                    color: UIColor(white: 191.0 / 255.0, alpha: 1),
                     width: CGFloat(block.imageWidth),
                     height: CGFloat(block.imageHeight)
                 )
             )
-        } else if isOpeningSensorColorBlock(text) {
+        } else if isOpeningSensor {
             stack.addArrangedSubview(
                 makeColorIndicator(
-                    color: textColor,
+                    color: .white,
                     width: CGFloat(block.imageWidth),
                     height: CGFloat(block.imageHeight)
                 )
@@ -430,7 +448,20 @@ final class HelpViewController: UIViewController {
             stack.addArrangedSubview(imageView)
         }
 
-        stack.addArrangedSubview(makeLabel(text, font: HelpFont.openSansRegular(14), color: textColor))
+        let isSensor = isOpeningSensor || isClosingSensor
+        stack.addArrangedSubview(makeLabel(text, font: HelpFont.openSansRegular(14), color: isSensor ? inactiveTextColor : textColor))
+        if isSensor {
+            stack.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            let name = isOpeningSensor ? "opening" : "closing"
+            stack.accessibilityIdentifier = "help.sensor.\(name).row"
+            stack.arrangedSubviews.first?.accessibilityIdentifier = "help.sensor.\(name).marker"
+        }
+        if isOpeningSensor {
+            stack.layer.shadowColor = UIColor.black.cgColor
+            stack.layer.shadowOpacity = 0.25
+            stack.layer.shadowOffset = CGSize(width: 0, height: 4)
+            stack.layer.shadowRadius = 4
+        }
         return stack
     }
 

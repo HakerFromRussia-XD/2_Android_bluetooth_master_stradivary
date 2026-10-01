@@ -1,0 +1,20 @@
+{
+  "source_chat_title": "Локализовать экраны инструкции",
+  "source_chat_id": "01a0f749-5fdb-7be1-885d-6311f4aa0dad",
+  "source_checkout": "/Users/motoricallc/Documents/denis/2_Android_bluetooth_master_stradivary",
+  "destination_checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "task": "Сейчас мы будем перерабатывать инструкцию\nУ меня есть эта серия экранов [https://www.figma.com/design/YyKUU1lMucdDkGyA5OeoRg/Untitled--Copy-?node-id=0-1&p=f&t=AhxptHbtGCEXwnrL-0](https://www.figma.com/design/YyKUU1lMucdDkGyA5OeoRg/Untitled--Copy-?node-id=0-1\\&p=f\\&t=AhxptHbtGCEXwnrL-0) (скрин)\nСейчас в приложении они представлены катринками с текстом нужно чтоб текст был отдельно, а картинки виджетов отдельно (скрин 2 пример картинки виджета)\nКартинки должны быть под русскую и английскую локаль (сначала понадобится создать английский вариант в figma, а потом уже в png выгрузить)&#x20;\nТекст описания должен быть локализован\nВнешний вид экрана инструкции должен быть сохранён (но шрифты текста заголовков подзаголовков должны быть такими же как и на других страницах в приложении)\nПри переключении на английский язык системы текст описания меняется на английский, а картинка виджета на её английскую версию.\nФормат выгружаемой картинки из фигмы выбирается так, чтоб у картинки был минимальный вес при сохранении хорошего качества на экране, итоговый вес приложения должен остаться неизменным или стат меньше.\n\nReferenced image files:\n- [Image #1]: /Users/motoricallc/.codex/attachments/dc70320c-8dab-40f7-8ac4-b46c6ee4de64/image-1.png\n- [Image #2]: /Users/motoricallc/.codex/attachments/dc70320c-8dab-40f7-8ac4-b46c6ee4de64/image-2.png",
+  "requirements": [
+    "Android and iOS are both in scope",
+    "Localized description text must be native and separate from the widget images",
+    "Use existing app fonts for instruction headings and body",
+    "RU and EN widget images follow system language together with description text",
+    "Keep layout and make app size unchanged or smaller",
+    "Preserve exact approved sensor legend",
+    "Help scroll viewport must touch the top bar; preserve initial heading inset inside scrolling content",
+    "Use normal signed release com.bailout.stickk on connected Android, preserve data with install -r",
+    "User performs visual verification; do not reintroduce removed automatic scroll tests"
+  ],
+  "continuation_request": "Transfer all work from the neighboring chat and continue in this checkout",
+  "historical_checks_are_not_current_validation": true
+}

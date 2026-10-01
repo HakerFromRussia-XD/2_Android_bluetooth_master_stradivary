@@ -1,0 +1,70 @@
+{
+  "checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "app": "/tmp/stradivary-instruction-correct-folder-ios-build/Build/Products/Debug-iphonesimulator/MotoricaStart.app",
+  "configuration": "Debug",
+  "sdk": "iphonesimulator26.5",
+  "architecture": "arm64",
+  "build": "BUILD SUCCEEDED",
+  "build_log": "/tmp/stradivary-instruction-correct-folder-ios-final-verified.log",
+  "baseline_bytes": 132418288,
+  "current_bytes": 131962069,
+  "bytes_saved": 456219,
+  "same_build_settings": true,
+  "packaged_widget_assets": [
+    "ubi4_help_widget_1_en",
+    "ubi4_help_widget_1_ru",
+    "ubi4_help_widget_2_en",
+    "ubi4_help_widget_2_ru",
+    "ubi4_help_widget_3_en",
+    "ubi4_help_widget_3_ru",
+    "ubi4_help_widget_4_en",
+    "ubi4_help_widget_4_ru",
+    "ubi4_help_widget_5_en",
+    "ubi4_help_widget_5_ru",
+    "ubi4_help_widget_6_en",
+    "ubi4_help_widget_6_ru",
+    "ubi4_help_widget_7_en",
+    "ubi4_help_widget_7_ru",
+    "ubi4_help_widget_8_en",
+    "ubi4_help_widget_8_ru"
+  ],
+  "obsolete_full_cards_absent": true,
+  "packaged_localized_text_blocks": {
+    "en": 32,
+    "Base": 32,
+    "ru": 32
+  },
+  "source_pixels_lossless_from_figma": "Confirmed separately by resource-validation.json; compiled Assets.car pixels not decoded",
+  "ui_verification": "Manual visual review pending; automated scroll checks removed at user request",
+  "extra_files": [],
+  "changed_file_sizes": {
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/Assets.car": {
+      "before": 8072760,
+      "after": 7498312
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/Base.lproj/Localizable.strings": {
+      "before": 68721,
+      "after": 72587
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/en.lproj/Localizable.strings": {
+      "before": 68721,
+      "after": 72587
+    },
+    "Frameworks/shared.framework/2_Android_bluetooth_master_stradivary:shared.bundle/Contents/Resources/ru.lproj/Localizable.strings": {
+      "before": 97115,
+      "after": 103606
+    },
+    "Frameworks/shared.framework/Headers/shared.h": {
+      "before": 1173355,
+      "after": 1179057
+    },
+    "Frameworks/shared.framework/shared": {
+      "before": 63255176,
+      "after": 63332216
+    },
+    "MotoricaStart.debug.dylib": {
+      "before": 23970888,
+      "after": 23992152
+    }
+  }
+}

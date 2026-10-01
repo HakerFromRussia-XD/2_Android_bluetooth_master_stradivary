@@ -884,4 +884,38 @@
     <string name="user_firmware_verifying">Проверка состояния платы и версии ПО…</string>
     <string name="user_firmware_waiting">Ожидание устройства или сети. Обновление продолжится автоматически.</string>
     <string name="user_firmware_unavailable">Не удалось проверить наличие обновлений ПО.</string>
+
+    <!-- Advanced settings: editable descriptions, separate Figma widget assets. -->
+    <string name="help_advanced_sensor_gestures_title">Переключение жестов сенсорами</string>
+    <string name="help_advanced_sensor_gestures_body">Позволяет переключать жесты с помощью сенсоров без выбора на экране. Для переключения необходимо после полного открытия протеза повторно подать сигнал на открытие, а слайдер задаёт минимальную длительность этого сигнала для срабатывания переключения.</string>
+    <string name="help_advanced_emg_lock_title">Блокировка движения с ЭМГ</string>
+    <string name="help_advanced_emg_lock_body">Позволяет блокировать движение протеза с помощью сигналов ЭМГ. Блокировка включается или отключается, если одновременно подать сигналы на датчики открытия и закрытия и удерживать их не менее заданного времени.</string>
+    <string name="help_advanced_screen_timeout_title">Время работы экрана</string>
+    <string name="help_advanced_screen_timeout_body">Позволяет задать, как долго экран протеза остаётся включённым при отсутствии действий. По истечении установленного времени экран автоматически гаснет для экономии заряда.</string>
+    <string name="help_advanced_sensor_gain_title">Максимальная чувствительность датчиков</string>
+    <string name="help_advanced_sensor_gain_body">Позволяет включить повышенную чувствительность ЭМГ-датчиков. В этом режиме протез быстрее реагирует на мышечные сигналы, но может быть более чувствителен к помехам и ложным срабатываниям.</string>
+    <string name="help_advanced_force_title">Настройка силы</string>
+    <string name="help_advanced_force_body">Позволяет регулировать силу сжатия протеза при захвате предметов. Значение определяет, с каким усилием протез будет сжимать и удерживать предмет перед остановкой движения.</string>
+    <string name="help_advanced_speed_title">Настройка скорости</string>
+    <string name="help_advanced_speed_body">Позволяет регулировать скорость движения протеза при выполнении захвата. Значение определяет, насколько быстро протез будет открываться и закрываться при выполнении движения.</string>
+    <string name="help_advanced_control_mode_title">Режим работы протеза</string>
+    <string name="help_advanced_control_mode_body">Позволяет выбрать алгоритм реакции протеза на сигналы ЭМГ-датчиков.</string>
+    <string name="help_advanced_normal_title">Нормальный</string>
+    <string name="help_advanced_normal_body">Стандартный режим работы протеза. Движение начинается, когда один сигнал находится ниже порога, а второй пересекает порог срабатывания.</string>
+    <string name="help_advanced_sport_title">Спортивный</string>
+    <string name="help_advanced_sport_body">Режим с более быстрым откликом на смену сигналов. В отличие от нормального режима, движение начинается уже тогда, когда один сигнал ниже порога, а второй выше порога, даже если первый ещё не успел полностью вернуться ниже своего порога. Это делает переключение между движениями более быстрым и непрерывным.</string>
+    <string name="help_advanced_proportional_title">Плавное управление силой</string>
+    <string name="help_advanced_proportional_body">Позволяет плавно управлять параметрами движения в зависимости от силы мышечного сигнала. Если сигнал ниже порога, движение не происходит. Чем выше сигнал над порогом, тем сильнее выражен управляемый параметр, вплоть до значения, заданного в настройках.</string>
+    <string name="help_advanced_proportional_speed_title">Плавное управление скоростью</string>
+    <string name="help_advanced_proportional_speed_body">Скорость движения изменяется плавно в зависимости от уровня сигнала.</string>
+    <string name="help_advanced_proportional_grip_title">Пропорциональная сила</string>
+    <string name="help_advanced_proportional_grip_body">Сила сжатия изменяется плавно в зависимости от уровня сигнала.</string>
+    <string name="help_advanced_proportional_both_title">Плавное управление силой и скоростью</string>
+    <string name="help_advanced_proportional_both_body">Одновременно плавно регулируются и скорость движения, и сила сжатия в зависимости от уровня сигнала.</string>
+    <string name="help_advanced_gesture_action_title">Действие при смене жеста</string>
+    <string name="help_advanced_gesture_action_body">Позволяет выбрать, что должен сделать протез сразу после переключения на другой жест.</string>
+    <string name="help_advanced_none_title">Без действия</string>
+    <string name="help_advanced_none_body">После смены жеста протез сохраняет текущее положение и не выполняет дополнительного движения.</string>
+    <string name="help_advanced_open_title">Перейти в открытое положение</string>
+    <string name="help_advanced_open_body">После смены жеста протез автоматически переводится в открытое положение, чтобы начать работу с новым жестом из исходного состояния.</string>
 </resources>

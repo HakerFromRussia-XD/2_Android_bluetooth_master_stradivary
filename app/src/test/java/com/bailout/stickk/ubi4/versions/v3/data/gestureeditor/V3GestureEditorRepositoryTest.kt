@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.GetGestureEditorHandSideUseCaseV3
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
@@ -19,6 +20,8 @@ import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
 import io.mockk.*
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
+import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import kotlinx.serialization.encodeToString
@@ -30,6 +33,15 @@ import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3GestureEditorRepositoryTest {
+    private fun createRepository(
+        preferences: SharedPreferences = mockk(),
+        enqueuePacket: (ByteArray) -> Unit = {},
+        callbackScheduler: Scheduler = Schedulers.trampoline(),
+    ): V3GestureEditorRepositoryImpl {
+        val source = V3GestureEditorAndroidSource(preferences, callbackScheduler)
+        return V3GestureEditorRepositoryImpl(source::readSavedHandSide, source::subscribeSettingsUpdates, enqueuePacket)
+    }
+
     @ParameterizedTest @ValueSource(ints = [-2, 0, 1, 3])
     fun `device hand side takes priority and is limited to zero or one`(value: Int) {
         val info = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
@@ -37,7 +49,7 @@ class V3GestureEditorRepositoryTest {
         mockkObject(ParameterStoreV3)
         try {
             every { ParameterStoreV3.get(info) } returns ParameterTypedValueV3.Spinner(SpinnerV3(value))
-            val repository = V3GestureEditorRepositoryImpl(preferences, { error("Reading must not send commands") }, Schedulers.trampoline())
+            val repository = createRepository(preferences, { error("Reading must not send commands") })
             assertEquals(value.coerceIn(0, 1), GetGestureEditorHandSideUseCaseV3(repository)())
             verify { preferences wasNot Called }
         } finally { unmockkObject(ParameterStoreV3) }
@@ -52,7 +64,7 @@ class V3GestureEditorRepositoryTest {
         }
         mockkObject(ParameterStoreV3)
         try {
-            val repository = V3GestureEditorRepositoryImpl(preferences, { error("Reading must not send commands") }, Schedulers.trampoline())
+            val repository = createRepository(preferences, { error("Reading must not send commands") })
             for (stored in listOf(null, ParameterTypedValueV3.Text("1"))) {
                 every { ParameterStoreV3.get(info) } returns stored
                 assertEquals(saved, GetGestureEditorHandSideUseCaseV3(repository)())
@@ -62,9 +74,27 @@ class V3GestureEditorRepositoryTest {
         } finally { unmockkObject(ParameterStoreV3) }
     }
 
+    @Test fun `hand side fallback reads current address each time and keeps the default`() {
+        val info = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+        val preferences = mockk<SharedPreferences> {
+            every { getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") } returnsMany listOf("first", "second", "")
+            every { getInt("first" + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) } returns 0
+            every { getInt("second" + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) } returns 7
+            every { getInt(PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) } returns 1
+        }
+        mockkObject(ParameterStoreV3)
+        try {
+            every { ParameterStoreV3.get(info) } returns null
+            val repository = createRepository(preferences)
+            assertEquals(listOf(0, 7, 1), List(3) { repository.getHandSide() })
+            verify(exactly = 3) { preferences.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") }
+            verify(exactly = 0) { preferences.edit() }
+        } finally { unmockkObject(ParameterStoreV3) }
+    }
+
     @Test fun `request uses existing codec without changing gesture ID`() {
         val packets = mutableListOf<ByteArray>()
-        val repository = V3GestureEditorRepositoryImpl(mockk(), { packets.add(it) }, Schedulers.trampoline())
+        val repository = createRepository(enqueuePacket = { packets.add(it) })
         repository.requestSettings(17)
         assertEquals(1, packets.size)
         assertArrayEquals(BLECommandsV3.requestGestureInfo(17), packets.single())
@@ -77,7 +107,7 @@ class V3GestureEditorRepositoryTest {
         GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
             deviceAddress = info.deviceAddress, parametersList = arrayListOf(parameter)))
         val packets = mutableListOf<ByteArray>()
-        val repository = V3GestureEditorRepositoryImpl(mockk(), { packets.add(it) }, Schedulers.trampoline())
+        val repository = createRepository(enqueuePacket = { packets.add(it) })
         val received = mutableListOf<V3GestureSettings?>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             repository.observeSettings().collect { received.add(it) }
@@ -103,9 +133,45 @@ class V3GestureEditorRepositoryTest {
         } finally { job.cancel(); GlobalParameters.baseSubDevicesInfoStructSetV3 = previousDevices }
     }
 
+    @Test fun `scheduled responses are read before buffering without dropping repeats and cancellation disposes pending reads`() = runTest {
+        val info = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+        val parameter = BaseParameterInfoStruct(ID = info.parameterID, dataCode = info.dataCode)
+        val scheduler = TestScheduler()
+        val repository = createRepository(callbackScheduler = scheduler)
+        val received = mutableListOf<V3GestureSettings?>()
+        val events = RxUpdateMainEventUbi4.getInstance()
+        mockkObject(ParameterProvider)
+        val job = backgroundScope.launch { repository.observeSettings().collect { received.add(it) } }
+        try {
+            every { ParameterProvider.getParameterV3(info) } returns parameter
+            runCurrent()
+            parameter.data = Json.encodeToString(GestureV3(gestureId = 1))
+            events.updateUiGestureSettingsV3(info)
+            // Read at callback delivery, as before; neither at event emission nor later in collect.
+            parameter.data = Json.encodeToString(GestureV3(gestureId = 2))
+            repeat(80) { events.updateUiGestureSettingsV3(info) }
+            verify(exactly = 0) { ParameterProvider.getParameterV3(info) }
+            assertTrue(received.isEmpty())
+            scheduler.triggerActions()
+            verify(exactly = 81) { ParameterProvider.getParameterV3(info) }
+            parameter.data = "invalid"
+            runCurrent()
+            assertEquals(List(81) { V3GestureSettings(gestureId = 2) }, received)
+
+            events.updateUiGestureSettingsV3(info)
+            job.cancelAndJoin()
+            scheduler.triggerActions()
+            events.updateUiGestureSettingsV3(info)
+            scheduler.triggerActions()
+            runCurrent()
+            verify(exactly = 81) { ParameterProvider.getParameterV3(info) }
+            assertEquals(81, received.size)
+        } finally { job.cancelAndJoin(); unmockkObject(ParameterProvider) }
+    }
+
     @Test fun `ready wait completes only on READY and cancelled wait stays cancelled`() = runTest {
         val previous = BLEState.state.value
-        val repository = V3GestureEditorRepositoryImpl(mockk(), {}, Schedulers.trampoline())
+        val repository = createRepository()
         try {
             BLEState.publishDisconnect()
             val waiting = async { repository.awaitReady() }

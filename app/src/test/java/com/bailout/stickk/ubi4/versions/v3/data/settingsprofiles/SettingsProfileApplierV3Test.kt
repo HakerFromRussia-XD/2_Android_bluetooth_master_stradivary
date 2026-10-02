@@ -58,14 +58,14 @@ class SettingsProfileApplierV3Test {
         val events = mutableListOf<String>()
         every { editor.apply() } answers { events += "preferences" }
         val packets = mutableListOf<ByteArray>()
-        val apply = SettingsProfileApplierV3({ packet ->
+        val apply = createApplier { packet ->
             assertEquals(speed.typedValue, ParameterStoreV3.get(info))
             assertEquals("{\"sliderValue\":42}", cachedParameter.data)
             events += "command"
             packets += packet
-        }, preferences)
+        }
 
-        apply.apply(listOf(autoLogin, speed, autoLogin.copy(mobileBoolean = false)))
+        apply(listOf(autoLogin, speed, autoLogin.copy(mobileBoolean = false)))
 
         assertEquals(listOf("preferences", "command", "preferences"), events)
         assertArrayEquals(byteArrayOf(0x00, 0x0F, 0x3D, 0x2A, 0xA6.toByte()), packets.single())
@@ -81,10 +81,10 @@ class SettingsProfileApplierV3Test {
     @Test
     fun `queue failure propagates after cache update and does not apply later values`() {
         val failure = IllegalStateException("Queue unavailable")
-        val applier = SettingsProfileApplierV3({ throw failure }, preferences)
+        val apply = createApplier { throw failure }
 
         assertSame(failure, assertThrows(IllegalStateException::class.java) {
-            applier.apply(listOf(speed, autoLogin))
+            apply(listOf(speed, autoLogin))
         })
         assertEquals(speed.typedValue, ParameterStoreV3.get(info))
         assertEquals("{\"sliderValue\":42}", cachedParameter.data)
@@ -94,7 +94,7 @@ class SettingsProfileApplierV3Test {
     @Test
     fun `unknown targets mobile keys and incomplete BLE values remain ignored`() {
         val enqueue = mockk<(ByteArray) -> Unit>()
-        SettingsProfileApplierV3(enqueue, preferences).apply(listOf(
+        createApplier(enqueue)(listOf(
             speed.copy(target = "UNKNOWN"), speed.copy(parameterInfo = null),
             speed.copy(codecId = null), speed.copy(typedValue = null),
             autoLogin.copy(mobileKey = "UNKNOWN"), autoLogin.copy(mobileKey = null),
@@ -102,6 +102,21 @@ class SettingsProfileApplierV3Test {
         assertNull(ParameterStoreV3.get(info))
         assertEquals("before", cachedParameter.data)
         verify { listOf(enqueue, preferences) wasNot Called }
+    }
+
+    @Test
+    fun `preference failure propagates without applying later BLE values`() {
+        val failure = IllegalStateException("Preferences unavailable")
+        every { editor.apply() } throws failure
+        val enqueue = mockk<(ByteArray) -> Unit>()
+        val apply = createApplier(enqueue)
+
+        assertSame(failure, assertThrows(IllegalStateException::class.java) {
+            apply(listOf(autoLogin, speed))
+        })
+        assertNull(ParameterStoreV3.get(info))
+        assertEquals("before", cachedParameter.data)
+        verify { enqueue wasNot Called }
     }
 
     @Test
@@ -118,5 +133,13 @@ class SettingsProfileApplierV3Test {
         verify(exactly = 1) { editor.putBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false) }
         verify(exactly = 1) { editor.apply() }
         verify(exactly = 0) { context.getSharedPreferences(any(), any()) }
+    }
+
+    private fun createApplier(enqueue: (ByteArray) -> Unit): (List<SettingsProfileApplyValue>) -> Unit {
+        val context = mockk<Context>()
+        val application = mockk<Context>()
+        every { context.applicationContext } returns application
+        every { application.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE) } returns preferences
+        return createSettingsProfileValueApplier(context, enqueue)
     }
 }

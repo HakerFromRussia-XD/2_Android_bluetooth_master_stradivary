@@ -21,6 +21,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceInfoWriteResult
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.SetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3DeviceIdentityIntegrationTest {

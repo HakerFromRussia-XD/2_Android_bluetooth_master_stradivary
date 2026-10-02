@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sliders
 
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import androidx.lifecycle.ViewModelStore
@@ -23,6 +22,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_THUMB_CLOSED_POSITION
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +36,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -250,11 +251,20 @@ class V3SliderSettingsIntegrationTest {
     }
 
     @Test
-    fun `lock cancels all seven pending writes and rejects releases`() = runTest(dispatcher) {
+    fun `shared lock reaches sensors and cancels pending writes across repository recreation`() = runTest(dispatcher) {
+        val sensors = V3SensorsCommandsRepositoryImpl(
+            enqueuePacket = { packets.add(it) }, refreshWidgets = { error("No refresh expected") },
+        )
+        assertTrue(sensors.interactionEnabled.value)
         attach()
         runCurrent()
         initialValues.keys.forEach(::step)
         UiState.v3WidgetsInteractionEnabled.value = false
+        val recreated = V3DeviceSettingsRepositoryImpl(enqueuePacket = { packets.add(it) })
+        assertFalse(recreated.sliderInteractionEnabled.value)
+        assertFalse(recreated.toggleSliderInteractionEnabled.value)
+        assertFalse(recreated.spinnerInteractionEnabled.value)
+        assertFalse(sensors.interactionEnabled.value)
         initialValues.keys.forEach { viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(it, 50))) }
         runCurrent()
         viewModel.uiState.value.sliders.values.forEach { assertFalse(it.isEnabled) }
@@ -262,6 +272,9 @@ class V3SliderSettingsIntegrationTest {
         runCurrent()
         UiState.v3WidgetsInteractionEnabled.value = true
         runCurrent()
+        assertTrue(sensors.interactionEnabled.value)
+        assertTrue(recreated.sliderInteractionEnabled.value)
+        viewModel.uiState.value.sliders.values.forEach { assertTrue(it.isEnabled) }
         advanceTimeBy(301)
         runCurrent()
         assertEquals(0, packets.size)

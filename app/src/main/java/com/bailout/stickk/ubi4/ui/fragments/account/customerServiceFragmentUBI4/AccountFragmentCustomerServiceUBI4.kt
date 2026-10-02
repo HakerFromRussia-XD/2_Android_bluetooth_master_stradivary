@@ -32,7 +32,6 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
-
 class AccountFragmentCustomerServiceUBI4 : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null

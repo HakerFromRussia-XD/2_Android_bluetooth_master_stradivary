@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
@@ -14,17 +15,17 @@ import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsReposit
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ChangeDeviceRoleUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.EditDeviceInfoTextUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.GetDeviceInfoTextUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.GetDeviceRoleUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveDeviceInfoAvailabilityUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveDeviceRoleAvailabilityUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveProsthesisCalibrationAvailabilityUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ReleaseProsthesisCalibrationButtonUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.RestoreDeviceRoleUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.SetDeviceInfoTextUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.StartProsthesisCalibrationUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ChangeDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.EditDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveDeviceInfoAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveDeviceRoleAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveProsthesisCalibrationAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ReleaseProsthesisCalibrationButtonUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.RestoreDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.SetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.StartProsthesisCalibrationUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3ProsthesisCalibrationRepository
@@ -57,7 +58,7 @@ class V3ServiceViewModelFactory(
         ): V3ServiceViewModelFactory {
             val enqueueCommand: (ByteArray) -> Unit = { packet -> enqueuePacket(packet) {} }
             val repository = V3DeviceSettingsRepositoryImpl(enqueueCommand)
-            val roleRepository = V3DeviceRoleRepositoryImpl(
+            val roleRepository = createDeviceRoleRepository(
                 context.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository,
             )
             val deviceInfoRepository = V3DeviceInfoRepositoryImpl(
@@ -103,3 +104,12 @@ class V3ServiceViewModelFactory(
         ) as T
     }
 }
+
+internal fun createDeviceRoleRepository(
+    preferences: SharedPreferences,
+    settings: V3SpinnerSettingsRepository,
+) = V3DeviceRoleRepositoryImpl(
+    readSavedRole = { preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, 2) },
+    saveRole = { value -> preferences.edit().putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, value).apply() },
+    settings = settings,
+)

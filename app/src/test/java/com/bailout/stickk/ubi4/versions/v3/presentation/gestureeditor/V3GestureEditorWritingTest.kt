@@ -9,6 +9,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GestureEditorNames
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGestureEditorNamesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.EditGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.GetGestureEditorHandSideUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.ObserveGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.RequestGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureCommand
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureEditorRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.WriteGestureSettingsUseCaseV3
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3GestureEditorWritingTest {

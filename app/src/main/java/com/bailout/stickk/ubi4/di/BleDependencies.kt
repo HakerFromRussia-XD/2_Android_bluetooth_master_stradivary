@@ -10,7 +10,9 @@ import java.util.WeakHashMap
 import com.bailout.stickk.ubi4.ble.BleCommandWriter
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
+import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import com.bailout.stickk.ubi4.versions.v3.data.telemetry.V3TelemetryRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.SendTelemetryUseCaseV3
@@ -129,7 +131,7 @@ internal object BleDependencies {
     ) {
         check(commandExecutorRef?.get() === executor) { "Cannot bind telemetry outside the active BLE session" }
         telemetryRequest = controller::requestTelemetryDataV3
-        val repository = V3TelemetryRepositoryImpl(preferences, controller::requestTelemetryDataV3, deviceIdentity(owner))
+        val repository = createV3TelemetryRepository(preferences, controller::requestTelemetryDataV3, deviceIdentity(owner))
         val coordinator = TelemetryCoordinator(scope, SendTelemetryUseCaseV3(repository))
         controller.setOnConnectedListener {
             if (UiState.isInterfaceV3Activated) coordinator.sendTelemetry()
@@ -158,3 +160,20 @@ internal object BleDependencies {
         BleEnvironment.register(manager, executor, bleParser, bleParserV3)
     }
 }
+
+internal fun createV3TelemetryRepository(
+    preferences: SharedPreferences,
+    requestTelemetryData: () -> Unit,
+    deviceIdentity: V3DeviceIdentityStore,
+    sender: Ubi4TelemetrySender = Ubi4TelemetrySender(),
+) = V3TelemetryRepositoryImpl(
+    readLastSendTimestamp = { preferences.getLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, 0L) },
+    writeLastSendTimestamp = { timestamp ->
+        preferences.edit().putLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, timestamp).apply()
+    },
+    readSavedDeviceName = { preferences.getString(PreferenceKeysUbi4.CONNECTED_DEVICE, "null").toString() },
+    readCurrentTimeMillis = System::currentTimeMillis,
+    requestTelemetryData = requestTelemetryData,
+    deviceIdentity = deviceIdentity,
+    sender = sender,
+)

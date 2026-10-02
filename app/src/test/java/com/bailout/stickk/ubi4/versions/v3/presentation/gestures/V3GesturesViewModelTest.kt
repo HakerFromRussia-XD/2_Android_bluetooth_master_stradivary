@@ -20,6 +20,8 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3ActiveGesture
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3GesturesRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3GesturesViewModelTest {

@@ -6,7 +6,6 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SliderSettingsChang
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.toSliderUiState
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 

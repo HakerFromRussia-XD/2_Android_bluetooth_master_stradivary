@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -26,9 +27,16 @@ class V3AccountStatisticsViewModelFactory(
     companion object {
         fun from(context: Context) = V3AccountStatisticsViewModelFactory(
             V3AccountStatisticsRepositoryImpl(
-                context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
+                readCustomGestureName = createStatisticsGestureNameReader(
+                    context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
+                ),
                 requestTelemetry = BleDependencies::requestV3TelemetryData,
             ),
         )
     }
+}
+
+internal fun createStatisticsGestureNameReader(preferences: SharedPreferences): (Int) -> String? = { index ->
+    val mac = preferences.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "").orEmpty()
+    preferences.getString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + mac + index, null)
 }

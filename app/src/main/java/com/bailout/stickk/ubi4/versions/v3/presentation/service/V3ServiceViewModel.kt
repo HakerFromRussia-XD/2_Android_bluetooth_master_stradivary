@@ -33,6 +33,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceRoleChangeResult
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ChangeDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.EditDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveDeviceInfoAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveDeviceRoleAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveProsthesisCalibrationAvailabilityUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ReleaseProsthesisCalibrationButtonUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.RestoreDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceInfoWriteResult
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.SetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.StartProsthesisCalibrationUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 
 class V3ServiceViewModel(
     private val getSliderSettings: GetSliderSettingsUseCaseV3,

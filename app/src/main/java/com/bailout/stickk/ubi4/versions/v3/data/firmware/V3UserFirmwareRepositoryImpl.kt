@@ -57,8 +57,8 @@ class V3UserFirmwareRepositoryImpl(
         }.also(connectivity::registerDefaultNetworkCallback)
         observation = session.observe { update ->
             if (updates !== session) return@observe
-            val completedNow = update.phase == "complete" && state.value.phase != "complete"
-            setSessionActive(update.blocksInteraction && update.phase !in listOf("offered", "complete"))
+            val completedNow = V3UserFirmwarePolicy.shouldResumeAfterUpdate(state.value.phase, update.phase)
+            setSessionActive(V3UserFirmwarePolicy.isTransferActive(update.phase, update.blocksInteraction))
             if (completedNow) resumeAfterUpdate()
             if (update.phase == "unavailable") Log.w("USER_DFU", update.detail)
             state.value = V3UserFirmwareStatus(

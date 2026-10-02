@@ -13,15 +13,18 @@ import java.io.File
 /** Dependency guards for the agreed V3 architecture, run with the ordinary app unit tests. */
 class V3ArchitectureTest {
     private val prefix = "com.bailout.stickk.ubi4.versions.v3."
-    private val root = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
-        .map { File(it, "app/src/main/java/com/bailout/stickk/ubi4/versions/v3") }
-        .first { it.isDirectory }
-    private fun sources(layer: String) = File(root, layer).walkTopDown().filter { it.extension == "kt" }.toList()
+    private val projectRoot = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+        .first { File(it, "app/src/main/java/com/bailout/stickk/ubi4/versions/v3").isDirectory }
+    private val root = File(projectRoot, "app/src/main/java/com/bailout/stickk/ubi4/versions/v3")
+    private val sharedRoot = File(projectRoot, "shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/versions/v3")
+        .also { assertTrue(it.isDirectory, "Missing shared V3 sources") }
+    private fun sources(layer: String) = listOf(root, sharedRoot)
+        .flatMap { File(it, layer).walkTopDown().filter { file -> file.extension == "kt" }.toList() }
         .also { assertTrue(it.isNotEmpty(), "Missing source files for $layer") }
     private fun imports(file: File) = file.readLines().filter { it.startsWith("import ") }
         .map { it.removePrefix("import ").substringBefore(" as ") }
     private fun reject(file: File, bad: List<String>) = assertTrue(bad.isEmpty(),
-        "${file.relativeTo(root)} has forbidden dependencies: $bad")
+        "${file.relativeTo(projectRoot)} has forbidden dependencies: $bad")
 
     @Test fun `domain is independent of platform storage presentation and composition`() {
         sources("domain").forEach { file ->
@@ -70,7 +73,7 @@ class V3ArchitectureTest {
 
     @Test fun `profile import and application do not depend on UI adapters or composition`() {
         val receiver = File(root.parentFile.parentFile, "data/network/Ubi4SettingsProfileReceiver.kt")
-        val applier = File(root, "data/settingsprofiles/SettingsProfileApplierV3.kt")
+        val applier = File(sharedRoot, "data/settingsprofiles/SettingsProfileApplierV3.kt")
         assertTrue(applier.isFile)
         listOf(receiver, applier).forEach { file ->
             reject(file, imports(file).filter {
@@ -418,7 +421,7 @@ class V3ArchitectureTest {
 
     @Test fun `sensors refresh resolves a registered operation without UI access in factory or repository`() {
         val factory = File(root, "di/V3SensorsViewModelFactory.kt")
-        val repository = File(root, "data/sensors/V3SensorsCommandsRepositoryImpl.kt")
+        val repository = File(sharedRoot, "data/sensors/V3SensorsCommandsRepositoryImpl.kt")
         listOf(factory, repository).forEach { file ->
             reject(file, imports(file).filter { it.contains(".ui.") })
             val forbidden = listOf("MainActivityUBI4", "getBLEController", "showSyncProgress", "observeSyncProgress")
@@ -434,7 +437,7 @@ class V3ArchitectureTest {
 
     @Test fun `account statistics requests registered telemetry without an Activity lookup`() {
         val factory = File(root, "di/V3AccountStatisticsViewModelFactory.kt")
-        val repository = File(root, "data/accountstatistics/V3AccountStatisticsRepositoryImpl.kt")
+        val repository = File(sharedRoot, "data/accountstatistics/V3AccountStatisticsRepositoryImpl.kt")
         listOf(factory, repository).forEach { file ->
             reject(file, imports(file).filter { it.contains(".ui.") })
             assertTrue(listOf("MainActivityUBI4", "getBLEController", "mainOrNull")

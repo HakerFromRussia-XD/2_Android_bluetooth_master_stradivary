@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.versions.v3.di.createStatisticsGestureNameReader
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.V3AccountStatistics
 import io.mockk.*
@@ -25,7 +26,7 @@ class V3AccountStatisticsRepositoryTest {
     private var requests = 0
     private val macKey = PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4
     private val nameKey = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
-    private val repository = V3AccountStatisticsRepositoryImpl(preferences, { requests++ }, counters, updates)
+    private val repository = V3AccountStatisticsRepositoryImpl(createStatisticsGestureNameReader(preferences), { requests++ }, counters, updates)
 
     @BeforeEach fun setUp() {
         every { preferences.getString(any(), any()) } answers {
@@ -80,6 +81,23 @@ class V3AccountStatisticsRepositoryTest {
         counters.value = TelemetryGestureCounters(baseGestureMovementCount = listOf(0, 1), customGestureMovementCount = listOf(0, -1))
         assertEquals(listOf(null, null), repository.observeStatistics().first().customGestureNames)
         verify { preferences wasNot Called }
+    }
+
+    @Test fun `each used slot reads the current MAC immediately before its name and skips unused slots`() = runTest {
+        counters.value = TelemetryGestureCounters(customGestureMovementCount = listOf(1, 0, -1, 2))
+        every { preferences.getString(macKey, "") } returnsMany listOf("first", "second")
+        saved[nameKey + "first0"] = "First name"
+        saved[nameKey + "second3"] = "Second name"
+
+        assertEquals(listOf("First name", null, null, "Second name"), repository.observeStatistics().first().customGestureNames)
+        verifySequence {
+            preferences.getString(macKey, "")
+            preferences.getString(nameKey + "first0", null)
+            preferences.getString(macKey, "")
+            preferences.getString(nameKey + "second3", null)
+        }
+        verify(exactly = 0) { preferences.edit() }
+        assertEquals(0, requests)
     }
 
     @Test fun `snapshots detach from mutable source lists and counters refresh without writes`() = runTest {

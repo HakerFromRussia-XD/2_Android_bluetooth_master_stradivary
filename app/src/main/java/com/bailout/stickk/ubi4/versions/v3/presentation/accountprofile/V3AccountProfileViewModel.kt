@@ -3,8 +3,8 @@ package com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
-import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveServiceEngineerAccessUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.service.RestoreDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveServiceEngineerAccessUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.RestoreDeviceRoleUseCaseV3
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob

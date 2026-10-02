@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.sliders
 
-import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import androidx.lifecycle.ViewModelStore

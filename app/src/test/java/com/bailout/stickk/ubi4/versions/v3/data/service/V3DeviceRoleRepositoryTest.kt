@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.di.createDeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.service.*
 import io.mockk.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,11 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceRoleChangeResult
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ChangeDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.ObserveServiceEngineerAccessUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.RestoreDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 
 class V3DeviceRoleRepositoryTest {
     private val preferences = mockk<SharedPreferences>()
@@ -36,6 +42,7 @@ class V3DeviceRoleRepositoryTest {
 
     @BeforeEach fun setUp() {
         ParameterStoreV3.clear()
+        UiState.isServiceEngineerRole.value = false
         UiState.v3WidgetsInteractionEnabled.value = true
         GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
             deviceAddress = 1, parametersList = arrayListOf(cache)))
@@ -44,6 +51,7 @@ class V3DeviceRoleRepositoryTest {
         every { editor.putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, any()) } answers {
             stored = secondArg(); events += "preferences"; editor
         }
+        every { editor.apply() } answers { events += "apply:${UiState.isServiceEngineerRole.value}" }
         val settings = V3DeviceSettingsRepositoryImpl(
             saveBleValue = { parameter, value ->
                 assertEquals(info, parameter)
@@ -58,7 +66,7 @@ class V3DeviceRoleRepositoryTest {
                 packets += it; events += "queue"
             },
         )
-        repository = V3DeviceRoleRepositoryImpl(preferences, settings)
+        repository = createDeviceRoleRepository(preferences, settings)
     }
     @AfterEach fun tearDown() {
         ParameterStoreV3.clear()
@@ -98,6 +106,35 @@ class V3DeviceRoleRepositoryTest {
         assertTrue(packets.isEmpty())
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun `separate screen repositories share access and creating another does not reset it`() = runTest {
+        fun anotherRepository() = createDeviceRoleRepository(preferences,
+            V3DeviceSettingsRepositoryImpl(enqueuePacket = { error("Access changes must not send commands") }))
+        val accountRepository = anotherRepository()
+        val observed = mutableListOf<Boolean>()
+        backgroundScope.launch {
+            ObserveServiceEngineerAccessUseCaseV3(accountRepository)().collect { observed += it }
+        }
+        runCurrent()
+
+        repository.updateRoleAccess(V3DeviceRole.SERVICE_ENGINEER); runCurrent()
+        assertTrue(accountRepository.serviceEngineerAccess.value)
+        assertTrue(UiState.isServiceEngineerRole.value)
+        val recreatedRepository = anotherRepository()
+        assertTrue(recreatedRepository.serviceEngineerAccess.value)
+
+        recreatedRepository.updateRoleAccess(V3DeviceRole.USER); runCurrent()
+        assertFalse(repository.serviceEngineerAccess.value)
+        assertFalse(UiState.isServiceEngineerRole.value)
+        UiState.isServiceEngineerRole.value = true; runCurrent()
+        assertTrue(repository.serviceEngineerAccess.value)
+        assertTrue(recreatedRepository.serviceEngineerAccess.value)
+        assertEquals(listOf(false, true, false, true), observed)
+        assertEquals(2, stored)
+        assertTrue(events.isEmpty())
+        assertTrue(packets.isEmpty())
+    }
+
     @Test fun `engineer confirmation and return to user preserve wire values and persistence order`() {
         val change = ChangeDeviceRoleUseCaseV3(repository)
         assertEquals(V3DeviceRoleChangeResult.PIN_REQUIRED, change(V3DeviceRole.SERVICE_ENGINEER))
@@ -105,13 +142,15 @@ class V3DeviceRoleRepositoryTest {
         assertTrue(events.isEmpty())
         assertEquals(V3DeviceRoleChangeResult.APPLIED, change(V3DeviceRole.SERVICE_ENGINEER, "1234"))
         assertArrayEquals(byteArrayOf(0, 1, 15, 1, 0xED.toByte()), packets.single())
-        assertEquals(listOf("preferences", "profile", "queue"), events)
+        assertEquals(listOf("preferences", "apply:false", "profile", "queue"), events)
         assertEquals(V3DeviceRoleChangeResult.UNCHANGED, change(V3DeviceRole.SERVICE_ENGINEER))
         assertEquals(1, packets.size)
         assertEquals(V3DeviceRoleChangeResult.APPLIED, change(V3DeviceRole.USER))
         assertArrayEquals(byteArrayOf(0, 1, 15, 2, 15), packets.last())
         assertEquals(2, packets.size)
         assertFalse(UiState.isServiceEngineerRole.value)
+        assertEquals(listOf("preferences", "apply:false", "profile", "queue",
+            "preferences", "apply:true", "profile", "queue"), events)
         verify(exactly = 2) { editor.apply() }
     }
 

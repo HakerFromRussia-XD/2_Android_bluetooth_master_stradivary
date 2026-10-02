@@ -25,6 +25,9 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3ServiceTextInputStateTest {

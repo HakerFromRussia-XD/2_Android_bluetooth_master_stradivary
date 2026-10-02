@@ -19,6 +19,13 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.EditRotationGroupSelectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.GetRotationGroupSelectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.MoveGestureInRotationGroupUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.RemoveGestureFromRotationGroupUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.RequestActiveGestureUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SaveRotationGroupSelectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SelectGestureUseCaseV3
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3GesturesRepositoryTest {

@@ -82,11 +82,11 @@ class V3UserFirmwareRepositoryTest {
         assertEquals(1, engineCount)
     }
 
-    @Test fun `completion resumes BLE once regardless of UI subscriptions and foreground`() = runTest(dispatcher) {
-        for (phase in listOf("offered", "preparing", "updating", "verifying", "complete", "complete")) {
+    @Test fun `completion resumes BLE once per transition regardless of UI subscriptions and foreground`() = runTest(dispatcher) {
+        for (phase in listOf("idle", "checking", "unavailable", "offered", "preparing", "updating", "verifying", "complete", "complete")) {
             stateListener.captured(UserFirmwareUiState(phase, 2, 3, 67))
         }
-        assertEquals(listOf(false, true, true, true, false, false), sessionFlags)
+        assertEquals(listOf(false, false, false, false, true, true, true, false, false), sessionFlags)
         assertEquals(1, resumeCount)
         repeat(3) {
             assertEquals(V3UserFirmwareStatus("complete", 2, 3, 67, true), repository.observe().first())
@@ -94,6 +94,12 @@ class V3UserFirmwareRepositoryTest {
         }
         assertEquals(1, resumeCount)
         verify(exactly = 0) { engine.start(); engine.acknowledge() }
+
+        stateListener.captured(UserFirmwareUiState("verifying", 2, 3, 67))
+        stateListener.captured(UserFirmwareUiState("complete", 2, 3, 100))
+        assertEquals(2, resumeCount)
+        assertEquals(listOf(true, false), sessionFlags.takeLast(2))
+        assertEquals(V3UserFirmwareStatus("complete", 2, 3, 100, true), repository.observe().first())
     }
 
     @Test fun `actions delegate to shared sequencing and network only triggers an environment check`() {

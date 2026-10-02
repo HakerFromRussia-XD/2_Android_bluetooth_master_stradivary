@@ -11,6 +11,17 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GestureEditorNames
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGestureEditorNamesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.EditGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.GetGestureEditorHandSideUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.ObserveGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.RequestGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureCommand
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureEditorRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.WriteGestureSettingsUseCaseV3
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3GestureEditorLoadingTest {

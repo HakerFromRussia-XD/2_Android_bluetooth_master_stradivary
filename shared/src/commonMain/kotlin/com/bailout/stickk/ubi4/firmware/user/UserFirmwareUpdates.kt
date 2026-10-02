@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.firmware.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.RunProgramType
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwarePolicy
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -114,7 +115,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
             coordinator = UserFirmwareCoordinator(id, Backend(id))
             forwarding?.cancel()
             forwarding = scope.launch { coordinator!!.state.collect {
-                UserFirmwareActivity.isActive = it.blocksInteraction && it.phase != "offered" && it.phase != "complete"
+                UserFirmwareActivity.isActive = V3UserFirmwarePolicy.isTransferActive(it.phase, it.blocksInteraction)
                 mutableState.value = it
             } }
         }

@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
-
 import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.V3AutoLoginUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile

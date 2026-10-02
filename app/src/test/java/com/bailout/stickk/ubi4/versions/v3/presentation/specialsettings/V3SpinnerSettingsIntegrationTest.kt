@@ -4,7 +4,6 @@ import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
-
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct

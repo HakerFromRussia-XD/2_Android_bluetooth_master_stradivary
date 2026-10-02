@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
-
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction

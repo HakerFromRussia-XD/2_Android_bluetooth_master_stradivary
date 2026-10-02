@@ -8,7 +8,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGesturesPrefere
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetGesturesSectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetFactoryGestureCollectionExpandedUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GesturesPreferences
-import com.bailout.stickk.ubi4.versions.v3.domain.gestures.SaveGestureSettingsSelectionUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SaveGestureSettingsSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3GestureSettingsTarget
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetAutoLoginEnabledUseCaseV3

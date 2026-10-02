@@ -111,7 +111,9 @@ class V3SpecialSettingsViewModelFactory(
 internal fun createSettingsProfileValueApplier(
     context: Context,
     enqueuePacket: (ByteArray) -> Unit = { BleDependencies.v3CommandTransport.enqueue(it) },
-): (List<SettingsProfileApplyValue>) -> Unit = SettingsProfileApplierV3(
-    enqueuePacket,
-    context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
-)::apply
+): (List<SettingsProfileApplyValue>) -> Unit {
+    val preferences = context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+    return SettingsProfileApplierV3(enqueuePacket) { enabled ->
+        preferences.edit().putBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, enabled).apply()
+    }::apply
+}

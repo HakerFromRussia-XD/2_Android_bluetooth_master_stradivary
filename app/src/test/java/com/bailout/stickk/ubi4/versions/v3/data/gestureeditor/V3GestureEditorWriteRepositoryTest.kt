@@ -10,12 +10,13 @@ import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.*
-import io.mockk.mockk
-import io.reactivex.schedulers.Schedulers
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureCommand
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.WriteGestureSettingsUseCaseV3
 
 class V3GestureEditorWriteRepositoryTest {
     private val snapshot = ParameterStoreV3.values.value
@@ -37,11 +38,15 @@ class V3GestureEditorWriteRepositoryTest {
     fun `store then profile then original BLE packet for every command`(command: V3GestureCommand) {
         val order = mutableListOf<String>()
         val packets = mutableListOf<ByteArray>()
-        val repository = V3GestureEditorRepositoryImpl(mockk(), { packet ->
-            assertEquals(listOf("profile"), order)
-            packets.add(packet)
-            order.add("enqueue")
-        }, Schedulers.trampoline()) { key, value ->
+        val repository = V3GestureEditorRepositoryImpl(
+            readSavedHandSide = { error("Writing must not read preferences") },
+            subscribeSettingsUpdates = { error("Writing must not subscribe") },
+            enqueuePacket = { packet ->
+                assertEquals(listOf("profile"), order)
+                packets.add(packet)
+                order.add("enqueue")
+            },
+        ) { key, value ->
             assertEquals(info, key)
             assertEquals(expectedValue, value)
             assertEquals(value, ParameterStoreV3.get(key))
@@ -63,7 +68,11 @@ class V3GestureEditorWriteRepositoryTest {
 
     @Test fun `profile failure retains store update and does not enqueue or retry`() {
         var sent = 0
-        val repository = V3GestureEditorRepositoryImpl(mockk(), { sent++ }, Schedulers.trampoline()) { _, _ ->
+        val repository = V3GestureEditorRepositoryImpl(
+            readSavedHandSide = { error("Writing must not read preferences") },
+            subscribeSettingsUpdates = { error("Writing must not subscribe") },
+            enqueuePacket = { sent++ },
+        ) { _, _ ->
             throw IllegalStateException("profile failure")
         }
         assertThrows(IllegalStateException::class.java) {

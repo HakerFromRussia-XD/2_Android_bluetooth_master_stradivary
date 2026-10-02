@@ -7,7 +7,6 @@ import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionReposito
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSliderSettingsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
-
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget

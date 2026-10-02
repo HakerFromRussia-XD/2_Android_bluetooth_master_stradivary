@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceInfoWriteResult
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.SetDeviceInfoTextUseCaseV3
 
 class V3DeviceInfoRepositoryTest {
     private val originalProfile = UiState.activeV3DeviceProfile

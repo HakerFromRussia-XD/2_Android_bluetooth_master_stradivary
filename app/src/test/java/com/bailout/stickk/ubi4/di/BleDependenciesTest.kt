@@ -19,7 +19,7 @@ import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsCommandsReposit
 import com.bailout.stickk.ubi4.versions.v3.di.createAccountProfileLocalRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileDeviceContext
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
-import com.bailout.stickk.ubi4.versions.v3.domain.sensors.RefreshSensorsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.RefreshSensorsUseCaseV3
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*

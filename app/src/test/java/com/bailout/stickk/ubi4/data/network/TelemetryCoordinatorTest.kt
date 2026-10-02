@@ -2,10 +2,10 @@ package com.bailout.stickk.ubi4.data.network
 
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.data.state.ConnectionState
+import com.bailout.stickk.ubi4.di.createV3TelemetryRepository
 import com.bailout.stickk.ubi4.models.network.TelemetryMessagesRequest
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
-import com.bailout.stickk.ubi4.versions.v3.data.telemetry.V3TelemetryRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.SendTelemetryUseCaseV3
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.mockk.*
@@ -41,7 +41,29 @@ class TelemetryCoordinatorTest {
     @AfterEach fun restore() { ConnectionState.connectedDeviceName = previousName }
 
     private fun coordinator(scope: CoroutineScope) = TelemetryCoordinator(scope,
-        SendTelemetryUseCaseV3(V3TelemetryRepositoryImpl(preferences, { requests++ }, identity, sender)))
+        SendTelemetryUseCaseV3(createV3TelemetryRepository(preferences, { requests++ }, identity, sender)))
+
+    @Test fun `Android preferences stay lazy and read current timestamps before ordered apply`() {
+        val repository = createV3TelemetryRepository(preferences, { requests++ }, identity, sender)
+        verify { preferences wasNot Called }
+        verify { editor wasNot Called }
+        verify { sender wasNot Called }
+        assertEquals(0, requests)
+
+        lastTimestamp = 42L
+        assertEquals(42L, repository.lastSendTimestamp())
+        lastTimestamp = 99L
+        assertEquals(99L, repository.lastSendTimestamp())
+        repository.saveLastSendTimestamp(123L)
+        assertEquals(listOf(123L), timestamps)
+        verifySequence {
+            preferences.getLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, 0L)
+            preferences.getLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, 0L)
+            preferences.edit()
+            editor.putLong(PreferenceKeysUbi4.LAST_TELEMETRY_SEND_TIMESTAMP, 123L)
+            editor.apply()
+        }
+    }
 
     @Test fun `automatic upload logs failures but cancellation and success stay silent`() = runTest {
         val coordinator = coordinator(backgroundScope)
@@ -108,12 +130,14 @@ class TelemetryCoordinatorTest {
         runCurrent()
         assertEquals(1, requests)
         assertTrue(timestamps.isEmpty())
+        verify(exactly = 0) { preferences.getString(PreferenceKeysUbi4.CONNECTED_DEVICE, any()) }
         identity.update(" new-serial ", "INDY3-new-name")
         ConnectionState.connectedDeviceName = "FTHS3-new-connection"
         savedName = "new-saved-name"
         release.complete(Unit)
         runCurrent()
         assertEquals(listOf(" new-serial ", "INDY3-new-name", "FTHS3-new-connection", "new-saved-name"), ids)
+        verify(exactly = 1) { preferences.getString(PreferenceKeysUbi4.CONNECTED_DEVICE, "null") }
         assertEquals(1, timestamps.size)
         assertTrue(timestamps.single() > 0)
     }

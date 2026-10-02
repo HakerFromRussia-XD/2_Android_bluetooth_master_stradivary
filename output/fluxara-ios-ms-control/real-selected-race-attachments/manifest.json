@@ -1,0 +1,80 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "82D71372-CC69-4AAE-BC04-1ACFC3FC55A6.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 7_0_2E4B3C44-3AAB-41A0-977B-F938F16DC695.png",
+        "timestamp" : 1790944822.235
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "462AAF75-AF42-442B-89C1-FA97722C697A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 6_0_AE55A13E-E79E-4383-ACF9-51322A4ACFF5.png",
+        "timestamp" : 1790944819.04
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "BC3E1CA7-7E1B-492D-9977-7EE3F55F4B3D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 5_0_430BDFFD-DF81-44B4-B395-FD2DFF82340A.png",
+        "timestamp" : 1790944815.839
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "80F936B4-640F-4D88-A96E-A04FBE357E4D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 4_0_D54AB04C-47D9-4C16-8087-405290BDC5E6.png",
+        "timestamp" : 1790944812.649
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "51686B29-81E1-4202-935C-70C92B3BA2E3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 3_0_720A53F3-52BE-4A7B-8C5F-69556038635B.png",
+        "timestamp" : 1790944809.451
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "BBD36819-A158-4FE6-9AF6-4544D1ABCD08.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 2_0_39BDFCCD-E57D-47A4-912D-1D56D3B3C958.png",
+        "timestamp" : 1790944806.256
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "4FB06E8F-3468-4FE1-AA93-25C26F84A35E.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 1_0_BEE0E760-178D-4B31-AC46-FB15E2110F23.png",
+        "timestamp" : 1790944803.054
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "B92E1A0E-C8FC-4AB1-80A2-87F8C9A7C3F2.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BLE HUD race 0_0_A716D44E-59B8-415B-AED1-612F385DBB82.png",
+        "timestamp" : 1790944799.857
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testSelectAndObserveRace()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testSelectAndObserveRace"
+  }
+]

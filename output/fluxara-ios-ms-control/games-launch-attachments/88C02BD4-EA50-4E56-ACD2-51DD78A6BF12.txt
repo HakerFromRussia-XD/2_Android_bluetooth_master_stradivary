@@ -1,0 +1,5 @@
+Query chain:
+ →Find: Application 'com.motorica.startttt'
+  ↪︎Find: Descendants matching type Button
+    ↪︎Find: Elements matching predicate 'label == "Games" OR label == "Игры" OR label == "Juegos"'
+      ↪︎Find: First Match

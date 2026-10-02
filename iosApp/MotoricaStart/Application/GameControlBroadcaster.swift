@@ -17,7 +17,7 @@ enum MotoricaGameControlAppGroup {
 
 enum MotoricaGameLaunchRequest {
     private enum Keys {
-        static let storage = "launchRequest.stk.v1"
+        static let storage = "launchRequest.fluxara_drift.v1"
         static let version = "version"
         static let token = "token"
         static let timestampMs = "timestampMs"
@@ -26,7 +26,7 @@ enum MotoricaGameLaunchRequest {
 
     @discardableResult
     static func create(scheme: String) -> String? {
-        guard scheme.caseInsensitiveCompare("motorica-stk") == .orderedSame,
+        guard scheme.caseInsensitiveCompare("fluxara-drive") == .orderedSame,
               let appGroup = MotoricaGameControlAppGroup.value,
               let defaults = UserDefaults(suiteName: appGroup) else {
             return nil

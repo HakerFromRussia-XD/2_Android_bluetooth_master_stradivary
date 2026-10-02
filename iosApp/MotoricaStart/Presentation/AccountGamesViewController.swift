@@ -10,12 +10,12 @@ private enum AccountGamesMetrics {
 
 final class AccountGamesViewController: UIViewController {
     private enum Constants {
-        static let installedGameKey = "installedGame.stk"
+        static let installedGameKey = "installedGame.fluxara_drift"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
-        static let gameId = "stk"
-        static let fallbackTitle = "Super Tux Kart"
-        static let fallbackBundleId = "com.motorica.games.stktt"
-        static let fallbackScheme = "motorica-stk"
+        static let gameId = "fluxara_drift"
+        static let fallbackTitle = "Fluxara Drift"
+        static let fallbackBundleId = "io.fluxara.drift"
+        static let fallbackScheme = "fluxara-drive"
     }
 
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
@@ -258,11 +258,17 @@ final class AccountGamesViewController: UIViewController {
 
             do {
                 let manifest = try JSONDecoder().decode(GamesManifest.self, from: data)
-                let game = manifest.games.first { $0.id == Constants.gameId }
+                // Accept the legacy catalog ID only when it points to Fluxara.
+                // Old STK version and store metadata must not update this card.
+                let game = manifest.games.first {
+                    ($0.id == Constants.gameId || $0.id == "stk") &&
+                    $0.ios?.bundleId == Constants.fallbackBundleId
+                }
                 DispatchQueue.main.async {
                     self?.activityIndicator.stopAnimating()
                     self?.remoteGame = game?.ios
-                    self?.titleLabel.text = game?.title ?? Constants.fallbackTitle
+                    // The existing catalog entry may still carry the old name.
+                    self?.titleLabel.text = Constants.fallbackTitle
                     self?.manifestLoadFailed = false
                     self?.manifestFailedBecauseOffline = false
                     self?.renderState()
@@ -299,7 +305,7 @@ final class AccountGamesViewController: UIViewController {
 
         if installed {
             statusLabel.text = localized("game_status_installed")
-            setAction(.play(remoteGame?.urlScheme ?? Constants.fallbackScheme))
+            setAction(.play(Constants.fallbackScheme))
             return
         }
 
@@ -375,7 +381,7 @@ final class AccountGamesViewController: UIViewController {
                 self?.showToast(self?.localized("game_launch_failed") ?? "")
                 return
             }
-            // STK normally consumes the lease during cold startup or when the
+            // Fluxara consumes the lease during cold startup or when the
             // URL reaches a warm process. This cleanup prevents a failed or
             // interrupted launch from leaving state that a later icon launch
             // could observe.
@@ -386,7 +392,7 @@ final class AccountGamesViewController: UIViewController {
     }
 
     private func isGameInstalled() -> Bool {
-        let scheme = remoteGame?.urlScheme ?? Constants.fallbackScheme
+        let scheme = Constants.fallbackScheme
         guard let url = URL(string: "\(scheme)://launch") else {
             NSLog("\(gameDebugLogPrefix) ios games invalid launch url scheme=\(scheme)")
             return false
@@ -411,7 +417,7 @@ final class AccountGamesViewController: UIViewController {
         }
 
         let bundleId = dictionary["bundleId"] as? String
-        let expectedBundleId = remoteGame?.bundleId ?? Constants.fallbackBundleId
+        let expectedBundleId = Constants.fallbackBundleId
         if let bundleId, bundleId != expectedBundleId {
             NSLog("\(gameDebugLogPrefix) ios games app group marker bundle mismatch actual=\(bundleId) expected=\(expectedBundleId)")
             return nil

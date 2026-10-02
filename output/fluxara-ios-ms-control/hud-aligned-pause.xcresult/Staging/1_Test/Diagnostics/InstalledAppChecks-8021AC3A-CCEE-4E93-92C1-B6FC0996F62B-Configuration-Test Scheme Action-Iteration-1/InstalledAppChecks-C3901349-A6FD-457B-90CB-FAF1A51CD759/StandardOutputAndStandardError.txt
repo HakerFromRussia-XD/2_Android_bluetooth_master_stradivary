@@ -1,0 +1,68 @@
+2026-10-02 15:52:22.117024+0300 InstalledAppChecks-Runner[75354:5055836] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-02 15:52:22.564.
+Test Suite 'InstalledAppChecks.xctest' started at 2026-10-02 15:52:22.565.
+Test Suite 'InstalledAppChecks' started at 2026-10-02 15:52:22.565.
+Test Case '-[InstalledAppChecks.InstalledAppChecks testLaunchAndReturnToRace]' started.
+    t =     0.00s Start Test at 2026-10-02 15:52:22.566
+    t =     0.02s Set Up
+    t =     0.03s Open com.motorica.startttt
+    t =     0.03s     Activate com.motorica.startttt
+    t =     0.11s         Wait for com.motorica.startttt to idle
+    t =     0.11s Waiting 10.0s for "Fluxara Drift" StaticText to exist
+    t =     1.14s     Checking `Expect predicate `existsNoRetry == 1` for object "Fluxara Drift" StaticText`
+    t =     1.14s         Checking existence of `"Fluxara Drift" StaticText`
+    t =     1.19s Tap "AccessibilityIdentifierAccountGamesActionButton" Button
+    t =     1.19s     Wait for com.motorica.startttt to idle
+    t =     1.20s     Find the "AccessibilityIdentifierAccountGamesActionButton" Button
+    t =     1.23s     Check for interrupting elements affecting "AccessibilityIdentifierAccountGamesActionButton" Button
+    t =     1.27s     Synthesize event
+    t =     1.70s     Wait for com.motorica.startttt to idle
+    t =     1.72s Wait for io.fluxara.drift to become Running Foreground
+    t =     6.72s Tap Application 'io.fluxara.drift'[0.50, 0.78]
+    t =     6.73s     Wait for io.fluxara.drift to idle
+    t =     6.78s     Find the Application 'io.fluxara.drift'
+    t =     6.87s     Check for interrupting elements affecting "Fluxara Drift" Application
+    t =     6.94s     Synthesize event
+    t =     6.97s         Find the Application 'io.fluxara.drift'
+    t =     7.01s         Find the Application 'io.fluxara.drift'
+    t =     7.08s         Find the Application 'io.fluxara.drift'
+    t =     7.41s     Wait for io.fluxara.drift to idle
+    t =     8.43s Tap Application 'io.fluxara.drift'[0.50, 0.33]
+    t =     8.43s     Wait for io.fluxara.drift to idle
+    t =     8.46s     Find the Application 'io.fluxara.drift'
+    t =     8.53s     Check for interrupting elements affecting "Fluxara Drift" Application
+    t =     8.60s     Synthesize event
+    t =     8.62s         Find the Application 'io.fluxara.drift'
+    t =     8.64s         Find the Application 'io.fluxara.drift'
+    t =     8.71s         Find the Application 'io.fluxara.drift'
+    t =     9.05s     Wait for io.fluxara.drift to idle
+    t =    10.08s Tap Application 'io.fluxara.drift'[0.50, 0.89]
+    t =    10.08s     Wait for io.fluxara.drift to idle
+    t =    10.11s     Find the Application 'io.fluxara.drift'
+    t =    10.18s     Check for interrupting elements affecting "Fluxara Drift" Application
+    t =    10.25s     Synthesize event
+    t =    10.27s         Find the Application 'io.fluxara.drift'
+    t =    10.29s         Find the Application 'io.fluxara.drift'
+    t =    10.38s         Find the Application 'io.fluxara.drift'
+    t =    10.71s     Wait for io.fluxara.drift to idle
+    t =    11.73s Tap Application 'io.fluxara.drift'[0.50, 0.92]
+    t =    11.74s     Wait for io.fluxara.drift to idle
+    t =    11.76s     Find the Application 'io.fluxara.drift'
+    t =    11.83s     Check for interrupting elements affecting "Fluxara Drift" Application
+    t =    11.90s     Synthesize event
+    t =    11.93s         Find the Application 'io.fluxara.drift'
+    t =    11.96s         Find the Application 'io.fluxara.drift'
+    t =    12.03s         Find the Application 'io.fluxara.drift'
+    t =    12.27s         Interface orientation changed to Landscape Right
+    t =    12.36s     Wait for io.fluxara.drift to idle
+    t =    15.80s Find the Application 'io.fluxara.drift'
+    t =    16.00s Added attachment named 'Verified race geometry 0'
+    t =    19.01s Find the Application 'io.fluxara.drift'
+    t =    19.20s Added attachment named 'Verified race geometry 1'
+    t =    22.21s Find the Application 'io.fluxara.drift'
+    t =    22.21s     Interface orientation changed to Portrait
+
+
+*** If you believe this error represents a bug, please attach the result bundle at /Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary/output/fluxara-ios-ms-control/hud-aligned-pause.xcresult
+

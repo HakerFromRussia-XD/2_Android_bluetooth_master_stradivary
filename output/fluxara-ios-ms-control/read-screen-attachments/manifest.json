@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "8FB6368B-FC73-49BA-A907-1600961B9F04.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screenshot of Application 'com.motorica.startttt'_0_7DF422AB-653C-4CA3-9917-F27294C2ADDB.png",
+        "timestamp" : 1790943622.752
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testReadScreen()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testReadScreen"
+  }
+]

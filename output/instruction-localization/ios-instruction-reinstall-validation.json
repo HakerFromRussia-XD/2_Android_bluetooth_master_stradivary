@@ -1,0 +1,22 @@
+{
+  "checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "build": "BUILD SUCCEEDED",
+  "build_log": "/tmp/motorica-ios-instructions-1526-build.log",
+  "signing_team": "R7M384QD5A",
+  "bundle_id": "com.motorica.startttt",
+  "profile": "557c6231-58ff-4c2c-973e-fcb9d16df9c5",
+  "app_group": "group.io.fluxara.drift.inputbridge",
+  "native_instruction_texts_per_locale": {
+    "ru": 32,
+    "en": 32,
+    "Base": 32
+  },
+  "instruction_images_loaded_via_UIKit": 38,
+  "missing_images": 0,
+  "UIKit_check_environment": "iOS Simulator loading final iphoneos resource bundle",
+  "layout_visual_review": "pending user review",
+  "install_log": "/tmp/motorica-ios-instructions-1526-install.log",
+  "launch_log": "/tmp/motorica-ios-instructions-1526-launch.log",
+  "device_install": "success",
+  "device_launch": "success"
+}

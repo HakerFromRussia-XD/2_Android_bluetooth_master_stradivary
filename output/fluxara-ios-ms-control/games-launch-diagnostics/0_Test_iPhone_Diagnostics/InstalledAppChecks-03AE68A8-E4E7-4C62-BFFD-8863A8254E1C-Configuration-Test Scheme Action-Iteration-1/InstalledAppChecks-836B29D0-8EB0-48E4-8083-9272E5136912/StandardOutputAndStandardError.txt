@@ -1,0 +1,86 @@
+2026-10-02 15:29:16.354554+0300 InstalledAppChecks-Runner[75113:5039390] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-02 15:29:17.234.
+Test Suite 'InstalledAppChecks.xctest' started at 2026-10-02 15:29:17.234.
+Test Suite 'InstalledAppChecks' started at 2026-10-02 15:29:17.234.
+Test Case '-[InstalledAppChecks.InstalledAppChecks testGamesLaunch]' started.
+    t =     0.00s Start Test at 2026-10-02 15:29:17.235
+    t =     0.04s Set Up
+    t =     0.04s Open com.motorica.startttt
+    t =     0.04s     Launch com.motorica.startttt
+    t =     0.15s         Setting up automation session
+    t =     0.47s         Wait for com.motorica.startttt to idle
+    t =     1.59s Waiting 10.0s for "AccessibilityIdentifierBLEDevicesTable" Table to exist
+    t =     2.62s     Checking `Expect predicate `existsNoRetry == 1` for object "AccessibilityIdentifierBLEDevicesTable" Table`
+    t =     2.62s         Checking existence of `"AccessibilityIdentifierBLEDevicesTable" Table`
+    t =     2.69s Waiting 10.0s for "ble.deviceCell.0" Cell to exist
+    t =     3.72s     Checking `Expect predicate `existsNoRetry == 1` for object "ble.deviceCell.0" Cell`
+    t =     3.72s         Checking existence of `"ble.deviceCell.0" Cell`
+    t =     3.74s Tap "ble.deviceCell.0" Cell
+    t =     3.74s     Wait for com.motorica.startttt to idle
+    t =     3.75s     Find the "ble.deviceCell.0" Cell
+    t =     3.77s     Check for interrupting elements affecting "ble.deviceCell.0" Cell
+    t =     3.81s     Synthesize event
+    t =     4.22s     Wait for com.motorica.startttt to idle
+    t =     4.23s Waiting 15.0s for "AccessibilityIdentifierStatusBarAccountButton" Button to exist
+    t =     5.24s     Checking `Expect predicate `existsNoRetry == 1` for object "AccessibilityIdentifierStatusBarAccountButton" Button`
+    t =     5.24s         Checking existence of `"AccessibilityIdentifierStatusBarAccountButton" Button`
+    t =     5.28s Tap "AccessibilityIdentifierStatusBarAccountButton" Button
+    t =     5.28s     Wait for com.motorica.startttt to idle
+    t =     5.28s     Find the "AccessibilityIdentifierStatusBarAccountButton" Button
+    t =     5.31s     Check for interrupting elements affecting "AccessibilityIdentifierStatusBarAccountButton" Button
+    t =     5.34s     Synthesize event
+    t =     5.36s         Scroll element to visible
+    t =     5.36s         Find the "AccessibilityIdentifierStatusBarAccountButton" Button
+    t =     5.40s         Computed hit point {-1, -1} after scrolling to visible
+    t =     5.68s     Wait for com.motorica.startttt to idle
+    t =     5.69s Waiting 10.0s for Button (First Match) to exist
+    t =     6.71s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     6.71s         Checking existence of `Button (First Match)`
+    t =     6.73s         Capturing element debug description
+    t =     7.74s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     7.74s         Checking existence of `Button (First Match)`
+    t =     7.76s         Capturing element debug description
+    t =     8.69s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     8.70s         Checking existence of `Button (First Match)`
+    t =     8.71s         Capturing element debug description
+    t =     9.74s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =     9.75s         Checking existence of `Button (First Match)`
+    t =     9.76s         Capturing element debug description
+    t =    10.79s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    10.79s         Checking existence of `Button (First Match)`
+    t =    10.80s         Capturing element debug description
+    t =    11.73s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    11.73s         Checking existence of `Button (First Match)`
+    t =    11.75s         Capturing element debug description
+    t =    12.78s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    12.78s         Checking existence of `Button (First Match)`
+    t =    12.79s         Capturing element debug description
+    t =    13.71s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    13.71s         Checking existence of `Button (First Match)`
+    t =    13.73s         Capturing element debug description
+    t =    14.76s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    14.76s         Checking existence of `Button (First Match)`
+    t =    14.78s         Capturing element debug description
+    t =    15.70s     Checking `Expect predicate `existsNoRetry == 1` for object Button (First Match)`
+    t =    15.70s         Checking existence of `Button (First Match)`
+    t =    15.72s         Capturing element debug description
+    t =    15.72s     Checking existence of `Button (First Match)`
+    t =    15.74s Collecting debug information to assist test failure triage
+    t =    15.74s     Requesting snapshot of accessibility hierarchy for app with pid 75114
+/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary/output/fluxara-ios-ms-control/automation/Sources/InstalledAppChecks.swift:25: error: -[InstalledAppChecks.InstalledAppChecks testGamesLaunch] : XCTAssertTrue failed
+    t =    15.88s Tap Button (First Match)
+    t =    15.88s     Wait for com.motorica.startttt to idle
+    t =    15.89s     Find the Button (First Match)
+    t =    16.90s         Find the Button (First Match) (retry 1)
+    t =    17.92s         Find the Button (First Match) (retry 2)
+    t =    17.94s Requesting snapshot of accessibility hierarchy for app with pid 75114
+/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary/output/fluxara-ios-ms-control/automation/Sources/InstalledAppChecks.swift:26: error: -[InstalledAppChecks.InstalledAppChecks testGamesLaunch] : Failed to tap Button (First Match): No matches found for first query match sequence: `Descendants matching type Button` -> `Elements matching predicate 'label == "Games" OR label == "Игры" OR label == "Juegos"'`, given input App element pid: 75114
+    t =    17.98s Tear Down
+Test Case '-[InstalledAppChecks.InstalledAppChecks testGamesLaunch]' failed (18.052 seconds).
+Test Suite 'InstalledAppChecks' failed at 2026-10-02 15:29:35.288.
+	 Executed 1 test, with 2 failures (0 unexpected) in 18.052 (18.053) seconds
+Test Suite 'InstalledAppChecks.xctest' failed at 2026-10-02 15:29:35.289.
+	 Executed 1 test, with 2 failures (0 unexpected) in 18.052 (18.054) seconds
+Test Suite 'Selected tests' failed at 2026-10-02 15:29:35.290.
+	 Executed 1 test, with 2 failures (0 unexpected) in 18.052 (18.056) seconds

@@ -5,7 +5,7 @@
   "sdk": "iphonesimulator26.5",
   "architecture": "arm64",
   "build": "BUILD SUCCEEDED",
-  "build_log": "/tmp/stradivary-instruction-correct-folder-ios-final-verified.log",
+  "build_log": "/tmp/stradivary-instruction-ios-latest-spacing.log",
   "baseline_bytes": 132418288,
   "current_bytes": 131962069,
   "bytes_saved": 456219,

@@ -1,0 +1,35 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "340D37B7-F803-4869-B89C-8922F6A4193B.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `\"AccessibilityIdentifierBLEDevicesTable\" Table`_0_09EA51F7-7CAB-4C26-8BAD-D60D5F8AC48F.txt",
+        "timestamp" : 1790944302.025
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "043D49C1-4A5E-4F39-8F77-33C6908137EC.mp4",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screen Recording 2026-10-02 at 03.31.26 PM.mp4",
+        "timestamp" : 1790944286.472
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "0524B1FB-D2A7-49E8-B8D4-DED856577479.txt",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "Spindump_0_2DC56540-A4E1-4EE3-AFB1-9ACCA99E18E7.txt",
+        "timestamp" : 1790944417.46
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testRealConnectAndOpenGames()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testRealConnectAndOpenGames"
+  }
+]

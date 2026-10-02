@@ -57,6 +57,7 @@ final class MainTabBarController: UITabBarController {
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
+    private var needsInitialSensorsSelection = true
     private var pendingTabColorRefreshWorkItems: [DispatchWorkItem] = []
     private let tabDisplayByTag: [Int: Int32] = [
         TabTag.gestures: 0,
@@ -288,6 +289,11 @@ final class MainTabBarController: UITabBarController {
         let targetTag: Int
         if let preferredSelectionTag, permittedTags.contains(preferredSelectionTag) {
             targetTag = preferredSelectionTag
+        } else if needsInitialSensorsSelection,
+                  WidgetsListViewController.isGlobalSynchronizationCompleted,
+                  !WidgetsListViewController.isGlobalSynchronizationInProgress,
+                  permittedTags.contains(TabTag.sensors) {
+            targetTag = TabTag.sensors
         } else if let previousSelectedTag, permittedTags.contains(previousSelectedTag) {
             targetTag = previousSelectedTag
         } else if permittedTags.contains(TabTag.sensors) {
@@ -296,6 +302,11 @@ final class MainTabBarController: UITabBarController {
             targetTag = permittedControllers[0].tabBarItem.tag
         }
         selectTab(withTag: targetTag)
+        if targetTag == TabTag.sensors,
+           WidgetsListViewController.isGlobalSynchronizationCompleted,
+           !WidgetsListViewController.isGlobalSynchronizationInProgress {
+            needsInitialSensorsSelection = false
+        }
         refreshTabBarAfterContentChange()
         updateTabBarContainerForKeyboardState()
     }
@@ -978,6 +989,13 @@ final class MainTabBarController: UITabBarController {
             queue: .main
         ) { [weak self] _ in
             self?.updateSynchronizationRestrictedTabAvailability()
+            if WidgetsListViewController.isGlobalSynchronizationCompleted,
+               !WidgetsListViewController.isGlobalSynchronizationInProgress {
+                // Finish the loading callback before changing the visible controller.
+                DispatchQueue.main.async { [weak self] in
+                    self?.applyWidgetDrivenTabVisibility()
+                }
+            }
         }
     }
 

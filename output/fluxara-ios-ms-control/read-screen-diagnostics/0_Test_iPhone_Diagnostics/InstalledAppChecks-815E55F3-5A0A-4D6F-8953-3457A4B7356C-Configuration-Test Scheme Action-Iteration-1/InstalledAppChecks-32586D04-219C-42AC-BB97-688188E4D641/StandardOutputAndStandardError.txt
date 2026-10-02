@@ -1,0 +1,58 @@
+2026-10-02 15:20:18.550476+0300 InstalledAppChecks-Runner[74786:5030482] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-02 15:20:22.360.
+Test Suite 'InstalledAppChecks.xctest' started at 2026-10-02 15:20:22.361.
+Test Suite 'InstalledAppChecks' started at 2026-10-02 15:20:22.361.
+Test Case '-[InstalledAppChecks.InstalledAppChecks testReadScreen]' started.
+    t =     0.00s Start Test at 2026-10-02 15:20:22.361
+    t =     0.03s Set Up
+    t =     0.03s Open com.motorica.startttt
+    t =     0.03s     Activate com.motorica.startttt
+    t =     0.07s         Wait for com.motorica.startttt to idle
+    t =     0.16s Wait for com.motorica.startttt to become Running Foreground
+    t =     0.16s Requesting snapshot of accessibility hierarchy for app with pid 74776
+    t =     0.30s Requesting snapshot of accessibility hierarchy for app with pid 74776
+MS_SCREEN_BEGIN
+Attributes: Application, 0x101974f00, pid: 74776, label: 'Motorica Start'
+Element subtree:
+ →Application, 0x101974f00, pid: 74776, label: 'Motorica Start'
+    Window (Main), 0x101976580, {{0.0, 0.0}, {390.0, 844.0}}
+      Other, 0x1019766c0, {{0.0, 0.0}, {390.0, 47.0}}
+      Other, 0x101975f40, {{0.0, 0.0}, {390.0, 844.0}}
+        Other, 0x101976800, {{0.0, 0.0}, {390.0, 844.0}}
+          Other, 0x101976bc0, {{0.0, 0.0}, {390.0, 844.0}}
+            Other, 0x101976d00, {{0.0, 0.0}, {390.0, 844.0}}
+              Other, 0x101976e40, {{0.0, 0.0}, {390.0, 844.0}}
+                Other, 0x101976f80, {{0.0, 0.0}, {390.0, 844.0}}
+                  Other, 0x1019770c0, {{0.0, 0.0}, {390.0, 47.0}}
+                  Other, 0x101977200, {{16.0, 55.0}, {358.0, 48.0}}
+                    Other, 0x101977340, {{16.0, 55.0}, {358.0, 48.0}}
+                      Other, 0x101977480, {{16.0, 55.0}, {358.0, 48.0}}
+                        Button, 0x1019775c0, {{18.0, 57.0}, {177.0, 44.0}}, label: 'Все устройства'
+                        Button, 0x101977700, {{195.0, 57.0}, {177.0, 44.0}}, label: 'Протезы'
+                        Other, 0x101977840, {{16.0, 55.0}, {358.0, 48.0}}, identifier: 'AccessibilityIdentifierBLEFilterSegmentSelector', value: selectedIndex=1
+                  Other, 0x101977980, {{16.0, 119.0}, {358.0, 64.0}}
+                    Table, 0x101977ac0, {{16.0, 119.0}, {358.0, 64.0}}, identifier: 'AccessibilityIdentifierBLEDevicesTable', label: 'Пустой список'
+                      Other, 0x101977c00, {{0.0, 0.0}, {0.0, 0.0}}, label: '0 страниц', value: 0 %
+                        Other, 0x101977d40, {{368.0, 80.0}, {3.0, 36.0}}
+                      Other, 0x101977e80, {{0.0, 0.0}, {0.0, 0.0}}, label: '0 страниц', value: 0 %
+                        Other, 0x105ac8000, {{19.0, 177.0}, {355.0, 3.0}}
+Path to element:
+ →Application, 0x101974f00, pid: 74776, label: 'Motorica Start'
+Query chain:
+ →Find: Application 'com.motorica.startttt'
+  Output: {
+    Application, 0x105ac8640, pid: 74776, label: 'Motorica Start'
+  }
+
+MS_SCREEN_END
+    t =     0.32s Find the Application 'com.motorica.startttt'
+    t =     0.39s Added attachment named 'Screenshot of Application 'com.motorica.startttt'.png'
+    t =     0.39s Tear Down
+Test Case '-[InstalledAppChecks.InstalledAppChecks testReadScreen]' passed (0.430 seconds).
+Test Suite 'InstalledAppChecks' passed at 2026-10-02 15:20:22.791.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.430 (0.430) seconds
+Test Suite 'InstalledAppChecks.xctest' passed at 2026-10-02 15:20:22.791.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.430 (0.430) seconds
+Test Suite 'Selected tests' passed at 2026-10-02 15:20:22.791.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.430 (0.431) seconds

@@ -1,0 +1,161 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "BD9A992B-F618-400B-B657-E446ED8B0295.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "App UI hierarchy for com.motorica_0_66D442A8-498C-4373-92A3-B427266909ED.startttt",
+        "timestamp" : 1790944173.019
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "CC1D3359-EE7F-4DCD-9B3D-81A1EB992611",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.29.33 PM",
+        "timestamp" : 1790944173.019
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "D6F46672-F204-4F97-B9C8-461C75EFD112.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_F572D7A6-4B44-4B6A-9B09-FDDF2DF2141B.txt",
+        "timestamp" : 1790944172.953
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "AC4F276B-40D7-4B4A-8548-A36A3FE4AB82.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_8D774FC6-28CC-463E-9F98-6B5EB42E1CA8.txt",
+        "timestamp" : 1790944172.019
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "4A2F25AE-EFF9-4FA9-A62F-443704A87F67.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_CBB3F573-56FA-4244-8143-62DE6408500A.txt",
+        "timestamp" : 1790944170.962
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "643116E8-7D12-464B-8D54-7A7BCBB852F1.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_37F3BFF3-4233-4D22-B49A-BD1C98AF6502.txt",
+        "timestamp" : 1790944170.029
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "88C02BD4-EA50-4E56-ACD2-51DD78A6BF12.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_A304CA7C-A5E5-4873-85B3-F0DFBFB95C7B.txt",
+        "timestamp" : 1790944168.983
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "0EABCF40-4383-42C5-91D3-146FE24DDC5D.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_BE58AEBC-4C10-44B6-A05F-D50DF42F2419.txt",
+        "timestamp" : 1790944168.038
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "460C8C6B-2981-46FF-A97A-A7014E4D5235.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_7BF643E7-37E5-41F6-89C3-52FD307A39D1.txt",
+        "timestamp" : 1790944166.998
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "FA934F4F-F70E-4A39-B6E0-D47A41E4A3F2.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_10279324-722D-43BE-A201-D50182FC8971.txt",
+        "timestamp" : 1790944165.947
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "F180A7B8-62F6-4D33-AE69-78BD1B8ECD22.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_88E6D42C-888B-4439-B5D6-B98CCD987ED5.txt",
+        "timestamp" : 1790944164.995
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "5F9E2867-F410-493A-A5FB-0C3BDDB0D80B.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `Button (First Match)`_0_57783EFA-2F41-467B-82E5-92DF29420743.txt",
+        "timestamp" : 1790944163.962
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "F6A0983B-4152-43BE-8E32-078D8EEF8F44",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.29.22 PM",
+        "timestamp" : 1790944162.913
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "DC6E8013-BC76-4D60-B9F1-0693BEC77A79",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.29.21 PM",
+        "timestamp" : 1790944161.455
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "F6D4D79F-6949-42A2-AF47-CBDD66995DF1.mp4",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screen Recording 2026-10-02 at 03.29.17 PM.mp4",
+        "timestamp" : 1790944157.272
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "FFD750D8-37CE-49DD-B68B-FC7E449D9071.txt",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "App UI hierarchy for com.motorica_0_000295EB-F61D-4621-8721-34BC31D53A07.startttt",
+        "timestamp" : 1790944175.202
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "D0142C8A-6D2C-402F-9026-5E0132533A5E",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.29.35 PM",
+        "timestamp" : 1790944175.202
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testGamesLaunch()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testGamesLaunch"
+  }
+]

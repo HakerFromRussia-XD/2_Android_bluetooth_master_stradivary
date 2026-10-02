@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "E4A59775-8E23-4C73-829B-6CA0825D67E3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screenshot of Application 'com.motorica.startttt'_0_F3D8640D-8E27-47FB-87E6-D60C48ED44E3.png",
+        "timestamp" : 1790944546.482
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testRealConnectAndOpenGames()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testRealConnectAndOpenGames"
+  }
+]

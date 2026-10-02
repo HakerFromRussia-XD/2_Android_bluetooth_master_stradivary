@@ -1,0 +1,22 @@
+Application, 0x126ff6440, pid: 75114, label: 'Motorica Start' <App element pid: 75114>
+  Window (Main), 0x126ff6580, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4418430608.4>
+    Other, 0x126ff66c0, {{0.0, 0.0}, {390.0, 47.0}} <AX element pid: 75114, elementOrHash.elementID: 4473081984.5>
+    Other, 0x126ff6800, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4418533520.6>
+      Other, 0x126ff6940, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4473946752.7>
+        Other, 0x126ff6a80, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4418444576.8>
+          Other, 0x126ff6bc0, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4473079680.9>
+            Other, 0x126ff6d00, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4474012992.30>
+              Other, 0x126ff6e40, {{0.0, 0.0}, {390.0, 844.0}}, identifier: 'AccessibilityIdentifierMainTabBarRoot' <AX element pid: 75114, elementOrHash.elementID: 4474021056.31>
+                Other, 0x126ff5f40, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4474054144.32>
+                  Other, 0x126ff6080, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4474025984.33>
+                    Other, 0x126ff61c0, {{0.0, 0.0}, {390.0, 844.0}} <AX element pid: 75114, elementOrHash.elementID: 4561488128.34>
+                      Other, 0x126ff6300, {{0.0, 0.0}, {390.0, 44.0}} <AX element pid: 75114, elementOrHash.elementID: 4562488320.35>
+                        Other, 0x126ff70c0, {{0.0, 0.0}, {390.0, 44.0}} <AX element pid: 75114, elementOrHash.elementID: 4561183808.37>
+                          Button, 0x126ff7200, {{16.0, 5.0}, {34.0, 34.0}}, identifier: 'AccessibilityIdentifierStatusBarAccountButton', label: 'Account' <AX element pid: 75114, elementOrHash.elementID: 4561179808.40>
+                          Button, 0x126ff7340, {{55.5, 4.5}, {35.0, 35.0}}, identifier: 'AccessibilityIdentifierStatusBarHelpButton', label: 'Help' <AX element pid: 75114, elementOrHash.elementID: 4561182848.41>
+                          Button, 0x126ff7480, {{143.7, 13.5}, {126.7, 17.0}}, identifier: 'AccessibilityIdentifierStatusBarDeviceNameButton', label: 'Device serial number', value: UBIv4_CPU_Roma <AX element pid: 75114, elementOrHash.elementID: 4561180448.42>
+                          Other, 0x126ff75c0, {{270.3, 7.0}, {30.0, 30.0}}, identifier: 'AccessibilityIdentifierStatusBarConnectionIndicator', label: 'Connection lost', value: animating:reconnect <AX element pid: 75114, elementOrHash.elementID: 4563209728.43>
+                          StaticText, 0x126ff7700, {{344.5, 6.5}, {31.0, 31.0}}, label: 'Charge level' <AX element pid: 75114, elementOrHash.elementID: 4561183648.44>
+                      Other, 0x126ff7840, {{0.0, 44.0}, {390.0, 800.0}} <AX element pid: 75114, elementOrHash.elementID: 4561491200.36>
+                        Other, 0x126ff7980, {{0.0, 44.0}, {390.0, 800.0}} <AX element pid: 75114, elementOrHash.elementID: 4561490432.38>
+                        Other, 0x126ff7ac0, {{0.0, 44.0}, {390.0, 800.0}}, identifier: 'loading.progress', label: 'loading.progress', value: 0% <AX element pid: 75114, elementOrHash.elementID: 4563212288.39>

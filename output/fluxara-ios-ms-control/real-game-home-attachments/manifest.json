@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "E9F4B9E6-A3C2-4600-88A3-C890DB5B32BC.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screenshot of Application 'io.fluxara.drift'_0_4523841E-43FA-43E4-9290-F065AF665ACF.png",
+        "timestamp" : 1790944656.094
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testReadGame()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testReadGame"
+  }
+]

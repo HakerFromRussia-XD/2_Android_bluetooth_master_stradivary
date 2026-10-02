@@ -1,0 +1,38 @@
+{
+  "fileKey": "Pws4Hw0fwwTmTMf6OJvil8",
+  "pageId": "0:1",
+  "targetNode": "100:2",
+  "componentSet": "451:62",
+  "instances": [
+    "451:63",
+    "451:73"
+  ],
+  "variants": [
+    "451:2",
+    "451:12",
+    "451:22",
+    "451:32",
+    "451:42",
+    "451:52"
+  ],
+  "fillNodes": [
+    "451:28",
+    "451:58"
+  ],
+  "approvedReference": "gauges-v2-approved.png",
+  "screenRender": "figma-left-gauge-aligned-pause.png",
+  "statesRender": "figma-gauge-states-v1.png",
+  "scope": "curved gauges without captions numbers or tick marks; independent stationary casing and fill arc; Empty Preview Full states",
+  "visualValidation": "passed",
+  "codeIntegration": "built and installed on iPhone 13 Pro",
+  "liveControlValidation": "both channels received and applied at runtime; user confirmed behavior",
+  "alignment": {
+    "wheel": "100:30",
+    "pause": "100:32",
+    "wheelX": 55,
+    "pauseX": 34,
+    "gaugeX": 34,
+    "totalShiftFromOriginal": 34,
+    "approvedByUser": true
+  }
+}

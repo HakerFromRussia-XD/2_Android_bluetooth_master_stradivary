@@ -28,7 +28,7 @@
 	<string>$(IMAGE_BASE_URL)</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string>motorica-stk</string>
+        <string>fluxara-drive</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

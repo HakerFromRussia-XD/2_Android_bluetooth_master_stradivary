@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "9658952A-B7E7-44DB-BCE7-0A287F2302D7.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screenshot of Application 'io.fluxara.drift'_0_E4037B25-1E0B-45AF-9ABD-377CCA0F6E8E.png",
+        "timestamp" : 1790944715.478
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testTapCanyon()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testTapCanyon"
+  }
+]

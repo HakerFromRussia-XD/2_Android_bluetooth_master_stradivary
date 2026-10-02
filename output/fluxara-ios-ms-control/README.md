@@ -1,0 +1,1 @@
+/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary/iosApp/README.md

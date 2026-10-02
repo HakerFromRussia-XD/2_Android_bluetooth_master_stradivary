@@ -1,0 +1,16 @@
+{
+  "platform": "iOS",
+  "font": "Inter SemiBold",
+  "heading_size_pt": 14,
+  "subsection_top_gap_pt": 16,
+  "description_top_gap_pt": 8,
+  "build": "BUILD SUCCEEDED",
+  "configuration": "Debug / arm64 / iphonesimulator",
+  "build_log": "/tmp/stradivary-instruction-ios-latest-spacing.log",
+  "packaged_heading_font_registered": true,
+  "source_hashes": {
+    "shared/src/commonMain/kotlin/com/bailout/stickk/ubi4/bridges/InstructionBridge.kt": "653b5edfc3465f1de7a3fc73d84a056ba51b7702cd63ee9a94dcca811408e59b",
+    "iosApp/MotoricaStart/Presentation/Help/HelpViewController.swift": "5564d9c30db37e5e060f830c58b9bf9b598a8e0b3946882276f4205492a8c9ed"
+  },
+  "visual_review": "pending - user will verify"
+}

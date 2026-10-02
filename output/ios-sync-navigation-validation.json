@@ -1,0 +1,20 @@
+{
+  "checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "changed_source": "iosApp/MotoricaStart/Presentation/MainTabBarController.swift",
+  "behavior": "Select sensors once after initial synchronization completes and sensor widgets are available",
+  "regression_check": "PASS",
+  "regression_cases": [
+    "gestures arrive before sensors",
+    "initial synchronization completion",
+    "late sensor snapshot",
+    "later updates retain selected tab",
+    "resynchronization retains selected tab"
+  ],
+  "regression_method": "Swift harness executing extracted production tab-selection methods with synthetic snapshots",
+  "build_log": "/tmp/motorica-ios-auto-sensors-build.log",
+  "physical_prosthesis_cycle": "not yet verified",
+  "build": "BUILD SUCCEEDED",
+  "signature": "codesign deep strict passed",
+  "device_install": "success",
+  "device_launch": "success"
+}

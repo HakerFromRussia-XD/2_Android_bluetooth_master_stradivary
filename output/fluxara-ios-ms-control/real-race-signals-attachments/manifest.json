@@ -1,0 +1,53 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "37423731-DFD7-4372-A968-D00D47568E64.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Real race sample 4_0_C975D7C2-4EB2-4528-B4E0-863ADA4F30B6.png",
+        "timestamp" : 1790944760.923
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "74FE4ACC-3436-4525-84F9-F7B5869D33F9.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Real race sample 3_0_DA613F7E-41CB-4451-B200-54775994FF2B.png",
+        "timestamp" : 1790944757.678
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "89CCD21C-FB6B-4D51-AD7D-ADF36C289D7B.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Real race sample 2_0_6EF165AA-DF08-442C-95FA-49A458F0C24E.png",
+        "timestamp" : 1790944754.443
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "D9C881B3-7906-4434-AB29-C04A583BFAB1.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Real race sample 1_0_A6697D50-32A3-419E-B7BC-D62EB8DFF723.png",
+        "timestamp" : 1790944751.199
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "951E2A5D-C5A7-4D5B-8A5C-3FD46E4AA4FE.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Real race sample 0_0_CC6C78B2-F07C-473C-B56B-2DAA354434B5.png",
+        "timestamp" : 1790944747.981
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testStartRace()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testStartRace"
+  }
+]

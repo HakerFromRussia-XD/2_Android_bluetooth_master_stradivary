@@ -1,0 +1,4 @@
+Query chain:
+ →Find: Application 'com.motorica.startttt'
+  ↪︎Find: Descendants matching type Table
+    ↪︎Find: Elements matching predicate '"AccessibilityIdentifierBLEDevicesTable" IN identifiers'

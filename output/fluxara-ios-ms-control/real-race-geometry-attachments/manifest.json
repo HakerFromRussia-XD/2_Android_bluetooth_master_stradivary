@@ -1,0 +1,44 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "CF8EA44A-1A2F-4B4B-9C02-492BDDCBEB0E.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 3_0_39387EE9-D23A-455E-908A-0F5700847BD7.png",
+        "timestamp" : 1790945136.659
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "7C2E3EFF-36DD-4753-8EFA-6C114AF4AEB9.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 2_0_E001D5FF-A8CA-48BE-BD02-89B38CAD8DC9.png",
+        "timestamp" : 1790945133.462
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "99C497D4-F964-4C1A-961B-B81F363DD017.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 1_0_28C7E498-9021-43AF-95E5-E5DCCBFD2CE7.png",
+        "timestamp" : 1790945130.254
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "95DBD8C1-9AF6-440A-8573-1CC30D4ABBE6.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 0_0_74882C21-C35A-4ED5-ABEC-05F057BB76F6.png",
+        "timestamp" : 1790945127.063
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testLaunchAndReturnToRace()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testLaunchAndReturnToRace"
+  }
+]

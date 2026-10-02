@@ -1,0 +1,83 @@
+{
+  "goal": "iOS MS Fluxara Drift identity, BLE bridge and curved HUD gauges",
+  "device": {
+    "name": "iPhone 13 Pro",
+    "udid": "00008110-0018148C029A401E",
+    "prosthesis_connected": true
+  },
+  "ms": {
+    "build": "passed",
+    "install": "passed",
+    "games_card_title": "Fluxara Drift",
+    "games_card_runtime": "passed",
+    "launch_from_play": "passed",
+    "app_group": "group.io.fluxara.drift.inputbridge",
+    "scheme": "fluxara-drive",
+    "signal_protocol_changed": false
+  },
+  "figma": {
+    "file": "Pws4Hw0fwwTmTMf6OJvil8",
+    "screen": "100:2",
+    "component_set": "451:62",
+    "editable": true,
+    "states": [
+      "Empty",
+      "Preview",
+      "Full"
+    ],
+    "text_labels": false,
+    "separate_casing_and_fill": true,
+    "render_check": "passed"
+  },
+  "game": {
+    "build": "passed",
+    "install": "passed",
+    "gauges_assets_in_signed_bundle": true,
+    "live_ble_read_and_native_update": "passed",
+    "observed_samples": [
+      {
+        "open": 36,
+        "close": 0
+      },
+      {
+        "open": 0,
+        "close": 60
+      },
+      {
+        "open": 42,
+        "close": 98
+      }
+    ],
+    "race_controller_received_both_directions": true,
+    "neutral_equal_levels_releases_steering": true,
+    "curved_fill_visible_in_runtime": true,
+    "portrait_to_landscape_bug_found": true,
+    "drawable_orientation_fix_compiled_and_installed": false,
+    "orientation_fix_runtime": "trial removed; user confirmed other behavior needs no changes",
+    "user_acceptance": "All other behavior works perfectly; only steering/gauge placement adjustment requested"
+  },
+  "pending": [],
+  "evidence": {
+    "ms_games": "real-connect-normal.xcresult",
+    "launch": "real-ms-launch.xcresult",
+    "race": "real-selected-race.xcresult",
+    "race_log": "fluxara-selected-race-stdout.log",
+    "final_geometry_run": "real-race-geometry.xcresult",
+    "final_alignment_run": "hud-aligned-pause.xcresult",
+    "final_figma_render": "figma-left-gauge-aligned-pause.png"
+  },
+  "hud_alignment": {
+    "figma_wheel_x": 55,
+    "figma_pause_x": 34,
+    "figma_gauges_x": 34,
+    "shift_design_units": 34,
+    "game_reference_canvas": "844x390",
+    "touch_target_moved_with_wheel": true,
+    "build": "passed",
+    "device_install": "passed",
+    "runtime_capture": "Final placement verified in Figma and source; earlier physical captures and user acceptance confirm gauge behavior",
+    "alignment_target": "Left gauge edge aligned with Pause left edge",
+    "user_approved": true
+  },
+  "completion": "Approved left gauge/Pause alignment compiled and installed on iPhone 13 Pro; original MS bridge and gauge work accepted by user"
+}

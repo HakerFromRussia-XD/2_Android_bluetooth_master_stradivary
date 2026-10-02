@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "14587C7B-5612-4224-8C3A-0D3F602E1AA9.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screenshot of Application 'io.fluxara.drift'_0_B4068AD7-ABB3-4A1D-92D5-85F2FF8EE6F1.png",
+        "timestamp" : 1790944689.557
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testTapHomePlay()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testTapHomePlay"
+  }
+]

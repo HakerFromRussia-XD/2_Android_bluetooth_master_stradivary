@@ -1,0 +1,32 @@
+{
+  "checkout": "/Users/motoricallc/Documents/Codex prod/Motorica LLC/2_Android_bluetooth_master_stradivary",
+  "project": "iosApp/MotoricaStart.xcodeproj",
+  "app_id": "com.motorica.startttt",
+  "team": "R7M384QD5A",
+  "existing_profile": "d0e9a935-bbe8-409d-aa6a-5613ab9de143",
+  "profile_phone_allowed": true,
+  "app_group": "group.com.motorica.start.gamecontrolll",
+  "app_group_preserved": true,
+  "fast_run_scheme": "MotoricaStart Fast Run",
+  "validation": "rolled back at user request",
+  "build": "BUILD SUCCEEDED",
+  "build_seconds": 143.3,
+  "app": "/Users/motoricallc/Library/Developer/Xcode/DerivedData/MotoricaStart-cvhvjkkrlvejczgncazwwdobdqkj/Build/Products/Debug-iphoneos/MotoricaStart.app",
+  "packaged_instruction_texts": {
+    "en": 32,
+    "Base": 32,
+    "ru": 32
+  },
+  "packaged_widget_images": 16,
+  "packaged_heading_font_verified": true,
+  "device_launch": "installing",
+  "current_state": {
+    "signing_settings": "restored to before this turn",
+    "fast_run_scheme": "removed",
+    "device_install": "previous native binaries restored",
+    "device_launch": "success",
+    "rollback_bundle": "/tmp/stradivary-ios-rollback-bundle/MotoricaStart.app",
+    "instruction_source_changes": "preserved",
+    "latest_device_app_instructions": "previous version - latest instruction deployment rolled back"
+  }
+}

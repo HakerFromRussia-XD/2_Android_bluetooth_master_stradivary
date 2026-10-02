@@ -1,0 +1,116 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "2ED3A5E9-2BD8-4852-876E-9FAF4FE3B042.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 1_0_A6839F3A-B030-4844-86CE-B666D2E211FC.png",
+        "timestamp" : 1790945561.769
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "951414DC-588E-4265-8367-5AF9AED22C86.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Verified race geometry 0_0_7369CA62-28B0-4E86-BD51-ECCC2CDC8D74.png",
+        "timestamp" : 1790945558.565
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "A616EAE8-0D75-4C91-A639-C4127C7795F3",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.52.34 PM",
+        "timestamp" : 1790945554.493
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "955689B7-BE27-421C-97EF-3F5690CCCC95",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.52.34 PM",
+        "timestamp" : 1790945554.926
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "50EBF14B-8CFD-4204-82A4-77A8F4C7F86D",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.52.32 PM",
+        "timestamp" : 1790945552.832
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "523E692B-BDE5-406F-977E-2D8812D3E8C5",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.52.33 PM",
+        "timestamp" : 1790945553.274
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "E0018C43-DC26-4EE8-A665-94B8D9077057",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.52.31 PM",
+        "timestamp" : 1790945551.181
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "CAE230EB-1A03-429A-912F-ECE86B8DD915",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.52.31 PM",
+        "timestamp" : 1790945551.611
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "7136DC41-FBD3-4F19-ADF7-88FD35664640",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-10-02 at 03.52.29 PM",
+        "timestamp" : 1790945549.533
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "A567F188-70CB-4008-B3C5-73A5E7F77711",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.52.29 PM",
+        "timestamp" : 1790945549.975
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "A7134D95-49FD-4CB0-B95B-A7044AF68489",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-10-02 at 03.52.24 PM",
+        "timestamp" : 1790945544.258
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "00008110-0018148C029A401E",
+        "deviceName" : "iPhone",
+        "exportedFileName" : "94F2EBC2-CD75-49CB-B7F7-F994B816512E",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screen Recording 2026-10-02 at 03.52.22 PM",
+        "timestamp" : 1790945542.585
+      }
+    ],
+    "testIdentifier" : "InstalledAppChecks/testLaunchAndReturnToRace()",
+    "testIdentifierURL" : "test://com.apple.xcode/InstalledAppChecks/InstalledAppChecks/InstalledAppChecks/testLaunchAndReturnToRace"
+  }
+]

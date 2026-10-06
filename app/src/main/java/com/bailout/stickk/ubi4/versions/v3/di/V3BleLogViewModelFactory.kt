@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -18,8 +19,15 @@ class V3BleLogViewModelFactory(private val repository: V3BleLogRepository) : Vie
     }
 
     companion object {
-        fun from(context: Context) = V3BleLogViewModelFactory(V3BleLogRepositoryImpl(
+        fun from(context: Context) = V3BleLogViewModelFactory(createBleLogRepository(
             context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE),
         ))
     }
 }
+
+internal fun createBleLogRepository(preferences: SharedPreferences) = V3BleLogRepositoryImpl(
+    readGraphStreamHidden = { preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true) },
+    saveGraphStreamHidden = { hidden ->
+        preferences.edit().putBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, hidden).apply()
+    },
+)

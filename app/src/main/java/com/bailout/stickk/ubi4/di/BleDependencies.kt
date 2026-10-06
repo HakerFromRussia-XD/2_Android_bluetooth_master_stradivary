@@ -10,7 +10,7 @@ import java.util.WeakHashMap
 import com.bailout.stickk.ubi4.ble.BleCommandWriter
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
-import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySender
+import com.bailout.stickk.ubi4.versions.v3.data.telemetry.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier

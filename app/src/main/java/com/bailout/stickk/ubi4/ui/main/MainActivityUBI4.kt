@@ -74,6 +74,8 @@ import com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateDialogHost
 import com.bailout.stickk.ubi4.versions.v3.di.V3UserFirmwareViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3ServiceFirmwareViewModel
+import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceFirmwareViewModelFactory
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.BleLogFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -148,6 +150,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var userFirmwareDialogHost: UserFirmwareUpdateDialogHost? = null
     private val v3UserFirmwareViewModel by lazy {
         ViewModelProvider(this, V3UserFirmwareViewModelFactory(this))[V3UserFirmwareViewModel::class.java]
+    }
+    private val v3ServiceFirmwareViewModel by lazy {
+        ViewModelProvider(this, V3ServiceFirmwareViewModelFactory())[V3ServiceFirmwareViewModel::class.java]
     }
     var mDeviceType: String? = null
     var driverVersionS: String? = null
@@ -261,7 +266,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         }
 
-        dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
+        dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this,
+            serviceFirmwareViewModel = v3ServiceFirmwareViewModel) {
             mBLEController.disconnect()
         }
 //        maybeStartDebugFirmwareUpdate()

@@ -1,7 +1,8 @@
 package com.bailout.stickk.ubi4.firmware.user
 
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.UserFirmwareBackend
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.UserFirmwareCoordinator
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.ConnectionState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
@@ -9,7 +10,10 @@ import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.firmware.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.RunProgramType
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.data.firmware.UserFirmwareRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwarePolicy
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareSession
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareBoard
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -26,7 +30,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
     private val mutableState = MutableStateFlow(UserFirmwareUiState())
     private var userRole = false
     private var deviceId = ""
-    private var coordinator: UserFirmwareCoordinator? = null
+    private var coordinator: UserFirmwareCoordinator<UserFirmwareVersion, UserFirmwareTarget>? = null
     private var operation: Job? = null
     private var forwarding: Job? = null
     private val repository = UserFirmwareRepository(directory, host)
@@ -112,11 +116,11 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         platformLog("USER_DFU", "check begin id=$id")
         if (coordinator == null || id != deviceId) {
             deviceId = id
-            coordinator = UserFirmwareCoordinator(id, Backend(id))
+            coordinator = UserFirmwareCoordinator(id, Backend(id), ::platformLog)
             forwarding?.cancel()
             forwarding = scope.launch { coordinator!!.state.collect {
                 UserFirmwareActivity.isActive = V3UserFirmwarePolicy.isTransferActive(it.phase, it.blocksInteraction)
-                mutableState.value = it
+                mutableState.value = UserFirmwareUiState(it.phase, it.boardNumber, it.boardCount, it.progress, it.detail)
             } }
         }
         val current = coordinator!!
@@ -127,7 +131,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         }
     }
 
-    private inner class Backend(private val expectedId: String) : UserFirmwareBackend {
+    private inner class Backend(private val expectedId: String) : UserFirmwareBackend<UserFirmwareVersion, UserFirmwareTarget> {
         private val journalPath = "$directory/session-${firmwareSha256(expectedId.encodeToByteArray())}.json"
         override fun isSameDevice(): Boolean = currentId() == expectedId && BLEState.state.value == BLEState.State.READY
         private suspend fun ready() {
@@ -138,7 +142,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
             ready()
             return freshBoards()
         }
-        override suspend fun targets(boards: List<UserFirmwareBoard>) = repository.targets(boards)
+        override suspend fun targets(boards: List<V3UserFirmwareBoard<UserFirmwareVersion>>) = repository.targets(boards)
         override suspend fun validate(target: UserFirmwareTarget) = repository.validate(target)
         override suspend fun probe(address: Int): UserFirmwareBoard {
             ready()
@@ -191,10 +195,8 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
                 check(result == FirmwareUpdateResult.Success) { "Firmware transfer failed: $result" }
             }
         }
-        override suspend fun readJournal(): String? = sharedFile(journalPath).let {
-            if (it.exists()) it.readBytes().decodeToString() else null
-        }
-        override suspend fun writeJournal(text: String) = writeFirmwareJournal(journalPath, text)
+        override suspend fun readJournal() = repository.readJournal(journalPath)
+        override suspend fun writeJournal(session: V3UserFirmwareSession<UserFirmwareTarget>?) = repository.writeJournal(journalPath, session)
         override suspend fun awaitChange() { changed.receive() }
     }
 }

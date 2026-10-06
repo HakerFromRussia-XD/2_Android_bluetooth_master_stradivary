@@ -1,5 +1,6 @@
-package com.bailout.stickk.ubi4.data.network
+package com.bailout.stickk.ubi4.versions.v3.data.telemetry
 
+import com.bailout.stickk.ubi4.data.network.Ubi4TelemetryRepository
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow

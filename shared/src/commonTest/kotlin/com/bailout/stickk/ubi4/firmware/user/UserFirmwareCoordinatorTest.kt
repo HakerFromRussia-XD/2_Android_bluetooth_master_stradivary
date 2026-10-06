@@ -1,13 +1,17 @@
 package com.bailout.stickk.ubi4.firmware.user
 
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.UserFirmwareBackend
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.UserFirmwareCoordinator
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareSession
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareBoard
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UserFirmwareCoordinatorTest {
+    private val log: (String, String) -> Unit = { _, _ -> }
     private val old = UserFirmwareVersion(0, 6, 9)
     private val latest = UserFirmwareVersion(0, 6, 10)
     private fun target(address: Int) = UserFirmwareTarget(AssemblyModule(address, "Board", "$address.zip", "a".repeat(64)), latest, "/cache/$address.zip")
@@ -29,7 +33,7 @@ class UserFirmwareCoordinatorTest {
 
     @Test fun networkErrorDoesNotOfferOrStartAnUpdate() = runTest {
         val backend = FakeBackend().apply { catalogError = true }
-        val coordinator = UserFirmwareCoordinator("device", backend)
+        val coordinator = UserFirmwareCoordinator("device", backend, log)
         coordinator.check()
         assertEquals("unavailable", coordinator.state.value.phase)
         assertFalse(coordinator.state.value.blocksInteraction)
@@ -38,7 +42,7 @@ class UserFirmwareCoordinatorTest {
 
     @Test fun postponeDismissesOfferWithoutPersistingOrStartingUpdate() = runTest {
         val backend = FakeBackend()
-        val coordinator = UserFirmwareCoordinator("device", backend)
+        val coordinator = UserFirmwareCoordinator("device", backend, log)
         coordinator.check()
         assertEquals("offered", coordinator.state.value.phase)
 
@@ -56,7 +60,7 @@ class UserFirmwareCoordinatorTest {
 
     @Test fun corruptedArchiveStopsBeforeFirstTransfer() = runTest {
         val backend = FakeBackend()
-        val coordinator = UserFirmwareCoordinator("device", backend)
+        val coordinator = UserFirmwareCoordinator("device", backend, log)
         coordinator.check()
         backend.invalidArchive = true
         val job = launch { coordinator.start() }
@@ -69,7 +73,7 @@ class UserFirmwareCoordinatorTest {
 
     @Test fun restartKeepsCompletedStepsAndChecksInFlightBoardBeforeWriting() = runTest {
         val backend = FakeBackend().apply { interruptAt = 0 }
-        val first = UserFirmwareCoordinator("device", backend)
+        val first = UserFirmwareCoordinator("device", backend, log)
         first.check()
         val job = launch { first.start() }
         runCurrent()
@@ -78,7 +82,7 @@ class UserFirmwareCoordinatorTest {
         // Flash succeeded before process loss; journal still describes an in-flight board.
         backend.boards[0] = UserFirmwareBoard(0, latest, true)
         backend.interruptAt = null
-        val resumed = UserFirmwareCoordinator("device", backend)
+        val resumed = UserFirmwareCoordinator("device", backend, log)
         resumed.check()
         assertTrue(resumed.needsResume())
         resumed.start()
@@ -91,7 +95,7 @@ class UserFirmwareCoordinatorTest {
 
     @Test fun failedTransferChecksStateAndRetriesWithoutAdvancingTime() = runTest {
         val backend = FakeBackend().apply { failures = 3 }
-        val coordinator = UserFirmwareCoordinator("device", backend)
+        val coordinator = UserFirmwareCoordinator("device", backend, log)
         coordinator.check()
         coordinator.start()
         assertEquals(listOf(32, 32, 32, 32, 0), backend.transfers)
@@ -130,16 +134,16 @@ class UserFirmwareCoordinatorTest {
         }
     }
 
-    private inner class FakeBackend : UserFirmwareBackend {
+    private inner class FakeBackend : UserFirmwareBackend<UserFirmwareVersion, UserFirmwareTarget> {
         val boards = mutableMapOf(0 to UserFirmwareBoard(0, old, true), 32 to UserFirmwareBoard(32, old, true))
         val transfers = mutableListOf<Int>()
-        var saved: String? = null
+        var saved: V3UserFirmwareSession<UserFirmwareTarget>? = null
         var catalogError = false
         var invalidArchive = false
         var interruptAt: Int? = null
         var failures = 0
         override suspend fun boards() = boards.values.toList()
-        override suspend fun targets(boards: List<UserFirmwareBoard>): List<UserFirmwareTarget> {
+        override suspend fun targets(boards: List<V3UserFirmwareBoard<UserFirmwareVersion>>): List<UserFirmwareTarget> {
             if (catalogError) error("Network unavailable")
             return listOf(target(0), target(32))
         }
@@ -157,7 +161,7 @@ class UserFirmwareCoordinatorTest {
             progress(100)
         }
         override suspend fun readJournal() = saved
-        override suspend fun writeJournal(text: String) { saved = text }
+        override suspend fun writeJournal(session: V3UserFirmwareSession<UserFirmwareTarget>?) { saved = session }
         override suspend fun awaitChange() { awaitCancellation() }
         override fun isSameDevice() = true
     }

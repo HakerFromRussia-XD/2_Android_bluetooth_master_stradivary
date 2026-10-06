@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.blelog.BleLogDirection
 import com.bailout.stickk.ubi4.blelog.BleLogEntry
 import com.bailout.stickk.ubi4.blelog.BleLogStore
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.versions.v3.di.createBleLogRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.blelog.V3BleLogEntry
 import io.mockk.*
 import kotlinx.coroutines.*
@@ -12,11 +13,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3BleLogRepositoryTest {
     private val preferences = mockk<SharedPreferences>()
-    private val repository = V3BleLogRepositoryImpl(preferences)
+    private val repository = createBleLogRepository(preferences)
     private val version = MutableStateFlow(0L)
     private val history = mutableListOf<BleLogEntry>()
     @BeforeEach fun setup() {
@@ -66,14 +69,36 @@ class V3BleLogRepositoryTest {
         job.cancel()
     }
 
-    @Test fun `restoring filter uses existing key and default without saving or rebuilding history`() {
-        every { preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true) } returns true
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `restoring filter uses existing key and default without saving or rebuilding history`(hidden: Boolean) {
+        every { preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true) } returns hidden
+        assertEquals(hidden, repository.restoreGraphStreamFilter())
+        verifySequence {
+            preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true)
+            BleLogStore.setHideGraphStream(hidden)
+        }
+        verify(exactly = 0) { preferences.edit(); BleLogStore.snapshot() }
+    }
+
+    @Test fun `restoring filter reads current preference on every call`() {
+        every { preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true) } returnsMany listOf(true, false)
         assertTrue(repository.restoreGraphStreamFilter())
+        assertFalse(repository.restoreGraphStreamFilter())
         verifySequence {
             preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true)
             BleLogStore.setHideGraphStream(true)
+            preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true)
+            BleLogStore.setHideGraphStream(false)
         }
         verify(exactly = 0) { preferences.edit(); BleLogStore.snapshot() }
+    }
+
+    @Test fun `read failure propagates without applying filter or saving`() {
+        val failure = IllegalStateException("Preference read failed")
+        every { preferences.getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true) } throws failure
+        assertSame(failure, assertThrows(IllegalStateException::class.java) { repository.restoreGraphStreamFilter() })
+        verify(exactly = 0) { BleLogStore.setHideGraphStream(any()); preferences.edit(); BleLogStore.snapshot() }
     }
 
     @Test fun `filter change saves before applying to future graph packets`() {
@@ -89,5 +114,20 @@ class V3BleLogRepositoryTest {
             BleLogStore.setHideGraphStream(false)
         }
         verify(exactly = 0) { BleLogStore.snapshot() }
+    }
+
+    @Test fun `save failure propagates before applying filter`() {
+        val failure = IllegalStateException("Preference save failed")
+        val editor = mockk<SharedPreferences.Editor>()
+        every { preferences.edit() } returns editor
+        every { editor.putBoolean(any(), any()) } returns editor
+        every { editor.apply() } throws failure
+        assertSame(failure, assertThrows(IllegalStateException::class.java) { repository.setGraphStreamHidden(false) })
+        verifySequence {
+            preferences.edit()
+            editor.putBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, false)
+            editor.apply()
+        }
+        verify(exactly = 0) { BleLogStore.setHideGraphStream(any()); BleLogStore.snapshot() }
     }
 }

@@ -29,6 +29,11 @@ import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderBoardItemUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3ServiceFirmwareLocalFile
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3ServiceFirmwareUpdateResult
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3ServiceFirmwareAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3ServiceFirmwareEffect
+import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3ServiceFirmwareViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -40,6 +45,7 @@ class DialogManager(
     private val context: Context,
     private val layoutInflater: LayoutInflater,
     private val viewLifecycleOwner: LifecycleOwner,
+    private val serviceFirmwareViewModel: V3ServiceFirmwareViewModel,
     private val onDisconnectConfirmed: () -> Unit,
     ) {
     private val firmwareUpdateCoordinator = FirmwareUpdateCoordinator(
@@ -60,6 +66,27 @@ class DialogManager(
     )
     private var currentDialog: Dialog? = null
     private var progressDialog: Dialog? = null
+    private data class ServiceFirmwareDialog(
+        val fileItem: FirmwareFileItem,
+        val progressBar: ProgressBar,
+        val onConfirm: (FirmwareFileItem) -> Unit,
+    )
+    private val serviceFirmwareDialogs = mutableMapOf<Long, ServiceFirmwareDialog>()
+
+    init {
+        serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.ViewCreated)
+        // Keep collecting for the Activity lifetime: STOP/account navigation never cancelled this flow.
+        viewLifecycleOwner.lifecycleScope.launch {
+            serviceFirmwareViewModel.uiState.collect { state ->
+                state.progressByRequest.forEach { (id, percent) ->
+                    serviceFirmwareDialogs[id]?.progressBar?.progress = percent
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            serviceFirmwareViewModel.effects.collect(::renderServiceFirmwareEffect)
+        }
+    }
 
 
     @SuppressLint("InflateParams")
@@ -91,6 +118,8 @@ class DialogManager(
 
     fun onDestroy() {
         closeAllDialogs()
+        serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.ViewDestroyed)
+        serviceFirmwareDialogs.clear()
     }
 
     @SuppressLint("LogNotTimber")
@@ -119,6 +148,15 @@ class DialogManager(
                 closeAllDialogs()
                 val progressBar = showProgressBarDialog()
 
+                if (UiState.isInterfaceV3Activated) {
+                    val requestId = ++nextServiceFirmwareRequestId
+                    serviceFirmwareDialogs[requestId] = ServiceFirmwareDialog(fileItem, progressBar, onConfirm)
+                    serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.InstallConfirmed(
+                        requestId, addr, V3ServiceFirmwareLocalFile(fileItem.file.name, fileItem.file.path),
+                    ))
+                    return@setOnClickListener
+                }
+
                 viewLifecycleOwner.lifecycleScope.launch {
                     val startedAt = SystemClock.elapsedRealtime()
                     var phase = "prepare_notifications"
@@ -141,38 +179,15 @@ class DialogManager(
                     try {
                         val bleController = main?.getBLEController()
                         bleController?.setFirmwareUpdateSessionActive(true)
-                        val protocol = if (UiState.isInterfaceV3Activated) {
-                            FirmwareUpdateProtocol.V3
-                        } else {
-                            FirmwareUpdateProtocol.UBI4
-                        }
-                        if (protocol == FirmwareUpdateProtocol.V3) {
-                            check(bleController?.prepareFirmwareSessionNotifications() == true) {
-                                "Не удалось включить уведомления канала прошивки"
-                            }
-                        }
+                        val protocol = FirmwareUpdateProtocol.UBI4
                         phase = "read_package"
                         val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(fileItem.file)
                         Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
                             "attempt PACKAGE id=$startedAt protocol=$protocol bytes=${firmwarePackage.payload.size} declared_size=${firmwarePackage.descriptorFirmwareSize} crc=${firmwarePackage.descriptorFirmwareCrc.toString(16)} descriptor=" +
                                 firmwarePackage.descriptor.joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') })
                         phase = "coordinator"
-                        if (BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
-                            check(protocol == FirmwareUpdateProtocol.V3 && addr == 0) {
-                                "Эта диагностическая сборка проверяет только вход FAM в boot"
-                            }
-                            phase = "boot_entry_probe"
-                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
-                                "entry_probe START id=$startedAt; coordinator/BEGIN/erase disabled for this bench build")
-                            LegacyV3FirmwareUpdater(
-                                sender = AndroidFirmwareCommandSender,
-                                logger = AndroidFirmwareUpdateLogger
-                            ).ensureBootloader(addr)
-                            Log.i(AndroidFirmwareUpdateLogger.DIAG_TAG,
-                                "entry_probe VERIFIED id=$startedAt elapsed_ms=${SystemClock.elapsedRealtime() - startedAt}; no firmware transfer")
-                            progressDialog?.dismiss()
-                            main?.showToast("Вход в boot подтверждён. Проверка завершена без передачи прошивки")
-                            return@launch
+                        check(!BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
+                            "Эта диагностическая сборка проверяет только вход FAM в boot"
                         }
                         val result = firmwareUpdateCoordinator.runFirmwareUpdate(
                             protocol = protocol,
@@ -223,60 +238,89 @@ class DialogManager(
             }
     }
 
-    fun runV3FirmwareUpdateForDebug(file: File) {
-        check(!BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY) {
-            "Full-update autorun is not permitted in the boot-entry probe build"
+    private fun renderServiceFirmwareEffect(effect: V3ServiceFirmwareEffect) {
+        val request = serviceFirmwareDialogs[effect.requestId] ?: return
+        if (effect is V3ServiceFirmwareEffect.Stalled) {
+            Log.w(AndroidFirmwareUpdateLogger.DIAG_TAG,
+                "attempt STALLED id=${effect.startedAt} phase=${effect.phase} progress=${effect.progress} elapsed_ms=${SystemClock.elapsedRealtime() - effect.startedAt}")
+            showWarningLoadingDialog()
+            return
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            Log.i("DFU_V2_TRACE", "debug_autorun start file=${file.name}")
-            try {
-                main?.getBLEController()?.setFirmwareUpdateSessionActive(true)
-                val firmwarePackage = FirmwareUpdateUtils.readFirmwarePackage(file)
-                val result = firmwareUpdateCoordinator.runFirmwareUpdate(
-                    protocol = FirmwareUpdateProtocol.V3,
-                    addr = 0,
-                    firmware = firmwarePackage
-                ) { offset, total ->
-                    val percent = if (total <= 0) 0 else (offset * 100 / total).coerceIn(0, 100)
-                    Log.i(
-                        "DFU_V2_TRACE",
-                        "debug_autorun progress=$percent offset=$offset total=$total"
+        try {
+            when (effect) {
+                is V3ServiceFirmwareEffect.Completed -> when (val result = effect.result) {
+                    V3ServiceFirmwareUpdateResult.Success -> {
+                        progressDialog?.dismiss()
+                        main?.showToast(context.getString(SharedRes.strings.firmware_update_success.resourceId))
+                        currentDialog?.dismiss()
+                        request.onConfirm(request.fileItem)
+                    }
+                    V3ServiceFirmwareUpdateResult.BootEntryVerified -> {
+                        progressDialog?.dismiss()
+                        main?.showToast("Вход в boot подтверждён. Проверка завершена без передачи прошивки")
+                    }
+                    is V3ServiceFirmwareUpdateResult.StartSystemUpdateRejected -> showFirmwareRejection(
+                        SharedRes.strings.failed_to_start_update_status.resourceId, result.status, dismissConfirmation = true,
                     )
+                    is V3ServiceFirmwareUpdateResult.CheckNewFirmwareRejected -> showFirmwareRejection(
+                        if (result.isBoardIncompatible) SharedRes.strings.firmware_board_compatibility_rejected_status.resourceId
+                        else SharedRes.strings.module_not_ready_for_writing_status.resourceId, result.status,
+                    )
+                    V3ServiceFirmwareUpdateResult.PreloadFailed -> showFirmwareRejection(SharedRes.strings.failed_to_prepare_memory_for_firmware.resourceId)
+                    V3ServiceFirmwareUpdateResult.CrcMismatch -> showFirmwareRejection(SharedRes.strings.crc_mismatch_update_failed.resourceId)
                 }
-                Log.i("DFU_V2_TRACE", "debug_autorun result=$result")
-            } catch (error: Throwable) {
-                Log.e("DFU_V2_TRACE", "debug_autorun failed", error)
-            } finally {
-                main?.getBLEController()?.setFirmwareUpdateSessionActive(false)
+                is V3ServiceFirmwareEffect.Failed -> showFirmwareFailure(effect.error)
+                is V3ServiceFirmwareEffect.Stalled -> Unit
             }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.e("FW_FLOW", "Firmware update failed", error)
+            showFirmwareFailure(error)
+        } finally {
+            serviceFirmwareDialogs.remove(effect.requestId)
+            serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.ResultShown(effect.requestId))
         }
+    }
+
+    private fun showFirmwareFailure(error: Exception) {
+        progressDialog?.dismiss()
+        main?.showToast(context.getString(SharedRes.strings.firmware_update_failed_with_message.resourceId,
+            error.localizedMessage ?: context.getString(SharedRes.strings.error.resourceId)))
+    }
+
+    private fun showFirmwareRejection(message: Int, status: Any? = null, dismissConfirmation: Boolean = false) {
+        progressDialog?.dismiss()
+        if (dismissConfirmation) currentDialog?.dismiss()
+        main?.showToast(if (status == null) context.getString(message) else context.getString(message, status))
+    }
+
+    fun runV3FirmwareUpdateForDebug(file: File) {
+        serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.DebugInstallRequested(
+            V3ServiceFirmwareLocalFile(file.name, file.path),
+        ))
     }
 
     private fun handleFirmwareUpdateResult(result: FirmwareUpdateResult): Boolean =
         when (result) {
             FirmwareUpdateResult.Success -> true
             is FirmwareUpdateResult.StartSystemUpdateRejected -> {
-                progressDialog?.dismiss()
-                currentDialog?.dismiss()
-                main?.showToast(context.getString(SharedRes.strings.failed_to_start_update_status.resourceId, result.status))
+                showFirmwareRejection(SharedRes.strings.failed_to_start_update_status.resourceId, result.status, dismissConfirmation = true)
                 false
             }
             is FirmwareUpdateResult.CheckNewFirmwareRejected -> {
-                progressDialog?.dismiss()
                 val message = if (result.status.code == 0)
                     SharedRes.strings.firmware_board_compatibility_rejected_status.resourceId
                 else SharedRes.strings.module_not_ready_for_writing_status.resourceId
-                main?.showToast(context.getString(message, result.status))
+                showFirmwareRejection(message, result.status)
                 false
             }
             FirmwareUpdateResult.PreloadFailed -> {
-                progressDialog?.dismiss()
-                main?.showToast(context.getString(SharedRes.strings.failed_to_prepare_memory_for_firmware.resourceId))
+                showFirmwareRejection(SharedRes.strings.failed_to_prepare_memory_for_firmware.resourceId)
                 false
             }
             FirmwareUpdateResult.CrcMismatch -> {
-                progressDialog?.dismiss()
-                main?.showToast(context.getString(SharedRes.strings.crc_mismatch_update_failed.resourceId))
+                showFirmwareRejection(SharedRes.strings.crc_mismatch_update_failed.resourceId)
                 false
             }
         }
@@ -329,4 +373,9 @@ class DialogManager(
                 }
         }
     }
+    private companion object {
+        // UI callbacks run on Main; IDs stay unique when the Activity is recreated.
+        var nextServiceFirmwareRequestId = 0L
+    }
+
 }

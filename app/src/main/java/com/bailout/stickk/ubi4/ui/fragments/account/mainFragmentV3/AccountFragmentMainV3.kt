@@ -25,17 +25,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.data.network.RemoteFirmwareFile
-import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
-import com.bailout.stickk.ubi4.data.network.sharedFile
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
-import com.bailout.stickk.ubi4.data.state.GlobalParameters
-import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.firmware.FirmwareBoardFamily
-import com.bailout.stickk.ubi4.firmware.FirmwareCompatibility
-import com.bailout.stickk.ubi4.firmware.FirmwareVersionCatalog
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -46,17 +36,18 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.versions.v3.di.V3AccountProfileViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileHeader
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountBoard
 import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3AccountProfileViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.accountprofile.V3ServiceFirmwareMessage
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.awaitCancellation
 
 class AccountFragmentMainV3 : Fragment() {
     private var mContext: Context? = null
@@ -74,15 +65,10 @@ class AccountFragmentMainV3 : Fragment() {
     private var _binding: Ubi4FragmentPersonalAccountMainBinding? = null
     private val binding get() = requireNotNull(_binding)
     private val resumeDisposables = CompositeDisposable()
-    private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
-    private val boardNameByCode = mutableMapOf<Int, String>()
-    private var canRenderBoards = false
-    private var isBoardsRendered = false
     private var systemBackCallback: OnBackPressedCallback? = null
-    private val firmwareRepository = YandexDiskFirmwareRepository()
-    private var remoteFirmwareCatalog: List<RemoteFirmwareFile>? = null
-    private var firmwareCatalogJob: Job? = null
-    private var firmwareDownloadJob: Job? = null
+    private var renderedFirmwareCatalogRevision = -1L
+    private var nextFirmwareRequestId = 0L
+    private val pendingFirmwareBoards = mutableMapOf<Long, BootloaderBoardItemUBI4>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -97,10 +83,11 @@ class AccountFragmentMainV3 : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         profileViewModel.onAction(V3AccountProfileAction.ViewAttached(
-            BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND, !cachedBootloaderBoards.isNullOrEmpty(),
+            BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND,
         ))
         renderedHeaderRevision = -1L
         refreshCompletionId = 0L
+        renderedFirmwareCatalogRevision = -1L
 
         if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) {
             binding.preloaderLav.cancelAnimation()
@@ -116,8 +103,7 @@ class AccountFragmentMainV3 : Fragment() {
         binding.backBtn.setOnClickListener { handleBackPress() }
         refreshFirmwareCatalog()
 
-        val hasCachedContent = applyCachedContentIfAvailable()
-        canRenderBoards = hasCachedContent && !BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND
+        profileViewModel.onAction(V3AccountProfileAction.CachedBoardsApplied)
         viewLifecycleOwner.lifecycleScope.launch {
             profileViewModel.uiState.collect(::renderAccountProfile)
         }
@@ -126,17 +112,16 @@ class AccountFragmentMainV3 : Fragment() {
         val createdBinding = binding
         binding.root.postDelayed({
             if (!isAdded || _binding !== createdBinding) return@postDelayed
-            canRenderBoards = true
-            refreshBoards()
+            profileViewModel.onAction(V3AccountProfileAction.BoardRenderingReady)
             profileViewModel.onAction(V3AccountProfileAction.LoadRequested)
         }, transitionDurationMs + if (BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) 80L else 0L)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    UiState.updateFlow.collect {
-                        if (canRenderBoards) refreshBoards()
-                    }
+                    profileViewModel.onAction(V3AccountProfileAction.BoardUpdatesStarted)
+                    try { awaitCancellation() }
+                    finally { profileViewModel.onAction(V3AccountProfileAction.BoardUpdatesStopped) }
                 }
                 launch {
                     profileViewModel.uiState.map { it.areBoardServiceActionsVisible }
@@ -156,22 +141,6 @@ class AccountFragmentMainV3 : Fragment() {
             requireNotNull(systemBackCallback)
         )
         systemBackCallback?.isEnabled = !isHidden
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            FirmwareInfoState.runProgramTypeFlow.collect { (addr, runType) ->
-                if (!canRenderBoards) return@collect
-                val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
-                if (idx != -1) {
-                    val updated = bootloaderBoardsList.map { board ->
-                        if (board.deviceAddress == addr) board.copy(isInBootLoader = runType.isBootloader) else board.copy()
-                    }
-                    bootloaderBoardsList.clear()
-                    bootloaderBoardsList.addAll(updated)
-                    cachedBootloaderBoards = updated
-                    bootloaderAdapter.submitBoards(updated)
-                }
-            }
-        }
     }
 
     @SuppressLint("CheckResult")
@@ -239,117 +208,6 @@ class AccountFragmentMainV3 : Fragment() {
         }
     }
 
-    private fun applyCachedContentIfAvailable(): Boolean {
-        val hasProfile = profileViewModel.uiState.value.hasCachedProfile
-        val boards = cachedBootloaderBoards
-
-        if (!hasProfile && boards.isNullOrEmpty()) return false
-
-        if (!boards.isNullOrEmpty()) {
-            val snapshot = boards
-                .filterNot { FirmwareVersionCatalog.isZeroVersion(it.version) }
-                .map { it.copy(isUpdateAvailable = false) }
-            bootloaderBoardsList.clear()
-            bootloaderBoardsList.addAll(snapshot)
-            if (!BuildConfig.ACCOUNT_LOAD_PROFILE_IN_BACKGROUND) updateBootloaderSafe(snapshot)
-            isBoardsRendered = true
-        }
-        return true
-    }
-
-    private fun rebuildBoardNameCache() {
-        boardNameByCode.clear()
-        GlobalParameters.baseSubDevicesInfoStructSet.forEach { sub ->
-            val resolvedName = PreferenceKeysUbi4.DeviceCodeV3
-                .fromCode(sub.deviceCode)
-                .title
-                .removeSuffix(" board")
-            boardNameByCode[sub.deviceCode] = resolvedName
-            Log.d(
-                BOARD_LOG_TAG,
-                "rebuildBoardNameCache: addr=${sub.deviceAddress}, code=${sub.deviceCode}, nameByDataCode=$resolvedName"
-            )
-        }
-        Log.d(BOARD_LOG_TAG, "rebuildBoardNameCache result: $boardNameByCode")
-    }
-
-    private fun refreshBoards() {
-        rebuildBoardNameCache()
-        Log.d(
-            BOARD_LOG_TAG,
-            "refreshBoards start: subDevices=${
-                GlobalParameters.baseSubDevicesInfoStructSet.joinToString(prefix = "[", postfix = "]") {
-                    "{addr=${it.deviceAddress}, code=${it.deviceCode}, fw=${it.fwVersion}}"
-                }
-            }"
-        )
-        val allBoards = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
-            val unknownName = getString(SharedRes.strings.unknown_board.resourceId)
-            val family = FirmwareBoardFamily.fromDeviceAddress(sub.deviceAddress)
-            val nameByCode = boardNameByCode[sub.deviceCode]
-            val name = nameByCode
-                ?.takeUnless { it.equals("Unknown", ignoreCase = true) }
-                ?: family.takeUnless { it == FirmwareBoardFamily.UNKNOWN }?.name
-                ?: unknownName
-            val fw = sub.fwVersion.takeIf { it.isNotBlank() }
-                ?: "—"
-            val familyFileNames = remoteFirmwareCatalog
-                ?.asSequence()
-                ?.filter { it.family == family }
-                ?.map { it.name }
-                ?.toList()
-                .orEmpty()
-            val isUpdateAvailable = remoteFirmwareCatalog != null &&
-                FirmwareCompatibility.isUpdateAvailable(
-                    deviceAddress = sub.deviceAddress,
-                    installedVersion = fw,
-                    fileNames = familyFileNames
-                )
-            if (name == unknownName) {
-                Log.w(
-                    BOARD_LOG_TAG,
-                    "Unknown board resolved: addr=${sub.deviceAddress}, code=${sub.deviceCode}, fw=$fw, nameByDataCode=${
-                        PreferenceKeysUbi4.DeviceCodeV3.fromCode(sub.deviceCode).title.removeSuffix(" board")
-                    }"
-                )
-            }
-            BootloaderBoardItemUBI4(
-                boardName = name,
-                deviceCode = sub.deviceCode,
-                deviceAddress = sub.deviceAddress,
-                canUpdate = true,
-                version = fw,
-                isInBootLoader = bootloaderBoardsList.firstOrNull { it.deviceAddress == sub.deviceAddress }?.isInBootLoader ?: false,
-                isUpdateAvailable = isUpdateAvailable
-            )
-        }.distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }
-        val builtBoards = allBoards.filter {
-            !FirmwareVersionCatalog.isZeroVersion(it.version) &&
-                it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
-                !it.boardName.equals("Unknown", ignoreCase = true)
-        }
-        if (allBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
-        bootloaderBoardsList.clear()
-        bootloaderBoardsList.addAll(builtBoards)
-        updateBootloaderSafe(builtBoards)
-        Log.d(
-            BOARD_LOG_TAG,
-            "refreshBoards done: built=${
-                builtBoards.joinToString(prefix = "[", postfix = "]") {
-                    "{addr=${it.deviceAddress}, code=${it.deviceCode}, name=${it.boardName}, fw=${it.version}}"
-                }
-            }"
-        )
-        isBoardsRendered = true
-        revealVersionsWhenReady()
-    }
-
-    private fun revealVersionsWhenReady() {
-        if (!profileViewModel.uiState.value.isTokenLoaded || !isBoardsRendered) return
-        binding.accountRv.visibility = View.VISIBLE
-        binding.preloaderLav.visibility = View.GONE
-    }
-
     private fun handleBackPress() {
         val mainActivity = activity as? MainActivityUBI4
         val source = arguments?.getString("sourceFragmentClass")
@@ -374,75 +232,48 @@ class AccountFragmentMainV3 : Fragment() {
     }
 
     private fun refreshFirmwareCatalog() {
-        firmwareCatalogJob?.cancel()
-        remoteFirmwareCatalog = null
-        if (canRenderBoards) refreshBoards()
-        firmwareCatalogJob = viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val catalog = firmwareRepository.loadCatalog()
-                remoteFirmwareCatalog = catalog
-                if (canRenderBoards) refreshBoards()
-                Log.d(FIRMWARE_LOG_TAG, "Loaded ${catalog.size} firmware files from Yandex Disk")
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                remoteFirmwareCatalog = null
-                if (canRenderBoards) refreshBoards()
-                Log.w(FIRMWARE_LOG_TAG, "Yandex firmware catalog is unavailable", error)
-            }
-        }
+        profileViewModel.onAction(V3AccountProfileAction.FirmwareCatalogRefreshRequested)
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
-        val catalog = remoteFirmwareCatalog
-        if (catalog == null) {
-            showFirmwareCatalogUnavailableToast()
-            return
-        }
-
-        val family = FirmwareBoardFamily.fromDeviceAddress(boardItem.deviceAddress)
-        val candidates = catalog
-            .filter { it.family == family }
-            .filter { FirmwareCompatibility.isCompatible(boardItem.deviceAddress, it.name) }
-            .sortedWith { left, right -> compareFirmwareForBoard(boardItem.deviceAddress, left, right) }
-
-        if (family == FirmwareBoardFamily.UNKNOWN || candidates.isEmpty()) {
-            Toast.makeText(requireContext(), R.string.firmware_not_found_for_board, Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (firmwareDownloadJob?.isActive == true) return
-
-        Toast.makeText(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT).show()
-        firmwareDownloadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val cacheDirectory = sharedFile(requireContext().cacheDir.absolutePath)
-            try {
-                val items = candidates.map { remote ->
-                    FirmwareFileItem(
-                        name = remote.name,
-                        file = java.io.File(firmwareRepository.download(remote, cacheDirectory).path)
-                    )
-                }
-                if (isAdded && _binding != null) showDownloadedFirmwareDialog(boardItem, items)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                Log.w(FIRMWARE_LOG_TAG, "Cannot download firmware files", error)
-                if (isAdded && _binding != null) showFirmwareCatalogUnavailableToast()
-            }
-        }
+        val requestId = ++nextFirmwareRequestId
+        pendingFirmwareBoards[requestId] = boardItem
+        profileViewModel.onAction(V3AccountProfileAction.FirmwareFilesRequested(
+            boardItem.deviceAddress, requestId,
+        ))
+        // A rejected click must not replace the row captured by the active download.
+        if (profileViewModel.uiState.value.firmwareDownloadRequestId != requestId) pendingFirmwareBoards.remove(requestId)
     }
 
-    private fun compareFirmwareForBoard(
-        deviceAddress: Int,
-        left: RemoteFirmwareFile,
-        right: RemoteFirmwareFile
-    ): Int {
-        val leftVersion = FirmwareCompatibility.versionForDevice(deviceAddress, left.name)
-        val rightVersion = FirmwareCompatibility.versionForDevice(deviceAddress, right.name)
-        return when {
-            FirmwareVersionCatalog.isLocalVersionNewer(rightVersion, leftVersion) -> -1
-            FirmwareVersionCatalog.isLocalVersionNewer(leftVersion, rightVersion) -> 1
-            else -> left.name.compareTo(right.name, ignoreCase = true)
+    private fun renderFirmwareCatalog(state: V3AccountProfileUiState) {
+        if (renderedFirmwareCatalogRevision != state.firmwareCatalogRevision) {
+            renderedFirmwareCatalogRevision = state.firmwareCatalogRevision
+            state.firmwareCatalogSize?.let {
+                Log.d(FIRMWARE_LOG_TAG, "Loaded $it firmware files from Yandex Disk")
+            }
+            state.firmwareCatalogError?.let {
+                Log.w(FIRMWARE_LOG_TAG, "Yandex firmware catalog is unavailable", it)
+            }
+        }
+        state.firmwareMessages.forEach { message ->
+            profileViewModel.onAction(V3AccountProfileAction.FirmwareMessageShown(message.id))
+            when (message) {
+                is V3ServiceFirmwareMessage.CatalogUnavailable -> showFirmwareCatalogUnavailableToast()
+                is V3ServiceFirmwareMessage.NotFound -> Toast.makeText(requireContext(), R.string.firmware_not_found_for_board, Toast.LENGTH_SHORT).show()
+                is V3ServiceFirmwareMessage.DownloadStarted -> Toast.makeText(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT).show()
+                is V3ServiceFirmwareMessage.FilesDownloaded -> {
+                    val boardItem = pendingFirmwareBoards.remove(message.requestId)
+                    if (boardItem != null) {
+                        if (isAdded && _binding != null) showDownloadedFirmwareDialog(boardItem,
+                            message.files.map { FirmwareFileItem(it.name, java.io.File(it.path)) })
+                    }
+                }
+                is V3ServiceFirmwareMessage.DownloadFailed -> {
+                    Log.w(FIRMWARE_LOG_TAG, "Cannot download firmware files", message.error)
+                    pendingFirmwareBoards.remove(message.requestId)
+                    if (isAdded && _binding != null) showFirmwareCatalogUnavailableToast()
+                }
+            }
         }
     }
 
@@ -474,8 +305,10 @@ class AccountFragmentMainV3 : Fragment() {
     }
 
     private fun renderAccountProfile(state: V3AccountProfileUiState) {
+        renderFirmwareCatalog(state)
         binding.preloaderLav.visibility = if (state.isContentVisible) View.GONE else View.VISIBLE
         binding.accountRv.visibility = if (state.isContentVisible) View.VISIBLE else View.INVISIBLE
+        renderBoards(state)
         if (state.header != null && renderedHeaderRevision != state.headerRevision) {
             renderedHeaderRevision = state.headerRevision
             val currentBinding = binding
@@ -505,21 +338,37 @@ class AccountFragmentMainV3 : Fragment() {
         versionDriver = versions.driver, versionBms = versions.bms, versionSensors = versions.sensors,
     )
 
-    private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
-        val snapshot = list.map { it.copy() }
-        cachedBootloaderBoards = snapshot
-        _binding?.accountRv?.post {
-            bootloaderAdapter.submitBoards(snapshot)
-            scrollAccountListToTop()
+    private fun renderBoards(state: V3AccountProfileUiState) {
+        state.boardSubmissions.forEach { submission ->
+            profileViewModel.onAction(V3AccountProfileAction.BoardSubmissionRendered(submission.id))
+            val snapshot = submission.boards.map { it.toBoardItem() }
+            if (submission.submitImmediately) {
+                bootloaderAdapter.submitBoards(snapshot)
+            } else {
+                _binding?.accountRv?.post {
+                    bootloaderAdapter.submitBoards(snapshot)
+                    scrollAccountListToTop()
+                }
+                if (state.isTokenLoaded) {
+                    binding.accountRv.visibility = View.VISIBLE
+                    binding.preloaderLav.visibility = View.GONE
+                }
+            }
         }
     }
+
+    private fun V3AccountBoard.toBoardItem() = BootloaderBoardItemUBI4(
+        boardName = name ?: getString(SharedRes.strings.unknown_board.resourceId),
+        deviceCode = deviceCode, deviceAddress = deviceAddress, canUpdate = canUpdate,
+        version = version, isInBootLoader = isInBootloader, isUpdateAvailable = isUpdateAvailable,
+    )
 
     private fun areBoardServiceActionsVisible(): Boolean =
         profileViewModel.uiState.value.areBoardServiceActionsVisible
 
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshServiceRoleUi() {
-        if (!canRenderBoards) return
+        if (!profileViewModel.uiState.value.isBoardRenderingReady) return
         bootloaderAdapter.notifyDataSetChanged()
     }
 
@@ -543,12 +392,9 @@ class AccountFragmentMainV3 : Fragment() {
 
     override fun onDestroyView() {
         profileViewModel.onAction(V3AccountProfileAction.ViewDetached)
-        firmwareCatalogJob?.cancel()
-        firmwareDownloadJob?.cancel()
+        pendingFirmwareBoards.clear()
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
-        canRenderBoards = false
-        isBoardsRendered = false
         systemBackCallback = null
         mContext = null
         main = null
@@ -557,8 +403,6 @@ class AccountFragmentMainV3 : Fragment() {
     }
 
     companion object {
-        private const val BOARD_LOG_TAG = "AccountBoardsV3"
         private const val FIRMWARE_LOG_TAG = "FirmwareCatalogV3"
-        private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
     }
 }

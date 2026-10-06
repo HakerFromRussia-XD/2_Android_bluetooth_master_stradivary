@@ -6,6 +6,8 @@ import com.bailout.stickk.ubi4.di.createV3TelemetryRepository
 import com.bailout.stickk.ubi4.models.network.TelemetryMessagesRequest
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
+import com.bailout.stickk.ubi4.versions.v3.data.telemetry.Ubi4TelemetrySendException
+import com.bailout.stickk.ubi4.versions.v3.data.telemetry.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.SendTelemetryUseCaseV3
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.mockk.*

@@ -37,6 +37,44 @@ class V3ArchitectureTest {
         }
     }
 
+    @Test fun `service firmware catalog loading selection and downloads stay outside the account fragment`() {
+        val source = File(root.parentFile.parentFile,
+            "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")
+        reject(source, imports(source).filter { it.startsWith("com.bailout.stickk.ubi4.data.network.") })
+        val fragment = source.readText()
+        listOf("firmwareRepository.loadCatalog", "remoteFirmwareCatalog", "FirmwareCompatibility",
+            "compareFirmwareForBoard", "firmwareCatalogJob", "YandexDiskFirmwareRepository",
+            "RemoteFirmwareFile", "firmwareRepository.download", "firmwareDownloadJob", "cacheDir", "sharedFile").forEach {
+            assertFalse(fragment.contains(it), "AccountFragmentMainV3 still owns $it")
+        }
+        assertTrue(fragment.contains("V3AccountProfileAction.FirmwareCatalogRefreshRequested"))
+        assertTrue(fragment.contains("V3AccountProfileAction.FirmwareFilesRequested"))
+        assertTrue(fragment.contains("V3AccountProfileAction.FirmwareMessageShown"))
+    }
+
+    @Test fun `account board sources cache and building stay behind the screen viewmodel`() {
+        val source = File(root.parentFile.parentFile,
+            "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")
+        reject(source, imports(source).filter {
+            it.startsWith("com.bailout.stickk.ubi4.data.state.") ||
+                it.startsWith("com.bailout.stickk.ubi4.firmware.") ||
+                it.startsWith("com.bailout.stickk.ubi4.persistence.")
+        })
+        val fragment = source.readText()
+        listOf("GlobalParameters", "FirmwareInfoState", "UiState.updateFlow", "FirmwareBoardFamily",
+            "FirmwareVersionCatalog", "PreferenceKeysUbi4", "cachedBootloaderBoards", "bootloaderBoardsList",
+            "boardNameByCode", "rebuildBoardNameCache", "applyCachedContentIfAvailable", "refreshBoards",
+            "FirmwareBoardsChanged", "installedVersions", "canRenderBoards", "isBoardsRendered",
+            "updateBootloaderSafe").forEach {
+            assertFalse(fragment.contains(it), "AccountFragmentMainV3 still owns $it")
+        }
+        assertTrue(fragment.contains("V3AccountProfileAction.CachedBoardsApplied"))
+        assertTrue(fragment.contains("V3AccountProfileAction.BoardRenderingReady"))
+        assertTrue(fragment.contains("V3AccountProfileAction.BoardUpdatesStarted"))
+        assertTrue(fragment.contains("V3AccountProfileAction.BoardUpdatesStopped"))
+        assertTrue(fragment.contains("V3AccountProfileAction.BoardSubmissionRendered"))
+    }
+
     @Test fun `user firmware UI renders state and sends actions without reading archives or controlling BLE`() {
         val dialog = File(root.parentFile.parentFile, "ui/dialog/UserFirmwareUpdateDialog.kt")
         reject(dialog, imports(dialog).filter {
@@ -58,6 +96,40 @@ class V3ArchitectureTest {
         sources("presentation/firmware").forEach { file ->
             reject(file, imports(file).filter { it.contains(".firmware.user.") })
         }
+    }
+
+    @Test fun `confirmed V3 service firmware uses Activity owned state while legacy paths remain separate`() {
+        val dialog = File(root.parentFile.parentFile, "ui/dialog/DialogManager.kt").readText()
+        val confirmation = dialog.substringAfter("val progressBar = showProgressBarDialog()")
+            .substringBefore("viewLifecycleOwner.lifecycleScope.launch {")
+        assertTrue(confirmation.contains("if (UiState.isInterfaceV3Activated)"))
+        assertTrue(confirmation.contains("V3ServiceFirmwareAction.InstallConfirmed"))
+        assertTrue(confirmation.contains("return@setOnClickListener"))
+        assertFalse(confirmation.contains("FirmwareUpdateUtils"))
+        assertFalse(confirmation.contains("getBLEController"))
+        assertTrue(dialog.contains("serviceFirmwareViewModel.uiState.collect"))
+        assertTrue(dialog.contains("serviceFirmwareViewModel.effects.collect"))
+        assertTrue(dialog.contains("val protocol = FirmwareUpdateProtocol.UBI4"))
+        val debugEntry = dialog.substringAfter("fun runV3FirmwareUpdateForDebug(file: File)")
+            .substringBefore("private fun handleFirmwareUpdateResult")
+        assertTrue(debugEntry.contains("serviceFirmwareViewModel.onAction(V3ServiceFirmwareAction.DebugInstallRequested"))
+        assertTrue(debugEntry.contains("V3ServiceFirmwareLocalFile(file.name, file.path)"))
+        listOf("BuildConfig", "FirmwareUpdateUtils", "firmwareUpdateCoordinator", "getBLEController",
+            "lifecycleScope", "launch", "Log.", "showProgressBarDialog").forEach {
+            assertFalse(debugEntry.contains(it), "Debug UI entry still owns $it")
+        }
+        val destroy = dialog.substringAfter("fun onDestroy()").substringBefore("@SuppressLint")
+        assertTrue(destroy.contains("V3ServiceFirmwareAction.ViewDestroyed"))
+        val activity = File(root.parentFile.parentFile, "ui/main/MainActivityUBI4.kt").readText()
+        assertTrue(activity.contains("ViewModelProvider(this, V3ServiceFirmwareViewModelFactory())"))
+        val destruction = activity.substringAfter("override fun onDestroy()").substringBefore("private fun enqueueAppCloseUploadIfNeeded")
+        assertTrue(destruction.indexOf("dialogManager?.onDestroy()") < destruction.indexOf("mBLEController.cleanup()"))
+        assertFalse(activity.substringAfter("override fun onStop()").substringBefore("override fun onDestroy()").contains("V3ServiceFirmwareAction.ViewDestroyed"))
+        val debugAutorun = activity.lineSequence().filter {
+            it.contains("maybeStartDebugFirmwareUpdate") || it.contains("runV3FirmwareUpdateForDebug")
+        }.toList()
+        assertTrue(debugAutorun.isNotEmpty())
+        debugAutorun.forEach { assertTrue(it.trimStart().startsWith("//"), "Debug autorun must remain disabled: $it") }
     }
 
     @Test fun `data never depends on presentation or dependency factories`() {

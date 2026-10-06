@@ -9,7 +9,7 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySender
+import com.bailout.stickk.ubi4.versions.v3.data.telemetry.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.network.TelemetryMessagesRequest
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4

@@ -3,6 +3,9 @@ package com.bailout.stickk.ubi4.firmware.user
 import com.bailout.stickk.ubi4.firmware.FirmwareInfoDescriptorBuilder
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdatePackage
 import com.bailout.stickk.ubi4.firmware.MotoricaCrc32
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwarePolicy
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareBoard
+import com.bailout.stickk.ubi4.versions.v3.domain.firmware.V3UserFirmwareTarget
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
@@ -75,8 +78,9 @@ data class FirmwareAssembly(
 data class FirmwareModuleSlotVersion(val version: Int, val subversion: Int, val quickfiks: Int = 0)
 
 data class UserFirmwareArchive(val descriptorText: String, val payload: ByteArray) {
+    private val fields by lazy { FirmwareInfoDescriptorBuilder.parseIniProperties(descriptorText) }
+
     fun version(): UserFirmwareVersion {
-        val fields = FirmwareInfoDescriptorBuilder.parseIniProperties(descriptorText)
         fun field(name: String) = fields[name]?.toIntOrNull() ?: error("Missing firmware field: $name")
         require(field("FWType") == 0) { "Only main firmware is allowed" }
         require(payload.isNotEmpty()) { "Empty firmware image" }
@@ -84,13 +88,12 @@ data class UserFirmwareArchive(val descriptorText: String, val payload: ByteArra
     }
     fun validateImage() {
         version()
-        val fields = FirmwareInfoDescriptorBuilder.parseIniProperties(descriptorText)
         val crc = fields["FWCRC"]?.toLongOrNull() ?: error("Missing firmware CRC")
         require(MotoricaCrc32.calculate(payload) == crc) { "Firmware image CRC mismatch" }
     }
     fun packageFor(name: String): FirmwareUpdatePackage {
         version()
-        val descriptor = FirmwareInfoDescriptorBuilder.build(FirmwareInfoDescriptorBuilder.parseIniProperties(descriptorText))
+        val descriptor = FirmwareInfoDescriptorBuilder.build(fields)
         return FirmwareUpdatePackage(name, descriptor.bytes, payload, descriptor.firmwareSize,
             descriptor.firmwareCrc, descriptor.localVersionString)
     }
@@ -105,9 +108,14 @@ expect fun firmwareSha256(bytes: ByteArray): String
 expect suspend fun writeFirmwareJournal(path: String, text: String)
 
 @Serializable
-data class UserFirmwareTarget(val module: AssemblyModule, val version: UserFirmwareVersion, val path: String)
+data class UserFirmwareTarget(val module: AssemblyModule, override val version: UserFirmwareVersion, val path: String) :
+    V3UserFirmwareTarget<UserFirmwareVersion> {
+    override val address: Int get() = module.address
+}
 
-data class UserFirmwareBoard(val address: Int, val version: UserFirmwareVersion?, val isMain: Boolean)
+data class UserFirmwareBoard(
+    override val address: Int, override val version: UserFirmwareVersion?, override val isMain: Boolean,
+) : V3UserFirmwareBoard<UserFirmwareVersion>
 
 @Serializable
 data class UserFirmwareJournal(
@@ -119,18 +127,13 @@ data class UserFirmwareJournal(
 )
 
 object UserFirmwarePolicy {
-    fun queue(boards: List<UserFirmwareBoard>, targets: List<UserFirmwareTarget>): List<UserFirmwareTarget> {
-        val present = boards.associateBy { it.address }
-        return targets.filter { target ->
-            val board = present[target.module.address] ?: return@filter false
-            val installed = requireNotNull(board.version) { "Unknown firmware version at ${board.address}" }
-            installed < target.version
-        }.sortedBy { if (it.module.address == 0) 1 else 0 }
-    }
+    fun queue(boards: List<UserFirmwareBoard>, targets: List<UserFirmwareTarget>): List<UserFirmwareTarget> =
+        V3UserFirmwarePolicy.queue(boards.associate { it.address to it.version }, targets,
+            { it.module.address }, { it.version })
     fun completed(board: UserFirmwareBoard, target: UserFirmwareTarget): Boolean =
-        board.isMain && board.version == target.version
+        V3UserFirmwarePolicy.completed(board.isMain, board.version, target.version)
     fun retry(board: UserFirmwareBoard, target: UserFirmwareTarget): Boolean =
-        !board.isMain && board.version != null && board.version != target.version
+        V3UserFirmwarePolicy.retry(board.isMain, board.version, target.version)
 }
 
 data class UserFirmwareUiState(
@@ -140,7 +143,7 @@ data class UserFirmwareUiState(
     val progress: Int = 0,
     val detail: String = ""
 ) {
-    val blocksInteraction: Boolean get() = phase in setOf("offered", "preparing", "updating", "verifying", "complete")
+    val blocksInteraction: Boolean get() = V3UserFirmwarePolicy.blocksInteraction(phase)
 }
 
 object UserFirmwareActivity { var isActive: Boolean = false

@@ -1,6 +1,7 @@
-package com.bailout.stickk.ubi4.firmware.user
+package com.bailout.stickk.ubi4.versions.v3.data.firmware
 
 import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
+import com.bailout.stickk.ubi4.firmware.user.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation

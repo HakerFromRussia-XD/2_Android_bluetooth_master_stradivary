@@ -1,73 +1,73 @@
-package com.bailout.stickk.ubi4.firmware.user
+package com.bailout.stickk.ubi4.versions.v3.domain.firmware
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import com.bailout.stickk.ubi4.utility.logging.platformLog
 
-interface UserFirmwareBackend {
-    suspend fun boards(): List<UserFirmwareBoard>
-    suspend fun targets(boards: List<UserFirmwareBoard>): List<UserFirmwareTarget>
-    suspend fun validate(target: UserFirmwareTarget)
-    suspend fun probe(address: Int): UserFirmwareBoard
-    suspend fun transfer(target: UserFirmwareTarget, progress: (Int) -> Unit)
-    suspend fun readJournal(): String?
-    suspend fun writeJournal(text: String)
+interface UserFirmwareBackend<Version : Comparable<Version>, Target : V3UserFirmwareTarget<Version>> {
+    suspend fun boards(): List<V3UserFirmwareBoard<Version>>
+    suspend fun targets(boards: List<V3UserFirmwareBoard<Version>>): List<Target>
+    suspend fun validate(target: Target)
+    suspend fun probe(address: Int): V3UserFirmwareBoard<Version>
+    suspend fun transfer(target: Target, progress: (Int) -> Unit)
+    suspend fun readJournal(): V3UserFirmwareSession<Target>?
+    suspend fun writeJournal(session: V3UserFirmwareSession<Target>?)
     /** Wait for a real connection/network/foreground event, never a retry timer. */
     suspend fun awaitChange()
     fun isSameDevice(): Boolean
 }
 
-class UserFirmwareCoordinator(private val deviceId: String, private val backend: UserFirmwareBackend) {
-    private val mutableState = MutableStateFlow(UserFirmwareUiState())
+class UserFirmwareCoordinator<Version : Comparable<Version>, Target : V3UserFirmwareTarget<Version>>(
+    private val deviceId: String,
+    private val backend: UserFirmwareBackend<Version, Target>,
+    private val log: (tag: String, message: String) -> Unit,
+) {
+    private val mutableState = MutableStateFlow(V3UserFirmwareStatus())
     val state = mutableState.asStateFlow()
-    private var journal: UserFirmwareJournal? = null
+    private var session: V3UserFirmwareSession<Target>? = null
     private var running = false
 
     suspend fun check() {
-        if (running || journal != null) return
+        if (running || session != null) return
         running = true
         try {
-            val loaded = backend.readJournal()?.takeIf { it.isNotBlank() && it != "null" }
-                ?.let { Json.decodeFromString<UserFirmwareJournal>(it) }
-            val saved = loaded?.takeIf { it.formatVersion >= 2 }
+            val loaded = backend.readJournal()
+            val saved = loaded?.takeIf { V3UserFirmwarePolicy.canResumeJournal(it.formatVersion) }
             if (loaded != null && saved == null) {
                 // Older journals did not persist a successful GOOD_CRC step,
                 // so they can only deadlock a resumed user update.
-                backend.writeJournal("null")
-                platformLog("USER_DFU", "discarded obsolete user-update journal")
+                backend.writeJournal(null)
+                log("USER_DFU", "discarded obsolete user-update journal")
             }
             if (saved != null) {
                 require(saved.deviceId == deviceId) { "Session belongs to another device" }
-                journal = saved
+                session = saved
                 publish("preparing")
             } else {
-                mutableState.value = UserFirmwareUiState("checking")
+                mutableState.value = V3UserFirmwareStatus("checking")
                 val boards = backend.boards()
                 val targets = backend.targets(boards)
-                val queue = UserFirmwarePolicy.queue(boards, targets)
-                platformLog("USER_DFU", "targets=${targets.joinToString { "${it.module.address}:${it.version}" }} queue=${queue.joinToString { "${it.module.address}:${it.version}" }}")
+                val queue = V3UserFirmwarePolicy.queue(boards.associate { it.address to it.version }, targets,
+                    { it.address }, { it.version })
+                log("USER_DFU", "targets=${targets.joinToString { "${it.address}:${it.version}" }} queue=${queue.joinToString { "${it.address}:${it.version}" }}")
                 check(backend.isSameDevice()) { "Device changed during firmware check" }
                 if (queue.isEmpty()) {
-                    mutableState.value = UserFirmwareUiState()
+                    mutableState.value = V3UserFirmwareStatus()
                 } else {
-                    journal = UserFirmwareJournal(deviceId, queue, formatVersion = 2)
+                    session = V3UserFirmwareSession(deviceId, queue, formatVersion = 2)
                     publish("offered")
                 }
             }
         } catch (error: Exception) {
             currentCoroutineContext().ensureActive()
-            platformLog("USER_DFU", "check failed ${error::class.simpleName}: ${error.message}")
-            mutableState.value = UserFirmwareUiState("unavailable", detail = error.message.orEmpty())
+            log("USER_DFU", "check failed ${error::class.simpleName}: ${error.message}")
+            mutableState.value = V3UserFirmwareStatus("unavailable", detail = error.message.orEmpty())
         } finally { running = false }
     }
 
     suspend fun start() {
-        if (running || journal == null) return
+        if (running || session == null) return
         running = true
         try {
             // Persist consent and the frozen set before any destructive command.
@@ -76,7 +76,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                     persist()
                     check(backend.isSameDevice()) { "Waiting for the original device" }
                     publish("preparing")
-                    journal!!.targets.filterNot { it.module.address in journal!!.completed }.forEach { backend.validate(it) }
+                    session!!.targets.filterNot { it.address in session!!.completed }.forEach { backend.validate(it) }
                     break
                 } catch (error: Exception) {
                     currentCoroutineContext().ensureActive()
@@ -89,28 +89,28 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                     // callback; there is no timer/backoff between attempts.
                 }
             }
-            for (target in journal!!.targets) {
-                val address = target.module.address
-                if (address in journal!!.completed) continue
+            for (target in session!!.targets) {
+                val address = target.address
+                if (address in session!!.completed) continue
                 while (true) {
                     try {
                         check(backend.isSameDevice()) { "Waiting for the original device" }
                         publish("verifying")
                         val board = backend.probe(address)
-                        platformLog(
+                        log(
                             "USER_DFU",
                             "probe address=$address target=${target.version} installed=${board.version} " +
-                                "main=${board.isMain} attempted=${address in journal!!.attempted}"
+                                "main=${board.isMain} attempted=${address in session!!.attempted}"
                         )
-                        if (UserFirmwarePolicy.completed(board, target)) {
-                            journal = journal!!.copy(completed = journal!!.completed + address)
+                        if (V3UserFirmwarePolicy.completed(board.isMain, board.version, target.version)) {
+                            session = session!!.copy(completed = session!!.completed + address)
                             persist()
                             break
                         }
-                        val firstAttempt = address !in journal!!.attempted
-                        val mayStart = firstAttempt && board.version != null && board.version < target.version
-                        if (!mayStart && !UserFirmwarePolicy.retry(board, target)) {
-                            platformLog(
+                        val firstAttempt = address !in session!!.attempted
+                        val mayStart = V3UserFirmwarePolicy.canStartFirstAttempt(firstAttempt, board.version, target.version)
+                        if (!mayStart && !V3UserFirmwarePolicy.retry(board.isMain, board.version, target.version)) {
+                            log(
                                 "USER_DFU",
                                 "waiting address=$address firstAttempt=$firstAttempt installed=${board.version} " +
                                     "target=${target.version} main=${board.isMain}"
@@ -119,7 +119,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                             backend.awaitChange()
                             continue
                         }
-                        journal = journal!!.copy(attempted = journal!!.attempted + address)
+                        session = session!!.copy(attempted = session!!.attempted + address)
                         persist()
                         publish("updating")
                         var transferred = false
@@ -128,7 +128,7 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                             transferred = true
                         } catch (error: Exception) {
                             currentCoroutineContext().ensureActive()
-                            platformLog(
+                            log(
                                 "USER_DFU",
                                 "transfer failed address=$address target=${target.version} " +
                                     "${error::class.simpleName}: ${error.message}"
@@ -141,13 +141,13 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
                             // board's main program was received successfully.
                             // Continue the frozen queue from this callback; the
                             // next board must not wait for a later advertisement.
-                            journal = journal!!.copy(completed = journal!!.completed + address)
+                            session = session!!.copy(completed = session!!.completed + address)
                             persist()
                             break
                         }
                     } catch (error: Exception) {
                         currentCoroutineContext().ensureActive()
-                        platformLog(
+                        log(
                             "USER_DFU",
                             "state probe failed address=$address target=${target.version} " +
                                 "${error::class.simpleName}: ${error.message}"
@@ -166,12 +166,12 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
         } finally { running = false }
     }
 
-    fun needsResume(): Boolean = journal != null && state.value.phase == "preparing"
+    fun needsResume(): Boolean = session != null && state.value.phase == "preparing"
     suspend fun acknowledge() {
         if (state.value.phase != "complete") return
-        backend.writeJournal("null")
-        journal = null
-        mutableState.value = UserFirmwareUiState()
+        backend.writeJournal(null)
+        session = null
+        mutableState.value = V3UserFirmwareStatus()
     }
 
     /**
@@ -181,12 +181,13 @@ class UserFirmwareCoordinator(private val deviceId: String, private val backend:
      */
     fun postpone() {
         if (state.value.phase != "offered") return
-        mutableState.value = UserFirmwareUiState()
+        mutableState.value = V3UserFirmwareStatus()
     }
-    private suspend fun persist() = backend.writeJournal(Json.encodeToString(journal!!))
+    private suspend fun persist() = backend.writeJournal(session!!)
     private fun publish(phase: String, progress: Int = 0, detail: String = "") {
-        val saved = journal ?: return
-        mutableState.value = UserFirmwareUiState(phase,
-            (saved.completed.size + 1).coerceAtMost(saved.targets.size), saved.targets.size, progress, detail)
+        val saved = session ?: return
+        mutableState.value = V3UserFirmwareStatus(phase,
+            (saved.completed.size + 1).coerceAtMost(saved.targets.size), saved.targets.size, progress,
+            blocksInteraction = V3UserFirmwarePolicy.blocksInteraction(phase), detail = detail)
     }
 }

@@ -1,7 +1,5 @@
 package com.bailout.stickk.ubi4.versions.v3.data.telemetry
 
-import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySendException
-import com.bailout.stickk.ubi4.data.network.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.state.ConnectionState
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.*

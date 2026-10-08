@@ -8,6 +8,11 @@ import UIKit
 import shared
 
 final class MainTabBarController: UITabBarController {
+    static let serviceSettingsVisibilityDidChange = Notification.Name("MotoricaServiceSettingsVisibilityDidChange")
+
+    var isServiceSettingsHelpVisible: Bool {
+        viewControllers?.contains { $0.tabBarItem.tag == TabTag.serviceSettings } == true
+    }
     private struct TabBarContentDescriptor {
         let title: String
         let imageName: String
@@ -261,6 +266,7 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func applyWidgetDrivenTabVisibility(preferredSelectionTag: Int? = nil) {
+        let previousServiceVisibility = isServiceSettingsHelpVisible
         let dataFactory = DataFactory()
         let visibleDisplays = Set((0...4).compactMap { display -> Int32? in
             dataFactory.prepareData(display: Int32(display)).isEmpty ? nil : Int32(display)
@@ -276,6 +282,9 @@ final class MainTabBarController: UITabBarController {
         let permittedTags = Set(permittedControllers.map { $0.tabBarItem.tag })
         tabBarContentDescriptors = allTabBarContentDescriptors.filter { permittedTags.contains($0.tag) }
         viewControllers = permittedControllers
+        if previousServiceVisibility != isServiceSettingsHelpVisible {
+            NotificationCenter.default.post(name: Self.serviceSettingsVisibilityDidChange, object: self)
+        }
 
         guard !permittedControllers.isEmpty else {
             tabBar.isHidden = true

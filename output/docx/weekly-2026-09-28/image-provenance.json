@@ -1,0 +1,90 @@
+[
+  {
+    "path": "output/fluxara-ios-ms-control/figma-left-gauge-aligned-pause.png",
+    "commit": "a6a4696df",
+    "sha256": "ce2c740be6a0ab71c7189cde58390b03c2129f9ff679acb1d3ae18d6f579238e",
+    "dimensions": [
+      844,
+      390
+    ],
+    "exif_orientation": null,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/instruction-localization/previous-checkout/widgets-final.png",
+    "commit": "12d54abb0",
+    "sha256": "ef02d5d8bfc25c5713bfa3400fe549760cacf4f9440689bf931b9d102257fe49",
+    "dimensions": [
+      632,
+      644
+    ],
+    "exif_orientation": null,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/real-game-home-attachments/E9F4B9E6-A3C2-4600-88A3-C890DB5B32BC.png",
+    "commit": "a6a4696df",
+    "sha256": "fbe2a934955886eaa050d89ab82a4bfe6426cc3f4142e5a39dd24ee0191a8c26",
+    "dimensions": [
+      1170,
+      2532
+    ],
+    "exif_orientation": 1,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/real-race-signals-attachments/37423731-DFD7-4372-A968-D00D47568E64.png",
+    "commit": "a6a4696df",
+    "sha256": "8d53de793924b63518e734df7716b0b184c74590a72efaf6dc4f39e0c34c3a22",
+    "dimensions": [
+      1170,
+      2532
+    ],
+    "exif_orientation": 1,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/real-game-canyon-attachments/9658952A-B7E7-44DB-BCE7-0A287F2302D7.png",
+    "commit": "a6a4696df",
+    "sha256": "840473a36443d20012302a29382484306fc13a202c159ec0ca960bf8377fd277",
+    "dimensions": [
+      1170,
+      2532
+    ],
+    "exif_orientation": 1,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/figma-hud-before.png",
+    "commit": "a6a4696df",
+    "sha256": "d2e250c267bcbb75eb932a916ba259395e6fb878a2a82bc848467e2a4ff28a1f",
+    "dimensions": [
+      844,
+      390
+    ],
+    "exif_orientation": null,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/figma-left-gauge-aligned-pause.png",
+    "commit": "a6a4696df",
+    "sha256": "ce2c740be6a0ab71c7189cde58390b03c2129f9ff679acb1d3ae18d6f579238e",
+    "dimensions": [
+      844,
+      390
+    ],
+    "exif_orientation": null,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  },
+  {
+    "path": "output/fluxara-ios-ms-control/hud-aligned-pause-attachments/951414DC-588E-4265-8367-5AF9AED22C86.png",
+    "commit": "a6a4696df",
+    "sha256": "b0e5cddbc17fa6d13005f4b77d36d7ec4fa15abaf550c0296253addbb6c1d392",
+    "dimensions": [
+      2532,
+      1170
+    ],
+    "exif_orientation": 8,
+    "presentation": "EXIF orientation respected; full frame preserved"
+  }
+]

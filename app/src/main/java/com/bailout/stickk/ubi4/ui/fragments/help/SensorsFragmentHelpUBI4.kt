@@ -35,6 +35,9 @@ class SensorsFragmentHelpUBI4 : Fragment(R.layout.ubi4_fragment_sensor_settings)
     }
 
     private fun initUi() = with(binding) {
+        if (com.bailout.stickk.ubi4.data.state.UiState.isInterfaceV3Activated) {
+            ubi4RelatedSpecialSettingsTitleTv.setText(R.string.special_settings)
+        }
         ubi4TitleClickBlockBtn.setOnClickListener { /* no-op */ }
         ubi4BackBtn.setOnClickListener { handleBackPress() }
 

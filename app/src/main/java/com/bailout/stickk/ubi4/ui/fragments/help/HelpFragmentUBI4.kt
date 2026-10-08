@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments.help
 
 import android.content.Intent
+import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHelpBinding
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -25,6 +28,22 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     private var _binding: Ubi4FragmentHelpBinding? = null
     private val binding get() = requireNotNull(_binding)
     private var lastRenderedVisibilityState: VisibilityState? = null
+    private val navigationPreferences by lazy {
+        requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, Context.MODE_PRIVATE)
+    }
+    private val serviceVisibilityListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == PreferenceKeysUbi4.KEY_SECRET_ITEM_VISIBLE && _binding != null) renderVisibility()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        navigationPreferences.registerOnSharedPreferenceChangeListener(serviceVisibilityListener)
+    }
+
+    override fun onStop() {
+        navigationPreferences.unregisterOnSharedPreferenceChangeListener(serviceVisibilityListener)
+        super.onStop()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,6 +81,11 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         ubi4SettingsGestureBtn.setOnClickListener { openScreen(GestureSettingsFragmentHelpUBI4()) }
         ubi4TrainingBtn.setOnClickListener { }
         ubi4AdvancedSettingsBtn.setOnClickListener { openScreen(AdvancedSettingsFragmentHelpUBI4()) }
+        ubi4ServiceSettingsHelpBtn.setOnClickListener {
+            if (lastRenderedVisibilityState?.hasServiceSettings == true) {
+                openScreen(ServiceSettingsFragmentHelpUBI4())
+            }
+        }
 
         // Prostheses use
         ubi4HowProsthesesWorksBtn.setOnClickListener { openScreen(HowProsthesesWorksFragmentUBI4()) }
@@ -95,10 +119,12 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         val bottomNavigationController = main.getBottomNavigationController()
 
         val newState = VisibilityState(
+            isV3 = UiState.isInterfaceV3Activated,
             hasSensors = bottomNavigationController.isItemVisible(R.id.page_2),
             hasGestures = bottomNavigationController.isItemVisible(R.id.page_1),
             hasTraining = bottomNavigationController.isItemVisible(R.id.page_3),
-            hasSpecialSettings = bottomNavigationController.isItemVisible(R.id.page_4)
+            hasSpecialSettings = bottomNavigationController.isItemVisible(R.id.page_4),
+            hasServiceSettings = UiState.isInterfaceV3Activated && bottomNavigationController.isItemVisible(R.id.page_secret)
         )
         if (lastRenderedVisibilityState == newState) return@with
 
@@ -107,12 +133,28 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     }
 
     private fun applyVisibilityState(state: VisibilityState) = with(binding) {
+        ubi4SpecialSettingsTitleTv.setText(if (state.isV3) R.string.special_settings else R.string.advanced_settings)
+        val sensorRow = ubi4SensorsSettingsBtn.parent as View
+        val rows = sensorRow.parent as android.view.ViewGroup
+        val orderedRows = if (state.isV3) {
+            listOf(ubi4GestureCustomizationRl, sensorRow, ubi4AdvancedSettingsRl, ubi4ServiceSettingsHelpRl, ubi4TrainingRl)
+        } else {
+            listOf(sensorRow, ubi4GestureCustomizationRl, ubi4TrainingRl, ubi4AdvancedSettingsRl, ubi4ServiceSettingsHelpRl)
+        }
+        orderedRows.forEachIndexed { index, row ->
+            if (rows.getChildAt(index) !== row) {
+                rows.removeView(row)
+                rows.addView(row, index)
+            }
+        }
         (ubi4SensorsSettingsBtn.parent as? View)?.let {
             setVisibleIfChanged(it, state.hasSensors)
         } ?: setVisibleIfChanged(ubi4SensorsSettingsBtn, state.hasSensors)
         setVisibleIfChanged(ubi4GestureCustomizationRl, state.hasGestures)
-        setVisibleIfChanged(ubi4TrainingRl, state.hasTraining)
+        setVisibleIfChanged(ubi4TrainingRl, !state.isV3 && state.hasTraining)
         setVisibleIfChanged(ubi4AdvancedSettingsRl, state.hasSpecialSettings)
+        setVisibleIfChanged(ubi4ServiceSettingsHelpRl, state.hasServiceSettings)
+        setVisibleIfChanged(ubi4SpecialSettingsDivider, state.hasServiceSettings)
     }
 
     private fun setVisibleIfChanged(view: View, isVisible: Boolean) {
@@ -180,9 +222,11 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     }
 
     private data class VisibilityState(
+        val isV3: Boolean,
         val hasSensors: Boolean,
         val hasGestures: Boolean,
         val hasTraining: Boolean,
-        val hasSpecialSettings: Boolean
+        val hasSpecialSettings: Boolean,
+        val hasServiceSettings: Boolean
     )
 }

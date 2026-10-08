@@ -70,12 +70,13 @@ object InstructionBridge {
     private const val PAGE_CHARGING = "charging"
     private const val PAGE_CARE = "care"
     private const val PAGE_SERVICE = "service"
+    private const val PAGE_SERVICE_SETTINGS = "service_settings"
 
-    fun indexSections(): List<InstructionSection> = listOf(
+    fun indexSections(isV3: Boolean = false, serviceSettingsVisible: Boolean = false): List<InstructionSection> = listOf(
         InstructionSection(
             id = "app_control",
             title = SharedRes.strings.app_control,
-            items = appControlItems()
+            items = appControlItems(isV3, serviceSettingsVisible)
         ),
         InstructionSection(
             id = "prostheses_use",
@@ -93,7 +94,8 @@ object InstructionBridge {
         )
     )
 
-    fun page(id: String): InstructionPage? = when (id) {
+    fun page(id: String, isV3: Boolean = false, serviceSettingsVisible: Boolean = false): InstructionPage? {
+        val page = when (id) {
         PAGE_SENSORS -> sensorsPage()
         PAGE_GESTURES -> gesturesPage()
         PAGE_ADVANCED -> advancedPage()
@@ -103,14 +105,36 @@ object InstructionBridge {
         PAGE_CHARGING -> chargingPage()
         PAGE_CARE -> carePage()
         PAGE_SERVICE -> servicePage()
+        PAGE_SERVICE_SETTINGS -> if (isV3 && serviceSettingsVisible) InstructionPage(
+            id = PAGE_SERVICE_SETTINGS,
+            title = SharedRes.strings.service_settings,
+            cards = emptyList(),
+            relatedItems = emptyList(),
+            relatedTitle = null
+        ) else null
         else -> null
+        } ?: return null
+        if (!isV3) return page
+        return page.copy(
+            title = if (id == PAGE_ADVANCED) SharedRes.strings.special_settings else page.title,
+            relatedItems = if (page.relatedTitle == SharedRes.strings.app_control)
+                appControlItems(isV3, serviceSettingsVisible) else page.relatedItems
+        )
     }
 
-    private fun appControlItems(): List<InstructionMenuItem> = listOf(
-        pageItem(PAGE_SENSORS, SharedRes.strings.sensor_settingss),
-        pageItem(PAGE_GESTURES, SharedRes.strings.setting_gestures),
-        pageItem(PAGE_ADVANCED, SharedRes.strings.advanced_settings)
-    )
+    private fun appControlItems(isV3: Boolean = false, serviceSettingsVisible: Boolean = false): List<InstructionMenuItem> {
+        if (!isV3) return listOf(
+            pageItem(PAGE_SENSORS, SharedRes.strings.sensor_settingss),
+            pageItem(PAGE_GESTURES, SharedRes.strings.setting_gestures),
+            pageItem(PAGE_ADVANCED, SharedRes.strings.advanced_settings)
+        )
+        return buildList {
+            add(pageItem(PAGE_GESTURES, SharedRes.strings.setting_gestures))
+            add(pageItem(PAGE_SENSORS, SharedRes.strings.sensor_settingss))
+            add(pageItem(PAGE_ADVANCED, SharedRes.strings.special_settings))
+            if (serviceSettingsVisible) add(pageItem(PAGE_SERVICE_SETTINGS, SharedRes.strings.service_settings))
+        }
+    }
 
     private fun prosthesesItems(): List<InstructionMenuItem> = listOf(
         pageItem(PAGE_HOW_WORKS, SharedRes.strings.how_prostheses_works),
@@ -182,11 +206,11 @@ object InstructionBridge {
                 blocks = listOf(
                     heading(SharedRes.strings.is_the_prosthesis_calibrated),
                     paragraph(SharedRes.strings.prosthesis_is_calibrated_by_default_and_first_gesture_is_configured, 24),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_1, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_1, SharedRes.images.ubi4_help_image_gesture_settings_1_en, topMargin = 8),
                     paragraph(SharedRes.strings.when_selected_gesture_in_gesture_menu, 8),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_2, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_2, SharedRes.images.ubi4_help_image_gesture_settings_2_en, topMargin = 8),
                     paragraph(SharedRes.strings.if_prosthesis_clenches_into_fist_it_is_calibrated_correctly, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_3, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_3, SharedRes.images.ubi4_help_image_gesture_settings_3_en, topMargin = 8),
                     heading(SharedRes.strings.select_active_gesture, 32),
                     paragraph(SharedRes.strings.after_calibration_you_can_select_active_gesture_in_menu, 16),
                     paragraph(SharedRes.strings.gestures_are_displayed_as_cards_with_name_and_hand_position, 16),
@@ -194,28 +218,28 @@ object InstructionBridge {
                     paragraph(SharedRes.strings.selected_gesture_is_highlighted_and_set_as_active, 16),
                     paragraph(SharedRes.strings.prosthesis_uses_selected_gesture_on_open_close, 16),
                     paragraph(SharedRes.strings.default_gestures_are_ready_to_use, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_2, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_active, SharedRes.images.ubi4_help_image_gesture_settings_active_en, topMargin = 8),
                     heading(SharedRes.strings.setup_first_custom_gesture, 32),
                     paragraph(SharedRes.strings.after_calibration_and_first_gesture_you_can_setup_custom_gestures, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_4, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_4, SharedRes.images.ubi4_help_image_gesture_settings_4_en, topMargin = 8),
                     paragraph(SharedRes.strings.gesture_editor_opens_with_hand_model, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_5, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_5, SharedRes.images.ubi4_help_image_gesture_settings_5_en, topMargin = 8),
                     paragraph(SharedRes.strings.swipe_length_controls_finger_angle, 16),
                     paragraph(SharedRes.strings.vertical_swipe_for_fingers_two_axes_for_thumb, 16),
                     paragraph(SharedRes.strings.thumb_vertical_bend_horizontal_rotation, 16),
                     paragraph(SharedRes.strings.swipes_outside_hand_rotate_it, 16),
                     paragraph(SharedRes.strings.button_switches_gesture_state, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_6, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_6, SharedRes.images.ubi4_help_image_gesture_settings_6_en, topMargin = 8),
                     paragraph(SharedRes.strings.animation_shows_gesture_if_states_differ, 16),
                     paragraph(SharedRes.strings.prosthesis_repeats_model_movement, 16),
                     paragraph(SharedRes.strings.closed_state_is_configured_when_switch_is_closed, 16),
                     paragraph(SharedRes.strings.you_can_rename_gesture_with_pencil_icon, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_7, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_7, SharedRes.images.ubi4_help_image_gesture_settings_7_en, topMargin = 8),
                     heading(SharedRes.strings.save_and_use_gestures, 32),
                     paragraph(SharedRes.strings.press_save_button_to_store_gesture, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_8, 0, 0, 8),
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_8, SharedRes.images.ubi4_help_image_gesture_settings_8_en, topMargin = 8),
                     paragraph(SharedRes.strings.press_button_to_use_gesture_frame_becomes_green, 16),
-                    image(SharedRes.images.ubi4_help_image_gesture_settings_9, 0, 0, 8)
+                    localizedImage(SharedRes.images.ubi4_help_image_gesture_settings_9, SharedRes.images.ubi4_help_image_gesture_settings_9_en, topMargin = 8)
                 )
             )
         ),
@@ -517,6 +541,6 @@ object InstructionBridge {
     private fun image(image: ImageResource, height: Int, width: Int = 0, topMargin: Int = 0): InstructionBlock =
         InstructionBlock(InstructionBlockType.IMAGE, null, image, emptyList(), height, width, topMargin)
 
-    private fun localizedImage(russian: ImageResource, english: ImageResource): InstructionBlock =
-        InstructionBlock(InstructionBlockType.IMAGE, null, russian, emptyList(), 0, 0, 14, englishImage = english)
+    private fun localizedImage(russian: ImageResource, english: ImageResource, topMargin: Int = 14): InstructionBlock =
+        InstructionBlock(InstructionBlockType.IMAGE, null, russian, emptyList(), 0, 0, topMargin, englishImage = english)
 }

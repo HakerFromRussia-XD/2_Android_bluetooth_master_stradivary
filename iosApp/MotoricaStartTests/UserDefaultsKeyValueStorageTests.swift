@@ -86,6 +86,27 @@ final class UserFirmwareProgressViewTests: XCTestCase {
 }
 
 final class UserFirmwareRoleAccessTests: XCTestCase {
+    @MainActor
+    func testDefaultsNotificationDoesNotBlockBackgroundWriterWhileMainThreadWaits() {
+        let center = NotificationCenter()
+        let refreshed = expectation(description: "Role refreshed on main thread")
+        let observer = UserFirmwareRoleAccess.observeChanges(notificationCenter: center) {
+            XCTAssertTrue(Thread.isMainThread)
+            refreshed.fulfill()
+        }
+        defer { center.removeObserver(observer) }
+
+        let writeFinished = DispatchSemaphore(value: 0)
+        DispatchQueue(label: "test.v3-render").async {
+            center.post(name: UserDefaults.didChangeNotification, object: nil)
+            writeFinished.signal()
+        }
+
+        // Reproduce the main thread waiting for synchronous render work.
+        XCTAssertEqual(writeFinished.wait(timeout: .now() + 2), .success)
+        wait(for: [refreshed], timeout: 2)
+    }
+
     func testPersistedTechnicalRolesDoNotSelectUserMode() {
         let defaults = UserDefaults.standard
         let previous = defaults.volatileDomain(forName: UserDefaults.argumentDomain)

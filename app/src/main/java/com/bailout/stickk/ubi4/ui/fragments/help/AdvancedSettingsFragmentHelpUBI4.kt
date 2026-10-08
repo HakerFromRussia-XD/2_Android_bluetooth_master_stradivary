@@ -64,6 +64,10 @@ class AdvancedSettingsFragmentHelpUBI4 :
     }
 
     private fun initUi() = with(binding) {
+        if (UiState.isInterfaceV3Activated) {
+            ubi4HelpTitleTv.setText(R.string.special_settings)
+            ubi4HelpTitleInContentTv.setText(R.string.special_settings)
+        }
         ubi4TitleClickBlockBtn.setOnClickListener { }
         ubi4BackBtn.setOnClickListener { handleBackPress() }
 

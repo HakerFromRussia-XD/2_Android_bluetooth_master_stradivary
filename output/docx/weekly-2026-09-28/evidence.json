@@ -1,0 +1,109 @@
+{
+  "period": "28 сентября — 4 октября 2026",
+  "timezone": "Europe/Moscow",
+  "ms": [
+    {
+      "sha": "132f05eb903b471e8fc151cbca88171db24238e5",
+      "date": "2026-09-28T13:14:13Z",
+      "author": "Denis",
+      "message": "коммит перед мерджем",
+      "parents": [
+        "96beaee7d67d4130dd42fa73845426d673d44ac8"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/132f05eb903b471e8fc151cbca88171db24238e5"
+    },
+    {
+      "sha": "56e2d840949acfaa61ecc669eab7d9f318fbef27",
+      "date": "2026-09-28T13:47:48Z",
+      "author": "Denis",
+      "message": "Merge remote-tracking branch 'origin/kmm_ubi4_integrationV3' into kmm_ubi4_with_clean_arch\n\n# Conflicts:\n#\t.gradle/8.7/executionHistory/executionHistory.bin\n#\t.gradle/8.7/executionHistory/executionHistory.lock\n#\t.gradle/8.7/fileHashes/fileHashes.bin\n#\t.gradle/8.7/fileHashes/fileHashes.lock\n#\t.gradle/8.7/fileHashes/resourceHashesCache.bin\n#\t.gradle/buildOutputCleanup/buildOutputCleanup.lock\n#\t.gradle/file-system.probe\n#\tapp/src/main/java/com/bailout/stickk/ubi4/ble/BLEController.kt\n#\tapp/src/main/java/com/bailout/stickk/ubi4/ui/main/MainActivityUBI4.kt",
+      "parents": [
+        "132f05eb903b471e8fc151cbca88171db24238e5",
+        "95eecb2b148bc6984ebb76922595b0ffa121a5ae"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/56e2d840949acfaa61ecc669eab7d9f318fbef27"
+    },
+    {
+      "sha": "68626851a899c314389ad9348209ea7b4f806147",
+      "date": "2026-09-28T14:02:46Z",
+      "author": "Denis",
+      "message": "коммит после мерджа",
+      "parents": [
+        "56e2d840949acfaa61ecc669eab7d9f318fbef27"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/68626851a899c314389ad9348209ea7b4f806147"
+    },
+    {
+      "sha": "93803ef4bd7a4c681131a2ffc32b27f548f8b209",
+      "date": "2026-09-28T14:22:10Z",
+      "author": "Roman",
+      "message": "V3 Android 100% рабочее обновление для пользователей",
+      "parents": [
+        "1ddcca39162d1fa5442815d71734178a648c96cf"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/93803ef4bd7a4c681131a2ffc32b27f548f8b209"
+    },
+    {
+      "sha": "085baca2e9c0e0e627eb4fe4c53639991adb1c9e",
+      "date": "2026-09-28T14:24:09Z",
+      "author": "Denis",
+      "message": "Merge remote-tracking branch 'refs/remotes/origin/kmm_ubi4_integrationV3' into kmm_ubi4_with_clean_arch\n\n# Conflicts:\n#\t.gradle/buildOutputCleanup/buildOutputCleanup.lock\n#\t.gradle/file-system.probe",
+      "parents": [
+        "68626851a899c314389ad9348209ea7b4f806147",
+        "93803ef4bd7a4c681131a2ffc32b27f548f8b209"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/085baca2e9c0e0e627eb4fe4c53639991adb1c9e"
+    },
+    {
+      "sha": "aee8e4a979b4ee2f45b87f7b3e6143ecc91c8278",
+      "date": "2026-09-28T14:28:41Z",
+      "author": "Denis",
+      "message": "коммит после мерджа 2",
+      "parents": [
+        "085baca2e9c0e0e627eb4fe4c53639991adb1c9e"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/aee8e4a979b4ee2f45b87f7b3e6143ecc91c8278"
+    },
+    {
+      "sha": "11792adbc7ac7849ef7541e5912c319d65c0812b",
+      "date": "2026-09-29T08:55:11Z",
+      "author": "Denis",
+      "message": "нативный андроди перенесен, приступаю к рефактору shared модуля",
+      "parents": [
+        "aee8e4a979b4ee2f45b87f7b3e6143ecc91c8278"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/11792adbc7ac7849ef7541e5912c319d65c0812b"
+    },
+    {
+      "sha": "12d54abb0fe7ea1e661082857b90aeea1163835a",
+      "date": "2026-10-01T17:14:51Z",
+      "author": "Roman",
+      "message": "V3 Android переделана страница помощи расширенных настроек",
+      "parents": [
+        "aee8e4a979b4ee2f45b87f7b3e6143ecc91c8278"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/12d54abb0fe7ea1e661082857b90aeea1163835a"
+    },
+    {
+      "sha": "a6a4696dfb46d4793b3c3fb50baa5decc0036ee0",
+      "date": "2026-10-02T13:42:44Z",
+      "author": "Roman",
+      "message": "V3 iOS\n- изменена группа для связки с гоночной игрой\n- преработана страница помощи по расширенным настройкам",
+      "parents": [
+        "12d54abb0fe7ea1e661082857b90aeea1163835a"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/a6a4696dfb46d4793b3c3fb50baa5decc0036ee0"
+    },
+    {
+      "sha": "80a0387b850a32bca549ee6e7d329b6b65250da6",
+      "date": "2026-10-02T13:59:31Z",
+      "author": "Denis",
+      "message": "Из app в shared перенесены UseCase и общие репозитории для слайдеров, тоггл-слайдеров и Spinner, графика и порогов датчиков, выбора и редактирования жестов, позиций пальцев и задержек, калибровки, роли и данных устройства, синхронизации, профилей настроек, сетевого профиля аккаунта, статистики и телеметрии. Также перенесены контракты и UseCase пользовательской прошивки, объединены правила активности и завершения обновления; Android-настройки и системные операции оставлены на платформе, прежние копии перенесённого кода удалены.",
+      "parents": [
+        "11792adbc7ac7849ef7541e5912c319d65c0812b"
+      ],
+      "url": "https://github.com/HakerFromRussia-XD/2_Android_bluetooth_master_stradivary/commit/80a0387b850a32bca549ee6e7d329b6b65250da6"
+    }
+  ],
+  "fluxara_commits": 0
+}

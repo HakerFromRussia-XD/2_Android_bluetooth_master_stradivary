@@ -38,6 +38,23 @@ final class HelpViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
+    private var helpUpdatesJob: Kotlinx_coroutines_coreJob?
+    private var serviceVisibilityObserver: NSObjectProtocol?
+    private var lastRenderedMenuState: HelpMenuState?
+
+    private struct HelpMenuState: Equatable {
+        let isV3: Bool
+        let serviceSettingsVisible: Bool
+    }
+
+    private var helpMenuState: HelpMenuState {
+        let tabs = (tabBarController as? MainTabBarController)
+            ?? navigationController?.viewControllers.compactMap { $0 as? MainTabBarController }.last
+        return HelpMenuState(
+            isV3: UiInterfaceModeBridgeV3.shared.isEnabled(),
+            serviceSettingsVisible: tabs?.isServiceSettingsHelpVisible == true
+        )
+    }
 
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
     private let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
@@ -61,11 +78,38 @@ final class HelpViewController: UIViewController {
         super.viewDidLoad()
         setupView()
         renderContent()
+        serviceVisibilityObserver = NotificationCenter.default.addObserver(
+            forName: MainTabBarController.serviceSettingsVisibilityDidChange, object: nil, queue: .main
+        ) { [weak self] _ in self?.refreshHelpNavigation() }
+        helpUpdatesJob = UiStateBridge.shared.observeUpdates { [weak self] _ in
+            DispatchQueue.main.async { self?.refreshHelpNavigation() }
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
+        refreshHelpNavigation()
+    }
+
+    deinit {
+        helpUpdatesJob?.cancel(cause: nil)
+        if let serviceVisibilityObserver { NotificationCenter.default.removeObserver(serviceVisibilityObserver) }
+    }
+
+    private func refreshHelpNavigation() {
+        let state = helpMenuState
+        if pageId == "service_settings", !state.serviceSettingsVisible {
+            if navigationController?.topViewController === self {
+                navigationController?.popViewController(animated: true)
+            }
+            return
+        }
+        guard state != lastRenderedMenuState else { return }
+        let offset = scrollView.contentOffset
+        renderContent()
+        view.layoutIfNeeded()
+        scrollView.setContentOffset(offset, animated: false)
     }
 
     private func setupView() {
@@ -128,12 +172,15 @@ final class HelpViewController: UIViewController {
     }
 
     private func renderContent() {
+        lastRenderedMenuState = helpMenuState
         contentStack.arrangedSubviews.forEach {
             contentStack.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
 
-        if let pageId, let page = InstructionBridge.shared.page(id: pageId) {
+        if let pageId, let page = InstructionBridge.shared.page(
+            id: pageId, isV3: helpMenuState.isV3, serviceSettingsVisible: helpMenuState.serviceSettingsVisible
+        ) {
             renderPage(page)
         } else {
             renderIndex()
@@ -142,7 +189,9 @@ final class HelpViewController: UIViewController {
 
     private func renderIndex() {
         addSectionTitle(SharedRes.strings().help)
-        for section in InstructionBridge.shared.indexSections() {
+        for section in InstructionBridge.shared.indexSections(
+            isV3: helpMenuState.isV3, serviceSettingsVisible: helpMenuState.serviceSettingsVisible
+        ) {
             addSectionTitle(
                 section.title,
                 topInset: HelpMetrics.sectionSpacing,
@@ -345,10 +394,7 @@ final class HelpViewController: UIViewController {
         case .iconText:
             return makeIconTextRow(block)
         case .image:
-            // Match the bundle that resolves the description, including region variants.
-            let language = SharedRes.strings().help_advanced_sensor_gestures_title.bundle.preferredLocalizations.first
-            let isRussian = language?.split(separator: "-").first == "ru"
-            let resource = isRussian ? block.image : (block.englishImage ?? block.image)
+            let resource = usesRussianHelpImages() ? block.image : (block.englishImage ?? block.image)
             guard let image = resource?.toUIImage() else { return UIView() }
             let imageView = UIImageView(image: image)
             if block.englishImage != nil {
@@ -368,6 +414,18 @@ final class HelpViewController: UIViewController {
         default:
             return UIView()
         }
+    }
+
+    private func usesRussianHelpImages() -> Bool {
+        // Resolve the same description as the visible help text. A resource bundle's
+        // preferredLocalizations can report ru while an English string comes from Base.
+        let resource = SharedRes.strings().help
+        guard let path = resource.bundle.path(forResource: "ru", ofType: "lproj"),
+              let russianBundle = Bundle(path: path) else {
+            return Bundle.main.preferredLocalizations.first?.split(separator: "-").first == "ru"
+        }
+        let russianTitle = russianBundle.localizedString(forKey: resource.resourceId, value: nil, table: nil)
+        return resource.desc().localized() == russianTitle
     }
 
     private func makeLabel(_ text: String, font: UIFont, color: UIColor, lineHeight: CGFloat = 0) -> UILabel {

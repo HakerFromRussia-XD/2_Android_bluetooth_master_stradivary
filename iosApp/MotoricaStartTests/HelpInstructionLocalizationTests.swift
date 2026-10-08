@@ -5,6 +5,70 @@ import shared
 
 final class HelpInstructionLocalizationTests: XCTestCase {
     @MainActor
+    func testGestureInstructionImagesFollowEnglishLocalizedText() throws {
+        try assertGestureInstructionImages(locale: "en", expectedHelp: "Help", expectedTitle: "Gesture settings")
+    }
+
+    @MainActor
+    func testGestureInstructionImagesFollowRussianLocalizedText() throws {
+        try assertGestureInstructionImages(locale: "ru", expectedHelp: "Помощь", expectedTitle: "Настройка жестов")
+    }
+
+    @MainActor
+    private func assertGestureInstructionImages(locale: String, expectedHelp: String, expectedTitle: String) throws {
+        let previousLocale = StringDescCompanion.shared.localeType
+        StringDescCompanion.shared.localeType = StringDescLocaleType.Custom(locale: locale)
+        defer { StringDescCompanion.shared.localeType = previousLocale }
+
+        // Force the actual text resolver, independently of device or resource bundle preferences.
+        XCTAssertEqual(SharedRes.strings().help.desc().localized(), expectedHelp)
+        let page = try XCTUnwrap(InstructionBridge.shared.page(id: "gestures", isV3: true, serviceSettingsVisible: false))
+        XCTAssertEqual(page.title.desc().localized(), expectedTitle)
+        let blocks = page.cards.flatMap { $0.blocks }.filter { $0.type == .image }
+        let imageOrder = ["1", "2", "3", "active", "4", "5", "6", "7", "8", "9"]
+        XCTAssertEqual(blocks.count, imageOrder.count)
+
+        let controller = HelpViewController(pageId: "gestures")
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        controller.loadViewIfNeeded()
+        controller.view.layoutIfNeeded()
+        let views = descendants(controller.view)
+        XCTAssertTrue(views.compactMap { $0 as? UILabel }.contains { $0.text == expectedTitle })
+        let images = views.compactMap { $0 as? UIImageView }.filter {
+            $0.accessibilityIdentifier?.hasPrefix("help.widget.ubi4_help_image_gesture_settings_") == true
+        }
+        XCTAssertEqual(images.count, imageOrder.count)
+
+        for (index, name) in imageOrder.enumerated() {
+            guard index < blocks.count, index < images.count else { continue }
+            let block = blocks[index]
+            let russianResource = try XCTUnwrap(block.image)
+            let englishResource = try XCTUnwrap(block.englishImage)
+            let baseName = "ubi4_help_image_gesture_settings_\(name)"
+            XCTAssertEqual(russianResource.assetImageName, baseName)
+            XCTAssertEqual(englishResource.assetImageName, baseName + "_en")
+            let russianImage = try XCTUnwrap(russianResource.toUIImage())
+            let englishImage = try XCTUnwrap(englishResource.toUIImage())
+            let russianPixels = try XCTUnwrap(russianImage.pngData())
+            let englishPixels = try XCTUnwrap(englishImage.pngData())
+            // The hand illustration (5) has no text; its two language assets are identical.
+            if name != "5" {
+                XCTAssertNotEqual(russianPixels, englishPixels, "English and Russian resources must differ: \(name)")
+            }
+            let imageView = images[index]
+            let expectedResource = locale == "ru" ? russianResource : englishResource
+            XCTAssertEqual(imageView.accessibilityIdentifier, "help.widget.\(expectedResource.assetImageName)")
+            let renderedImage = try XCTUnwrap(imageView.image)
+            XCTAssertEqual(try XCTUnwrap(renderedImage.pngData()), locale == "ru" ? russianPixels : englishPixels)
+            XCTAssertGreaterThan(imageView.bounds.width, 0)
+            XCTAssertGreaterThan(imageView.bounds.height, 0)
+        }
+    }
+
+    @MainActor
     func testSensorLegendMatchesFigmaReference() throws {
         let isRussian = Locale.preferredLanguages.first?.hasPrefix("ru") == true
         let locale = isRussian ? "ru" : "en"
@@ -73,7 +137,7 @@ final class HelpInstructionLocalizationTests: XCTestCase {
         XCTAssertEqual(firstTitle.font.pointSize, 14)
         XCTAssertTrue(firstTitle.font.fontName.hasPrefix("Inter"), firstTitle.font.fontName)
         XCTAssertFalse(labels.contains { $0.text?.contains("Если хочешь") == true })
-        let page = try XCTUnwrap(InstructionBridge.shared.page(id: "advanced"))
+        let page = try XCTUnwrap(InstructionBridge.shared.page(id: "advanced", isV3: true, serviceSettingsVisible: false))
         var checkedTextBlocks = 0
         for card in page.cards {
             for block in card.blocks where block.type == .heading || block.type == .paragraph {

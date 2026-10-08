@@ -1,0 +1,229 @@
+{
+  "fileKey": "YyKUU1lMucdDkGyA5OeoRg",
+  "pageNodeId": "480:995",
+  "assets": [
+    {
+      "nodeId": "480:1653",
+      "resource": "ubi4_help_image_gesture_settings_1",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "4f7903b7ab63d4e78698affc8e19f2e4cbf44d3b5000aa3f8ca56e3ae8a7db6e",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1091",
+        "resource": "ubi4_help_image_gesture_settings_1_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "175a8230d8422ce3afbf10ce8bdc9618bf803d039128c2d98f75c0293b63e8e7"
+      }
+    },
+    {
+      "nodeId": "517:1837",
+      "resource": "ubi4_help_image_gesture_settings_2",
+      "pixels": [
+        1184,
+        1200
+      ],
+      "sha256": "3537cb96bc4cc1ae256ab9cb80affc7b3aacfafb19a5219ad1e017a7475d0776",
+      "logicalSize": [
+        296,
+        300
+      ],
+      "english": {
+        "nodeId": "2153:1172",
+        "resource": "ubi4_help_image_gesture_settings_2_en",
+        "pixels": [
+          1184,
+          1200
+        ],
+        "sha256": "c2f0f8262bc2b8fb6d101bf139181b53313ffec519380ff112f5424dd01cd06a"
+      }
+    },
+    {
+      "nodeId": "517:1958",
+      "resource": "ubi4_help_image_gesture_settings_3",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "bad4d23f648748fbfdc0d1dbe5f4aee4da3f8007e103aa5f965ca7026a7c923b",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1260",
+        "resource": "ubi4_help_image_gesture_settings_3_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "540013cd5d5756dc6634332c5785e57ff91fce4215f51a2d367ba190a42661fe"
+      }
+    },
+    {
+      "nodeId": "480:2135",
+      "resource": "ubi4_help_image_gesture_settings_4",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "a8fe7188f751b30c8a3247813222f48e45e14231aef1292a2e325441fb67bd42",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1432",
+        "resource": "ubi4_help_image_gesture_settings_4_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "aac07b60bfbced90690c5eaa9b9e2927f78e47fc4be397612a24cbab2654bd27"
+      }
+    },
+    {
+      "nodeId": "482:1000",
+      "resource": "ubi4_help_image_gesture_settings_5",
+      "pixels": [
+        1184,
+        976
+      ],
+      "sha256": "09ff975ec3edb6dda46d399618116ec27752b1881ee244c8ceea054e175082da",
+      "logicalSize": [
+        296,
+        244
+      ],
+      "english": {
+        "nodeId": "2153:1524",
+        "resource": "ubi4_help_image_gesture_settings_5_en",
+        "pixels": [
+          1184,
+          976
+        ],
+        "sha256": "09ff975ec3edb6dda46d399618116ec27752b1881ee244c8ceea054e175082da"
+      }
+    },
+    {
+      "nodeId": "482:1012",
+      "resource": "ubi4_help_image_gesture_settings_6",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "fcf4fc14980255b068e4909c826025edf9af49fc7c6d812635ae4d1716525638",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1534",
+        "resource": "ubi4_help_image_gesture_settings_6_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "b099116c5155d75b552984d36655446ef9742dc2dd543b5fccd35af4676bf0f7"
+      }
+    },
+    {
+      "nodeId": "490:1025",
+      "resource": "ubi4_help_image_gesture_settings_7",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "a630bb5c30e0d4b252f5f9c9b1cf2078e6ef123af6f1b8fccd36b831ba971e93",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1542",
+        "resource": "ubi4_help_image_gesture_settings_7_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "72e06fdf7c856bab788c3fb4bdbf21901471daad59e43f3238e8c4c640829bdd"
+      }
+    },
+    {
+      "nodeId": "519:1082",
+      "resource": "ubi4_help_image_gesture_settings_8",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "5b054f968ca54dd33e6a1dba526e07cc30aa13638d9fbe07f45be905daec41f3",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1548",
+        "resource": "ubi4_help_image_gesture_settings_8_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "61948535e9be81c395722f51ad60bb6c07722e1361f283845a0d7360a6c6f8b6"
+      }
+    },
+    {
+      "nodeId": "502:1040",
+      "resource": "ubi4_help_image_gesture_settings_9",
+      "pixels": [
+        1184,
+        656
+      ],
+      "sha256": "b056f407e4b5c05a66f03de63e90757b6a875a466963f885297ad45dfefb17bc",
+      "logicalSize": [
+        296,
+        164
+      ],
+      "english": {
+        "nodeId": "2153:1553",
+        "resource": "ubi4_help_image_gesture_settings_9_en",
+        "pixels": [
+          1184,
+          656
+        ],
+        "sha256": "1d32ca0b92ee931074658cf459921ddf4fd8c02c2687d0018941e4082ff6c63d"
+      }
+    },
+    {
+      "nodeId": "511:1719",
+      "resource": "ubi4_help_image_gesture_settings_active",
+      "pixels": [
+        1184,
+        1200
+      ],
+      "sha256": "96f8353ddf4382666d73a64fb12340c1db74f06d1416018c84252d0c57dbdd78",
+      "logicalSize": [
+        296,
+        300
+      ],
+      "english": {
+        "nodeId": "2153:1342",
+        "resource": "ubi4_help_image_gesture_settings_active_en",
+        "pixels": [
+          1184,
+          1200
+        ],
+        "sha256": "8c0e242f312a1765d59ea71598704fdf256d35796e6d00e8516f9ec785e8b445"
+      }
+    }
+  ],
+  "exportScale": 4,
+  "useAbsoluteBounds": true,
+  "englishPageNodeId": "2153:1080"
+}

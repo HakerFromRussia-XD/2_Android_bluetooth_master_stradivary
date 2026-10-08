@@ -13,6 +13,17 @@ enum UserFirmwareRoleAccess {
     static func isRoleSelector(parameterID: Int, dataCode: Int) -> Bool {
         parameterID == 1 && dataCode == 15
     }
+
+    static func observeChanges(
+        notificationCenter: NotificationCenter = .default,
+        onChange: @escaping () -> Void
+    ) -> NSObjectProtocol {
+        // A main OperationQueue observer blocks background UserDefaults writes.
+        // The render queue can be writing while the main thread waits for it.
+        notificationCenter.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: nil) { _ in
+            DispatchQueue.main.async(execute: onChange)
+        }
+    }
 }
 
 final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
@@ -35,7 +46,7 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
         observation = updates.observe { [weak self] state in
             DispatchQueue.main.async { self?.render(state) }
         }
-        observers.append(NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in self?.refreshRole() })
+        observers.append(UserFirmwareRoleAccess.observeChanges { [weak self] in self?.refreshRole() })
         observers.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in self?.foreground() })
         network.pathUpdateHandler = { [weak self] path in
             if path.status == .satisfied { DispatchQueue.main.async { self?.updates?.environmentChanged() } }

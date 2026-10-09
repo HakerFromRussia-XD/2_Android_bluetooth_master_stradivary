@@ -14,7 +14,8 @@ final class GestureViewCellV3: UITableViewCell {
     private var viewModel: GestureListItemViewModel!
     private var cancellable: AnyCancellable?
     private var provider: GesturesProvider?
-    private var updatesJob: Kotlinx_coroutines_coreJob?
+    private var rotationGroupJob: Kotlinx_coroutines_coreJob?
+    private var activeGestureJob: Kotlinx_coroutines_coreJob?
     private var gestureNamesObserver: NSObjectProtocol?
     private var didDelayFirstRotationGroupUpdate = false
     private var didScheduleUiTestRotationGroupSimulation = false
@@ -112,27 +113,22 @@ final class GestureViewCellV3: UITableViewCell {
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
 
-        if let currentActiveGestureId = viewModel.currentActiveGestureId() {
-            applyActiveGesture(currentActiveGestureId)
-        }
+        renderActiveGesture(viewModel.currentActiveGestureState())
 
-        updatesJob?.cancel(cause: nil)
-        updatesJob = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
-            guard let self else { return }
-
-            if viewModel.matchesActiveGesture(snapshot: snapshot),
-               let activeGestureId = viewModel.activeGestureId(from: snapshot) {
-                DispatchQueue.main.async { [weak self] in
-                    self?.applyActiveGesture(activeGestureId)
-                }
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = viewModel.observeActiveGesture { [weak self] state in
+            // Capture this response before scheduling display; later responses must not replace it.
+            DispatchQueue.main.async { [weak self] in
+                self?.renderActiveGesture(state)
             }
-
-            if viewModel.matchesRotationGroup(snapshot: snapshot),
-               let provider = self.provider,
-               let rotationGroup = viewModel.rotationGroup(from: snapshot, provider: provider) {
-                DispatchQueue.main.async { [weak self] in
-                    self?.applyRotationGroupWithoutAnimation(rotationGroup)
-                }
+        }
+        rotationGroupJob?.cancel(cause: nil)
+        rotationGroupJob = viewModel.observeRotationGroup { [weak self] state in
+            guard let self, self.provider != nil,
+                  let rotationGroup = viewModel.rotationGroup(from: state) else { return }
+            // Keep event-time titles and items when applying this response later.
+            DispatchQueue.main.async { [weak self] in
+                self?.applyRotationGroupWithoutAnimation(rotationGroup)
             }
         }
 
@@ -146,8 +142,10 @@ final class GestureViewCellV3: UITableViewCell {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
-        updatesJob?.cancel(cause: nil)
-        updatesJob = nil
+        rotationGroupJob?.cancel(cause: nil)
+        rotationGroupJob = nil
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = nil
         removeGestureNameUpdatesObserver()
         didDelayFirstRotationGroupUpdate = false
         didScheduleUiTestRotationGroupSimulation = false
@@ -156,10 +154,13 @@ final class GestureViewCellV3: UITableViewCell {
     }
 
     deinit {
+        activeGestureJob?.cancel(cause: nil)
+        rotationGroupJob?.cancel(cause: nil)
         removeGestureNameUpdatesObserver()
     }
 
-    private func applyActiveGesture(_ activeGestureId: Int) {
+    private func renderActiveGesture(_ state: V3GesturesUiState) {
+        guard let activeGestureId = state.activeGestureId else { return }
         let activeGestureTitle =
             provider?.factoryGestures.first(where: { $0.id == activeGestureId })?.title ??
             provider?.customGestures.first(where: { $0.id == activeGestureId })?.title

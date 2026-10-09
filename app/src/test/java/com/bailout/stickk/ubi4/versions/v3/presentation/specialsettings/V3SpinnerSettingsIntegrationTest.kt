@@ -7,19 +7,29 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsS
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.data.state.ParameterStoreKeyV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CONTROL_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRules
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSpinnerSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.RequestSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetInfo
@@ -29,6 +39,7 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -59,6 +70,14 @@ class V3SpinnerSettingsIntegrationTest {
     private val originalInteraction = UiState.v3WidgetsInteractionEnabled.value
     private val cachedValue = BaseParameterInfoStruct(ID = info.parameterID, dataCode = info.dataCode, data = "{\"spinnerValue\":2}")
     private val cachedGestureValue = BaseParameterInfoStruct(ID = gestureInfo.parameterID, dataCode = gestureInfo.dataCode, data = "{\"spinnerValue\":1}")
+    private val spinnerRanges = linkedMapOf(
+        key to 0..4, gestureKey to 0..1, P_KEY_EMG_CONTROL_MODE to 0..3, P_KEY_LEFT_RIGHT_HAND to 0..1,
+    )
+    private val cachedValues = linkedMapOf(
+        key to cachedValue, gestureKey to cachedGestureValue,
+        P_KEY_EMG_CONTROL_MODE to cachedSpinner(P_KEY_EMG_CONTROL_MODE, 2),
+        P_KEY_LEFT_RIGHT_HAND to cachedSpinner(P_KEY_LEFT_RIGHT_HAND, 1),
+    )
     private val savedKeys = mutableListOf<String>()
     private val packets = mutableListOf<ByteArray>()
     private val savedValues = mutableListOf<ParameterTypedValueV3>()
@@ -72,7 +91,7 @@ class V3SpinnerSettingsIntegrationTest {
         ParameterStoreV3.clear()
         UiState.v3WidgetsInteractionEnabled.value = true
         GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
-            deviceAddress = info.deviceAddress, parametersList = arrayListOf(cachedValue, cachedGestureValue),
+            deviceAddress = info.deviceAddress, parametersList = ArrayList(cachedValues.values),
         ))
         repository = V3DeviceSettingsRepositoryImpl(
             enqueuePacket = {
@@ -118,6 +137,233 @@ class V3SpinnerSettingsIntegrationTest {
     private fun assertNoWrites() {
         assertTrue(packets.isEmpty())
         assertTrue(savedValues.isEmpty())
+    }
+    private fun cachedSpinner(parameterKey: String, value: Int): BaseParameterInfoStruct {
+        val parameter = ParameterInfoRegistry.require(parameterKey)
+        return BaseParameterInfoStruct(ID = parameter.parameterID, dataCode = parameter.dataCode, data = "{\"spinnerValue\":$value}")
+    }
+    private fun queuedRepository() = V3DeviceSettingsRepositoryImpl(
+        enqueuePacket = packets::add,
+        saveBleValue = { _, value -> savedValues.add(value) },
+        readCachedValues = false,
+        saveValueBeforeSending = false,
+    )
+    private fun cachedData() = cachedValues.mapValues { it.value.data }
+    private fun seedUnrelatedSlider() = ParameterStoreV3.put(
+        ParameterInfoRegistry.require(P_KEY_FORCE_SETTINGS), ParameterTypedValueV3.Slider(SliderV3(70)),
+    )
+    private fun assertUnchanged(receivedStore: Map<ParameterStoreKeyV3, ParameterTypedValueV3>, cache: Map<String, String>) {
+        assertEquals(receivedStore, ParameterStoreV3.values.value)
+        assertEquals(cache, cachedData())
+        assertTrue(savedValues.isEmpty())
+        assertTrue(savedKeys.isEmpty())
+        assertFalse(UiState.v3WidgetsInteractionEnabled.value)
+    }
+
+    @Test
+    fun `native profile rows preserve raw indices and nil GET without local profile or received state writes`() {
+        val profileInfo = ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE)
+        val profileCache = cachedSpinner(P_KEY_SETTINGS_PROFILE, 99)
+        GlobalParameters.baseSubDevicesInfoStructSetV3.first().parametersList.add(profileCache)
+        val native = queuedRepository()
+        val get = GetSpinnerSettingsUseCaseV3(native)
+        val request = RequestSpinnerValueUseCaseV3(native)
+        val set = SetSpinnerValueUseCaseV3(native, requireInteractionEnabled = false, allowedValues = { key ->
+            if (key == P_KEY_SETTINGS_PROFILE) Int.MIN_VALUE..Int.MAX_VALUE else V3SpinnerSettingsRules.allowedValues(key)
+        })
+        UiState.v3WidgetsInteractionEnabled.value = false
+        assertNull(get(setOf(P_KEY_SETTINGS_PROFILE)).values[P_KEY_SETTINGS_PROFILE])
+        assertThrows(IllegalArgumentException::class.java) { SetSpinnerValueUseCaseV3(native)(P_KEY_SETTINGS_PROFILE, 0) }
+        request(P_KEY_SETTINGS_PROFILE)
+        assertTrue(packets.isEmpty())
+        incoming(2, P_KEY_SETTINGS_PROFILE)
+        val receivedStore = ParameterStoreV3.values.value
+        val cache = cachedData()
+        for (index in listOf(0, 1, 1, 2, 99, -1, 256, Int.MIN_VALUE, Int.MAX_VALUE)) {
+            set(P_KEY_SETTINGS_PROFILE, index)
+            val header = byteArrayOf(0, 15, 2, index.toByte())
+            var crc = 0
+            header.forEach { byte ->
+                crc = crc xor (byte.toInt() and 255)
+                repeat(8) { crc = if (crc and 1 != 0) (crc ushr 1) xor 0x8C else crc ushr 1 }
+            }
+            assertArrayEquals(header + crc.toByte(), packets.last())
+            assertEquals(2, get(setOf(P_KEY_SETTINGS_PROFILE)).values[P_KEY_SETTINGS_PROFILE])
+            assertUnchanged(receivedStore, cache)
+            assertEquals("{\"spinnerValue\":99}", profileCache.data)
+        }
+        assertEquals(9, packets.size)
+        assertEquals(ParameterTypedValueV3.Spinner(SpinnerV3(2)), ParameterStoreV3.get(profileInfo))
+        assertThrows(IllegalArgumentException::class.java) { set(P_KEY_HAND_CONTROL_MODE, 5) }
+        assertThrows(IllegalArgumentException::class.java) { set("unknown", 0) }
+        assertEquals(9, packets.size)
+    }
+
+    @Test
+    fun `uncached Spinner reads preserve missing zero negative and out of range received values without writes`() {
+        val getSettings = GetSpinnerSettingsUseCaseV3(queuedRepository())
+        val cache = cachedData()
+        var expectedValues: Map<String, Int?> = spinnerRanges.keys.associateWith { null }
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        val initialStore = ParameterStoreV3.values.value
+        assertEquals(expectedValues, getSettings(spinnerRanges.keys).values)
+        assertUnchanged(initialStore, cache)
+
+        spinnerRanges.keys.forEach { parameterKey ->
+            listOf(0, -3, 255).forEach { received ->
+                incoming(received, parameterKey)
+                expectedValues = expectedValues + (parameterKey to received)
+                val receivedStore = ParameterStoreV3.values.value
+                val snapshot = getSettings(spinnerRanges.keys)
+                assertEquals(expectedValues, snapshot.values)
+                assertFalse(snapshot.isInteractionEnabled)
+                assertUnchanged(receivedStore, cache)
+                assertTrue(packets.isEmpty())
+            }
+        }
+    }
+
+    @Test
+    fun `queued Spinner choices send old packets immediately offline without changing received state or saving`() {
+        val spinnerRepository = queuedRepository()
+        val getSettings = GetSpinnerSettingsUseCaseV3(spinnerRepository)
+        val defaultSet = SetSpinnerValueUseCaseV3(spinnerRepository)
+        val setValue = SetSpinnerValueUseCaseV3(spinnerRepository, requireInteractionEnabled = false)
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        var expectedValues: Map<String, Int?> = spinnerRanges.keys.associateWith { null }
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        spinnerRanges.forEach { (parameterKey, choices) ->
+            val parameter = ParameterInfoRegistry.require(parameterKey)
+            listOf(null, choices.last, 255).forEach { received ->
+                if (received != null) {
+                    incoming(received, parameterKey)
+                    expectedValues = expectedValues + (parameterKey to received)
+                }
+                val receivedStore = ParameterStoreV3.values.value
+                (choices.toList() + listOf(0, 0)).forEach { choice ->
+                    val count = packets.size
+                    defaultSet(parameterKey, choice)
+                    assertEquals(count, packets.size)
+                    assertUnchanged(receivedStore, cache)
+                    setValue(parameterKey, choice)
+                    assertEquals(count + 1, packets.size)
+                    assertArrayEquals(requireNotNull(WidgetCommandBridgeV3.buildSetInt(
+                        parameter.parameterID, parameter.dataCode, parameter.deviceAddress, parameter.dataOffsets, choice,
+                    )), packets.last())
+                    assertEquals(expectedValues, getSettings(spinnerRanges.keys).values)
+                    assertUnchanged(receivedStore, cache)
+                    assertEquals(bleState, BLEState.state.value)
+                    assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+                }
+            }
+        }
+        val receivedStore = ParameterStoreV3.values.value
+        val count = packets.size
+        listOf(defaultSet, setValue).forEach { useCase ->
+            spinnerRanges.forEach { (parameterKey, choices) ->
+                listOf(-1, choices.last + 1, 255).forEach { invalid ->
+                    assertThrows(IllegalArgumentException::class.java) { useCase(parameterKey, invalid) }
+                }
+            }
+            listOf(P_KEY_SETTINGS_PROFILE, P_KEY_DEVICE_ROLE, "unknown-spinner").forEach { unsupported ->
+                assertThrows(IllegalArgumentException::class.java) { useCase(unsupported, 0) }
+            }
+        }
+        assertEquals(spinnerRanges.values.sumOf { it.count() + 2 } * 3, packets.size)
+        assertEquals(count, packets.size)
+        assertUnchanged(receivedStore, cache)
+    }
+
+    @Test
+    fun `Spinner requests repeat old read packets offline for cached and received values without writes`() {
+        val request = RequestSpinnerValueUseCaseV3(queuedRepository())
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        listOf(false, true).forEach { hasReceivedValues ->
+            if (hasReceivedValues) spinnerRanges.keys.forEach { incoming(0, it) }
+            val receivedStore = ParameterStoreV3.values.value
+            spinnerRanges.keys.forEach { parameterKey ->
+                val parameter = ParameterInfoRegistry.require(parameterKey)
+                val expectedPacket = requireNotNull(WidgetCommandBridgeV3.buildReadRequest(parameter.parameterID, parameter.dataCode))
+                repeat(2) {
+                    val count = packets.size
+                    request(parameterKey)
+                    assertEquals(count + 1, packets.size)
+                    assertArrayEquals(expectedPacket, packets.last())
+                    assertUnchanged(receivedStore, cache)
+                    assertEquals(bleState, BLEState.state.value)
+                    assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+                }
+            }
+        }
+        assertEquals(spinnerRanges.size * 4, packets.size)
+    }
+
+    @Test
+    fun `Spinner callback runs before queue only for allowed sends and its failure stops transmission`() = runTest(dispatcher) {
+        val parameterKey = P_KEY_LEFT_RIGHT_HAND
+        val parameter = ParameterInfoRegistry.require(parameterKey)
+        val cache = cachedData()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        incoming(0, parameterKey)
+        var expectedStore = ParameterStoreV3.values.value
+        val updates = mutableListOf<ParameterStoreKeyV3>()
+        backgroundScope.launch { ParameterStoreV3.updates.collect { updates.add(it) } }
+        runCurrent()
+        val events = mutableListOf<String>()
+        val failure = IllegalStateException("Hand side callback failed")
+        var failCallback = false
+        val spinnerRepository = V3DeviceSettingsRepositoryImpl(
+            enqueuePacket = { packet ->
+                assertEquals("callback", events.last())
+                assertUnchanged(expectedStore, cache)
+                events.add("queue")
+                packets.add(packet)
+            },
+            saveBleValue = { _, value -> savedValues.add(value) },
+            readCachedValues = false,
+            saveValueBeforeSending = false,
+            beforeSpinnerValueSent = { parameterInfo, value ->
+                assertEquals(parameter, parameterInfo)
+                assertUnchanged(expectedStore, cache)
+                events.add("callback")
+                if (failCallback) throw failure
+                val typed = ParameterTypedValueV3.Spinner(SpinnerV3(value))
+                ParameterStoreV3.put(parameterInfo, typed)
+                expectedStore = expectedStore + (ParameterStoreV3.toKey(parameterInfo) to typed)
+            },
+        )
+        SetSpinnerValueUseCaseV3(spinnerRepository)(parameterKey, 1)
+        assertTrue(events.isEmpty())
+        assertNoWrites()
+        assertUnchanged(expectedStore, cache)
+
+        val setValue = SetSpinnerValueUseCaseV3(spinnerRepository, requireInteractionEnabled = false)
+        setValue(parameterKey, 1)
+        runCurrent()
+        assertEquals(listOf("callback", "queue"), events)
+        assertEquals(listOf(ParameterStoreV3.toKey(parameter)), updates)
+        assertEquals(ParameterTypedValueV3.Spinner(SpinnerV3(1)), ParameterStoreV3.get(parameter))
+        assertArrayEquals(requireNotNull(WidgetCommandBridgeV3.buildSetInt(
+            parameter.parameterID, parameter.dataCode, parameter.deviceAddress, parameter.dataOffsets, 1,
+        )), packets.single())
+        assertUnchanged(expectedStore, cache)
+
+        failCallback = true
+        assertEquals(failure, assertThrows(IllegalStateException::class.java) { setValue(parameterKey, 0) })
+        runCurrent()
+        assertEquals(listOf("callback", "queue", "callback"), events)
+        assertEquals(listOf(ParameterStoreV3.toKey(parameter)), updates)
+        assertEquals(1, packets.size)
+        assertUnchanged(expectedStore, cache)
     }
 
     @ParameterizedTest

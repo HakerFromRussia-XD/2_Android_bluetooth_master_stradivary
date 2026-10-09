@@ -8,7 +8,7 @@ data class V3ServiceRoleUiState(
     val pinRequest: V3RolePinRequest? = null,
     val pinFeedback: V3RolePinFeedback? = null,
 ) {
-    val roles: List<V3DeviceRole> get() = V3DeviceRole.entries
+    val roles: List<V3DeviceRole> get() = listOf(V3DeviceRole.SERVICE_ENGINEER, V3DeviceRole.USER)
     val displayedIndex: Int get() = roles.indexOf(pinRequest?.role ?: selectedRole)
 }
 

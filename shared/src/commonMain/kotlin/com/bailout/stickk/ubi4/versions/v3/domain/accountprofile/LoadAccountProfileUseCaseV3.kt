@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.accountprofile
 
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -94,4 +95,12 @@ class LoadAccountProfileUseCaseV3(
         if (info.options.none { it.id == 3 }) values.add(V3AccountDetailValue(V3AccountDetail.ROTATOR, "-"))
         local.saveDetails(values)
     }
+}
+
+class LoadAccountProfileSnapshotUseCaseV3(private val repository: V3AccountProfileSnapshotRepository) {
+    operator fun invoke(
+        serialNumber: String,
+        language: String,
+        callback: (V3AccountProfileSnapshotResult) -> Unit,
+    ): Job = repository.load(serialNumber, language, callback)
 }

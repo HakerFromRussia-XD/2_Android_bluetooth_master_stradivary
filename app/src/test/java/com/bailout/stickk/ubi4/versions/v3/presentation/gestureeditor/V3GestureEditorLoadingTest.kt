@@ -29,9 +29,15 @@ class V3GestureEditorLoadingTest {
     private val events = MutableSharedFlow<V3GestureSettings?>(extraBufferCapacity = 16)
     private val ready = MutableStateFlow(false)
     private val requests = mutableListOf<Int>()
+    private val responseObservers = mutableListOf<(V3GestureSettingsResponse) -> Unit>()
     private val repository = object : V3GestureEditorRepository {
         override fun getHandSide() = 1
         override fun observeSettings() = events
+        override fun subscribeSettingsResponses(callback: (V3GestureSettingsResponse) -> Unit): () -> Unit {
+            val observer: (V3GestureSettingsResponse) -> Unit = { callback(it) }
+            responseObservers += observer
+            return { responseObservers.remove(observer); Unit }
+        }
         override suspend fun awaitReady() { ready.first { it } }
         override fun requestSettings(gestureId: Int) { requests.add(gestureId) }
         override fun writeSettings(settings: V3GestureSettings, command: V3GestureCommand, name: String) = error("Loading must not write")

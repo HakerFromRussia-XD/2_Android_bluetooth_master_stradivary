@@ -1,10 +1,13 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.accountprofile
 
-interface V3AccountProfileLocalRepository {
+interface V3AccountDetailsReader {
+    fun getDetail(detail: V3AccountDetail): String
+}
+
+interface V3AccountProfileLocalRepository : V3AccountDetailsReader {
     fun getEnvironment(): V3AccountProfileEnvironment
     fun getCachedHeader(): V3AccountProfileHeader?
     fun cacheHeader(header: V3AccountProfileHeader)
-    fun getDetail(detail: V3AccountDetail): String
     fun saveDetails(values: List<V3AccountDetailValue>)
 }
 

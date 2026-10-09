@@ -341,7 +341,7 @@ class V3ServiceViewModel(
     private fun onRoleSelected(selected: V3DeviceRole) {
         if (!canChangeRole()) return
         val role = _uiState.value.role ?: return
-        if (role.pinRequest != null) return
+        if (selected !in role.roles || role.pinRequest != null) return
         when (changeDeviceRole(selected)) {
             V3DeviceRoleChangeResult.PIN_REQUIRED -> _uiState.update {
                 it.copy(role = role.copy(pinRequest = V3RolePinRequest(++nextPinRequestId, selected), pinFeedback = null))

@@ -4,11 +4,6 @@ import shared
 
 final class SpinnerViewCellV3: UITableViewCell {
     static let reuseIdentifier = String(describing: SpinnerViewCellV3.self)
-    private enum RoleAccess {
-        static let prosthetistIndex = 0
-        static let serviceEngineerIndex = 1
-        static let pin = "1234"
-    }
     private var viewModel: SpinnerListItemViewModelV3?
     private var provider: SpinnerProviderV3?
     private var job: Kotlinx_coroutines_coreJob?
@@ -91,7 +86,7 @@ final class SpinnerViewCellV3: UITableViewCell {
             }
         }
 
-        viewModel.requestCurrent()
+        viewModel.onAction(.currentValueRequested)
     }
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
@@ -149,17 +144,19 @@ final class SpinnerViewCellV3: UITableViewCell {
     private func handleSelection(_ index: Int) {
         guard let provider, let viewModel else { return }
         guard provider.items.indices.contains(index) else { return }
-        guard isProtectedRoleIndex(index, viewModel: viewModel) else {
+        viewModel.onAction(.selectionRequested(index))
+        guard viewModel.uiState.isPinRequired else {
             provider.selectedIndex = index
-            viewModel.sendSelectedIndex(index)
+            viewModel.onAction(.selectedIndexChanged(index))
             return
         }
 
         let previousIndex = provider.selectedIndex
         presentRolePinDialog(
-            onSuccess: { [weak self] in
+            viewModel: viewModel,
+            onSuccess: { [weak self] pin in
                 self?.provider?.selectedIndex = index
-                self?.viewModel?.sendSelectedIndex(index)
+                self?.viewModel?.onAction(.selectedIndexChanged(index, pin: pin))
             },
             onCancelOrFail: { [weak self] in
                 self?.provider?.selectedIndex = previousIndex
@@ -167,42 +164,9 @@ final class SpinnerViewCellV3: UITableViewCell {
         )
     }
 
-    private func isProtectedRoleIndex(_ index: Int, viewModel: SpinnerListItemViewModelV3) -> Bool {
-        guard index == RoleAccess.prosthetistIndex || index == RoleAccess.serviceEngineerIndex else {
-            return false
-        }
-        return isDeviceRoleSelector(viewModel)
-    }
-
-    private func isDeviceRoleSelector(_ viewModel: SpinnerListItemViewModelV3) -> Bool {
-        if let binding = viewModel.binding,
-           UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) {
-            return true
-        }
-
-        guard viewModel.items.count >= 2 else { return false }
-        let normalizedItems = viewModel.items.map(normalizedRoleName)
-        let prosthetistNames = [
-            SharedLocalizedText.text(SharedRes.strings().prosthetist),
-            "Prosthetist",
-            "Протезист"
-        ].map(normalizedRoleName)
-        let serviceEngineerNames = [
-            SharedLocalizedText.text(SharedRes.strings().service_engineer),
-            "Service engineer",
-            "Сервисный инженер"
-        ].map(normalizedRoleName)
-
-        return prosthetistNames.contains(normalizedItems[RoleAccess.prosthetistIndex]) &&
-            serviceEngineerNames.contains(normalizedItems[RoleAccess.serviceEngineerIndex])
-    }
-
-    private func normalizedRoleName(_ value: String) -> String {
-        value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    }
-
     private func presentRolePinDialog(
-        onSuccess: @escaping () -> Void,
+        viewModel: SpinnerListItemViewModelV3,
+        onSuccess: @escaping (String) -> Void,
         onCancelOrFail: @escaping () -> Void
     ) {
         guard let viewController = alertPresenter() else {
@@ -213,7 +177,10 @@ final class SpinnerViewCellV3: UITableViewCell {
         let dialog = RolePinDialogViewController(
             title: SharedLocalizedText.text(SharedRes.strings().enter_settings_pin),
             cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel),
-            expectedPin: RoleAccess.pin,
+            isPinValid: { pin in
+                viewModel.onAction(.rolePinChecked(pin))
+                return viewModel.uiState.isPinValid == true
+            },
             onSuccess: onSuccess,
             onCancelOrFail: onCancelOrFail
         )
@@ -353,8 +320,8 @@ private final class RolePinDialogViewController: UIViewController, UITextFieldDe
 
     private let dialogTitle: String
     private let cancelTitle: String
-    private let expectedPin: String
-    private let onSuccess: () -> Void
+    private let isPinValid: (String) -> Bool
+    private let onSuccess: (String) -> Void
     private let onCancelOrFail: () -> Void
     private let input = UITextField()
     private var completed = false
@@ -362,13 +329,13 @@ private final class RolePinDialogViewController: UIViewController, UITextFieldDe
     init(
         title: String,
         cancelTitle: String,
-        expectedPin: String,
-        onSuccess: @escaping () -> Void,
+        isPinValid: @escaping (String) -> Bool,
+        onSuccess: @escaping (String) -> Void,
         onCancelOrFail: @escaping () -> Void
     ) {
         self.dialogTitle = title
         self.cancelTitle = cancelTitle
-        self.expectedPin = expectedPin
+        self.isPinValid = isPinValid
         self.onSuccess = onSuccess
         self.onCancelOrFail = onCancelOrFail
         super.init(nibName: nil, bundle: nil)
@@ -482,24 +449,24 @@ private final class RolePinDialogViewController: UIViewController, UITextFieldDe
 
     @objc private func inputChanged() {
         let digits = (input.text ?? "").filter(\.isNumber)
-        let limited = String(digits.prefix(expectedPin.count))
+        let limited = String(digits.prefix(4))
         if input.text != limited {
             input.text = limited
         }
-        guard limited.count == expectedPin.count else { return }
-        finish(success: limited == expectedPin)
+        guard limited.count == 4 else { return }
+        finish(success: isPinValid(limited), pin: limited)
     }
 
     @objc private func cancelTapped() {
         finish(success: false)
     }
 
-    private func finish(success: Bool) {
+    private func finish(success: Bool, pin: String = "") {
         guard !completed else { return }
         completed = true
         input.resignFirstResponder()
         dismiss(animated: false) { [onSuccess, onCancelOrFail] in
-            success ? onSuccess() : onCancelOrFail()
+            success ? onSuccess(pin) : onCancelOrFail()
         }
     }
 }

@@ -11,18 +11,33 @@ import shared
 
 final class GesturesProvider: ObservableObject {
 //    @Published var selectedSegment: Segment = .collection
-    private static let selectedSegmentDefaultsKey = "GesturesWidgetSelectedSegment"
+    private static let selectedSegmentDefaultsKey = GesturesPreferencesStorageKeys.selectedSegment
     private enum Constants {
-        static let factoryExpandedKey = "GesturesProvider.isFactoryExpanded"
+        static let factoryExpandedKey = GesturesPreferencesStorageKeys.factoryExpanded
+    }
+    private let preferencesViewModel: V3GesturesViewModel?
+
+    static var isUiTestDefaultRotationEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-gestures-default-rotation")
     }
 
     @Published var selectedSegment: Segment = .collection {
-        didSet { saveSelectedSegment(selectedSegment) }
+        didSet {
+            if let preferencesViewModel {
+                preferencesViewModel.onAction(.gesturesSectionChanged(selectedSegment.rawValue))
+            } else {
+                saveSelectedSegment(selectedSegment)
+            }
+        }
     }
 //    @Published var isFactoryExpanded: Bool = true
     @Published var isFactoryExpanded: Bool {
         didSet {
-            Self.saveFactoryExpandedState(isFactoryExpanded)
+            if let preferencesViewModel {
+                preferencesViewModel.onAction(.factoryCollectionExpandedChanged(isFactoryExpanded))
+            } else {
+                Self.saveFactoryExpandedState(isFactoryExpanded)
+            }
         }
     }
     @Published var activeGestureId: Int?
@@ -37,10 +52,14 @@ final class GesturesProvider: ObservableObject {
          rotationGroup: [GestureDisplayItem],
          sprGestures: [SprGestureDisplayItem],
          activeGestureId: Int = 0,
-         activeGestureTitle: String?
+         activeGestureTitle: String?,
+         preferencesViewModel: V3GesturesViewModel? = nil
     ) {
-        self.isFactoryExpanded = Self.loadFactoryExpandedState()
-        self.selectedSegment = Self.loadSelectedSegment()
+        self.preferencesViewModel = preferencesViewModel
+        let preferences = preferencesViewModel?.readGesturesPreferences()
+        self.isFactoryExpanded = preferences?.isFactoryCollectionExpanded ?? Self.loadFactoryExpandedState()
+        self.selectedSegment = preferences.map { Segment(rawValue: Int($0.selectedSection)) ?? .collection }
+            ?? Self.loadSelectedSegment()
         self.factoryGestures = factoryGestures
         self.customGestures = customGestures
         self.rotationGroup = rotationGroup
@@ -101,7 +120,7 @@ final class GesturesProvider: ObservableObject {
     }
     
     private static func loadSelectedSegment() -> Segment {
-        if ProcessInfo.processInfo.arguments.contains("-ui-test-gestures-default-rotation") {
+        if isUiTestDefaultRotationEnabled {
             return .rotationGroup
         }
         let savedValue = UserDefaults.standard.integer(forKey: selectedSegmentDefaultsKey)

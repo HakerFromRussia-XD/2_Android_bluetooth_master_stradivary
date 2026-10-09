@@ -9,15 +9,15 @@ class RefreshUserFirmwareEnvironmentUseCaseV3(private val repository: V3UserFirm
     operator fun invoke() = repository.refreshEnvironment()
 }
 
-class StartUserFirmwareUpdateUseCaseV3(private val repository: V3UserFirmwareRepository) {
+class StartUserFirmwareUpdateUseCaseV3(private val repository: V3UserFirmwareActionsRepository) {
     operator fun invoke() = repository.startUpdate()
 }
 
-class PostponeUserFirmwareUpdateUseCaseV3(private val repository: V3UserFirmwareRepository) {
+class PostponeUserFirmwareUpdateUseCaseV3(private val repository: V3UserFirmwareActionsRepository) {
     operator fun invoke() = repository.postponeUpdate()
 }
 
-class AcknowledgeUserFirmwareCompletionUseCaseV3(private val repository: V3UserFirmwareRepository) {
+class AcknowledgeUserFirmwareCompletionUseCaseV3(private val repository: V3UserFirmwareActionsRepository) {
     operator fun invoke() = repository.acknowledgeCompletion()
 }
 

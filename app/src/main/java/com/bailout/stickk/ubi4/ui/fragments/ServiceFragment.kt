@@ -214,6 +214,7 @@ class ServiceFragment : BaseWidgetsFragment() {
     private fun roleName(role: V3DeviceRole): String = getString(when (role) {
         V3DeviceRole.SERVICE_ENGINEER -> SharedRes.strings.ubi4_v3_role_service_engineer.resourceId
         V3DeviceRole.USER -> SharedRes.strings.ubi4_v3_role_user.resourceId
+        V3DeviceRole.PROSTHETIST -> SharedRes.strings.ubi4_v3_role_prosthetist.resourceId
     })
 
     private fun bindUbi4Widgets() {

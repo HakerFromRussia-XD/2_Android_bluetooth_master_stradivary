@@ -14,10 +14,17 @@ import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.SliderV3
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetStateBridgeV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.RequestGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.ObserveGestureSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettingsResponse
 import io.mockk.*
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.Scheduler
@@ -92,12 +99,244 @@ class V3GestureEditorRepositoryTest {
         } finally { unmockkObject(ParameterStoreV3) }
     }
 
+    @ParameterizedTest @ValueSource(ints = [-1, 0, 1, 7])
+    fun `authoritative hand side callback bypasses cache metadata and rereads without side effects`(side: Int) {
+        val previousValues = ParameterStoreV3.values.value
+        val info = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+        ParameterStoreV3.put(info, ParameterTypedValueV3.Spinner(SpinnerV3(0)))
+        var currentSide = side
+        var reads = 0
+        val repository = V3GestureEditorRepositoryImpl(
+            readSavedHandSide = { reads++; currentSide },
+            subscribeSettingsUpdates = { error("Reading hand side must not subscribe") },
+            enqueuePacket = { error("Reading hand side must not send packets") },
+            saveProfile = { _, _ -> error("Reading hand side must not save a profile") },
+            readTypedHandSideFirst = false,
+        )
+        mockkObject(ParameterInfoRegistry, ParameterStoreV3)
+        try {
+            every { ParameterInfoRegistry.require(any()) } throws IllegalStateException("Native reading must not require metadata")
+            every { ParameterStoreV3.get(any()) } throws IllegalStateException("Native reading must not read typed cache")
+            val get = GetGestureEditorHandSideUseCaseV3(repository)
+            assertEquals(listOf(side, side), List(2) { get() })
+            currentSide = when (side) { -1 -> 0; 0 -> 1; 1 -> 7; else -> -1 }
+            assertEquals(currentSide, get())
+            assertEquals(3, reads)
+            verify { ParameterInfoRegistry wasNot Called; ParameterStoreV3 wasNot Called }
+        } finally {
+            unmockkObject(ParameterInfoRegistry, ParameterStoreV3)
+            ParameterStoreV3.clear()
+            previousValues.forEach { (key, value) ->
+                ParameterStoreV3.put(ParameterInfo(key.parameterID, key.dataCode, key.deviceAddress, 0), value)
+            }
+        }
+    }
+
     @Test fun `request uses existing codec without changing gesture ID`() {
         val packets = mutableListOf<ByteArray>()
         val repository = createRepository(enqueuePacket = { packets.add(it) })
         repository.requestSettings(17)
         assertEquals(1, packets.size)
         assertArrayEquals(BLECommandsV3.requestGestureInfo(17), packets.single())
+    }
+
+    @Test fun `immediate request queues raw repeated GET offline while suspend request still waits and cancels`() = runTest {
+        val previous = BLEState.state.value
+        val values = ParameterStoreV3.values.value
+        val packets = mutableListOf<ByteArray>()
+        val repository = createRepository(enqueuePacket = { packets += it })
+        val request = RequestGestureSettingsUseCaseV3(repository)
+        var waiting: Deferred<Unit>? = null
+        var cancelled: Deferred<Unit>? = null
+        try {
+            BLEState.publishDisconnect()
+            waiting = async { request(64) }
+            runCurrent()
+            assertFalse(waiting.isCompleted)
+            assertTrue(packets.isEmpty())
+            val ids = listOf(64, 64, 0, -1, 256, Int.MIN_VALUE, Int.MAX_VALUE)
+            ids.forEachIndexed { index, id ->
+                request.requestNow(id)
+                assertEquals(index + 1, packets.size, "Queue before the synchronous request returns")
+                assertArrayEquals(BLECommandsV3.requestGestureInfo(id), packets.last())
+            }
+            val expected = listOf(
+                listOf(0, 15, 38, 64, 114), listOf(0, 15, 38, 64, 114),
+                listOf(0, 15, 38, 0, 52), listOf(0, 15, 38, 255, 1),
+                listOf(0, 15, 38, 0, 52), listOf(0, 15, 38, 0, 52), listOf(0, 15, 38, 255, 1),
+            )
+            expected.zip(packets).forEach { (bytes, packet) -> assertArrayEquals(bytes.map(Int::toByte).toByteArray(), packet) }
+            assertFalse(waiting.isCompleted)
+            BLEState.publishConnecting()
+            runCurrent()
+            assertFalse(waiting.isCompleted)
+            assertEquals(ids.size, packets.size)
+            BLEState.publishReady()
+            runCurrent()
+            assertTrue(waiting.isCompleted)
+            assertEquals(ids.size + 1, packets.size)
+            assertArrayEquals(byteArrayOf(0, 15, 38, 64, 114), packets.last())
+            BLEState.publishDisconnect()
+            cancelled = async { request(65) }
+            runCurrent()
+            cancelled.cancelAndJoin()
+            BLEState.publishReady()
+            runCurrent()
+            assertTrue(cancelled.isCancelled)
+            assertEquals(ids.size + 1, packets.size)
+            assertEquals(values, ParameterStoreV3.values.value)
+        } finally {
+            waiting?.cancel()
+            cancelled?.cancel()
+            when (previous) {
+                BLEState.State.DISCONNECTED -> BLEState.publishDisconnect()
+                BLEState.State.CONNECTING -> BLEState.publishConnecting()
+                BLEState.State.READY -> BLEState.publishReady()
+                BLEState.State.ERROR -> BLEState.publishError()
+            }
+        }
+    }
+
+    @Test fun `opaque responses read exact bridge once and fall back only when absent preserving blank wrong codec and nullable metadata guards`() {
+        val base = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+        val originalInfo = base.copy(dataOffsets = 70)
+        val previousDevices = GlobalParameters.baseSubDevicesInfoStructSetV3
+        val previousValues = ParameterStoreV3.values.value
+        val parameter = BaseParameterInfoStruct(ID = base.parameterID, dataCode = base.dataCode, data = "not JSON")
+        GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
+            deviceAddress = base.deviceAddress, parametersList = arrayListOf(parameter)))
+        ParameterStoreV3.clear()
+        val preferences = mockk<SharedPreferences>()
+        val repository = createRepository(preferences, enqueuePacket = { error("RX must not enqueue") })
+        val responses = mutableListOf<V3GestureSettingsResponse>()
+        val snapshotKeys = mutableListOf<Triple<Int, Int, Int>>()
+        val fallbackInfos = mutableListOf<ParameterInfo<Int, Int, Int, Int>>()
+        var unsubscribe: (() -> Unit)? = null
+        mockkObject(WidgetStateBridgeV3, ParameterProvider)
+        try {
+            every { WidgetStateBridgeV3.getCurrent(any(), any(), any()) } answers {
+                snapshotKeys += Triple(firstArg<Int>(), secondArg<Int>(), thirdArg<Int>())
+                callOriginal()
+            }
+            every { ParameterProvider.getParameterV3(any<ParameterInfo<Int, Int, Int, Int>>()) } answers {
+                fallbackInfos += firstArg<ParameterInfo<Int, Int, Int, Int>>()
+                callOriginal()
+            }
+            unsubscribe = ObserveGestureSettingsUseCaseV3(repository).observeResponses { responses += it }
+            assertTrue(responses.isEmpty())
+            fun emit(info: ParameterInfo<Int, Int, Int, Int>) {
+                val values = ParameterStoreV3.values.value
+                RxUpdateMainEventUbi4.getInstance().updateUiGestureSettingsV3(info)
+                assertEquals(values, ParameterStoreV3.values.value)
+            }
+            emit(originalInfo)
+            assertEquals(V3GestureSettingsResponse(base.deviceAddress, base.parameterID, base.dataCode, "not JSON"), responses.single())
+            assertEquals(listOf(originalInfo), fallbackInfos)
+            parameter.data = "new cache"
+            ParameterStoreV3.put(base, ParameterTypedValueV3.GestureSettings(GestureV3(gestureId = 70, openPosition1 = 255)))
+            emit(originalInfo)
+            assertEquals("{\"gestureId\":70,\"openPosition1\":255}", responses.last().serializedSettings)
+            ParameterStoreV3.put(base, ParameterTypedValueV3.Slider(SliderV3(sliderValue = 4)))
+            emit(originalInfo)
+            assertEquals("", responses.last().serializedSettings, "Present but unencodable snapshot must not fall back")
+            val wrongCodec = ParameterInfo(base.parameterID, 0x25, base.deviceAddress, 99)
+            ParameterStoreV3.put(wrongCodec, ParameterTypedValueV3.CurrentGesture(CurrentGestureV3(4)))
+            emit(wrongCodec)
+            assertEquals(V3GestureSettingsResponse(base.deviceAddress, base.parameterID, 0x25, "{\"currentGesture\":4}"), responses.last())
+            val foreign = ParameterInfo(213, 244, 206, 137)
+            ParameterStoreV3.put(foreign, ParameterTypedValueV3.Text("foreign"))
+            emit(foreign)
+            assertEquals(V3GestureSettingsResponse(206, 213, 244, ""), responses.last())
+            @Suppress("UNCHECKED_CAST")
+            val missing = listOf(
+                ParameterInfo(null, base.dataCode, base.deviceAddress, 0),
+                ParameterInfo(base.parameterID, null, base.deviceAddress, 0),
+                ParameterInfo(base.parameterID, base.dataCode, null, 0),
+            ) as List<ParameterInfo<Int, Int, Int, Int>>
+            missing.forEach(::emit)
+            assertEquals(5, responses.size)
+            assertEquals(listOf(
+                Triple(base.deviceAddress, base.parameterID, base.dataCode),
+                Triple(base.deviceAddress, base.parameterID, base.dataCode),
+                Triple(base.deviceAddress, base.parameterID, base.dataCode),
+                Triple(base.deviceAddress, base.parameterID, 0x25), Triple(206, 213, 244),
+            ), snapshotKeys)
+            assertEquals(listOf(originalInfo), fallbackInfos)
+            verify { preferences wasNot Called }
+        } finally {
+            unsubscribe?.invoke()
+            unmockkObject(WidgetStateBridgeV3, ParameterProvider)
+            GlobalParameters.baseSubDevicesInfoStructSetV3 = previousDevices
+            ParameterStoreV3.clear()
+            previousValues.forEach { (key, value) ->
+                ParameterStoreV3.put(ParameterInfo(key.parameterID, key.dataCode, key.deviceAddress, 0), value)
+            }
+        }
+    }
+
+    @Test fun `response callbacks copy every payload synchronously retain repeats and unsubscribe while Android typed flow stays cache based`() = runTest {
+        val base = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+        val previousDevices = GlobalParameters.baseSubDevicesInfoStructSetV3
+        val previousValues = ParameterStoreV3.values.value
+        val parameter = BaseParameterInfoStruct(ID = base.parameterID, dataCode = base.dataCode)
+        GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
+            deviceAddress = base.deviceAddress, parametersList = arrayListOf(parameter)))
+        ParameterStoreV3.clear()
+        val repository = createRepository(enqueuePacket = { error("RX must not enqueue") })
+        val observe = ObserveGestureSettingsUseCaseV3(repository)
+        val responses = mutableListOf<V3GestureSettingsResponse>()
+        val typed = mutableListOf<V3GestureSettings?>()
+        val order = mutableListOf<String>()
+        val sourceThread = Thread.currentThread()
+        var unsubscribe: (() -> Unit)? = null
+        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            observe().collect { typed += it }
+        }
+        try {
+            unsubscribe = observe.observeResponses {
+                assertSame(sourceThread, Thread.currentThread())
+                responses += it
+                order += "callback"
+            }
+            assertTrue(responses.isEmpty())
+            assertTrue(typed.isEmpty())
+            fun emit(data: String) {
+                parameter.data = data
+                val count = responses.size
+                RxUpdateMainEventUbi4.getInstance().updateUiGestureSettingsV3(base)
+                assertEquals(count + 1, responses.size, "Callback before producer returns")
+                order += "returned"
+            }
+            listOf("{\"gestureId\":70}", "invalid", "", "").forEach(::emit)
+            assertEquals(listOf("{\"gestureId\":70}", "invalid", "", ""), responses.map { it.serializedSettings })
+            assertEquals(List(4) { listOf("callback", "returned") }.flatten(), order)
+            ParameterStoreV3.put(base, ParameterTypedValueV3.GestureSettings(GestureV3(gestureId = 71)))
+            emit("{\"gestureId\":99}")
+            assertEquals("{\"gestureId\":71}", responses.last().serializedSettings)
+            runCurrent()
+            assertEquals(listOf(V3GestureSettings(gestureId = 70), null, null, null, V3GestureSettings(gestureId = 99)), typed)
+            assertEquals("{\"gestureId\":70}", responses.first().serializedSettings)
+            assertEquals("{\"gestureId\":99}", parameter.data)
+            unsubscribe.invoke()
+            unsubscribe.invoke()
+            RxUpdateMainEventUbi4.getInstance().updateUiGestureSettingsV3(base)
+            runCurrent()
+            assertEquals(5, responses.size)
+            assertEquals(6, typed.size)
+            unsubscribe = observe.observeResponses { responses += it }
+            assertEquals(5, responses.size, "Resubscribe must not replay latest state")
+            emit("{\"gestureId\":100}")
+            assertEquals("{\"gestureId\":71}", responses.last().serializedSettings)
+            assertEquals(6, responses.size)
+        } finally {
+            unsubscribe?.invoke()
+            job.cancelAndJoin()
+            GlobalParameters.baseSubDevicesInfoStructSetV3 = previousDevices
+            ParameterStoreV3.clear()
+            previousValues.forEach { (key, value) ->
+                ParameterStoreV3.put(ParameterInfo(key.parameterID, key.dataCode, key.deviceAddress, 0), value)
+            }
+        }
     }
 
     @Test fun `responses preserve every position delay ID and malformed event and unsubscribe on cancel`() = runTest {

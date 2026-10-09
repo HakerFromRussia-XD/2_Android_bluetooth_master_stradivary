@@ -12,12 +12,16 @@ import org.junit.jupiter.api.Assertions.*
 class V3BleLogViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val additions = MutableSharedFlow<List<V3BleLogEntry>>(extraBufferCapacity = 8)
+    private val version = MutableStateFlow(0L)
     private val history = mutableListOf<V3BleLogEntry>()
     private val writes = mutableListOf<Boolean>()
     private var hidden = false
     private var restores = 0
     private var subscriptions = 0
     private val repository = object : V3BleLogRepository {
+        override fun snapshot() = history.toList()
+        override fun entriesAfter(id: Long) = history.filter { it.id > id }
+        override fun observeVersions() = version
         override fun observeEntryBatches() = flow {
             subscriptions++
             try {
@@ -40,6 +44,7 @@ class V3BleLogViewModelTest {
     private fun append(id: Long) {
         val value = entry(id)
         history += value
+        version.value = id
         assertTrue(additions.tryEmit(listOf(value)))
         dispatcher.scheduler.runCurrent()
     }

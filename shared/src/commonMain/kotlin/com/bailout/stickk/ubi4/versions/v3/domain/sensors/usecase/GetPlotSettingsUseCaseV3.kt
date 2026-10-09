@@ -13,3 +13,7 @@ class GetPlotSettingsUseCaseV3(private val repository: V3SensorsPlotRepository) 
         repository.getThresholds(), repository.getChannelCount(),
     )
 }
+
+class RequestPlotThresholdsUseCaseV3(private val repository: V3SensorsPlotRepository) {
+    operator fun invoke(parameterID: Int, dataCode: Int) = repository.requestThresholds(parameterID, dataCode)
+}

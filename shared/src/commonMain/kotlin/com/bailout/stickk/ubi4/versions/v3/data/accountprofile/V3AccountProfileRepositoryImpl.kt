@@ -3,14 +3,20 @@ package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridge
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridgeResult
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDevice
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDeviceInfo
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDeviceOption
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfile
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileResult
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileSnapshot
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileSnapshotRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileSnapshotResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 
 class V3AccountProfileRepositoryImpl(
@@ -57,5 +63,42 @@ class V3AccountProfileRepositoryImpl(
     private inline fun <T, R> NetworkResult<T>.toProfileResult(map: (T) -> R): V3AccountProfileResult<R> = when (this) {
         is NetworkResult.Success -> V3AccountProfileResult.Success(map(value))
         is NetworkResult.Error -> V3AccountProfileResult.Error(code, message)
+    }
+}
+
+class V3AccountProfileSnapshotRepositoryImpl(
+    private val loadAccount: (String, String, (AccountBridgeResult) -> Unit) -> Job,
+) : V3AccountProfileSnapshotRepository {
+    constructor() : this({ serialNumber, language, callback ->
+        AccountBridge.loadAccount(serialNumber, language, callback)
+    })
+
+    override fun load(
+        serialNumber: String,
+        language: String,
+        callback: (V3AccountProfileSnapshotResult) -> Unit,
+    ): Job = loadAccount(serialNumber, language) { result ->
+        callback(V3AccountProfileSnapshotResult(
+            isSuccess = result.isSuccess,
+            profile = result.profile?.let { profile ->
+                V3AccountProfileSnapshot(
+                    firstName = profile.firstName,
+                    lastName = profile.lastName,
+                    fullName = profile.fullName,
+                    managerName = profile.managerName,
+                    managerPhone = profile.managerPhone,
+                    prosthesisModel = profile.prosthesisModel,
+                    prosthesisSize = profile.prosthesisSize,
+                    handSide = profile.handSide,
+                    rotatorType = profile.rotatorType,
+                    touchscreenFingerPads = profile.touchscreenFingerPads,
+                    batteryType = profile.batteryType,
+                    prosthesisStatus = profile.prosthesisStatus,
+                    dateOfReceipt = profile.dateOfReceipt,
+                    warrantyExpirationDate = profile.warrantyExpirationDate,
+                )
+            },
+            errorMessage = result.errorMessage,
+        ))
     }
 }

@@ -518,7 +518,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (instancetype) initWithDefaultFBOName:(GLuint)defaultFBOName
                         gestureNumber:(NSInteger)gestureNumber {
-    NSInteger handSide = [V3HandSideProvider shared].currentSide;
+    NSInteger handSide = [GestureSettingsViewModelV3 shared].currentHandSide;
     return [self initWithDefaultFBOName:defaultFBOName
                          gestureNumber:gestureNumber
                   useV3GestureProtocol:YES
@@ -538,7 +538,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     _gestureService = [[GestureService alloc] init];
     if (_useV3GestureProtocol) {
         [[V3HandSideProvider shared] startObserving];
-        _handSide = [V3HandSideProvider shared].currentSide;
+        _handSide = [GestureSettingsViewModelV3 shared].currentHandSide;
     } else {
         _handSide = handSide;
     }
@@ -633,7 +633,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void)v3SynchronizeHandSideFromProvider {
     if (!_v3 || !_useV3GestureProtocol) return;
-    NSInteger providerSide = [V3HandSideProvider shared].currentSide;
+    NSInteger providerSide = [GestureSettingsViewModelV3 shared].currentHandSide;
     if (providerSide != 0 && providerSide != 1) return;
     if (providerSide != _v3->handSide) {
         NSLog(@"[V3HandSide] source=renderer sync provider=%@ renderer=%@",
@@ -2186,8 +2186,7 @@ static int V3SelectionCodeForInfluence(int influence) {
 - (void) sendDataToFestPreservingGestureState {
     [self logV3GestureObjectIfNeededBeforeSend];
     if (_useV3GestureProtocol) {
-        SharedKotlinByteArray *command = [[SharedBLECommandsV3 shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
-        [_gestureService sendDataToFestV3WithDataForWrite:command];
+        [_gestureService sendGestureSettingsV3WithGestureWithAddress:_gestureWithAddress];
     } else {
         SharedKotlinByteArray *command = [[SharedBLECommands shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
         [_gestureService sendDataToFestWithDataForWrite:command];

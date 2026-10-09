@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.versions.v3.domain.customerservice
 
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.FakeAccountProfileLocal
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetail
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetailsReader
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -46,5 +47,40 @@ class GetCustomerServiceInfoUseCaseV3Test {
         repository.values[V3AccountDetail.MANAGER_PHONE] = "new phone"
         assertEquals("new phone", GetCustomerServiceManagerPhoneUseCaseV3(repository)())
         assertTrue(repository.writes.isEmpty())
+    }
+
+    @Test fun `snapshot reader and native warranty policy retain captured raw values`() {
+        listOf("", "null", "1234567", "01.01.xxxx", "29.02.2024").forEach { date ->
+            val source = mutableMapOf(
+                V3AccountDetail.TRANSFER_DATE to date,
+                V3AccountDetail.MANAGER_NAME to " Manager ",
+                V3AccountDetail.MANAGER_PHONE to "+7 (000) 123-45-67",
+                V3AccountDetail.STATUS to "",
+            )
+            val snapshot = source.toMap()
+            val events = mutableListOf<String>()
+            val reader = object : V3AccountDetailsReader {
+                override fun getDetail(detail: V3AccountDetail): String {
+                    events += detail.name
+                    return snapshot[detail].orEmpty()
+                }
+            }
+            val capturedWarranty = if (date == "29.02.2024") "29.02.2027" else ""
+            val get = GetCustomerServiceInfoUseCaseV3(reader, warrantyExpirationDate = { rawDate ->
+                assertEquals(date, rawDate)
+                events += "warranty"
+                capturedWarranty
+            })
+            val getPhone = GetCustomerServiceManagerPhoneUseCaseV3(reader)
+            assertTrue(events.isEmpty())
+            source.clear()
+            repeat(2) {
+                assertEquals(V3CustomerServiceInfo(date, capturedWarranty, " Manager ",
+                    "+7 (000) 123-45-67", ""), get())
+                assertEquals("+7 (000) 123-45-67", getPhone())
+            }
+            assertEquals(List(2) { listOf("TRANSFER_DATE", "warranty", "MANAGER_NAME",
+                "MANAGER_PHONE", "STATUS", "MANAGER_PHONE") }.flatten(), events)
+        }
     }
 }

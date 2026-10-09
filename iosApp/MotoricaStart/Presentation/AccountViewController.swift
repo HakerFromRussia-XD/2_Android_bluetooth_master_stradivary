@@ -11,14 +11,152 @@ private enum AccountMetrics {
     static let cardTop: CGFloat = 16
 }
 
-final class AccountViewController: UIViewController {
-    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
+enum V3AccountAction {
+    case observationStarted
+    case reloadRequested
+    case profileRequested(serialNumber: String, language: String)
+    case boardModeReceived(deviceAddress: Int32, isInBootloader: Bool)
+    case profileReceived(V3AccountProfileSnapshotResult)
+}
+
+struct V3AccountUiState {
+    let profile: V3AccountProfileSnapshot?
+    let boards: [AccountBridgeBoard]
+    let isLoading: Bool
+}
+
+enum V3AccountPresentation {
+    case content(V3AccountUiState)
+    case loading(V3AccountUiState)
+}
+
+enum V3AccountEffect {
+    case readProfileContext
+    case showError(String)
+}
+
+final class V3AccountViewModel {
+    private let getBoards: GetAccountBoardsUseCaseV3
+    private let observeBoards: ObserveAccountBoardsUseCaseV3
+    private let loadProfile: LoadAccountProfileSnapshotUseCaseV3
     private var loadJob: Kotlinx_coroutines_coreJob?
     private var boardModeJob: Kotlinx_coroutines_coreJob?
-    private var profile: AccountBridgeProfile?
-    private var boards: [AccountBridgeBoard] = []
+    private(set) var uiState = V3AccountUiState(profile: nil, boards: [], isLoading: false)
+    let presentation = Observable<V3AccountPresentation?>(nil)
+    var onEffect: ((V3AccountEffect) -> Void)?
+
+    init(getBoards: GetAccountBoardsUseCaseV3,
+         observeBoards: ObserveAccountBoardsUseCaseV3,
+         loadProfile: LoadAccountProfileSnapshotUseCaseV3) {
+        self.getBoards = getBoards
+        self.observeBoards = observeBoards
+        self.loadProfile = loadProfile
+    }
+
+    func onAction(_ action: V3AccountAction) {
+        switch action {
+        case .observationStarted:
+            boardModeJob?.cancel(cause: nil)
+            boardModeJob = observeBoards.observeBootloaderChanges { [weak self] address, isInBootloader in
+                DispatchQueue.main.async {
+                    self?.onAction(.boardModeReceived(deviceAddress: address.int32Value,
+                                                     isInBootloader: isInBootloader.boolValue))
+                }
+            }
+        case .reloadRequested:
+            if uiState.profile == nil {
+                uiState = V3AccountUiState(profile: nil, boards: uiState.boards, isLoading: true)
+                presentation.value = .loading(uiState)
+            }
+            let boards = getBoards.current(missingVersion: "-").map { board in
+                AccountBridgeBoard(boardName: board.name ?? "",
+                                   deviceCode: board.deviceCode,
+                                   deviceAddress: board.deviceAddress,
+                                   version: board.version ?? "-",
+                                   canUpdate: true,
+                                   isInBootloader: false)
+            }
+            uiState = V3AccountUiState(profile: uiState.profile, boards: boards, isLoading: uiState.isLoading)
+            presentation.value = .content(uiState)
+            loadJob?.cancel(cause: nil)
+            onEffect?(.readProfileContext)
+        case .profileRequested(let serialNumber, let language):
+            loadJob = loadProfile.invoke(serialNumber: serialNumber, language: language) { [weak self] result in
+                DispatchQueue.main.async {
+                    self?.onAction(.profileReceived(result))
+                }
+            }
+        case .boardModeReceived(let address, let isInBootloader):
+            let boards = uiState.boards.map { board in
+                guard board.deviceAddress == address else { return board }
+                return AccountBridgeBoard(boardName: board.boardName,
+                                          deviceCode: board.deviceCode,
+                                          deviceAddress: board.deviceAddress,
+                                          version: board.version,
+                                          canUpdate: board.canUpdate,
+                                          isInBootloader: isInBootloader)
+            }
+            uiState = V3AccountUiState(profile: uiState.profile, boards: boards, isLoading: uiState.isLoading)
+            presentation.value = .content(uiState)
+        case .profileReceived(let result):
+            uiState = V3AccountUiState(profile: uiState.profile, boards: uiState.boards, isLoading: false)
+            presentation.value = .loading(uiState)
+            if let profile = result.profile {
+                uiState = V3AccountUiState(profile: profile, boards: uiState.boards, isLoading: false)
+                presentation.value = .content(uiState)
+            }
+            if !result.isSuccess, !result.errorMessage.isEmpty {
+                onEffect?(.showError(result.errorMessage))
+            }
+        }
+    }
+
+    deinit {
+        loadJob?.cancel(cause: nil)
+        boardModeJob?.cancel(cause: nil)
+    }
+}
+
+final class AccountViewController: UIViewController {
+    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
+    private let makeStatisticsScreen: () -> AccountStatisticsViewController
+    private let makeCustomerServiceScreen: (AccountBridgeProfile, String) -> UIViewController
+    private let makeProsthesisInfoScreen: (AccountBridgeProfile, String) -> UIViewController
+    private var legacyLoadJob: Kotlinx_coroutines_coreJob?
+    private var boardModeJob: Kotlinx_coroutines_coreJob?
+    private let viewModelV3: V3AccountViewModel?
+    private let firmwareViewModelV3: V3ServiceFirmwareViewModel?
+    private var legacyProfile: AccountBridgeProfile?
+    private var legacyBoards: [AccountBridgeBoard] = []
+    private var profile: AccountBridgeProfile? {
+        if let viewModelV3 {
+            return viewModelV3.uiState.profile.map { profile in
+                AccountBridgeProfile(firstName: profile.firstName,
+                                     lastName: profile.lastName,
+                                     fullName: profile.fullName,
+                                     managerName: profile.managerName,
+                                     managerPhone: profile.managerPhone,
+                                     prosthesisModel: profile.prosthesisModel,
+                                     prosthesisSize: profile.prosthesisSize,
+                                     handSide: profile.handSide,
+                                     rotatorType: profile.rotatorType,
+                                     touchscreenFingerPads: profile.touchscreenFingerPads,
+                                     batteryType: profile.batteryType,
+                                     prosthesisStatus: profile.prosthesisStatus,
+                                     dateOfReceipt: profile.dateOfReceipt,
+                                     warrantyExpirationDate: profile.warrantyExpirationDate)
+            }
+        }
+        return legacyProfile
+    }
+    private var boards: [AccountBridgeBoard] {
+        viewModelV3?.uiState.boards ?? legacyBoards
+    }
     private var firmwareFileNames: [String] = []
-    private lazy var firmwareUpdateController = AccountFirmwareUpdateController(presentingViewController: self)
+    private lazy var firmwareUpdateController = AccountFirmwareUpdateController(
+        presentingViewController: self,
+        viewModelV3: firmwareViewModelV3
+    )
 
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
@@ -33,7 +171,16 @@ final class AccountViewController: UIViewController {
     private let inactiveTextColor = UIColor.accountColor("ubi4_deactivate_text", fallback: 0x838383)
     private let activeColor = UIColor.accountColor("ubi4_active", fallback: 0xC6F158)
 
-    init() {
+    init(viewModelV3: V3AccountViewModel? = nil,
+         firmwareViewModelV3: V3ServiceFirmwareViewModel? = nil,
+         makeStatisticsScreen: @escaping () -> AccountStatisticsViewController,
+         makeCustomerServiceScreen: @escaping (AccountBridgeProfile, String) -> UIViewController,
+         makeProsthesisInfoScreen: @escaping (AccountBridgeProfile, String) -> UIViewController) {
+        self.viewModelV3 = viewModelV3
+        self.firmwareViewModelV3 = firmwareViewModelV3
+        self.makeStatisticsScreen = makeStatisticsScreen
+        self.makeCustomerServiceScreen = makeCustomerServiceScreen
+        self.makeProsthesisInfoScreen = makeProsthesisInfoScreen
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -47,6 +194,7 @@ final class AccountViewController: UIViewController {
         super.viewDidLoad()
         firmwareFileNames = firmwareUpdateController.availableFirmwareFileNames()
         setupView()
+        bindViewModelV3()
         observeBoardMode()
         reloadAccount()
     }
@@ -56,8 +204,14 @@ final class AccountViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        guard view.window == nil else { return }
+        firmwareUpdateController.cancelCatalogRequest()
+    }
+
     deinit {
-        loadJob?.cancel(cause: nil)
+        legacyLoadJob?.cancel(cause: nil)
         boardModeJob?.cancel(cause: nil)
     }
 
@@ -139,7 +293,38 @@ final class AccountViewController: UIViewController {
         ])
     }
 
+    private func bindViewModelV3() {
+        guard let viewModelV3 else { return }
+        viewModelV3.onEffect = { [weak self] effect in
+            switch effect {
+            case .readProfileContext:
+                guard let self else { return }
+                self.viewModelV3?.onAction(.profileRequested(serialNumber: self.currentSerialNumber(),
+                                                            language: self.currentLanguageCode()))
+            case .showError(let message): self?.showToast(message)
+            }
+        }
+        viewModelV3.presentation.observe(on: self) { [weak self] presentation in
+            guard let self, let presentation else { return }
+            switch presentation {
+            case .content:
+                self.renderContent()
+            case .loading(let state):
+                if state.isLoading {
+                    self.activityIndicator.startAnimating()
+                } else {
+                    self.activityIndicator.stopAnimating()
+                    self.refreshControl.endRefreshing()
+                }
+            }
+        }
+    }
+
     private func observeBoardMode() {
+        if let viewModelV3 {
+            viewModelV3.onAction(.observationStarted)
+            return
+        }
         boardModeJob?.cancel(cause: nil)
         boardModeJob = AccountBridge.shared.observeBoardMode { [weak self] mode in
             DispatchQueue.main.async {
@@ -149,7 +334,7 @@ final class AccountViewController: UIViewController {
     }
 
     private func applyBoardMode(_ mode: AccountBridgeBoardMode) {
-        boards = boards.map { board in
+        legacyBoards = boards.map { board in
             guard board.deviceAddress == mode.deviceAddress else { return board }
             return AccountBridgeBoard(
                 boardName: board.boardName,
@@ -169,15 +354,23 @@ final class AccountViewController: UIViewController {
     }
 
     private func reloadAccount() {
+        if let viewModelV3 {
+            viewModelV3.onAction(.reloadRequested)
+            return
+        }
         if profile == nil {
             activityIndicator.startAnimating()
         }
 
-        boards = AccountBridge.shared.currentBoards()
+        legacyBoards = AccountBridge.shared.currentBoards()
         renderContent()
 
-        loadJob?.cancel(cause: nil)
-        loadJob = AccountBridge.shared.loadAccount(
+        requestProfile()
+    }
+
+    private func requestProfile() {
+        legacyLoadJob?.cancel(cause: nil)
+        legacyLoadJob = AccountBridge.shared.loadAccount(
             serialNumber: currentSerialNumber(),
             lang: currentLanguageCode()
         ) { [weak self] result in
@@ -185,7 +378,7 @@ final class AccountViewController: UIViewController {
                 self?.activityIndicator.stopAnimating()
                 self?.refreshControl.endRefreshing()
                 if let loadedProfile = result.profile {
-                    self?.profile = loadedProfile
+                    self?.legacyProfile = loadedProfile
                     self?.renderContent()
                 }
                 if !result.isSuccess, !result.errorMessage.isEmpty {
@@ -252,7 +445,7 @@ final class AccountViewController: UIViewController {
             ) { [weak self] in
                 guard let self, let profile = self.profile else { return }
                 self.navigationController?.pushViewController(
-                    AccountCustomerServiceViewController(profile: profile, topTitle: self.currentSerialNumber()),
+                    self.makeCustomerServiceScreen(profile, self.currentSerialNumber()),
                     animated: true
                 )
             }
@@ -266,7 +459,7 @@ final class AccountViewController: UIViewController {
             ) { [weak self] in
                 guard let self, let profile = self.profile else { return }
                 self.navigationController?.pushViewController(
-                    AccountProsthesisInfoViewController(profile: profile, topTitle: self.currentSerialNumber()),
+                    self.makeProsthesisInfoScreen(profile, self.currentSerialNumber()),
                     animated: true
                 )
             }
@@ -279,8 +472,9 @@ final class AccountViewController: UIViewController {
                 textColor: textColor,
                 accessibilityIdentifier: AccessibilityIdentifier.accountStatisticsButton
             ) { [weak self] in
-                self?.navigationController?.pushViewController(
-                    AccountStatisticsViewController(),
+                guard let self else { return }
+                self.navigationController?.pushViewController(
+                    self.makeStatisticsScreen(),
                     animated: true
                 )
             }
@@ -349,18 +543,14 @@ final class AccountViewController: UIViewController {
 final class AccountStatisticsViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var statusBarHostingController: UIHostingController<StatusBarView>?
-    private var telemetryCountersJob: Kotlinx_coroutines_coreJob?
-    private var viewModel = GestureUsageListItemViewModel(
-        id: "account-gesture-usage",
-        title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
-        emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
-        totalTitle: AccountStatisticsViewController.totalTitle,
-        items: []
-    )
+    private let statisticsViewModel: AccountStatisticsViewModelV3
+    private var viewModel: GestureUsageListItemViewModel
 
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
 
-    init() {
+    init(viewModel: AccountStatisticsViewModelV3) {
+        self.statisticsViewModel = viewModel
+        self.viewModel = viewModel.chart
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -382,11 +572,7 @@ final class AccountStatisticsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
-        requestTelemetryData()
-    }
-
-    deinit {
-        telemetryCountersJob?.cancel(cause: nil)
+        statisticsViewModel.onAction(.viewAppeared)
     }
 
     private func setupTopBar() {
@@ -439,69 +625,71 @@ final class AccountStatisticsViewController: UIViewController {
     }
 
     private func observeTelemetry() {
+        statisticsViewModel.observeChart { [weak self] chart in
+            guard let self else { return }
+            self.viewModel = chart
+            self.tableView.reloadData()
+        }
+    }
+}
+
+enum AccountStatisticsActionV3 {
+    case viewAppeared
+}
+
+/// Owns the account statistics actions and native chart projection.
+final class AccountStatisticsViewModelV3 {
+    private let requestStatistics: RequestAccountStatisticsUseCaseV3
+    private let observeStatistics: ObserveAccountStatisticsUseCaseV3
+    private let getCustomGestureNames: GetCustomGestureNamesUseCaseV3
+    private var telemetryCountersJob: Kotlinx_coroutines_coreJob?
+    private(set) var chart = GestureUsageListItemViewModel(
+        id: "account-gesture-usage",
+        title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
+        emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
+        totalTitle: AccountStatisticsViewModelV3.totalTitle,
+        items: []
+    )
+
+    init(
+        requestStatistics: RequestAccountStatisticsUseCaseV3,
+        observeStatistics: ObserveAccountStatisticsUseCaseV3,
+        getCustomGestureNames: GetCustomGestureNamesUseCaseV3
+    ) {
+        self.requestStatistics = requestStatistics
+        self.observeStatistics = observeStatistics
+        self.getCustomGestureNames = getCustomGestureNames
+    }
+
+    func onAction(_ action: AccountStatisticsActionV3) {
+        switch action {
+        case .viewAppeared:
+            requestStatistics.invoke()
+        }
+    }
+
+    func observeChart(_ onChanged: @escaping (GestureUsageListItemViewModel) -> Void) {
         telemetryCountersJob?.cancel(cause: nil)
-        telemetryCountersJob = WidgetStateBridge.shared.observeTelemetryGestureCounters { [weak self] counters in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                self.viewModel = GestureUsageListItemViewModel(
-                    id: "account-gesture-usage",
-                    title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
-                    emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
-                    totalTitle: Self.totalTitle,
-                    items: self.makeItems(from: counters)
-                )
-                self.tableView.reloadData()
-            }
-        }
-    }
-
-    private func requestTelemetryData() {
-        guard UiInterfaceModeBridgeV3.shared.isEnabled() else { return }
-        let gatt = SampleGattAttributes()
-        BLEComponents.shared.bleManager.sendBytesKmm(
-            data: BLECommandsV3.shared.requestTelemetryData(),
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
-    }
-
-    private func makeItems(from counters: TelemetryGestureCounters) -> [GestureUsageChartItem] {
-        let baseItems: [GestureUsageChartItem] = counters.baseGestureMovementCount.enumerated().compactMap { index, rawCount in
-            guard Self.baseGestureIds.indices.contains(index) else { return nil }
-            let gestureId = Self.baseGestureIds[index]
-            let count = longValue(from: rawCount)
-            guard gestureId != 0, count > 0 else { return nil }
-            return GestureUsageChartItem(
-                gestureId: gestureId,
-                title: baseGestureName(for: gestureId),
-                count: count,
-                colorIndex: gestureId
+        // Keep the native telemetry-only subscription and its initial/repeated events.
+        telemetryCountersJob = observeStatistics.observeCounters { [weak self] usage in
+            guard let self else { return }
+            self.chart = GestureUsageListItemViewModel(
+                id: "account-gesture-usage",
+                title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
+                emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
+                totalTitle: Self.totalTitle,
+                items: self.makeItems(from: usage)
             )
-        }
-        let customNames = customGestureNames()
-        let customItems: [GestureUsageChartItem] = counters.customGestureMovementCount.enumerated().compactMap { index, rawCount in
-            let count = longValue(from: rawCount)
-            guard count > 0 else { return nil }
-            let gestureId = 64 + index
-            return GestureUsageChartItem(
-                gestureId: gestureId,
-                title: customNames.indices.contains(index)
-                    ? customNames[index]
-                    : "\(SharedLocalizedText.text(SharedRes.strings().custom_gesture)) \(index + 1)",
-                count: count,
-                colorIndex: gestureId
-            )
-        }
-        return (baseItems + customItems).sorted {
-            $0.count == $1.count ? $0.gestureId < $1.gestureId : $0.count > $1.count
+            onChanged(self.chart)
         }
     }
 
-    private func longValue(from value: Any) -> Int64 {
-        if let value = value as? KotlinLong { return value.int64Value }
-        if let value = value as? NSNumber { return value.int64Value }
-        return 0
+    deinit {
+        telemetryCountersJob?.cancel(cause: nil)
+    }
+
+    private func makeItems(from usage: [V3GestureUsage]) -> [GestureUsageChartItem] {
+        GestureUsageChartItem.makeItems(from: usage, customNames: customGestureNames(), baseName: baseGestureName)
     }
 
     private func baseGestureName(for gestureId: Int) -> String {
@@ -528,26 +716,13 @@ final class AccountStatisticsViewController: UIViewController {
     }
 
     private func customGestureNames() -> [String] {
-        let stored = GestureService.shared.loadNames()
-        let defaults = [
-            SharedRes.strings().gesture_1_btn, SharedRes.strings().gesture_2_btn,
-            SharedRes.strings().gesture_3_btn, SharedRes.strings().gesture_4_btn,
-            SharedRes.strings().gesture_5_btn, SharedRes.strings().gesture_6_btn,
-            SharedRes.strings().gesture_7_btn, SharedRes.strings().gesture_8_btn,
-            SharedRes.strings().gesture_9_btn, SharedRes.strings().gesture_10_btn,
-            SharedRes.strings().gesture_11_btn, SharedRes.strings().gesture_12_btn,
-            SharedRes.strings().gesture_13_btn, SharedRes.strings().gesture_14_btn,
-            SharedRes.strings().gesture_15_btn
-        ].map(SharedLocalizedText.text)
-        guard stored.count < defaults.count else { return Array(stored.prefix(defaults.count)) }
-        return stored + Array(defaults[stored.count...])
+        GestureUsageChartItem.localizedCustomNames(getCustomGestureNames.invoke().names)
     }
 
     private static var totalTitle: String {
         Locale.current.languageCode == "ru" ? "Всего:" : "Total:"
     }
 
-    private static let baseGestureIds = Array(0...15)
 }
 
 extension AccountStatisticsViewController: UITableViewDataSource {
@@ -563,7 +738,77 @@ extension AccountStatisticsViewController: UITableViewDataSource {
     }
 }
 
-private final class AccountCustomerServiceViewController: AccountDetailsViewController {
+enum V3CustomerServiceAction {
+    case viewLoaded
+    case managerPhoneRequested
+}
+
+struct V3CustomerServiceUiState {
+    let info: V3CustomerServiceInfo?
+    let managerPhone: String?
+}
+
+final class V3CustomerServiceViewModel {
+    private let getInfo: GetCustomerServiceInfoUseCaseV3
+    private let getManagerPhone: GetCustomerServiceManagerPhoneUseCaseV3
+    private(set) var uiState = V3CustomerServiceUiState(info: nil, managerPhone: nil)
+
+    init(getInfo: GetCustomerServiceInfoUseCaseV3, getManagerPhone: GetCustomerServiceManagerPhoneUseCaseV3) {
+        self.getInfo = getInfo
+        self.getManagerPhone = getManagerPhone
+    }
+
+    func onAction(_ action: V3CustomerServiceAction) {
+        switch action {
+        case .viewLoaded:
+            uiState = V3CustomerServiceUiState(info: getInfo.invoke(), managerPhone: uiState.managerPhone)
+        case .managerPhoneRequested:
+            uiState = V3CustomerServiceUiState(info: uiState.info, managerPhone: getManagerPhone.invoke())
+        }
+    }
+}
+
+enum V3ProsthesisInformationAction {
+    case viewLoaded
+}
+
+struct V3ProsthesisInformationUiState {
+    let info: V3ProsthesisInformation?
+}
+
+final class V3ProsthesisInformationViewModel {
+    private let getInfo: GetProsthesisInformationUseCaseV3
+    private(set) var uiState = V3ProsthesisInformationUiState(info: nil)
+
+    init(getInfo: GetProsthesisInformationUseCaseV3) {
+        self.getInfo = getInfo
+    }
+
+    func onAction(_ action: V3ProsthesisInformationAction) {
+        switch action {
+        case .viewLoaded:
+            uiState = V3ProsthesisInformationUiState(info: getInfo.invoke())
+        }
+    }
+}
+
+final class AccountCustomerServiceViewController: AccountDetailsViewController {
+    init(viewModel: V3CustomerServiceViewModel, topTitle: String) {
+        super.init(topTitle: topTitle)
+        viewModel.onAction(.viewLoaded)
+        guard let info = viewModel.uiState.info else { return }
+        addRows([
+            .init(title: SharedLocalizedText.text(SharedRes.strings().date_of_receipt_of_prosthesis), value: info.transferDate),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().warranty_expiration_date), value: info.warrantyExpirationDate ?? ""),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().your_manager), value: info.managerName,
+                  phone: info.managerPhone, phoneProvider: {
+                      viewModel.onAction(.managerPhoneRequested)
+                      return viewModel.uiState.managerPhone ?? ""
+                  }),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_status), value: info.prosthesisStatus)
+        ])
+    }
+
     init(profile: AccountBridgeProfile, topTitle: String) {
         super.init(topTitle: topTitle)
         addRows([
@@ -575,7 +820,21 @@ private final class AccountCustomerServiceViewController: AccountDetailsViewCont
     }
 }
 
-private final class AccountProsthesisInfoViewController: AccountDetailsViewController {
+final class AccountProsthesisInfoViewController: AccountDetailsViewController {
+    init(viewModel: V3ProsthesisInformationViewModel, topTitle: String) {
+        super.init(topTitle: topTitle)
+        viewModel.onAction(.viewLoaded)
+        guard let info = viewModel.uiState.info else { return }
+        addRows([
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_model), value: info.prosthesisModel),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_size), value: info.prosthesisSize),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().hand_side_2), value: info.handSide),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().rotator_type), value: info.rotatorType),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().touchscreen_finger_pads), value: info.touchscreenFingerPads),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().battery_type), value: info.batteryType)
+        ])
+    }
+
     init(profile: AccountBridgeProfile, topTitle: String) {
         super.init(topTitle: topTitle)
         addRows([
@@ -589,11 +848,12 @@ private final class AccountProsthesisInfoViewController: AccountDetailsViewContr
     }
 }
 
-private class AccountDetailsViewController: UIViewController {
+class AccountDetailsViewController: UIViewController {
     struct DetailRow {
         let title: String
         let value: String
         var phone: String?
+        var phoneProvider: (() -> String)? = nil
     }
 
     private let stack = UIStackView()
@@ -671,6 +931,7 @@ private class AccountDetailsViewController: UIViewController {
                     title: row.title,
                     value: row.value,
                     phone: row.phone,
+                    phoneProvider: row.phoneProvider,
                     textColor: textColor
                 )
             )
@@ -840,9 +1101,9 @@ private final class AccountAppVersionRow: UIView {
 }
 
 private final class AccountDetailRow: UIView {
-    init(title: String, value: String, phone: String? = nil, textColor: UIColor) {
+    init(title: String, value: String, phone: String? = nil, phoneProvider: (() -> String)? = nil, textColor: UIColor) {
         super.init(frame: .zero)
-        setup(title: title, value: value, phone: phone, textColor: textColor)
+        setup(title: title, value: value, phone: phone, phoneProvider: phoneProvider, textColor: textColor)
     }
 
     @available(*, unavailable)
@@ -850,7 +1111,7 @@ private final class AccountDetailRow: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setup(title: String, value: String, phone: String?, textColor: UIColor) {
+    private func setup(title: String, value: String, phone: String?, phoneProvider: (() -> String)?, textColor: UIColor) {
         heightAnchor.constraint(equalToConstant: AccountMetrics.rowHeight).isActive = true
 
         let titleLabel = UILabel()
@@ -874,7 +1135,7 @@ private final class AccountDetailRow: UIView {
             phoneButton.setImage(UIImage(named: "ic_phone_call")?.withRenderingMode(.alwaysTemplate), for: .normal)
             phoneButton.tintColor = textColor
             phoneButton.addAction(UIAction { _ in
-                guard let url = PhoneDialURLFormatter.dialURL(from: phone) else { return }
+                guard let url = PhoneDialURLFormatter.dialURL(from: phoneProvider?() ?? phone) else { return }
                 UIApplication.shared.open(url)
             }, for: .touchUpInside)
             phoneButton.translatesAutoresizingMaskIntoConstraints = false

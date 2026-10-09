@@ -1,5 +1,5 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.appsettings
 
-class GetAutoLoginEnabledUseCaseV3(private val repository: V3AppSettingsRepository) {
+class GetAutoLoginEnabledUseCaseV3(private val repository: V3AutoLoginSettingsRepository) {
     operator fun invoke(): Boolean = repository.getAutoLoginEnabled()
 }

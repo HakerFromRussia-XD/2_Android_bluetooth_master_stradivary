@@ -15,6 +15,37 @@ enum UserFirmwareRoleAccess {
     }
 }
 
+enum UserFirmwareActionV3 {
+    case stateReceived(UserFirmwareUiState)
+    case installClicked
+    case remindLaterClicked
+    case completionAcknowledged
+}
+
+final class V3UserFirmwareViewModel {
+    private let startUpdate: StartUserFirmwareUpdateUseCaseV3
+    private let postponeUpdate: PostponeUserFirmwareUpdateUseCaseV3
+    private let acknowledgeCompletion: AcknowledgeUserFirmwareCompletionUseCaseV3
+    private(set) var uiState = UserFirmwareUiState(phase: "idle", boardNumber: 0, boardCount: 0, progress: 0, detail: "")
+
+    init(startUpdate: StartUserFirmwareUpdateUseCaseV3,
+         postponeUpdate: PostponeUserFirmwareUpdateUseCaseV3,
+         acknowledgeCompletion: AcknowledgeUserFirmwareCompletionUseCaseV3) {
+        self.startUpdate = startUpdate
+        self.postponeUpdate = postponeUpdate
+        self.acknowledgeCompletion = acknowledgeCompletion
+    }
+
+    func onAction(_ action: UserFirmwareActionV3) {
+        switch action {
+        case .stateReceived(let state): uiState = state
+        case .installClicked: startUpdate.invoke()
+        case .remindLaterClicked: postponeUpdate.invoke()
+        case .completionAcknowledged: acknowledgeCompletion.invoke()
+        }
+    }
+}
+
 final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
     private weak var owner: UIViewController?
     private var updates: UserFirmwareUpdates!
@@ -22,9 +53,12 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
     private var observers: [NSObjectProtocol] = []
     private let network = NWPathMonitor()
     private var dialog: UserFirmwareProgressViewController?
-    private var lastState = UserFirmwareUiState(phase: "idle", boardNumber: 0, boardCount: 0, progress: 0, detail: "")
+    private var viewModel: V3UserFirmwareViewModel?
+    private var lastState: UserFirmwareUiState {
+        viewModel?.uiState ?? UserFirmwareUiState(phase: "idle", boardNumber: 0, boardCount: 0, progress: 0, detail: "")
+    }
 
-    init(owner: UIViewController) {
+    init(owner: UIViewController, makeViewModel: (UserFirmwareUpdates) -> V3UserFirmwareViewModel) {
         self.owner = owner
         super.init()
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -32,6 +66,7 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
         do { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
         catch { return }
         updates = UserFirmwareUpdates(directory: directory.path, host: self)
+        viewModel = makeViewModel(updates)
         observation = updates.observe { [weak self] state in
             DispatchQueue.main.async { self?.render(state) }
         }
@@ -47,7 +82,7 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
     private func refreshRole() { updates?.setUserRole(enabled: UserFirmwareRoleAccess.selectedRole == 2) }
     private func render(_ state: UserFirmwareUiState) {
         let completedNow = state.phase == "complete" && lastState.phase != "complete"
-        lastState = state
+        viewModel?.onAction(.stateReceived(state))
         if completedNow { BLEComponents.shared.bleManager.restartV3Synchronization() }
         UIApplication.shared.isIdleTimerDisabled = state.blocksInteraction
         guard state.blocksInteraction else {
@@ -60,8 +95,21 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
         var presenter = owner
         while let presented = presenter.presentedViewController { presenter = presented }
         let progress = UserFirmwareProgressViewController()
-        progress.onInstall = { [weak self] in self?.updates?.start() }
-        progress.onOK = { [weak self] in self?.updates?.acknowledge() }
+        progress.onInstall = { [weak self] in
+            guard let self else { return }
+            if UiInterfaceModeBridgeV3.shared.isEnabled() { viewModel?.onAction(.installClicked) }
+            else { updates?.start() }
+        }
+        progress.onRemindLater = { [weak self] in
+            guard let self else { return }
+            if UiInterfaceModeBridgeV3.shared.isEnabled() { viewModel?.onAction(.remindLaterClicked) }
+            else { updates?.postpone() }
+        }
+        progress.onOK = { [weak self] in
+            guard let self else { return }
+            if UiInterfaceModeBridgeV3.shared.isEnabled() { viewModel?.onAction(.completionAcknowledged) }
+            else { updates?.acknowledge() }
+        }
         progress.modalPresentationStyle = .overFullScreen
         progress.isModalInPresentation = true
         dialog = progress
@@ -87,12 +135,14 @@ final class UserFirmwareUpdatePresenter: NSObject, UserFirmwareHost {
 
 final class UserFirmwareProgressViewController: UIViewController {
     var onInstall: (() -> Void)?
+    var onRemindLater: (() -> Void)?
     var onOK: (() -> Void)?
     private let heading = UILabel()
     private let message = UILabel()
     private let progress = UIProgressView(progressViewStyle: .default)
     private let activity = UIActivityIndicatorView(style: .medium)
     private let button = UIButton(type: .system)
+    private let remindLaterButton = UIButton(type: .system)
     private var complete = false
 
     override func viewDidLoad() {
@@ -100,7 +150,7 @@ final class UserFirmwareProgressViewController: UIViewController {
         isModalInPresentation = true
         view.backgroundColor = UIColor.black.withAlphaComponent(0.65)
         view.accessibilityIdentifier = "user_firmware_blocking_dialog"
-        let panel = UIStackView(arrangedSubviews: [heading, message, progress, activity, button])
+        let panel = UIStackView(arrangedSubviews: [heading, message, progress, activity, button, remindLaterButton])
         panel.axis = .vertical
         panel.spacing = 20
         panel.isLayoutMarginsRelativeArrangement = true
@@ -113,6 +163,9 @@ final class UserFirmwareProgressViewController: UIViewController {
         heading.numberOfLines = 0
         message.numberOfLines = 0
         button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
+        remindLaterButton.isHidden = true
+        remindLaterButton.accessibilityIdentifier = "user_firmware_remind_later_button"
+        remindLaterButton.addTarget(self, action: #selector(remindLaterTapped), for: .touchUpInside)
         view.addSubview(panel)
         NSLayoutConstraint.activate([
             panel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -142,12 +195,26 @@ final class UserFirmwareProgressViewController: UIViewController {
         button.isHidden = state.phase != "offered" && !complete
         button.isEnabled = true
         button.setTitle(SharedLocalizedText.text(complete ? strings.ok : strings.user_firmware_install), for: .normal)
+        remindLaterButton.isHidden = state.phase != "offered"
+        remindLaterButton.isEnabled = true
+        remindLaterButton.setTitle(SharedLocalizedText.text(strings.user_firmware_remind_later), for: .normal)
         progress.isHidden = state.phase != "updating"
         progress.progress = Float(state.progress) / 100
         activity.isHidden = state.phase == "offered" || complete || state.phase == "updating"
         if activity.isHidden { activity.stopAnimating() } else { activity.startAnimating() }
     }
-    @objc private func tapped() { button.isEnabled = false; if complete { onOK?() } else { onInstall?() } }
+    @objc private func tapped() {
+        guard button.isEnabled else { return }
+        button.isEnabled = false
+        remindLaterButton.isEnabled = false
+        if complete { onOK?() } else { onInstall?() }
+    }
+    @objc private func remindLaterTapped() {
+        guard !remindLaterButton.isHidden, remindLaterButton.isEnabled else { return }
+        button.isEnabled = false
+        remindLaterButton.isEnabled = false
+        onRemindLater?()
+    }
 }
 
 private extension NSLayoutConstraint {

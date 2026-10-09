@@ -6,8 +6,13 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.firmware.FirmwareVersionCatalog
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.RunProgramType
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridge
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridgeBoard
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -15,6 +20,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -67,6 +75,135 @@ class V3AccountBoardsTest {
             repository.getBoards().map { it.name })
         assertEquals(listOf(0x00, 0x09, 0x11, 0x12, 0x20, 0x25),
             getBoards(emptyList()).boards?.map { it.deviceAddress })
+    }
+
+    @Test fun `native raw snapshots match actual account bridge including unknown zero blank duplicates and empty`() {
+        val nativeRepository = V3AccountBoardsRepositoryImpl(useAddressNameFallback = false)
+        var policyCalls = 0
+        val nativeGet = GetAccountBoardsUseCaseV3(nativeRepository) {
+            policyCalls++
+            FirmwareVersionCatalog.isZeroVersion(it)
+        }
+        val previousCache = nativeRepository.getCachedBoards()
+        GlobalParameters.baseSubDevicesInfoStructSetV3 = linkedSetOf(sub(0x70, code = 6, version = "9.0.0"))
+        val stages = listOf(
+            linkedSetOf<BaseSubDeviceInfoStruct>(),
+            linkedSetOf(
+                sub(0x72, version = ""),
+                sub(0x20, code = 9, version = "0.0.0", isBoot = 1),
+                sub(0x09, code = 6, version = "  \t", isBoot = 1),
+                sub(0x20, code = 9, version = "8.0.0"),
+                sub(0x00, version = "1.0.0"),
+                sub(0x09, code = 5, version = "9.0.0"),
+            ),
+            linkedSetOf(sub(0x09, version = "0.0.0"), sub(0x70, version = "   ")),
+            linkedSetOf(
+                sub(1, code = 2, version = "\u00A0"),
+                sub(2, code = 6, version = "\u2007"),
+                sub(3, code = 4, version = "\u202F"),
+                sub(4, code = 5, version = "\u200B"),
+            ),
+            linkedSetOf(),
+        )
+        for (source in stages) {
+            GlobalParameters.baseSubDevicesInfoStructSet = source
+            val raw = nativeGet.current(missingVersion = "-")
+            val nativeRows = raw.map { board ->
+                AccountBridgeBoard(
+                    boardName = requireNotNull(board.name),
+                    deviceCode = board.deviceCode,
+                    deviceAddress = board.deviceAddress,
+                    version = requireNotNull(board.version),
+                    canUpdate = board.canUpdate,
+                    isInBootloader = board.isInBootloader,
+                )
+            }
+            assertEquals(AccountBridge.currentBoards(), nativeRows)
+            assertTrue(raw.all { it.canUpdate && !it.isInBootloader && it.isUpdateAvailable == null })
+            assertSame(source, GlobalParameters.baseSubDevicesInfoStructSet)
+        }
+        assertEquals(0, policyCalls)
+        assertEquals(previousCache, nativeRepository.getCachedBoards())
+        GlobalParameters.baseSubDevicesInfoStructSet = linkedSetOf(sub(0x09), sub(0x70))
+        assertEquals(listOf("Unknown", "Unknown"), nativeGet.current(missingVersion = "-").map { it.name })
+        assertEquals(listOf("GUI", null), repository.getBoards().map { it.name })
+    }
+
+    @Test fun `current formats only missing versions with explicit fallback and preserves names modes and independent snapshots`() {
+        val source = mutableListOf(
+            board(9, name = "Unknown", version = "0.0.0").copy(isInBootloader = true, canUpdate = false),
+            board(2, name = null, version = null).copy(isUpdateAvailable = true),
+            board(9, name = "replacement", version = "4.0.0"),
+            board(3, name = " raw ", version = "  "),
+        )
+        val cached = listOf(board(99))
+        val fake = FakeBoards(source, cached)
+        var policyCalls = 0
+        val useCase = GetAccountBoardsUseCaseV3(fake) { policyCalls++; FirmwareVersionCatalog.isZeroVersion(it) }
+        val first = useCase.current(missingVersion = "missing")
+        assertEquals(listOf(source[1].copy(version = "missing"), source[3].copy(version = "missing"), source[0]), first)
+        assertNull(first.first().name)
+        assertEquals("missing", first.first().version)
+        assertTrue(first.last().isInBootloader)
+        assertFalse(first.last().canUpdate)
+        source.clear()
+        assertTrue(useCase.current(missingVersion = "-").isEmpty())
+        assertEquals(3, first.size)
+        source += board(1, version = "")
+        assertEquals(listOf(source.single().copy(version = "")), useCase.current(missingVersion = ""))
+        assertEquals(cached, fake.getCachedBoards())
+        assertEquals(0, policyCalls)
+    }
+
+    @Test fun `bootloader callbacks match bridge without initial replay retain repeats and cancel independently`() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val source = FirmwareInfoState.runProgramTypeFlow
+        val values = mutableListOf<Pair<Int, Boolean>>()
+        val bridgeValues = mutableListOf<Pair<Int, Boolean>>()
+        val jobs = mutableListOf<Job>()
+        val previousCache = repository.getCachedBoards()
+        val previousSource = GlobalParameters.baseSubDevicesInfoStructSet
+        try {
+            source.emit(0x09 to RunProgramType.BOOTLOADER)
+            val observe = ObserveAccountBoardsUseCaseV3(repository)
+            assertEquals(0, source.subscriptionCount.value)
+            val current = observe.observeBootloaderChanges { address, bootloader -> values += address to bootloader }
+            jobs += current
+            jobs += AccountBridge.observeBoardMode { mode -> bridgeValues += mode.deviceAddress to mode.isInBootloader }
+            assertTrue(values.isEmpty())
+            runCurrent()
+            assertTrue(values.isEmpty())
+            assertTrue(bridgeValues.isEmpty())
+            assertEquals(2, source.subscriptionCount.value)
+            val events = listOf(
+                -7 to RunProgramType.BOOTLOADER,
+                0x72 to RunProgramType.BOOTLOADER_V2,
+                0x72 to RunProgramType.BOOTLOADER_V2,
+                0x72 to RunProgramType.MAIN_APP,
+                Int.MIN_VALUE to RunProgramType.MAIN_APP,
+                Int.MAX_VALUE to RunProgramType.BOOTLOADER,
+            )
+            for (event in events) { source.emit(event); runCurrent() }
+            assertEquals(events.map { (address, type) -> address to type.isBootloader }, values)
+            assertEquals(bridgeValues, values)
+            current.cancelAndJoin()
+            source.emit(0x09 to RunProgramType.MAIN_APP); runCurrent()
+            assertEquals(events.size, values.size)
+            assertEquals(1, source.subscriptionCount.value)
+            val restarted = mutableListOf<Pair<Int, Boolean>>()
+            jobs += observe.observeBootloaderChanges { address, bootloader -> restarted += address to bootloader }
+            runCurrent()
+            assertTrue(restarted.isEmpty())
+            source.emit(0x11 to RunProgramType.BOOTLOADER_V2); runCurrent()
+            assertEquals(listOf(0x11 to true), restarted)
+            assertEquals(bridgeValues.last(), restarted.single())
+            assertEquals(previousCache, repository.getCachedBoards())
+            assertSame(previousSource, GlobalParameters.baseSubDevicesInfoStructSet)
+        } finally {
+            jobs.forEach { it.cancelAndJoin() }
+            assertEquals(0, source.subscriptionCount.value)
+            Dispatchers.resetMain()
+        }
     }
 
     @Test fun `first duplicate is selected before hiding rows while all first versions reach the catalog`() {

@@ -12,11 +12,15 @@ internal class FakeV3SensorsPlotRepository : V3SensorsPlotRepository {
     var channels = 2
     var paused = false
     val writes = mutableListOf<V3PlotThresholds>()
+    val requests = mutableListOf<Pair<Int, Int>>()
     override fun getThresholds() = thresholds.value
     override fun observeThresholds() = thresholds
     override fun observeSamples() = samples
     override fun getChannelCount() = channels
     override fun arePlotPointsPaused() = paused
+    override fun requestThresholds(parameterID: Int, dataCode: Int) {
+        requests += parameterID to dataCode
+    }
     override fun setThresholds(thresholds: V3PlotThresholds) {
         writes += thresholds
         this.thresholds.value = thresholds

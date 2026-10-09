@@ -19,7 +19,8 @@ final class AccountFirmwareDialogPresenter {
     func showFirmwareFiles(
         files: [AccountFirmwareFile],
         onSelect: @escaping (AccountFirmwareFile) -> Void,
-        onDelete: @escaping (AccountFirmwareFile) -> Void
+        onDelete: @escaping (AccountFirmwareFile) -> Void,
+        onCancel: (() -> Void)? = nil
     ) {
         let dialog = FirmwareFilesDialogViewController(
             files: files,
@@ -29,6 +30,7 @@ final class AccountFirmwareDialogPresenter {
             },
             onDelete: onDelete,
             onCancel: { [weak self] in
+                onCancel?()
                 self?.dismissCurrent(animated: true)
             }
         )
@@ -72,6 +74,13 @@ final class AccountFirmwareDialogPresenter {
             }
         )
         present(dialog)
+    }
+
+    func updateFirmwareFiles(_ files: [AccountFirmwareFile]) -> Bool {
+        guard let dialog = currentDialog as? FirmwareFilesDialogViewController,
+              dialog.view.accessibilityIdentifier == AccessibilityIdentifier.firmwareFilesDialog else { return false }
+        dialog.updateFiles(files)
+        return true
     }
 
     func showProgress() -> FirmwareProgressDialogViewController {
@@ -428,6 +437,13 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         files.count
+    }
+
+    func updateFiles(_ files: [AccountFirmwareFile]) {
+        self.files = files
+        tableView.isUserInteractionEnabled = true
+        updateEmptyState()
+        tableView.reloadData()
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

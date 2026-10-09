@@ -62,6 +62,11 @@ extension CommandListItemViewModel {
     }
 }
 
+enum CommandListItemActionV3 {
+    case buttonPressed(index: Int)
+    case buttonReleased(index: Int)
+}
+
 struct CommandListItemViewModelV3: Equatable, Hashable {
     private let identifier: String
     let title: String
@@ -69,13 +74,31 @@ struct CommandListItemViewModelV3: Equatable, Hashable {
     let bleManager: BleManagerKmm
     private let orderedButtonBindings: [WidgetV3BindingInfo]
     private let parsedButtonTitles: [String]
+    private let getDeviceSessionUseCase: GetDeviceSessionUseCaseV3
+    private let startMovementUseCase: StartProsthesisMovementUseCaseV3
+    private let stopMovementUseCase: StopProsthesisMovementUseCaseV3
+    private let startCalibrationUseCase: StartProsthesisCalibrationUseCaseV3
+    private let releaseCalibrationButtonUseCase: ReleaseProsthesisCalibrationButtonUseCaseV3
 }
 
 extension CommandListItemViewModelV3 {
-    init(widget: Widget, bleManager: BleManagerKmm) {
+    init(
+        widget: Widget,
+        bleManager: BleManagerKmm,
+        getDeviceSessionUseCase: GetDeviceSessionUseCaseV3,
+        startMovementUseCase: StartProsthesisMovementUseCaseV3,
+        stopMovementUseCase: StopProsthesisMovementUseCaseV3,
+        startCalibrationUseCase: StartProsthesisCalibrationUseCaseV3,
+        releaseCalibrationButtonUseCase: ReleaseProsthesisCalibrationButtonUseCaseV3
+    ) {
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
+        self.getDeviceSessionUseCase = getDeviceSessionUseCase
+        self.startMovementUseCase = startMovementUseCase
+        self.stopMovementUseCase = stopMovementUseCase
+        self.startCalibrationUseCase = startCalibrationUseCase
+        self.releaseCalibrationButtonUseCase = releaseCalibrationButtonUseCase
 
         self.orderedButtonBindings = WidgetV3Support.bindings(from: widget)
             .sorted { $0.dataOffset < $1.dataOffset }
@@ -102,25 +125,50 @@ extension CommandListItemViewModelV3 {
             }
     }
 
-    func didPressDown(at index: Int) {
-        sendButtonCommand(at: index, isPressDown: true)
-    }
-
-    func didRelease(at index: Int) {
-        sendButtonCommand(at: index, isPressDown: false)
+    func onAction(_ action: CommandListItemActionV3) {
+        switch action {
+        case .buttonPressed(let index):
+            sendButtonCommand(at: index, isPressDown: true)
+        case .buttonReleased(let index):
+            sendButtonCommand(at: index, isPressDown: false)
+        }
     }
 
     private func sendButtonCommand(at index: Int, isPressDown: Bool) {
         guard orderedButtonBindings.indices.contains(index) else { return }
         let binding = orderedButtonBindings[index]
         let subcommand = isPressDown ? binding.dataCode : 0
+        print("[V3-BUTTON][VM] action=\(isPressDown ? "down" : "up") index=\(index) subcommand=\(subcommand) dataCode=\(binding.dataCode)")
 
+        if WidgetV3Support.widgetCode(from: widget) == WidgetV3Support.WidgetCode.buttonV3 {
+            switch (binding.parameterID, binding.dataCode, binding.deviceAddress, binding.dataOffset) {
+            case (0x0F, 1, 5, 0), (0x0F, 2, 6, 1):
+                let address = getDeviceSessionUseCase.invoke().address
+                if isPressDown {
+                    _ = startMovementUseCase.invoke(deviceAddress: address, movement: binding.dataCode == 1 ? .open : .close)
+                } else {
+                    stopMovementUseCase.invoke(deviceAddress: address)
+                }
+                return
+            case (0x0F, 3, 1, 0):
+                let address = getDeviceSessionUseCase.invoke().address
+                if isPressDown {
+                    _ = startCalibrationUseCase.invoke(deviceAddress: address)
+                } else {
+                    releaseCalibrationButtonUseCase.invoke(deviceAddress: address)
+                }
+                return
+            default:
+                break
+            }
+        }
+
+        // Preserve raw commands for existing non-generated bindings and cached widgets.
         let data = WidgetCommandBridgeV3.shared.buildSendSubcommand(
             subcommand: Int32(subcommand),
             parameter: 0
         )
 
-        print("[V3-BUTTON][VM] action=\(isPressDown ? "down" : "up") index=\(index) subcommand=\(subcommand) dataCode=\(binding.dataCode)")
         sendBytes(data)
     }
 

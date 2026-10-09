@@ -2389,3 +2389,1035 @@ SharedPreferences, поэтому его нельзя просто целико�
 - Свидетельства: `/tmp/v3-samsung-ui-20261006-iac2dhl5/hardware-summary.json`,
   XML/PNG экранов и `final-process-logcat.txt` в той же папке. Production, тесты
   и Gradle-скрипты не редактировались; новые результаты unit/Native-тестов не заявляются.
+
+## 70. Подключение iOS V3: первое чтение слайдера (2026-10-07)
+
+- После подтверждённого пользователем запуска на iPhone начинаем небольшими
+  шагами подключать существующий iOS UI к общим UseCase. UBI4, формирование
+  виджетов, BLEController и парсеры остаются вне рефакторинга.
+- Чтение `P_KEY_EMG_MAX_GAIN_VALUE` подключено через существующий
+  `WidgetsSceneDIContainer` → ViewModel → `GetSliderSettingsUseCaseV3` →
+  `V3DeviceSettingsRepositoryImpl`. Для этого параметра Swift не разбирает JSON
+  при отображении значения. Новые production-классы не добавлялись.
+- В iOS репозиторию передаётся `readCachedValues=false`, чтобы пустой typed-store
+  по-прежнему означал неизвестное значение. Android сохраняет прежний fallback
+  к сериализованному кешу благодаря значению по умолчанию `true`.
+- Подписка вынесена из ячейки во ViewModel. События существующего bridge пока
+  сохранены: повторный ответ с тем же значением должен обновлять черновик iOS,
+  тогда как общий Observe UseCase подавляет одинаковые значения. В выбранной
+  ветке каждое событие вызывает чтение через общий Get UseCase.
+- Отмена подписки и проверка текущего provider защищают ячейку от событий старой
+  конфигурации. GET при конфигурации, запись параметров и внешний вид сохранены.
+- iOS Debug для устройства собран; два app-набора проверок слайдеров прошли,
+  включая случаи пустого store и отсутствия побочных BLE/профильных записей.
+  Новую версию на iPhone ещё не проверяли; полный shared/commonTest остаётся
+  отдельно отложенным из-за прежнего BindingGroupV3Test.
+- Далее: проверить первый шаг на iPhone и подключить состояние сессии/доступности
+  iOS перед переводом записывающих UseCase. Наблюдение переводить только с
+  сохранением текущей обработки повторных ответов; остальные параметры пока
+  используют прежние обработчики.
+
+## 71. Доступность команд iOS V3 (2026-10-07)
+
+- В `MainTabBarController` подключена одна `V3DeviceInteractionViewModel` для
+  соединения, сохраняемая в `AppDIContainer` между пересозданиями вкладок.
+  DI переводит события существующих bridges в Action; ViewModel вызывает
+  общий `UpdateDeviceInteractionUseCaseV3` → `V3DeviceSessionRepositoryImpl`.
+- Общий флаг доступности включается после BLE Ready, полученного прогресса,
+  события завершения и принятого прежним iOS UI результата синхронизации.
+  При отключении предыдущие progress/completion сбрасываются; один новый
+  Ready не использует старую отметку о завершённой синхронизации.
+- Native проверка отсутствующего прогресса и повторной загрузки, экран загрузки
+  и ограничения вкладок сохранены. Уход с вкладки не меняет готовность соединения.
+  Запись слайдеров через общие UseCase ещё не подключена; UBI4, формирование
+  виджетов, BLEController и парсеры не изменены.
+- Проверки: 28 выбранных Android/shared-тестов прошли; 6 Swift XCTest прошли
+  изолированно на Mac с production ViewModel и временными doubles Kotlin interop.
+  Обычная iOS Debug-сборка с настоящим shared.framework успешна. Полная тестовая
+  цель iOS не собирается из-за ошибок type-check/multiply в не изменявшемся
+  `GestureSettingsV3DistributionTests.swift`; её успешный запуск не заявляется.
+  Эта сборка на iPhone ещё не проверена. Логи и harness сохранены в
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-device-availability-20261007-njeloe5y`.
+- Следующий шаг: проверить чтение и готовность на iPhone, затем подключить
+  изменение `P_KEY_EMG_MAX_GAIN_VALUE` к общему UseCase, сохранив текущие
+  правила черновика, отправки, сохранения и повторных ответов устройства.
+
+## 72. Запись первого слайдера iOS через общий UseCase (2026-10-07)
+
+- Для `P_KEY_EMG_MAX_GAIN_VALUE` запись подключена по цепочке Cell Action →
+  `SliderListItemViewModelV3` → существующий `SetSliderValueUseCaseV3` →
+  `V3DeviceSettingsRepositoryImpl` → прежняя BLE-очередь iOS. DI создаёт один
+  репозиторий для Get/Set; точный binding и ранний return исключают двойную отправку.
+- Сохранены округление, диапазон 0…250, запись при отпускании и кнопках ±1,
+  повторные команды и обработка одинаковых ответов. Остальные binding и EMG_GAINS
+  имеют действующих потребителей и продолжают прежний путь; новые файлы не добавлены.
+- Прямая замена выявила разные прежние правила платформ: iOS ставит команду
+  в очередь без локального обновления, Android сначала обновляет store/кеш/профиль.
+  Поэтому iOS DI задаёт `updateSliderValueBeforeSending=false` в существующем
+  репозитории. Android default `true` сохраняет прежний порядок.
+- Пользователь отдельно подтвердил сохранение очереди iOS при потере связи.
+  Для этого существующий Set UseCase получает `requireInteractionEnabled=false`;
+  проверка диапазона сохраняется. Android default `true` продолжает блокировать
+  недоступные записи. Общий флаг готовности подключения остаётся фактическим,
+  но выбранный iOS-слайдер по прежнему правилу допускает постановку в очередь.
+- 64 выбранных app-теста прошли: 15 integration, 15 slider ViewModel,
+  34 архитектурных. Новые integration-сценарии сравнивают реальные пакеты старого
+  bridge и общего UseCase, включая повторные записи, ожидание RX и Android defaults.
+  iOS Debug с настоящим shared.framework собран. На iPhone этот шаг ещё не проверен;
+  прежний blocker полной iOS-тестовой цели из раздела 71 остаётся вне этого шага.
+  Свидетельства: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-slider-write-20261007-_wk0i2on`.
+- Далее: проверить первый слайдер на iPhone, затем подключать остальные простые
+  Slider-параметры с отдельной проверкой их прежнего поведения. Экранный UiState
+  ещё не заменяет состояние provider; весь экран iOS не объявляется перенесённым на MVI.
+
+## 73. Проверка первых шагов на iPhone и пустой список при старте (2026-10-07)
+
+- Подписанная Debug-сборка установлена на iPhone «Денис». Пользователь подтвердил
+  роль «Сервисный инженер» и отсутствие выполняемой прошивки; live-логи подтвердили
+  подключение к FTHS3-00001, BLE Ready и пропуск проверки пользовательской прошивки.
+- Чтение выбранного слайдера получило 103 через общий Get UseCase; повторный GET
+  вернул `00120467d8`. Отпускание вызвало общий репозиторий и отправку SET
+  `00120367b6`. Для каждого зафиксированного commit был один вызов репозитория.
+- На старте обнаружен пустой список ViewModel после синхронизации: таблица имела
+  ноль элементов и показывала «Результаты поиска» до переключения вкладки.
+  В принятом завершении синхронизации V3 перечитываем существующий DataFactory
+  перед завершением загрузки. Отложенное обновление таблицы и путь UBI4 сохранены.
+- Исправленная сборка успешна и установлена: после 13/13 шагов список сразу содержал
+  один элемент. Пользователь подтвердил исчезновение надписи без переключения вкладок.
+- При втором касании дробное значение 103,63 округлилось прежним обработчиком до 104
+  и было отправлено `00120368f7`. Возврат к 103 и его повторное чтение не подтверждены.
+  По просьбе пользователя дальнейшие проверки на телефоне остановлены; до нового
+  запроса продолжаем только локальные проверки и сборки. Офлайн-очередь, INDY3/UBI4,
+  движение и установка прошивки в этом сеансе не проверялись.
+- Логи сборки, установки и BLE: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/v3-iphone-check-20261007-__pqnc61`.
+
+## 74. Скорость и сила iOS через общие Slider UseCase (2026-10-07)
+
+- «Настройка скорости» (`P_KEY_SPEED_SETTINGS`) и «Настройка силы»
+  (`P_KEY_FORCE_SETTINGS`) подключены к существующим Get/Set UseCase через тот же
+  `SliderListItemViewModelV3`. Один matcher проверяет все четыре поля binding
+  для этих параметров и максимальной чувствительности; новых классов нет.
+- Для выбранных параметров не выполняются прежние Swift-разбор JSON и отправка
+  SET через bridge: значение читается общим Get, запись завершает обработку
+  через общий Set. Остальные binding сохраняют действующие обработчики.
+- Сохранены диапазон 0…100, округление, GET при конфигурации, повторные ответы,
+  очередь без связи и ожидание RX перед обновлением store/кеша/профиля.
+  UBI4, генерация виджетов, BLEController и парсеры не изменялись.
+- Два существующих integration-теста расширены общими сценариями для трёх
+  параметров: min/current/max, точные пакеты старого bridge, независимость
+  параметров, повторные записи и отсутствие побочных сохранений до RX.
+  64 выбранных Android/shared-теста прошли; iOS Debug с настоящим shared.framework
+  собран для generic iOS. На телефон ничего не устанавливалось и не запускалось.
+- Далее — остальные Slider-параметры с проверкой их прежних правил. Парные
+  EMG gains требуют сохранения приоритета локального черновика пары; их нельзя
+  подключать к текущему Set напрямую с потерей этого поведения. Проверки на
+  iPhone возобновляем только по сообщению пользователя.
+- Логи: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-speed-force-20261007-lwt3s9z_`.
+
+## 75. Закрытые положения пальцев iOS через общие Slider UseCase (2026-10-07)
+
+- «Закрытое положение большого пальца» и «Закрытое положение указательного/среднего
+  пальцев» на служебном экране STANDARD_V3 подключены к существующим Get/Set
+  через тот же matcher и ViewModel. Оба диапазона 0…100; INDY3 эти виджеты не создаёт.
+- Сохранены GET при конфигурации, очередь без связи, повторные записи и ожидание
+  ответа до изменения store/кеша/профиля. Для пяти выбранных scalar-параметров
+  используются общие UseCase; парные EMG gains продолжают прежнюю обработку.
+- Аудит обнаружил отличие прежнего чтения нуля: SLIDER codec сериализует
+  default 0 как `{}`, а старый Swift игнорирует такой ответ. В ViewModel сохраняем
+  это отображение для всех пяти подключённых параметров, включая ранее перенесённые.
+  Domain по-прежнему возвращает действительный 0, а отправка 0 разрешена.
+  Исправление самого прежнего поведения нуля — отдельная задача, вне этого переноса.
+- Общий диагностический TX-лог больше не помечает iOS вызовы как Android.
+  Внешний вид, формирование виджетов, BLEController и парсеры не изменялись; новых классов нет.
+- 64 выбранных Android/shared-теста прошли. Существующие сценарии теперь покрывают
+  min/current/max и точные старые пакеты всех пяти scalar-параметров.
+  Локальный Swift harness выполнил 241 assertion на извлечённых production-методах
+  с минимальными doubles: неизвестное значение, ноль, ненулевые значения и повторные
+  чтения. Он не заменяет реальную Kotlin interop/RX-подписку или полноценный iOS XCTest.
+  iOS Debug с настоящим shared.framework собран для generic iOS.
+- На телефон ничего не устанавливалось и не запускалось. Далее — парные чувствительности
+  EMG, с сохранением текущего локального черновика пары и обработки повторных ответов.
+- Логи и временный harness: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-finger-sliders-20261007-a0wjo6lc`.
+
+## 76. Парные чувствительности EMG iOS через общие Slider UseCase (2026-10-07)
+
+- «Чувствительность датчика открытия» и «Чувствительность датчика закрытия»
+  подключены к существующим Get/Set Slider UseCase. Все семь Slider-параметров
+  текущих generated STANDARD_V3/INDY3 используют общий domain/data.
+- Из Swift ViewModel удалены `EmgGainsCache`, ключ кеша, `resolveCurrentEmgGains`,
+  разбор JSON пары, объединение значений и отправка `buildSendEmgGains`.
+  Кеш пары перенесён в существующий общий репозиторий; новых классов и UseCase нет.
+- iOS DI включает `retainEmgGainDrafts`; Android оставляет прежнее значение false.
+  При записи сначала используется последняя отправленная пара, затем полученная.
+  Это сохраняет оба изменения при быстрых commit разных слайдеров до ответа.
+  Черновик обновляется до enqueue; store, serialized cache и профиль ждут RX.
+- Сохранены прежний срок жизни кеша между экранами/пересозданием DI/подключениями,
+  запись нуля в черновик и его приоритет перед старым RX. Каждый valid Get,
+  включая повторный одинаковый RX и чтение прежнего snapshot, заменяет черновик.
+  RX с нулём в одном из полей игнорируется обеими строками, как при старом JSON.
+  Неизвестная пара вызывает только прежний GET; отклонённая правка не повторяется.
+- Граница переноса — существующие generated bindings `(0x12, 0x01, 1, 0/1)`.
+  Произвольные EMG address/offset вне registry каталогами не создаются;
+  удалённая специализированная Swift-ветка больше их не обслуживает.
+  Общий fallback для прочих binding остаётся; формирование виджетов и GET
+  при конфигурации, UI, UBI4, BLEController и парсеры не менялись.
+- Добавлен один последовательный тест: неизвестные пары, быстрые 0/100 commit,
+  черновик до enqueue, повторное чтение/запоздалый RX, очистка store и новый DI.
+  Пакеты сравниваются с прежним bridge; проверены отсутствие побочных сохранений
+  и прежнее чтение нулей Android. 65 выбранных integration/ViewModel/architecture
+  тестов прошли. Рабочий код этого шага сократился на 35 строк; тесты и план — отдельно.
+- iOS Debug с настоящим shared.framework собран для generic iOS. На телефон
+  ничего не устанавливалось и не запускалось; проверки устройства остаются отложенными.
+- Логи и снимок до шага: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-emg-sliders-20261007-r6984q6l`.
+- Далее — запрос текущих значений Slider через общий domain/data вместо прямого
+  формирования GET в Swift, с сохранением запроса при конфигурации и количества команд.
+
+## 77. GET слайдеров iOS через общий domain/data и удаление Swift-дублей (2026-10-07)
+
+- GET всех семи Slider-параметров подключён через
+  `SliderListItemActionV3.currentValueRequested` → ViewModel →
+  `RequestSliderValueUseCaseV3` → `V3DeviceSettingsRepository.requestSliderValue`.
+  DI создаёт Request на том же репозитории, который обслуживает Get и Set.
+  Get остаётся локальным чтением и сам не отправляет запросов.
+- Get и Request размещены вместе в `SliderReadUseCasesV3.kt` вместо прежнего
+  `GetSliderSettingsUseCaseV3.kt`; количество файлов domain не выросло.
+  Формирование GET переиспользует существующий `WidgetCommandBridgeV3.buildReadRequest`.
+  Этот encoder уже используется из V3 data; новый mapping/транспорт не вводился.
+  Неизвестная EMG-пара при SET теперь вызывает тот же `requestSliderValue`,
+  вместо отдельного hardcoded GET. Диагностика GET положений пальцев находится в data.
+- Сохранён один запрос при каждом configure после чтения текущего значения
+  и регистрации observer. Нет дедупликации, проверки interaction gate или пропуска
+  уже известного значения: две строки EMG по-прежнему отправляют два одинаковых GET.
+  Запрос не вызывает Get и не меняет store, профиль, serialized cache или черновик пары.
+- Из Swift V3 row ViewModel удалены `bleManager`, `sendBytes`, прямое формирование
+  GET/SET, `currentSnapshot`, fallback-разбор JSON и локальный finger logger.
+  Старые обходные ветки не имели потребителей в текущем generated V3/INDY3.
+  Чтение/запись теперь только через UseCase; bridge observer остаётся для прежних
+  response events, включая одинаковые RX. Прежнее отображение нуля сохранено.
+- Проверены все источники iOS widgets: V3 row constructor единственный;
+  generated Kotlin structs приходят из двух прежних каталогов. Room hydration
+  списка widgets вызывается только Android. JSON/CoreData DTO не проходит V3
+  routing, требующий Kotlin struct; тестовые источники не создают иных V3 Slider.
+  Arbitrary binding вне семи registry-ключей теперь пропускается, вместо старого
+  прямого BLE fallback. Новые Slider-параметры требуют явной поддержки domain/registry.
+- UBI4-часть Swift файла и общий `KotlinByteArray.hexString` совпадают со снимком
+  до шага. UI, создание widgets, BLEController и парсеры не менялись.
+- Один новый integration-тест проверяет 28 GET (семь ключей, повторы, cache-only
+  и полученные значения), точные прежние пакеты, очередь при блокировке и отсутствие
+  побочных записей. Сценарий EMG дополнен GET между двумя правками без сброса пары.
+  Пять ручных fake-репозиториев обновлены; неожиданный Request вызывает ошибку.
+  114 выбранных integration/ViewModel/architecture тестов прошли.
+  Рабочий код шага: +55/-145 строк, итог -90; тесты и план считаются отдельно.
+- iOS Debug с настоящим shared.framework успешно собран для generic iOS.
+  На телефон ничего не устанавливалось и не запускалось.
+- Проверки на телефоне остаются отложенными по просьбе пользователя.
+- Логи и снимок до шага: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-slider-requests-20261007-5n5wfnpw`.
+- Далее — ToggleSlider iOS: проверить прежнее упакованное значение, диапазон,
+  момент отправки и побочные сохранения перед подключением к общим UseCase.
+
+## 78. ToggleSlider iOS V3 через общие UseCase (2026-10-08)
+
+- Подключены «Переключение жестов сенсорами», «Блокировка движения с ЕМГ»
+  и «Время работы экрана»: Action → row ViewModel → общие Get/Request/Send →
+  существующий V3DeviceSettingsRepositoryImpl. Блокировка движения присутствует
+  в STANDARD_V3 и INDY3; остальные два параметра — в STANDARD_V3.
+- Get и новый Request сгруппированы в `ToggleSliderReadUseCasesV3.kt` вместо
+  `GetToggleSliderSettingsUseCaseV3.kt`, без увеличения количества domain-файлов.
+  GET использует тот же encoder через общий для Slider/ToggleSlider data-helper.
+  Четырёхполевой matcher вынесен из Slider ViewModel в существующий WidgetV3Support
+  и переиспользуется двумя типами строк. Нового репозитория или модели нет.
+- Существующий Send получил overload с полным значением UI-черновика. iOS DI
+  создаёт его с `requireInteractionEnabled=false`: запись немедленная, повторные
+  команды и очередь при потере связи сохранены. Отправка не читает второй компонент
+  из store, не меняет store, serialized cache или профиль; они ждут прежний RX.
+  Android продолжает использовать прежний overload, interaction gate и задержку
+  записи. EditToggleSlider не используется на iOS, поскольку его сохранение черновика
+  и чтение второго компонента изменили бы прежнюю семантику платформы.
+- Сохранены packed zero → nil, ограничение отображаемого времени 10…100,
+  масштаб 0.1 секунды, округление и значения enabled/progress из provider.
+  GET остаётся после чтения текущего значения и регистрации observer, один при
+  каждом configure. Bridge observer и обработка повторных RX, включая прежнее
+  поведение `isProgrammaticUpdate`/`removeDuplicates`, не перерабатывались.
+- Прежний ToggleSlider row также используется UBI4 через `.toggleSliderWidget`
+  и структуры с кодом 0x11. Этот действующий потребитель сохраняет GET/SET/JSON
+  fallback. Общие UseCase вызываются только для кода 0x17 и точного совпадения
+  parameterID, dataCode, deviceAddress и dataOffset одного из трёх registry-ключей.
+  Поэтому оставшиеся Swift-обработчики нельзя удалить как заменённый V3-дубль.
+- Добавлены три integration-сценария: неизвестные/полученные значения, 45 точных
+  прежних SET и 12 GET, повторы, очередь при блокировке и отсутствие побочных
+  сохранений. Два ручных fake-репозитория обновлены. Все 119 выбранных
+  integration/ViewModel/architecture тестов прошли, без ошибок и пропусков.
+- Временный Swift harness сравнил production и исходную ViewModel: 11 460
+  проверок, все 256 packed values для трёх V3 и legacy bindings, dispatch действий,
+  ограничения commit и несовпадение каждого поля binding. Cell совпадает со
+  снимком после отмены только Action-обёрток. Harness использует doubles Kotlin/BLE;
+  UIKit/Combine проверены сравнением исходников, а не выполнением.
+- iOS Debug с настоящим shared.framework успешно собран для generic iOS.
+  UBI4-часть Slider файла и KotlinByteArray helper побайтно сохранены. UI,
+  generated widgets, BLEController и парсеры не изменялись. На телефон ничего
+  не устанавливалось и не запускалось; аппаратные проверки отложены пользователем.
+- Рабочий код шага: +152/-30 строк. Рост связан с подключением общего пути при
+  сохранении используемого UBI4 fallback; тесты и план считаются отдельно.
+  Снимок, логи и временный harness:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-toggle-sliders-20261008-z63saqys`.
+- Далее — Spinner iOS: сначала проверить чтение/запись, правила выбора,
+  optimistic update и UBI4-потребителей, затем подключить к существующему общему
+  domain/data с сохранением поведения. Полный iOS-этап ещё не завершён.
+
+## 79. Обычные Spinner iOS V3 через общий domain/data (2026-10-08)
+
+- Подключены «Режим работы протеза», «Действие при смене жеста», «Режим работы ЕМГ»
+  и «Сторона руки»: Action → row ViewModel → Get/Request/Set → тот же общий
+  V3DeviceSettingsRepositoryImpl. Matcher использует все четыре поля registry
+  и V3-коды 0x19/0x14; generated виджеты этих параметров имеют код 0x19.
+- Get и новый Request объединены в `SpinnerReadUseCasesV3.kt` вместо прежнего
+  Get-файла. GET переиспользует существующий data-helper и прежний encoder.
+  Set получил `requireInteractionEnabled=true` по умолчанию; только iOS DI
+  передаёт false, сохраняя немедленную отправку, повторы и очередь без связи.
+- Вместо отдельного флага для Spinner существующий флаг репозитория обобщён в
+  `saveValueBeforeSending`: Android true сохраняет прежние store/profile/cache
+  перед enqueue, iOS false ждёт RX для обычных Slider/Spinner.
+  Явное сохранение ToggleSlider не менялось.
+- «Сторона руки» сохраняет особый iOS-порядок: одна запись в typed store и
+  прежнее уведомление 3D перед SET. Этот действующий native callback внедрён
+  через DI в data (`beforeSpinnerValueSent`), а не вызывается из V3 row ViewModel.
+  Default callback Android пустой; повторного store/profile/cache сохранения нет.
+  Configure/RX по-прежнему передают принятую сторону native 3D provider.
+- Configure принимает typed zero и игнорирует отрицательное значение; RX zero
+  пропускается, как при прежнем JSON `{}`. Полученные индексы не ограничиваются
+  новым диапазоном. Provider, PIN, rollback, dropdown, очередь main и повторные
+  bridge-события сохранены. «Роль» и INDY3 «Профили настроек» пока используют
+  прежний путь: это отдельные сценарии, не ordinary Spinner UseCase.
+- Четыре integration-сценария проверяют uncached чтение четырёх ключей,
+  63 точных SET, 16 GET, повторы, offline policy, отсутствие побочных записей,
+  один callback update до enqueue и остановку отправки при его ошибке.
+  Три ручных fake обновлены. 173 выбранных теста настроек, экранных ViewModel,
+  архитектуры и статистики прошли без ошибок и пропусков.
+- Временный Swift harness выполнил 1 245 проверок production/before ViewModel,
+  реального binding matcher, parser, role enum и DI callback. Cell совпадает
+  после отмены только трёх Action-обёрток. Kotlin/BLE/3D provider заменены doubles;
+  UIKit/PIN/3D runtime этим не проверены. Реальный shared.framework и iOS Debug
+  успешно собраны для generic iOS. Телефон не использовался.
+- Снимок, логи и harness:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-spinners-20261008-ik4goo74`.
+
+## 80. Запросы статистики iOS через общий UseCase (2026-10-08)
+
+- Оба действующих места запроса — экран статистики аккаунта и служебный список
+  виджетов — используют один `RequestAccountStatisticsUseCaseV3`, подготовленный
+  AppDIContainer. Старые прямые построение пакета и enqueue из двух presentation
+  классов удалены; DI sender сохраняет прежние пакет, serial channel и WRITE.
+  Display/V3 guards и частота вызовов остались прежними.
+- Экран статистики аккаунта передаёт Action новой native ViewModel, размещённой в существующем
+  файле. ViewModel хранит chart и владеет прежней telemetry подпиской/отменой;
+  Controller отображает chart. Mapping имён, counts, ID, сортировки и локализации
+  перенесён с идентичной логикой, источник имён внедрён функцией.
+- Account/statistics создаются через обязательные фабрики DI для всех пяти вкладок.
+  Optional guard, service locator и дополнительного DI-контейнера в UI нет.
+  В существующий общий statistics repository добавлен Swift-совместимый constructor
+  с тремя callback, делегирующий прежним Kotlin default flows; алгоритмы не менялись.
+- `ObserveAccountStatisticsUseCaseV3` ещё не подключён: его combine с UiState
+  добавил бы перерисовки и чтения имён. Native telemetry-only bridge остаётся
+  явной границей совместимости с прежними initial/repeated событиями.
+- 20 временных Swift assertions проверили chart mapping, counts/names/order,
+  повторные callbacks, замену подписки и deinit; реальные UIKit/Kotlin источники
+  заменены doubles. Все изменённые Swift sources прошли parse. Общие Kotlin
+  statistics suites входят в 173 теста раздела 79; generic iOS Debug собран.
+  На телефон ничего не устанавливалось и не запускалось.
+- Снимок и локальная QA:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-statistics-ieyzl81n`.
+- Далее — фильтр BLE-лога iOS V3; прежний batching/scroll и наблюдение сохраняем.
+
+## 81. Фильтр BLE-лога iOS V3 через общий UseCase (2026-10-08)
+
+- AppDIContainer создаёт V3BleLogRepositoryImpl и ManageBleLogFilterUseCaseV3;
+  новая native BleLogFilterViewModelV3 в существующем файле принимает Action
+  загрузки/переключения и хранит выбранное состояние фильтра. Controller передаёт
+  Action и отображает значение переключателя. Маршрут открытия идёт через DI.
+- Сохранены ключ BLE_LOG_HIDE_GRAPH_STREAM, default true, повторные действия,
+  restore и порядок preference save → shared filter update. Callback сохранения
+  пишет только preference, общий data применяет фильтр один раз. Старый setter
+  переиспользует тот же persistence helper и остаётся для действующей UBI4-ветки.
+- AppDI выбирает общий путь только для V3. UBI4 продолжает создавать прежний
+  Controller без V3 ViewModel; его setter и syncSharedStore сохранены.
+  Snapshot/entriesAfter, observer, накопление строк, обновление каждые 40 мс,
+  прокрутка и cache высоты строк не переработаны. ObserveBleLogUseCaseV3 пока
+  не используется, поскольку необходимо сохранить прежнюю доставку событий.
+- 14 выбранных JVM-тестов data/ViewModel BLE-лога прошли без ошибок/пропусков.
+  Временный Swift harness выполнил 25 assertions с doubles хранилища/UseCase:
+  ключ/default, restore, повторы, порядок и одна запись в shared filter,
+  явные V3/UBI4 маршруты. UIKit/Combine/runtime устройства этим не проверены.
+  iOS Debug с настоящим shared.framework успешно собран для generic iOS.
+- Телефон не использовался, прошивка и движения не запускались. Снимок и QA:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-ble-log-vb2ypd2k`.
+
+## 82. Кнопки движения и калибровки iOS V3 через общие UseCase (2026-10-08)
+
+- Generated кнопки STANDARD_V3 и INDY3 подключены через Action →
+  CommandListItemViewModelV3 → Start/StopProsthesisMovementUseCaseV3 или
+  Start/ReleaseProsthesisCalibrationButtonUseCaseV3 → существующие общие data
+  implementations. Контекст читается через GetDeviceSessionUseCaseV3; AppDI
+  переиспользует один session repository для чтения и UpdateDeviceInteraction.
+- Matcher проверяет widgetCode 0x12 и четыре поля binding: OPEN (0F,1,5,0),
+  CLOSE (0F,2,6,1), CALIBRATE (0F,3,1,0). Индексы, сортировка/prefix(3), titles,
+  identity/hash, DOWN/UP callback sites сохранены. Неизвестные bindings и код
+  виджета используют прежний raw encoder/serial sender; новый запрет не введён.
+- Сохранены прежние native очередь без связи и при неизвестном/сменившемся MAC,
+  повторы и release без сопоставления с DOWN. DI явно задаёт два existing Start
+  UseCase с requireInteractionEnabled=false и data с
+  validateCommandDeviceContext=false. Android defaults true и guards остаются
+  прежними. Factual interaction flows не подменяются и не становятся всегда true.
+  Комментарии контрактов уточняют зависимость принятия команды от policy data.
+- Общие repositories отправляют прежние OPEN 00 0F 01 00 9B, CLOSE
+  00 0F 02 00 CE, CALIBRATE 00 0F 03 00 0A и release 00 0F 00 00 5F.
+  DI переиспользует один serial enqueue callback для settings/commands; нет новых
+  transport/adapter/repository классов. Refresh callback реальный:
+  bleManager.restartV3Synchronization(). Сам native refresh пока не подключён к
+  RefreshSensorsUseCaseV3: его guards/flag требуют отдельного сравнения поведения.
+- В общей WidgetsListViewModel удалён проброс 14 row UseCase (properties,
+  constructor arguments/assignments) и создание этих row моделей. Existing DI
+  передаёт четыре обязательные фабрики Slider/ToggleSlider/Spinner/Command.
+  Row ViewModel по-прежнему вызывает UseCase; список вызывает свой RequestStats.
+  Capture lists DI сохраняют прежние объекты и момент их подготовки, без self cycle.
+  Routing widgets/generated и действующие UBI4 fallback остаются прежними.
+- CustomButton, scroll suppression, reuse без STOP и UBI4 Command VM не изменены;
+  Cell отличается только двумя Action-обёртками. Не добавлены Android press IDs,
+  CANCEL/detach STOP и дедупликация. Старый путь с MAIN channel остаётся UBI4.
+- В existing integration test добавлены три сценария native policy (четыре запуска
+  с параметризацией): literal packets/CRC, повторные DOWN/UP, missing/stale/switch
+  MAC, отдельные data/UseCase opt-ins, factual flows и неизменные refresh guards.
+  54 выбранных command/ViewModel теста и 34 архитектурные проверки прошли.
+  Вместе с разделами 79–81 проверено 230 различных JVM tests в 15 suites,
+  без ошибок и пропусков. Полный shared commonTest и полный XCTest не запускались.
+- Временный Swift harness сравнил whole before/current Command VM: 12 502
+  assertions на 367 fixtures; 468 recognized actions вызвали правильный UseCase
+  и одно чтение сессии, 2 160 fallback actions сохранили raw BLE и byte/order parity.
+  Legacy UBI4 struct/extension и Cell после отмены только wrappers совпадают.
+  Kotlin/BLE источники — doubles; UIKit/gesture/Bluetooth runtime не выполнялся.
+  iOS Debug с настоящим shared.framework успешно собран для generic iOS.
+- Телефон не использовался; движения, калибровка и прошивка не запускались.
+  QA, before snapshots, source hashes и логи:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-buttons-20261008-qdp16oyq`.
+
+## 83. Имя устройства iOS V3 через существующие Get/Edit/Set UseCase
+
+- Канонический TEXT_INPUT_V3 имени подключён через Action → ViewModel → общие
+  GetDeviceInfoTextUseCaseV3 / EditDeviceInfoTextUseCaseV3 / SetDeviceInfoTextUseCaseV3
+  → существующий V3DeviceInfoRepositoryImpl. Новые файлы не добавлялись.
+- Native DI передаёт typed storage и BLE enqueue. Порядок прежний: Foundation
+  whitespace trim → 10 UTF-8 байт по целым Swift Character → prefix один раз
+  → enqueue → selectedDeviceName → уведомление шапки → toast. Повторы, offline,
+  prefix-only и игнорирование ошибки storage сохранены; Android default — 13 байт.
+- Cell передаёт действия и показывает результат из UiState. Serial, foreign bindings и
+  cached/UBI4 widgets остаются на прежнем native пути; серверный serial отложен.
+- 82 выбранных JVM tests прошли без ошибок и пропусков; iOS Debug с настоящим
+  shared.framework собран для generic iOS. Аппаратная проверка отложена
+  пользователем. Логи и before snapshots:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-device-name-20261008-9drk9w_k`.
+- Локальный Swift harness сравнил 678 сценариев и Unicode-границы: native VM,
+  helpers Cell и callback DI совпали по результатам и порядку операций.
+  UseCase/KMM/BLE/storage — doubles; UIKit и реальный Bluetooth не выполнялись.
+
+## 84. Роли iOS V3 и выбор строки профиля INDY3
+
+- Роль подключена через GetDeviceRoleUseCaseV3 / ChangeDeviceRoleUseCaseV3
+  и существующий V3DeviceRoleRepositoryImpl. На iOS сохранены все три роли,
+  raw UserDefaults key и firmware-фильтр selectedRole == 2; shared access flag
+  не изменяется. На Android остаются прежние два пункта и default guards.
+- Проверка PIN проходит через Action → ViewModel → UseCase, результат — UiState.
+  Cell закрывает прежний диалог, обновляет выбранную строку и только затем
+  передаёт фактический PIN для сохранения/SET. Protected Action без PIN теперь
+  отвергается domain; пользовательский путь уже требовал PIN до переноса.
+- INDY3 profile row подключена к существующим Get/Request/SetSpinner UseCase:
+  raw индекс строки → прежний короткий SET, nil GET, без локальных profile/cache
+  записей. RX сохраняет прежний JSON события. Select/Load локальных профилей
+  сюда не подключены: их ID, применение сохранённых значений и DB-сценарий
+  отличаются от native выбора строки. Состав generatedHardcodeWidgets сохранён.
+- Новые файлы не добавлялись; заменённые PIN-проверки вынесены из Cell.
+  199 выбранных JVM tests прошли без ошибок и пропусков; iOS Debug с настоящим
+  shared.framework успешно собран для generic iOS. Логи и before snapshots:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-role-profile-20261009-z_3eit5w`.
+- Временный Swift harness: 290 VM fixtures, 678 Cell scenarios и 162 исполнения
+  helpers PIN dialog совпали с прежним кодом, включая delayed dismiss, rollback,
+  повторные выборы и RX профиля. UseCase/KMM/BLE и UIKit runtime — doubles;
+  аппаратная проверка отложена пользователем.
+
+## 85. Чтение текущих порогов и запись iOS V3 через shared
+
+- Plot Cell передаёт Action в PlotListItemViewModelV3 и получает пару порогов из
+  UiState. Текущие значения читаются через GetPlotSettingsUseCaseV3, значения
+  команды нормализуются EditPlotThresholdUseCaseV3 и записываются через
+  SetPlotThresholdsUseCaseV3 → существующий V3SensorsPlotRepositoryImpl.
+- DI собирает зависимости и передаёт native getter typed snapshots: прежние
+  target/alias 2F→30→1A, оба обязательных JSON поля, первый найденный snapshot
+  и отсутствие serialized cache fallback. Обратный порядок UI/device сохранён.
+  SET по-прежнему очередится offline и повторно, без optimistic store/profile/cache
+  записей. Android использует прежние defaults и фактический interaction flow.
+- Заменённые кеш-чтение и сборка SET убраны из row ViewModel; новых файлов нет.
+  GET request tracker и RX bridge остаются границей следующего подключения:
+  raw alias в identifier по-прежнему влияет на dedup, не вводится общий dedup
+  между разными row identifiers. Общий Observe сейчас перечитывает current store,
+  поэтому им нельзя механически заменить native JSON события.
+- График, timer/smoothing, pending raw draft и stale grace 0.5 s, layout, reuse,
+  поздние callback и ветка UBI4 не переработаны. Их состояние переносится отдельно.
+  Аппаратная проверка отложена пользователем; прошивка не запускалась.
+- 67 выбранных JVM tests прошли без ошибок и пропусков, включая реальные repo
+  policies для Android и iOS. iOS Debug с настоящим shared.framework собран
+  для generic iOS. Полные commonTest/XCTest не запускались.
+  Локальный Swift harness выполнил 12 929 assertions: 400 cache, 240 RX/matcher,
+  981 commit, 33 request и 10 identity fixtures совпали до/после. Whole Cell
+  отличается только четырьмя Action/UiState wrappers, queue closure не изменён.
+  KMM/BLE — doubles; UIKit и реальный Bluetooth не выполнялись.
+  Before snapshots, JVM XML и логи:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-plot-thresholds-20261009-ubc30bk2`.
+
+## 86. Поток графика и сглаживание iOS V3
+
+- Sample subscription проходит через PlotListItemViewModelV3 → существующий
+  ObservePlotSamplesUseCaseV3 → V3SensorsPlotRepositoryImpl. Native DI передаёт
+  реальные bindings address+parameter; dataCode по-прежнему не фильтруется.
+  Возвращаются только фактические 0–2 значения, без initial scan zeros, clamp или
+  дополнительного distinct. Replay/equality conflation остаются у прежнего
+  WidgetState.plotArrayFlow. Android default сохраняет шестиканальный scan.
+- Native ViewModel принимает samples/tick/restore Actions, сохраняет отсутствующие
+  каналы и рассчитывает прежнюю Double-интерполяцию с rounded(): 3 тика по 10 ms,
+  новая цель начинает движение от текущей точки. Threshold Actions сохраняют
+  graph state, а graph Actions сохраняют thresholds. Pause/interaction flags
+  не добавлены в native график.
+- Ячейка рисует UiState, владеет прежними timer/Job и отменяет подписку в тех же
+  местах; при deinit отменяются её source jobs, чтобы callbacks не удерживали
+  ViewModel после уничтожения UI. При configure состояние переносится из Cell
+  во ViewModel; на V3 tick
+  оно возвращается в Cell для непрерывности reuse и V3↔UBI4. Sample callback
+  обновляет только присутствующие raw каналы, не откатывает legacy ramp.
+  Hidden по-прежнему останавливает только timer, source продолжает обновлять raw.
+- Старый bridge и алгоритм Cell остаются только у действующего UBI4/legacy пути
+  и у timer до configure/после reuse. V3 больше их не вызывает. Drawing, datasets,
+  count/firstInit/history, thresholds/grace/layout и legacy binding сохранены.
+  Новых файлов не добавлено; BLEController, BLEParser и generatedHardcodeWidgets
+  не менялись. Аппаратная проверка отложена пользователем.
+- 70 выбранных JVM tests прошли без ошибок и пропусков. iOS Debug с настоящим
+  shared.framework успешно собран для generic iOS; полные commonTest/XCTest
+  не запускались. Swift parity: 12 538 assertions, 40 последовательностей,
+  2 468 сравнений состояния, 36 threshold↔graph и 4 lifetime fixtures.
+  Исполнены реальные VM/DI/Cell helpers с KMM/BLE/timer doubles; runtime UIKit
+  и Kotlin GC не проверялись. Legacy/drawing/threshold части совпадают побайтно.
+  Before snapshots, JVM XML, native report и логи:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-plot-samples-20261009-bcvm5q_n`.
+
+## 87. Запрос и приём порогов iOS V3 через shared
+
+- Запрос идёт от Action через PlotListItemViewModelV3 → RequestPlotThresholdsUseCaseV3
+  → V3SensorsPlotRepositoryImpl → прежний native enqueuePacket. Request UseCase
+  добавлен в существующий GetPlotSettingsUseCaseV3.kt. Прямая BLE-зависимость,
+  сборка GET и отправка байтов удалены из native ViewModel; новых файлов нет.
+- Прежний процессный RequestTracker сохранён: unresolved target не занимает
+  identifier, resolved target занимает его до encoder, raw alias участвует в
+  identity. Reset callers, повтор после reset, offline queue и GATT WRITE прежние.
+- RX подписка проходит через ObservePlotThresholdsUseCaseV3. Native режим репозитория
+  читает snapshot текущего raw key один раз, сохраняет codec/target/alias фильтр
+  и оба обязательных JSON поля. Повторные и nullable события сохранены, synthetic
+  initial emission и повторное чтение cached getter не добавлены. Android defaults
+  продолжают использовать прежний canonical key/getThresholds/onStart путь.
+- Device order преобразуется в прежний UI order одним Action reducer. Ячейка
+  получает готовую пару и захватывает её до main async. Raw pending draft,
+  точное подтверждение, grace 0.5 s, reuse/cancel и отложенные UI callback сохранены.
+  Graph state сохраняется при обновлении порогов. Заменённые native matcher и
+  JSON RX parser удалены; UBI4/legacy, drawing и lifecycle ячейки не переработаны.
+- 73 выбранных JVM tests прошли без ошибок и пропусков, включая три новых
+  проверки реального repo: GET bytes/offline/no state writes, RX defaults/native
+  policies и отмена callback подписки. Generic iOS Debug с настоящим
+  shared.framework успешно собран. Полные commonTest/XCTest не запускались;
+  аппаратная проверка отложена по просьбе пользователя.
+- Swift parity: 3 942 assertions, 332 fixtures (GET, RX, grace, lifecycle,
+  identity) прошли. Исполнены реальные native VM/DI/Cell helpers с KMM/BLE/
+  timer doubles; Kotlin RX pipeline моделировался, его реальная реализация
+  проверена отдельно JVM-тестами. Cell вне RX binding, cached getter и enqueue
+  совпадают побайтно. Runtime UIKit, Bluetooth и Kotlin GC не проверялись.
+  Before snapshots, JVM XML, native report и логи:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-plot-read-20261009-blipgimk`.
+
+## 88. Запрос и выбор активного жеста iOS V3
+
+- V3 GET/SET идут через GestureListItemActionV3 → GestureListItemViewModel
+  → существующие RequestActiveGestureUseCaseV3/SelectGestureUseCaseV3
+  → V3GesturesRepositoryImpl → прежний native SERIALPORT enqueuePacket.
+  Прямая сборка двух команд удалена из native ViewModel. Новых файлов нет.
+- DI собирает один repo и UseCase с native policies: без проверки MAC/interaction
+  и дополнительной проверки ID, без shared typed/cache/profile optimistic save.
+  Отсутствующий MAC передаётся как пустая строка; эти политики не читают getter
+  для проверки соединения. Фактический getActiveGesture и Android defaults
+  сохраняют прежние данные и ограничения. Rotation paths этими флагами не ослаблены.
+- Все три существующие точки создания общего GestureListItemViewModel используют
+  DI factory с прежними widget/BLE/opener аргументами. Это сохраняет и V3-классификацию
+  в legacy list-item fallback (widget code >= 0x12), и UBI4 ветки общих методов.
+  UI-test forced widget, identity/hash и model/hand-side preload не изменены.
+- Factory/custom/rotation tap по-прежнему сначала обновляет provider ID/title,
+  затем очередит один SET. Повторные и offline команды, Int32 → low-byte encoding,
+  GET при configure и SwiftUI appearance сохранены. Каталог, UI, background request
+  closures, старое чтение кеша/RX, Cell/provider и rotation/editor не переработаны.
+- Это подключление команд активного жеста. Его cache/RX и состояние из provider
+  ещё предстоит связать с UseCase и UiState отдельным шагом; весь экран «Жесты»
+  на iOS не считается завершённым.
+- 169 выбранных JVM tests прошли без ошибок и пропусков (repo, экранные сценарии,
+  widgets source и архитектура). Generic iOS Debug с настоящим shared.framework
+  успешно собран. Swift parity: 3 865 assertions, 18 before/current sequences,
+  648 GET/SET/Action operations прошли; исполнены реальные VM/DI/provider/support
+  с KMM/resource/BLE doubles. Cell/cache/RX и остальные ветки VM совпадают со
+  snapshot после исключения разрешённых изменений. UIKit/SwiftUI runtime и
+  Bluetooth не выполнялись; полные commonTest/XCTest не запускались.
+  Проверка на iPhone отложена пользователем.
+  Before snapshots, JVM XML, native report и логи:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-active-gesture-20261009-jrixot9c`.
+
+## 89. Кеш и ответы активного жеста iOS V3 через UiState
+
+- В существующем Swift-файле добавлены `V3ActiveGestureViewModel` и его UiState.
+  Чтение проходит через `GetActiveGestureUseCaseV3`, ответы — через существующий
+  `ObserveGesturesChangesUseCaseV3`. Ячейка получает готовое состояние; прежние
+  native чтение кеша, matcher и JSON-разбор активного жеста удалены.
+- DI создаёт репозиторий для привязки конкретного виджета. Общий data сохраняет
+  первый sorted raw binding 24/25, codec CURRENT_GESTURE и обязательное поле
+  currentGesture: без alias, serialized cache fallback, initial/replay и distinct.
+  Отсутствующий кеш сбрасывает ID в UiState, но не заменяет начальный provider ID;
+  некорректный RX игнорируется, повторный корректный ответ доставляется повторно.
+- Выбор по-прежнему отображается до отправки SET, с исходным названием нажатого
+  элемента. Отложенный RX переносит копию состояния и использует каталог при
+  отображении; прежнее поведение при переиспользовании ячейки сохранено.
+  Подписки отменяются при reuse/deinit. Ротация остаётся на прежнем пути.
+- UBI4 Cell, Provider, WidgetsListViewModel, layout и unrelated native методы
+  сохранены. Команды, factual device context и Android defaults не изменены.
+  Новых файлов приложения нет; три обработчика выбора объединены без дублей.
+- Прошли 172 выбранных JVM-теста (repository, ViewModel, widgets source,
+  architecture), без ошибок/пропусков. Generic iOS Debug с настоящим
+  shared.framework собран. Swift before/current QA: 903 assertions, 61 fixtures,
+  36 RX events; выполнены реальные VM/Cell/Provider/Support и DI factories
+  с KMM, transport, layout и управляемой очередью doubles. Реальные rendering,
+  concurrency, peripheral и время жизни KMM cancellation harness не проверяет.
+  Полные commonTest/XCTest не запускались; проверка на iPhone отложена пользователем.
+- Before snapshots, native отчёты, JVM XML и логи сборок:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-active-state-20261009-d7btwwsk`.
+
+## 90. Запрос и запись группы ротации iOS V3
+
+- Два V3 encoder/enqueue пути в GestureListItemViewModel заменены вызовами
+  RequestRotationGroupUseCaseV3 и SetRotationGroupUseCaseV3 → общий Repository.
+  Обязательные зависимости создаёт существующая DI factory для всех трёх путей
+  создания list-item ViewModel. Новых файлов приложения нет.
+- Узкие UseCase добавлены в существующие Load/Save файлы. Прежние Android
+  Load с ожиданием и повторами, Selection/Move/Remove с проверкой группы сохранены.
+  Они не подставлены вместо iOS single GET и готового provider draft.
+- Native policy сохраняет один GET за вызов, повторные/offline GET/SET, первые
+  восемь raw Int32 ID, парные ID/image ID и zero-fill. Provider сохраняет весь
+  список и обновляется до enqueue; хвост после восьмого слота не преобразуется.
+  Store, профиль и serialized cache до RX не записываются. Android defaults
+  и независимые active-gesture policies сохранены.
+- Ячейка, picker, удаление, drag, 1-секундный debounce, кеш/RX и renderer остались
+  на прежнем пути. Native UBI4 encoder нужен действующим legacy consumers и сохранён.
+  Это перенос команд ротации; ответы и её UiState остаются следующим шагом.
+- Прошли 175 выбранных JVM-тестов без ошибок/пропусков (repository, ViewModel,
+  widgets source, architecture). Generic iOS Debug с настоящим shared.framework
+  собран. Swift before/current QA: 819 assertions, 50 fixtures, 138 command operations;
+  реальные VM/DI/Cell/Provider/Support/Debouncer выполнены с KMM, transport, layout
+  и scheduling doubles. Реальные rendering, GCD и peripheral не проверялись;
+  полные commonTest/XCTest не запускались. Проверка на iPhone отложена пользователем.
+- Before snapshots, отдельный step.diff, native отчёты, JVM XML и логи сборок:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-rotation-commands-20261009-jh_hvehh`.
+
+## 91. Ответы группы ротации iOS V3 и общее состояние виджета
+
+- RX группы ротации подключён через V3GesturesRepositoryImpl →
+  ObserveGesturesChangesUseCaseV3 → V3GesturesViewModel → V3GesturesUiState →
+  GestureViewCellV3. Запрос и запись из шага 90 также проходят через эту ViewModel.
+  Активный жест и группа имеют независимые подписки в одной ViewModel;
+  обновление активного жеста не перезаписывает текущую группу.
+- Удалены заменённый Swift JSON-разбор, обработчики snapshot и неиспользуемое
+  чтение кеша группы. Новых файлов приложения нет. На native стороне осталась
+  только подготовка названий и изображений для существующего UI.
+- Сохранены точная raw-привязка GET/SET, повторы RX, пустой ответ, отсутствие
+  начального заполнения группы из кеша, порядок жестов и дубликаты. Названия
+  копируются до отложенного отображения. Уход с экрана отменяет подписки;
+  прежние debounce, provider drafts и очереди не менялись. Android defaults,
+  UBI4, BLEController, BLEParser и generatedHardcodeWidgets сохранены.
+- Проверка на iPhone остаётся отложенной по просьбе пользователя.
+- Прошли 177 выбранных JVM-тестов без ошибок и пропусков; generic iOS Debug
+  с настоящим shared.framework успешно собран. Полные commonTest/XCTest
+  не запускались. Swift before/current сравнение: 179 проверок, 6 сценариев,
+  24 RX события; реальные VM/Cell/Provider/Support/Debouncer с doubles для
+  shared API, transport, UIKit и очередей. Реальный rendering, GCD и устройство
+  не проверялись; сравнение RX ограничено фактическими Int32 данными codec.
+- Before snapshots, отдельный step.diff и результаты локальных проверок:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-rotation-state-20261009-jl_xixsm`.
+
+## 92. Запрос и запись настроек 3D-редактора iOS V3
+
+- GestureService и V3 renderer передают действия в существующую
+  GestureSettingsViewModelV3. Она вызывает общие Request/WriteGestureSettingsUseCaseV3;
+  V3GestureEditorRepositoryImpl формирует команды. Сборка зависимостей находится
+  в WidgetsSceneDIContainer; новых файлов приложения и UseCase-классов нет.
+- Удалены заменённые прямые вызовы V3 encoder из service GET и renderer WRITE.
+  Legacy encoder сохранён для действующей UBI4 ветки renderer.
+- iOS GET остаётся синхронным, одним за вызов, без ожидания READY. WRITE сохраняет
+  все raw Int32 позиции/задержки в порядке протокола, low-byte, повторы/offline
+  и команды 0/1/128/129/255. До RX нет записи Store/Profile и чтения метаданных.
+  Прежние Android READY wait, ограничение позиций и сохранение остаются defaults.
+- Controller, RX decoder/fallback, готовность данных и первого кадра, анимации,
+  отправка перед освобождением GL и UBI4 не менялись. RX/UiState редактора —
+  следующий отдельный шаг; текущий перенос касается GET/WRITE.
+- Проверка на iPhone отложена пользователем. Before snapshots и отдельный diff:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-editor-commands-20261009-g10ly1o3`.
+- Прошли 80 выбранных JVM-тестов редактора и архитектуры без ошибок/пропусков.
+  Generic iOS Debug с настоящим shared.framework успешно собран, включая Swift
+  и Objective-C++ bridge. Полные commonTest/XCTest не запускались.
+- Swift before/current сравнение: 280 проверок, 4 сценария, 34 команды с
+  doubles для shared/transport/storage; реальные Service/VM и DI factory.
+  Controller/renderer/legacy проверены по исходникам и порядку вызовов;
+  runtime GL, устройство и визуальное отображение не проверялись.
+
+## 93. Ответы настроек 3D-редактора iOS V3 через UseCase и UiState
+
+- Нативная подписка подключена к существующему ObserveGestureSettingsUseCaseV3.
+  V3GestureEditorRepositoryImpl читает точный snapshot и только при его
+  отсутствии использует ParameterProvider. ViewModel получает скопированный
+  ответ, сохраняет V3GestureEditorUiState и передаёт прежнее событие controller.
+- Удалён заменённый Swift RX handler с обращениями к глобальным хранилищам.
+  latestParameterRef/latestParameterData теперь читаются из единого состояния;
+  поля не дублируются. Подписка использует weak callback и отменяется в deinit.
+  Новых файлов приложения нет.
+- Общая V3GestureSettingsResponse — временная граница данных устройства из
+  трёх Int и непрозрачной строки для существующего renderer. Domain не зависит
+  от bridge, JSON parser, UI или iOS. Прежний Android typed Flow сохранён.
+- Сохранены синхронное выполнение на потоке источника, повторы, пустые и
+  malformed ответы, отсутствие initial/replay и codec/key gates. Каждое событие
+  несёт собственную пару metadata/payload, включая вложенный повторный RX.
+- Controller, native decoder 0..255, проверка номера жеста, render queue,
+  data/first-frame latch, анимации, команды шага 92 и UBI4 не менялись.
+  EditGestureSettingsUseCaseV3.load с Android clamp/заменой ID сюда не подставлен.
+- Проверка на iPhone отложена пользователем. Before snapshots и отдельный diff:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-editor-state-20261009-lih9afg7`.
+- Прошли 82 выбранных JVM-теста редактора и архитектуры без ошибок/пропусков.
+  Generic iOS Debug с настоящим shared.framework собран после приведения callback
+  к фактическому Swift Void ABI. Полные commonTest/XCTest не запускались.
+- Swift before/current сравнение: 116 проверок, 6 сценариев, по 19 RX событий;
+  совпали события и пакеты команд. Foundation callbacks и временная Objective-C
+  generic erasure реальные; shared/transport/storage — doubles. Controller/GL
+  проверены по исходникам, без runtime rendering и устройств.
+
+## 94. Чтение стороны руки 3D-редактора iOS V3 через общий UseCase
+
+- Существующая GestureSettingsViewModelV3 получила GetGestureEditorHandSideUseCaseV3.
+  Три реальных чтения renderer и V3-ветка controller используют её currentHandSide;
+  GestureService.getHandSide сохраняет прежний startObserving перед чтением.
+  Новых файлов, UseCase-классов и адаптеров нет.
+- В DI выбран readTypedHandSideFirst=false: общий repository сразу читает
+  прежний фактический native источник, сохраняя неизвестное -1 и приоритет
+  model-test 1 над кешем. Android default clamp/registry/preferences неизменны.
+- Getter синхронный, без кеширования и изменения UiState: чтение на render
+  thread не перезаписывает пару настроек, полученную параллельным RX.
+  V3HandSideProvider и его store/observer/events сохранены; startup остаётся
+  на прежних местах, повторное чтение не запускает наблюдение.
+- Card-preview 1, legacy hand side, unavailable-side gate, renderer geometry,
+  RX/команды редактора и UBI4 не менялись. Проверка на iPhone отложена.
+- Проверки: 86 выбранных JVM-тестов редактора/архитектуры, без ошибок и пропусков;
+  generic iOS Debug build успешен без signing/install/launch. Сгенерированный
+  Swift/ObjC header содержит readonly currentHandSide; V3HandSideProvider
+  побайтно совпадает с before, renderer/controller отличаются только 4 getter.
+- Локальное Swift before/after: 330 assertions, 5 сценариев, по 25 чтений
+  для каждой версии; совпали side/startup/RX/packet traces. Выполнены реальные
+  Service/DI/Provider с doubles shared/store/model-test/transport. Проверены
+  холодный singleton, unknown/valid values, свежие чтения и неизменность RX state;
+  OpenGL/UI runtime и асинхронный consume проверены только по исходникам.
+- Before snapshots и отдельный diff:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-editor-hand-side-20261009-uzbnekq9`.
+
+## Шаг 95 — iOS V3: чтение и переименование пользовательских жестов
+
+- Реальные три точки 3D-controller подключены к существующей ViewModel через
+  явные V3 selectors; legacy selectors, четыре пробела и model-test title сохранены.
+- GetCustomGestureNamesUseCaseV3 принимает узкий reader. Indexed rename добавлен
+  в существующий файл SaveGestureEditorNamesUseCaseV3: отдельная операция возвращает
+  результат native редактирования без предварительного чтения/trim/блокировок.
+  Android bulk-save и GetGestureEditorNames не менялись.
+- Native storage-код перенесён из GestureService в существующий data-файл
+  CustomGestureNamesStorage.swift вместо закомментированного прототипа. Дубли
+  load/update/defaults удалены; старые читатели используют тот же источник.
+- Сохранены deviceName key, 14 локализованных defaults при каждом чтении,
+  заполнение/обрезка массива, raw empty names, write-key до повторного чтения
+  имени устройства, try? сохранения и уведомления после invalid/repeated rename.
+- Имена входят в UiState редактора; names action не отправляет BLE, а RX сохраняет
+  актуальные имена и публикует собственную захваченную пару ref/data.
+- 104 выбранных JVM-теста прошли без ошибок и пропусков; generic iOS build успешен.
+  17 локальных Swift before/after сценариев совпали по storage-порядку, результатам
+  и уведомлениям (KMM doubles; телефон и GL runtime не запускались). Аппаратные проверки
+  остаются отложенными. QA и отдельный diff:
+  `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-names-xl8iny78`.
+
+## Шаги 96–99 — iOS V3: настройки, статистика, BLE-лог и вкладки
+
+- 96: мобильный AUTO_LOGIN подключён через Action/UiState и общие Get/Set UseCase.
+  Сохранён native store с default true, legacy mirror и уведомлениями. Native
+  Set skipUnchanged=false не добавляет предварительного чтения и сохраняет
+  повторное включение; Android default true не менялся. Generic BLE switch fallback сохранён.
+- 97: оба статистических экрана наблюдают telemetry-only события через общий
+  ObserveAccountStatisticsUseCaseV3. DI оставляет прежний main-queue apply момент;
+  имена читаются там же через GetCustomGestureNames. Native фильтрация/сортировка
+  заменены общими правилами; повторные map/default15 объединены в UI helper.
+  Сохранены разные подписи жеста 13, raw names, UI-test sample, weak/cancel/lifecycle.
+- 98: snapshot/cursor/version BLE-лога проходят через общий Observe UseCase и
+  ViewModel. UI по-прежнему читает новые строки при срабатывании 40-ms timer;
+  lastId, >80 reload, scroll, row cache и UBI4 optional fallback не менялись.
+- 99: видимость вкладок V3 проходит через Action/UiState/GetMainVisibleDisplays
+  и реальный общий data-source DataFactory. Состав generated widgets, роль,
+  выбор/порядок вкладок и UBI4 DataFactory fallback сохранены. Одна новая
+  production data-реализация (11 строк), остальные классы в существующих файлах.
+- Проверки всей группы: 96 выбранных JVM-тестов без failures/errors/skips,
+  generic iOS Debug build успешен без signing/install/launch. Статистика: 28
+  bounded source/math parity cases (не runtime UI); main: все 32 комбинации
+  видимости в JVM; BLE log: source equality таймера/append/scroll и callback tests.
+- QA: `/var/folders/jv/1b_9yxjj3d99mqhby99t78hw0000gn/T/ios-v3-settings-statistics-3nibz956`.
+  На телефонах, с движением и прошивкой проверки не проводились.
+
+## Шаги 100–101 — iOS V3: данные аккаунта и настройки списка жестов
+
+- 100: «Служба поддержки» и «Информация о протезе» получают данные через
+  экранные Action/UiState и существующие Get UseCase. Native data reader содержит
+  снимок реально загруженного AccountBridgeProfile, без заглушек сохранения/кеша.
+  Телефон менеджера при нажатии читается через тот же снимок и общий UseCase.
+  Строки, порядок, ссылки и UBI4 profile initializers сохранены.
+- Форматирование гарантии внедряется в существующий GetCustomerServiceInfo:
+  Android сохраняет прежний strict date parsing; iOS использует готовое native
+  warrantyExpirationDate. Загрузка аккаунта, server serial и retry не менялись.
+- 101: выбранная секция жестов и раскрытие заводской коллекции проходят через
+  существующие Get/Set UseCase и immutable UiState V3GesturesViewModel.
+  UserDefaults, прежние ключи/defaults, raw fallback и UI-test read timing
+  размещены в native data. Каждый прежний didSet по-прежнему пишет значение,
+  включая повторы; дополнительные чтения/дедупликация не добавлены.
+- 218 выбранных JVM-тестов прошли без failures/errors/skips; generic iOS Debug
+  build успешен с настоящим shared.framework, без signing/install/launch.
+  Source review защищает native строки/порядок/legacy paths. Это не проверка UI
+  на iPhone. QA: `/tmp/ios-v3-account-preferences-qa-20261009`.
+
+## Шаги 102–103 — iOS V3: действия прошивки и источники синхронизации
+
+- 102: Install/Postpone/Acknowledge проходят через V3UserFirmwareViewModel
+  и три существующих общих UseCase. Новый небольшой общий data repository
+  передаёт вызовы тому же app-owned UserFirmwareUpdates; второй движок,
+  повторная подписка или новые правила запуска не создаются. Настоящее состояние
+  диалога хранится в ViewModel; его получение само не запускает операции.
+  UBI4 callbacks сохраняют прежние прямые вызовы. Роль/network/foreground,
+  archive reader, освобождение ресурсов и весь ProgressViewController сохранены.
+- 103: три наблюдения WidgetsList V3 подключены через ViewModel → существующий
+  ObserveSyncUseCaseV3 → V3SyncRepositoryImpl. Raw domain-модели находятся
+  в существующем файле repository; protocol Struct не попадает в domain.
+  Completion сохраняет replay=0 и повторы, initialization — replay=1 и повторы,
+  progress — replay/conflation исходного StateFlow. Источники захватываются при
+  collection; отдельные Job, порядок подписок и дополнительный native main
+  dispatch сохранены. Android merged observe() не изменялся.
+- Этот шаг переносит источники наблюдения, а не всю экранную логику загрузки:
+  прежние progress clamp, retry, completion guards, скрытие/показ и сохранение
+  подписок скрытого незавершённого экрана остаются в native handlers.
+  UiStateBridge для UBI4 и команды reset/restart сохраняются.
+- 75 выбранных JVM-тестов прошли без failures/errors/skips, включая реальные
+  callback replay/repeats/conflation/cancel/resubscribe и Android lifecycle.
+  Generic iOS Debug build успешен без signing/install/launch. Бounded Swift harness
+  проверил настоящий native ViewModel с doubles: начальный idle, 9 доставок
+  raw state и повторы трёх действий без создания firmware engine. Source review
+  подтвердил идентичность диалога и native sync handlers после замены аргументов.
+- QA: `/tmp/ios-v3-firmware-actions-qa-20261009` и
+  `/tmp/ios-v3-sync-observation-qa-20261009`. Полные commonTest/XCTest и проверки
+  на телефонах не выполнялись; прежние blockers и аппаратная проверка отложены.
+
+## Шаги 104–105 — состояние загрузки и верхняя панель iOS
+
+- 104: локальные progress/message/maximum/retry/visibility/reload поля и правила
+  загрузки перенесены из WidgetsListViewController в существующий файл ViewModel.
+  Actions меняют состояние; immutable состояния отображения публикуются через
+  Observable, а одноразовые UI effects выполняет контроллер. Старые поля и расчёты
+  удалены: контроллер сократился с 830 до 649 строк. Новых production-файлов нет.
+- Общие UI session flags сохраняют прежние отдельные same-value notifications;
+  Controller оставляет совместимые static getters/reset для старых потребителей.
+  Один существовавший общий алгоритм перенесён без второй копии для UBI4.
+  BLE/data ветки UBI4 и порядок их событий сохранены, UBI4 domain не переносился.
+  Completion по-прежнему reloads widgets до смены flags; reloadTable выполняется
+  до clear pending reload; retry выставляется до синхронного повторного запроса.
+  Progress(0,0), hidden state, mobile early returns и lifecycle сохранены.
+- Запрос V3 initialization тоже проходит через короткий RequestSyncInitialization
+  UseCase → narrow repository → реальный callback прежнего BleManager.
+  DI передаёт тот же restartV3Synchronization; дополнительных flags, gates,
+  asynchronous hops, observers или повторных команд не добавлено. Android
+  RefreshSensors не подставлен: его MAC/full-init guards меняют native поведение.
+- 105: имя верхней панели использует существующий GetDeviceInfoText; ready и
+  raw battery имеют узкий общий read contract и ObserveMainStatus UseCase
+  в существующих main-файлах. Native Actions обновляют только поступившее поле
+  прежнего общего observable StatusBarViewModel. Неиспользуемая копия UiState
+  удалена: SwiftUI продолжает наблюдать исходный объект, без второго состояния.
+- Все вкладки/Account/Help используют тот же shared output. У каждой вкладки
+  остаются собственные Jobs и name notification; сохранены equal publications,
+  main dispatch, weak captures, порядок current read → subscribe, UI-test path
+  и UBI4 storage/bridge fallback. Пустое имя не заменяет прежнее; уведомление
+  передаёт raw payload без повторного чтения storage. Первая инициализация панели
+  помещена в static DI factory, вызываемую при прежнем первом lazy access.
+- Проверки: 67 выбранных JVM-тестов sources/sync/device-info/architecture прошли;
+  после добавления initialization boundary 48 выбранных тестов прошли, включая
+  новую проверку синхронных повторных вызовов/exception и отсутствия лишних flags.
+  Эти наборы пересекаются. Generic iOS Debug успешно собран с настоящим
+  shared.framework после исправления NSNumber Int → int32Value в battery callback.
+- Локальный Swift before/after harness: 21 сценарий V3/UBI4, 136 снимков private
+  state и 767 ordered effects совпали; дополнительно 4 сравнения request/DI.
+  Проверены синхронные reentry и реальные Observable/Foundation notifications.
+  Верхняя панель: 19 групп Actions/publications прошли с оригинальным output
+  и actual facade, включая два экрана и повторные значения; 21 bootstrap check
+  подтвердил один lazy snapshot и тот же cached output для V3/UBI4 ready/not-ready.
+  UIKit/KMM/BLE/UC
+  там представлены doubles; это не аппаратная проверка UI. Source equality
+  защищает оставшиеся observers/reset/render/3D/telemetry paths.
+- QA: `/tmp/ios-v3-loading-status-20261009`. Телефоны, прошивка и движение
+  не запускались. Полные commonTest/XCTest остаются отложенными с прежними blockers.
+
+## Шаг 106 — iOS V3: состояние аккаунта и данные плат
+
+- В существующем AccountViewController.swift добавлены V3AccountAction,
+  immutable V3AccountUiState и экранная V3AccountViewModel. Профиль, список плат,
+  loading flag, обработка результатов и изменения bootloader теперь принадлежат
+  ViewModel. Controller получает состояния отображения и выполняет UI effects.
+  Initial nil presentation не вызывает преждевременного пустого render или stop.
+- Чтение плат проходит через существующий GetAccountBoardsUseCaseV3.current,
+  режим плат — ObserveAccountBoardsUseCaseV3.observeBootloaderChanges и реальный
+  V3AccountBoardsRepositoryImpl. DI создаёт новый ViewModel для V3 Account;
+  UBI4 сохраняет прежние handlers и источники без второго переноса архитектуры.
+- Совместимый snapshot сохраняет Unknown/zero версии, первый duplicate, сортировку,
+  Kotlin blank → «-», очистку пустого списка и reset bootloader при refresh.
+  Опция data repository useAddressNameFallback=false сохраняет original code name;
+  Android default=true и существующие invoke/restore/cache правила не изменены.
+- Сохранены subscribe → snapshot/render → cancel старой загрузки → запрос,
+  stop loading/end refresh → optional profile/render → conditional toast,
+  отдельный main.async, weak callbacks и наблюдение скрытого экрана до deinit.
+  Повторные/unmatched mode events и уже queued результаты отменённого запроса
+  не фильтруются. Snapshot/runtime events не запускают firmware.
+- Сетевая загрузка продолжает использовать прежний AccountBridge.loadAccount:
+  один общий requestProfile helper для V3/UBI4 вместо двух одинаковых wrappers.
+  Offline/retry/partial-result контракт общего LoadAccountProfile ещё требует
+  отдельного совместимого подключения; serial/lang/нормализация не изменены.
+  Новых production-файлов нет; replaced V3 state mutations находятся только в VM,
+  старые state handlers исполняются исключительно в UBI4 fallback.
+- 96 выбранных JVM-тестов прошли без failures/errors/skips (14 boards, 48 Android
+  Account ViewModel, 34 architecture). Новые тесты сравнивают снимки и callbacks
+  с настоящим AccountBridge, включая Unicode blanks, raw addresses, repeats,
+  independent cancellation и resubscribe. Generic iOS Debug build успешен
+  с настоящим shared.framework без signing/install/launch.
+- Локальный Swift before/after harness: 16 сравнений V3/UBI4, 416 ordered traces,
+  104 state snapshots и 212 assertions совпали; 31 source/DI check прошёл.
+  Выполнялись настоящие Swift handlers и Observable, UIKit/KMM/network — doubles.
+  Это не проверка UI на телефоне. QA и отдельный diff:
+  `/tmp/ios-v3-account-state-20261009`; аппаратная проверка остаётся отложенной.
+
+## Шаги 107–108 — iOS V3: загрузка профиля и проверка lifecycle/DI
+
+- 107: V3 загрузка профиля перенесена из Controller в V3AccountViewModel через
+  LoadAccountProfileSnapshotUseCaseV3 → V3AccountProfileSnapshotRepository →
+  реальную shared data implementation. Controller только читает прежний platform
+  context по effect и отображает UiState. V3 load Job теперь принадлежит VM;
+  deinit отменяет загрузку до наблюдения плат. Старый Controller loader остаётся
+  исключительно для UBI4, без второго V3 вызова и второго сетевого алгоритма.
+- Repository делегирует существующему AccountBridge.loadAccount, синхронно
+  переводит его результат в immutable domain snapshot и возвращает тот же Job.
+  Default constructor использует lazy forwarding lambda: создание DI не запускает
+  bridge/наблюдения/запросы. Дополнительных scope, Flow, dispatch, retry или
+  validation не добавлено. Все 14 raw строк профиля и success/error/null сохраняются.
+- Snapshot операция отличается от Android streaming LoadAccountProfileUseCaseV3:
+  сохраняет готовый offline/partial результат прежнего iOS, не требует фиктивного
+  clientId или широкого local repository с заглушками. Android class bodies,
+  local cache semantics и весь AccountBridge сохранены byte-for-byte.
+  Serial/lang читаются после snapshot/render и отмены старой загрузки;
+  прежние константы, нормализация и серверная подстановка не изменены.
+- Native state содержит только domain profile; преобразование в совместимый
+  AccountBridgeProfile выполняется на UI-границе для прежних detail factories.
+  Stop/endRefreshing → optional profile/render → error и единственный main.async
+  сохранены, queued результаты отменённого запроса не отбрасываются.
+  Новых production-файлов нет; алгоритм retry/offline не скопирован.
+- 116 выбранных JVM-тестов прошли без failures/errors/skips. Новые проверки
+  защищают raw fields/контекст, sync repeated callbacks, Job identity/cancel,
+  offline/null/partial результат и прямую передачу ошибок без новых retries.
+  Generic iOS Debug build успешен с настоящим shared.framework без install/launch.
+- Локальный Swift before/after: 16 V3/UBI4 сравнений, 484 ordered effects,
+  104 state snapshots и 232 assertions совпали; 35 source/DI checks прошли.
+  Настоящие Swift handlers и Observable выполнялись с UIKit/KMM/network doubles;
+  это не проверка сетевого сервера или UI на iPhone.
+- 108: bounded read-only проверка Account/WidgetsList/WidgetsTab/MainTab/status
+  lifecycle и DI не выявила новых блокеров. Сохранены ownership/cancel jobs,
+  weak callbacks, наблюдение незавершённой скрытой синхронизации и один общий
+  status output. Window/navigation, ZIP/DFU и совместимые source adapters остаются
+  соответствующими platform boundaries; новой логики для них не добавлено.
+- QA и отдельный diff: `/tmp/ios-v3-account-profile-load-20261009`.
+  Проверка на телефонах остаётся отложенной до отдельной команды пользователя;
+  full commonTest/XCTest не заявляются завершёнными.
+
+## Шаг 109 — iOS V3: ответы слайдеров через shared UseCase
+
+- Наблюдение SliderListItemViewModelV3 подключено через
+  ObserveSliderResponsesUseCaseV3 → V3SliderResponsesRepository → существующий
+  V3DeviceSettingsRepositoryImpl. Прямой WidgetStateBridgeV3 и обработчик
+  bridge snapshot удалены из Swift ViewModel; новых production-файлов нет.
+- Data использует прежний bridge как источник и возвращает его Job без нового
+  scope или dispatch. Фильтр address/id/dataCode сохраняется, оба EMG offset
+  получают ответ пары. Повторные ответы не подавляются, initial/replay не добавлены.
+  Getter остаётся синхронным в VM; нулевые значения, EMG drafts и main.async
+  с проверкой текущего provider в ячейке сохраняются. Подписка не отправляет команд.
+- Android ObserveSliderSettingsUseCaseV3 и его StateFlow-семантика не изменены.
+  Отдельный узкий контракт ответов не требует менять Android fake repositories.
+  Неподдерживаемый slider binding больше не создаёт подписку без UI-эффекта.
+- Это завершение пути ответов слайдера, а не всей архитектуры iOS: прямые RX
+  подписки других типов виджетов и некоторые generic V3 команды ещё остаются.
+  Серийный номер и аппаратные проверки сохраняют прежние ограничения.
+- Проверено: 91 выбранный JVM-тест (слайдеры, спецнастройки и архитектура),
+  generic iOS Debug build с настоящим shared.framework и 50 Swift before/after
+  assertions. Swift harness выполняет реальные методы с doubles; это не проверка
+  UI на iPhone. QA и отдельный diff: `/tmp/ios-v3-slider-responses-20261009`.
+
+## Шаг 110 — iOS V3: сервисный каталог прошивок Яндекс Диска
+
+- Исправлен пропущенный путь аккаунта: выбор платы получает каталог через
+  V3ServiceFirmwareViewModel → общие Load/GetForBoard/Download UseCase →
+  существующий V3ServiceFirmwareCatalogRepositoryImpl. Swift не дублирует HTTP,
+  правила совместимости или разбор версий. DI собирает один repository с iOS cache path.
+- Существующий список объединяет локальные ZIP и совместимые remote файлы;
+  локальная копия имеет прежний приоритет при совпадении имени. Remote архив
+  скачивается только после выбора, затем открывается прежнее подтверждение.
+  До подтверждения DFU/BLE не вызываются. Удаление доступно только локальным файлам.
+- Native Action/UiState управляют загрузкой, выбором и ошибками. При ошибке каталогов
+  доступны локальные файлы; ошибка скачивания возвращает к списку. Task cancellation
+  и weak captures исключают позднее открытие диалога после отмены/ухода. Сам Kotlin
+  suspend HTTP request может продолжиться; его фактическое прерывание не заявляется.
+  Modal-safe lifecycle сохраняет контекст под overFullScreen picker.
+- Shared suspend entrypoints объявляют @Throws(Exception::class), чтобы сетевые
+  ошибки попадали в Swift catch, а не завершали Kotlin/Native runtime. Forwarding
+  constructor открывает существующие network defaults Swift DI без копирования настроек.
+  UBI4 сохраняет прежний local-only picker; код установки/парсеров не переработан.
+- Generic iOS Debug build прошёл. Read-only GET metadata подтвердили доступность
+  всех четырёх публичных папок; архивы и прошивка на устройстве не запускались.
+  70 выбранных JVM-тестов каталога, Android ViewModel и архитектуры прошли.
+  Локальный Swift harness проверяет реальные VM/Action/UiState с async UseCase
+  doubles, включая выбор одного файла, ошибки, отмену и weak lifetime; UIKit,
+  реальная сеть из приложения и iPhone пока не проверены.
+  QA и отдельный diff: `/tmp/ios-v3-firmware-catalog-20261009`.
+
+## Оставшееся подключение iOS V3: реальные сценарии, а не все классы подряд
+
+UseCase подключаются к существующим операциям iOS, без добавления Android-экранов.
+Порядок остаётся постепенным; для каждой группы удаляются её заменённые native
+обработчики, сохраняются UBI4-потребители и проверяется поведение до/после.
+Аппаратные проверки отложены по просьбе пользователя до его отдельной команды.
+
+| Очередь | Сценарий | Что необходимо сохранить при подключении |
+| --- | --- | --- |
+| Подключено, iPhone проверка отложена | Каталог сервисных прошивок для выбранной платы — 110 | Список и скачивание работают через shared UseCase; существующие local picker и подтверждение установки сохранены. Полноценный DFU lifecycle не заменяется механически Android путём. |
+| Следующий блок | RX toggle-slider, Spinner и Switcher; поддерживаемые generic V3 операции | Убрать активные прямые bridge вызовы из presentation через domain/data, сохранив повторные события, moment-of-read, provider guards и UBI4 fallback. RX слайдера завершён в шаге 109. Полный переход всех V3 путей через UseCase пока не заявляется. |
+| Отложено | Серийный номер; имя подключено в шаге 83 | Serial GET, callback и кеш сохраняются на текущем пути. Серверную подстановку serial не менять без отдельного решения пользователя. |
+| Завершено | 3D-редактор: GET/WRITE/RX/UiState — 92–93; сторона руки — 94; чтение/переименование имён — 95 | Телефонная проверка отложена; native ключи и правила сохранены. |
+| Завершён текущий блок | AUTO_LOGIN — 96; детали аккаунта — 100; настройки списка жестов — 101; состояние аккаунта/платы — 106; profile snapshot load — 107 | Native offline/retry/partial правила сохранены через существующий loader за shared repository. Серверная подстановка serial отложена; широкий Android streaming/local-cache контракт не реализован заглушками. Итоговая iPhone проверка остаётся. |
+| Завершён текущий блок | Видимость вкладок — 99; действия user firmware — 102; sync sources — 103; состояние загрузки и initialization — 104; status bar — 105; bounded lifecycle/DI audit — 108 | Статическая проверка указанных lifecycle/отключения/DI завершена; общий итоговый iPhone regression остаётся после команды пользователя. Shared engine и native ZIP/UIApplication/диалог/host не дублировать. Ручной DFU имеет другой lifecycle; не заменять механически Android UseCase. Проверку и запуск прошивки пользователь исключил. |
+| Завершено | Наблюдения статистики — 97; BLE-лога — 98 | Telemetry-only/повторные события и native batching сохранены; телефонная проверка отложена. |
+
+Не переносить ради формальной отметки Android Dashboard slots, RuStore/debug
+установку и отсутствующее на iOS создание/переименование профилей. BLEController,
+BLEParser, generatedHardcodeWidgets и UBI4 сохраняются без переработки.

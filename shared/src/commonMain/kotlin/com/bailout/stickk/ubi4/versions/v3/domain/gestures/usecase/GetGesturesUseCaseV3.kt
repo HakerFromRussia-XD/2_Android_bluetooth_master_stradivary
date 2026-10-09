@@ -15,3 +15,7 @@ class GetGesturesUseCaseV3(private val repository: V3GesturesRepository) {
         return V3Gestures(repository.getActiveGesture(), group.orEmpty(), group != null)
     }
 }
+
+class GetActiveGestureUseCaseV3(private val repository: V3GesturesRepository) {
+    operator fun invoke(): V3ActiveGesture = repository.getActiveGesture()
+}

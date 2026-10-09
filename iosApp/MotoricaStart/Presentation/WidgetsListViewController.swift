@@ -53,23 +53,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var widgetsInitializationInfoJob: Kotlinx_coroutines_coreJob?
     private var widgetsLoadingProgressJob: Kotlinx_coroutines_coreJob?
     private var telemetryCountersJob: Kotlinx_coroutines_coreJob?
-    private static var globalSynchronizationCompleted = false {
-        didSet { notifyGlobalSynchronizationStateDidChange() }
+    private static var globalSynchronizationCompleted: Bool {
+        get { WidgetsSynchronizationState.isCompleted }
+        set { WidgetsSynchronizationState.isCompleted = newValue }
     }
-    private static var globalSynchronizationInProgress = false {
-        didSet { notifyGlobalSynchronizationStateDidChange() }
+    private static var globalSynchronizationInProgress: Bool {
+        get { WidgetsSynchronizationState.isInProgress }
+        set { WidgetsSynchronizationState.isInProgress = newValue }
     }
-    private var needsReloadAfterSynchronization = false
-    private let defaultLoadingState = LoadingView.State(
-        message: SharedLocalizedText.text(SharedRes.strings().synchronization_data),
-        progress: 0
-    )
-    private var widgetsLoadingMax: Float = 0
-    private var currentLoadingMessage: String?
-    private var lastKnownLoadingState: LoadingView.State?
-    private var isViewVisible = false
-    private var hasReceivedWidgetsLoadingProgress = false
-    private var hasRetriedSynchronizationWithoutProgress = false
     private var open3DGestureId: Int?
     private var open3DGestureUsesV3Protocol = false
     private var latestGestureUsageItems: [GestureUsageChartItem] = []
@@ -80,16 +71,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     let storage = CoreDataWidgetsResponseStorage()
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
-    private static func notifyGlobalSynchronizationStateDidChange() {
-        NotificationCenter.default.post(
-            name: .widgetsSynchronizationStateDidChange,
-            object: nil,
-            userInfo: [
-                "completed": globalSynchronizationCompleted,
-                "inProgress": globalSynchronizationInProgress
-            ]
-        )
-    }
     
     // MARK: - Lifecycle
     static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
@@ -168,17 +149,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
         
         bind(to: viewModel)
-        if isUiTestSkipSynchronization {
-            isSynchronizationCompleted = true
-            isSynchronizationInProgress = false
-            showWidgetsContent()
-            LoadingView.hide()
-        }
-        if !isSynchronizationCompleted {
-            hideWidgetsContentForSynchronization()
-        } else {
-            showWidgetsContent()
-        }
+        viewModel.onSynchronizationAction(.viewLoaded(skip: isUiTestSkipSynchronization))
         if display == 4 {
             V3HandSideProvider.shared.startObserving()
         }
@@ -193,59 +164,23 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("[WIDGET_COORDINATOR] viewWillAppear")
-        isViewVisible = true
+        viewModel.onSynchronizationAction(.visibilityChanged(true))
         PlotListItemViewModel.resetRequestCache()
         PlotListItemViewModelV3.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
-        if isSpecialSettingsMobileSource {
-            LoadingView.hide()
-            showWidgetsContent()
-            return
-        }
-        if isUiTestSkipSynchronization {
-            isSynchronizationCompleted = true
-            isSynchronizationInProgress = false
-            needsReloadAfterSynchronization = false
-            hasReceivedWidgetsLoadingProgress = true
-            hasRetriedSynchronizationWithoutProgress = false
-            widgetsLoadingMax = 0
-            currentLoadingMessage = nil
-            lastKnownLoadingState = nil
-            LoadingView.hide()
-            showWidgetsContent()
-            return
-        }
-        if isSynchronizationCompleted {
-            showWidgetsContent()
-        } else if isSynchronizationInProgress {
-            hideWidgetsContentForSynchronization()
-            if let loadingState = lastKnownLoadingState {
-                currentLoadingMessage = loadingState.message
-                presentLoading(with: loadingState)
-            } else {
-                beginSynchronization(state: defaultLoadingState)
-            }
-        } else {
-            UiStateBridge.shared.resetWidgetsState()
-            beginSynchronization(state: defaultLoadingState)
-            viewModel.requestInicializeInformation()
-        }
+        viewModel.onSynchronizationAction(.viewAppeared(isMobile: isSpecialSettingsMobileSource,
+                                                      skip: isUiTestSkipSynchronization))
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        isViewVisible = false
+        viewModel.onSynchronizationAction(.visibilityChanged(false))
         setPlotPointRenderingPaused(true)
         print("[WIDGET_COORDINATOR] viewWillDisappear")
-        if lastKnownLoadingState != nil {
-            LoadingView.hide()
-        }
-        if isSynchronizationCompleted {
-            stopObservingWidgetUpdates()
-        }
+        viewModel.onSynchronizationAction(.viewDisappeared)
     }
     
     deinit {
@@ -261,23 +196,44 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
         
         widgetsLoadingCompletionJob?.cancel(cause: nil)
-        widgetsLoadingCompletionJob = UiStateBridge.shared.observeWidgetsLoadCompletion { [weak self] in
+        let onCompletion: () -> Void = { [weak self] in
             DispatchQueue.main.async {
                 self?.handleWidgetsLoadingCompletion()
             }
         }
+        widgetsLoadingCompletionJob = UiInterfaceModeBridgeV3.shared.isEnabled()
+            ? viewModel.observeWidgetsLoadCompletion(onCompletion)
+            : UiStateBridge.shared.observeWidgetsLoadCompletion(callback: onCompletion)
         
         widgetsInitializationInfoJob?.cancel(cause: nil)
-        widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo { [weak self] info in
+        let onInitializationInfo: (Int32, Int32) -> Void = { [weak self] parametersNum, subDeviceNum in
             DispatchQueue.main.async {
-                self?.handleInitializationInfo(info)
+                self?.handleInitializationInfo(parametersNum: parametersNum, subDeviceNum: subDeviceNum)
+            }
+        }
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            widgetsInitializationInfoJob = viewModel.observeInitializationInfo {
+                onInitializationInfo($0.parametersNum, $0.subDeviceNum)
+            }
+        } else {
+            widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo {
+                onInitializationInfo($0.parametersNum, $0.subDeviceNum)
             }
         }
 
         widgetsLoadingProgressJob?.cancel(cause: nil)
-        widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress { [weak self] progress in
+        let onProgress: (Int32, Int32) -> Void = { [weak self] current, total in
             DispatchQueue.main.async {
-                self?.handleWidgetsLoadingProgress(progress)
+                self?.handleWidgetsLoadingProgress(current: current, total: total)
+            }
+        }
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            widgetsLoadingProgressJob = viewModel.observeWidgetsLoadingProgress {
+                onProgress($0.current, $0.total)
+            }
+        } else {
+            widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress {
+                onProgress($0.current, $0.total)
             }
         }
 
@@ -358,6 +314,25 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {
+        viewModel.setSynchronizationEffectHandler { [weak self] effect in
+            switch effect {
+            case .reloadWidgets: self?.reloadWidgetsFromShared()
+            case .reloadTable: self?.widgetsTableViewController?.reload()
+            case .resetWidgets: UiStateBridge.shared.resetWidgetsState()
+            case .stopObserving: self?.stopObservingWidgetUpdates()
+            case .renderContent, .renderWidgetsContainer, .renderLoading, .requestInitialization: break
+            }
+        }
+        viewModel.synchronizationPresentation.observe(on: self) { [weak self] presentation in
+            guard let self, let presentation else { return }
+            switch presentation {
+            case .content(let visible):
+                if visible { self.showWidgetsContent() } else { self.hideWidgetsContentForSynchronization() }
+            case .widgetsContainer(let visible): self.widgetsListContainer.isHidden = !visible
+            case .loading(let state):
+                if let state { LoadingView.show(state: state, in: self.view) } else { LoadingView.hide() }
+            }
+        }
         viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
@@ -410,7 +385,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     @objc private func bottomButtonTapped() {
 //        showToast("Тост для проверки Тост для проверки Тост для проверки Тост для проверки")
         resetWidgetsStateForResynchronization()
-        beginSynchronization(resetState: true, state: defaultLoadingState)
+        viewModel.onSynchronizationAction(.begin(reset: true, state: nil, isMobile: isSpecialSettingsMobileSource))
         viewModel.requestInicializeInformation()
         print("[handleWidgetsLoadingCompletion] bottomButtonTapped")
     }
@@ -455,36 +430,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
-        if isSynchronizationCompleted || isSpecialSettingsMobileSource {
-            widgetsTableViewController?.reload()
-            showWidgetsContent()
-        } else {
-            needsReloadAfterSynchronization = true
-        }
+        viewModel.onSynchronizationAction(.itemsChanged(isMobile: isSpecialSettingsMobileSource))
     }
 
     private func updateLoading(_ loading: WidgetsListViewModelLoading?) {
-        if isSpecialSettingsMobileSource {
-            showWidgetsContent()
-            widgetsTableViewController?.updateLoading(loading)
-            return
-        }
-
-        switch loading {
-        case .some(.fullScreen(let state)): beginSynchronization(state: state)
-        case .some(.nextPage):
-            if isSynchronizationCompleted {
-                widgetsListContainer.isHidden = false
-            }
-        case .none:
-            if isSynchronizationCompleted {
-                showWidgetsContent()
-            }
-        case .some:
-            if !isSynchronizationCompleted {
-                beginSynchronization(state: defaultLoadingState)
-            }
-        }
+        viewModel.onSynchronizationAction(.loadingChanged(loading, isMobile: isSpecialSettingsMobileSource))
         widgetsTableViewController?.updateLoading(loading)
     }
 
@@ -494,93 +444,16 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func handleWidgetsLoadingCompletion() {
-        guard isSynchronizationInProgress else { return }
-
-        if UiInterfaceModeBridgeV3.shared.isEnabled(),
-           isSynchronizationInProgress,
-           !hasReceivedWidgetsLoadingProgress {
-            beginSynchronization(state: lastKnownLoadingState ?? defaultLoadingState)
-            if !hasRetriedSynchronizationWithoutProgress {
-                hasRetriedSynchronizationWithoutProgress = true
-                viewModel.requestInicializeInformation()
-            }
-            return
-        }
-
-        isSynchronizationCompleted = true
-        isSynchronizationInProgress = false
-        widgetsLoadingMax = 0
-        hasReceivedWidgetsLoadingProgress = false
-        hasRetriedSynchronizationWithoutProgress = false
-        currentLoadingMessage = nil
-        lastKnownLoadingState = nil
-        LoadingView.hide()
-        if needsReloadAfterSynchronization {
-            widgetsTableViewController?.reload()
-            needsReloadAfterSynchronization = false
-        }
-        showWidgetsContent()
-        print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
+        viewModel.onSynchronizationAction(.completed(isV3: UiInterfaceModeBridgeV3.shared.isEnabled(),
+                                                    isMobile: isSpecialSettingsMobileSource))
     }
     
-    private func handleInitializationInfo(_ info: FullInicializeConnectionStruct) {
-        let totalSteps = info.parametersNum * info.subDeviceNum
-        widgetsLoadingMax = totalSteps > 0 ? Float(totalSteps) : 0
+    private func handleInitializationInfo(parametersNum: Int32, subDeviceNum: Int32) {
+        viewModel.onSynchronizationAction(.initializationInfo(parameters: parametersNum, subDevices: subDeviceNum))
     }
 
-    private func handleWidgetsLoadingProgress(_ progress: WidgetsLoadingProgress) {
-        guard !isSynchronizationCompleted else { return }
-        guard isSynchronizationInProgress else { return }
-        hasReceivedWidgetsLoadingProgress = true
-        print("[BLE-PROGRESS] total = \(Int(progress.total)) current = \(Int(progress.current))")
-        let totalValue = Int(progress.total)
-        if totalValue > 0 {
-            widgetsLoadingMax = Float(totalValue)
-        }
-        guard widgetsLoadingMax > 0 else { return }
-
-        let currentValue = Int(progress.current)
-        let normalized = min(max(Float(currentValue) / widgetsLoadingMax, 0), 1)
-        let message = currentLoadingMessage ?? defaultLoadingState.message
-        currentLoadingMessage = message
-        presentLoading(with: LoadingView.State(message: message, progress: normalized))
-    }
-    
-    private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
-        guard !isSpecialSettingsMobileSource else {
-            LoadingView.hide()
-            showWidgetsContent()
-            return
-        }
-
-        if resetState {
-            isSynchronizationCompleted = false
-            isSynchronizationInProgress = false
-            needsReloadAfterSynchronization = false
-            widgetsLoadingMax = 0
-            hasReceivedWidgetsLoadingProgress = false
-            hasRetriedSynchronizationWithoutProgress = false
-            lastKnownLoadingState = nil
-        }
-        guard !isSynchronizationCompleted else {
-            if needsReloadAfterSynchronization {
-                widgetsTableViewController?.reload()
-                needsReloadAfterSynchronization = false
-            }
-            showWidgetsContent()
-            return
-        }
-        
-        hideWidgetsContentForSynchronization()
-        let loadingState = state ?? lastKnownLoadingState ?? defaultLoadingState
-        if !isSynchronizationInProgress {
-            isSynchronizationInProgress = true
-            widgetsLoadingMax = 0
-            hasReceivedWidgetsLoadingProgress = false
-            hasRetriedSynchronizationWithoutProgress = false
-        }
-        currentLoadingMessage = loadingState.message
-        presentLoading(with: loadingState)
+    private func handleWidgetsLoadingProgress(current: Int32, total: Int32) {
+        viewModel.onSynchronizationAction(.progress(current: current, total: total))
     }
 
     private func hideWidgetsContentForSynchronization() {
@@ -604,21 +477,7 @@ extension WidgetsListViewController {
         lastWidgetsSignature = nil
         reloadWidgetsFromShared()
 
-        if isSpecialSettingsMobileSource {
-            LoadingView.hide()
-            needsReloadAfterSynchronization = false
-            showWidgetsContent()
-        } else if isViewVisible {
-            if isSynchronizationCompleted {
-                showWidgetsContent()
-            } else if isSynchronizationInProgress {
-                beginSynchronization(state: lastKnownLoadingState ?? defaultLoadingState)
-            } else {
-                UiStateBridge.shared.resetWidgetsState()
-                beginSynchronization(state: defaultLoadingState)
-                viewModel.requestInicializeInformation()
-            }
-        }
+        viewModel.onSynchronizationAction(.sourceChanged(isMobile: isSpecialSettingsMobileSource))
     }
 }
 
@@ -651,10 +510,8 @@ private extension WidgetsListViewController {
         guard isServiceSettingsDisplay else { return }
 
         telemetryCountersJob?.cancel(cause: nil)
-        telemetryCountersJob = WidgetStateBridge.shared.observeTelemetryGestureCounters { [weak self] counters in
-            DispatchQueue.main.async {
-                self?.updateGestureUsageWidget(with: counters)
-            }
+        telemetryCountersJob = viewModel.observeTelemetryCounters { [weak self] usage in
+            self?.updateGestureUsageWidget(with: usage)
         }
         applyGestureUsageWidgetIfNeeded()
     }
@@ -670,8 +527,8 @@ private extension WidgetsListViewController {
         viewModel.requestTelemetryData()
     }
 
-    func updateGestureUsageWidget(with counters: TelemetryGestureCounters) {
-        latestGestureUsageItems = makeGestureUsageItems(from: counters)
+    func updateGestureUsageWidget(with usage: [V3GestureUsage]) {
+        latestGestureUsageItems = makeGestureUsageItems(from: usage)
         applyGestureUsageWidgetIfNeeded()
     }
 
@@ -716,53 +573,8 @@ private extension WidgetsListViewController {
         ]
     }
 
-    func makeGestureUsageItems(from counters: TelemetryGestureCounters) -> [GestureUsageChartItem] {
-        let baseItems: [GestureUsageChartItem] = counters.baseGestureMovementCount.enumerated().compactMap { index, rawCount in
-            guard Self.baseGestureIds.indices.contains(index) else { return nil }
-            let gestureId = Self.baseGestureIds[index]
-            let count = longValue(from: rawCount)
-            guard gestureId != 0, count > 0 else { return nil }
-
-            return GestureUsageChartItem(
-                gestureId: gestureId,
-                title: baseGestureName(for: gestureId),
-                count: count,
-                colorIndex: gestureId
-            )
-        }
-
-        let customNames = customGestureNames()
-        let customItems: [GestureUsageChartItem] = counters.customGestureMovementCount.enumerated().compactMap { index, rawCount in
-            let count = longValue(from: rawCount)
-            guard count > 0 else { return nil }
-            let gestureId = Self.customGestureBaseId + index
-
-            return GestureUsageChartItem(
-                gestureId: gestureId,
-                title: customNames.indices.contains(index) ? customNames[index] : "\(SharedLocalizedText.text(SharedRes.strings().custom_gesture)) \(index + 1)",
-                count: count,
-                colorIndex: gestureId
-            )
-        }
-
-        return (baseItems + customItems)
-            .sorted {
-                if $0.count == $1.count {
-                    return $0.gestureId < $1.gestureId
-                }
-                return $0.count > $1.count
-            }
-    }
-
-    func longValue(from value: Any) -> Int64 {
-        switch value {
-        case let kotlinLong as KotlinLong:
-            return kotlinLong.int64Value
-        case let number as NSNumber:
-            return number.int64Value
-        default:
-            return 0
-        }
+    func makeGestureUsageItems(from usage: [V3GestureUsage]) -> [GestureUsageChartItem] {
+        GestureUsageChartItem.makeItems(from: usage, customNames: customGestureNames(), baseName: baseGestureName)
     }
 
     func baseGestureName(for gestureId: Int) -> String {
@@ -803,57 +615,14 @@ private extension WidgetsListViewController {
     }
 
     func customGestureNames() -> [String] {
-        let stored = GestureService.shared.loadNames()
-        let defaults = [
-            SharedRes.strings().gesture_1_btn,
-            SharedRes.strings().gesture_2_btn,
-            SharedRes.strings().gesture_3_btn,
-            SharedRes.strings().gesture_4_btn,
-            SharedRes.strings().gesture_5_btn,
-            SharedRes.strings().gesture_6_btn,
-            SharedRes.strings().gesture_7_btn,
-            SharedRes.strings().gesture_8_btn,
-            SharedRes.strings().gesture_9_btn,
-            SharedRes.strings().gesture_10_btn,
-            SharedRes.strings().gesture_11_btn,
-            SharedRes.strings().gesture_12_btn,
-            SharedRes.strings().gesture_13_btn,
-            SharedRes.strings().gesture_14_btn,
-            SharedRes.strings().gesture_15_btn
-        ].map { SharedLocalizedText.text($0) }
-
-        guard stored.count < defaults.count else { return Array(stored.prefix(defaults.count)) }
-        return stored + Array(defaults[stored.count...])
+        GestureUsageChartItem.localizedCustomNames(viewModel.customGestureNames())
     }
 
     var gestureUsageTotalTitle: String {
         Locale.current.languageCode == "ru" ? "Всего:" : "Total:"
     }
 
-    static var baseGestureIds: [Int] {
-        Array(0...15)
-    }
 
-    static var customGestureBaseId: Int {
-        64
-    }
-
-    func presentLoading(with state: LoadingView.State) {
-        lastKnownLoadingState = state
-        guard isViewVisible else { return }
-        //TODO: тут можно отключать лоадер (3)
-        LoadingView.show(state: state, in: view)
-    }
-    
-    var isSynchronizationCompleted: Bool {
-        get { Self.globalSynchronizationCompleted }
-        set { Self.globalSynchronizationCompleted = newValue }
-    }
-
-    var isSynchronizationInProgress: Bool {
-        get { Self.globalSynchronizationInProgress }
-        set { Self.globalSynchronizationInProgress = newValue }
-    }
 }
 
 

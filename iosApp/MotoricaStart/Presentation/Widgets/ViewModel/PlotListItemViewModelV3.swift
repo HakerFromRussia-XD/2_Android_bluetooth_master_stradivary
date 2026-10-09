@@ -1,29 +1,95 @@
 import Foundation
 import shared
 
-struct PlotListItemViewModelV3: Equatable, Hashable {
+enum PlotListItemActionV3 {
+    case samplesReceived([KotlinInt])
+    case graphTick(ticks: Int)
+    case graphStateRestored(PlotListItemViewModelV3.GraphState)
+    case thresholdsRequested
+    case currentThresholdsRequested
+    case thresholdsReceived(V3PlotThresholds?)
+    case thresholdsCommitted(open: Int, close: Int)
+}
+
+struct PlotListItemUiStateV3 {
+    let thresholds: (open: Int, close: Int)?
+    let graph: PlotListItemViewModelV3.GraphState
+}
+
+final class PlotListItemViewModelV3: Equatable, Hashable {
+    typealias ThresholdConfiguration = (
+        parameters: Set<ParameterInfoData>,
+        binding: WidgetV3BindingInfo?,
+        target: WidgetV3BindingInfo?
+    )
+    // The Cell restores this value when it is rebound, preserving its existing graph continuity.
+    struct GraphState {
+        var samples: (first: Int, second: Int) = (0, 255)
+        var current: (first: Double, second: Double) = (0, 0)
+        var start: (first: Double, second: Double) = (0, 0)
+        var target: (first: Double, second: Double) = (0, 0)
+        var previous: (first: Int, second: Int) = (0, 0)
+        var tick = 0
+
+        var frame: (first: Int, second: Int) {
+            (Int(current.first.rounded()), Int(current.second.rounded()))
+        }
+
+        mutating func advance(ticks: Int) {
+            let new1 = Double(samples.first)
+            let new2 = Double(samples.second)
+            if new1 != target.first || new2 != target.second {
+                start = current
+                target = (new1, new2)
+                tick = 0
+            }
+            let ticks = max(1, ticks)
+            let progress = min(1.0, Double(tick + 1) / Double(ticks))
+            current.first = start.first + (target.first - start.first) * progress
+            current.second = start.second + (target.second - start.second) * progress
+            if tick < ticks - 1 {
+                tick += 1
+            } else {
+                previous = (Int(target.first), Int(target.second))
+            }
+        }
+    }
+
     private static let requestTracker = RequestTracker()
     private let identifier: String
     let title: String
     let widget: Widget
-    let bleManager: BleManagerKmm
     let parameterInfoSet: Set<ParameterInfoData>
-    private let thresholdBinding: WidgetV3BindingInfo?
-}
+    private let thresholdTarget: WidgetV3BindingInfo?
+    private let getPlotSettingsUseCase: GetPlotSettingsUseCaseV3
+    private let requestPlotThresholdsUseCase: RequestPlotThresholdsUseCaseV3
+    private let observePlotThresholdsUseCase: ObservePlotThresholdsUseCaseV3
+    private let editPlotThresholdUseCase: EditPlotThresholdUseCaseV3
+    private let setPlotThresholdsUseCase: SetPlotThresholdsUseCaseV3
+    private let observePlotSamplesUseCase: ObservePlotSamplesUseCaseV3
+    private(set) var uiState = PlotListItemUiStateV3(thresholds: nil, graph: GraphState())
 
-extension PlotListItemViewModelV3 {
-    init(widget: Widget, bleManager: BleManagerKmm) {
+    init(
+        widget: Widget,
+        thresholdConfiguration: ThresholdConfiguration,
+        getPlotSettingsUseCase: GetPlotSettingsUseCaseV3,
+        requestPlotThresholdsUseCase: RequestPlotThresholdsUseCaseV3,
+        observePlotThresholdsUseCase: ObservePlotThresholdsUseCaseV3,
+        editPlotThresholdUseCase: EditPlotThresholdUseCaseV3,
+        setPlotThresholdsUseCase: SetPlotThresholdsUseCaseV3,
+        observePlotSamplesUseCase: ObservePlotSamplesUseCaseV3
+    ) {
         self.title = widget.title ?? ""
         self.widget = widget
-        self.bleManager = bleManager
-        let parameterInfoSet = ParameterInfoData.makeSet(
-            from: widget.plotUnified?.baseParameterWidgetStruct?.parameterInfoSet
-        )
-        self.parameterInfoSet = parameterInfoSet
-        self.thresholdBinding = Self.selectThresholdBinding(
-            from: WidgetV3Support.bindings(from: widget),
-            fallback: parameterInfoSet
-        )
+        self.parameterInfoSet = thresholdConfiguration.parameters
+        self.thresholdTarget = thresholdConfiguration.target
+        self.getPlotSettingsUseCase = getPlotSettingsUseCase
+        self.requestPlotThresholdsUseCase = requestPlotThresholdsUseCase
+        self.observePlotThresholdsUseCase = observePlotThresholdsUseCase
+        self.editPlotThresholdUseCase = editPlotThresholdUseCase
+        self.setPlotThresholdsUseCase = setPlotThresholdsUseCase
+        self.observePlotSamplesUseCase = observePlotSamplesUseCase
+        let thresholdBinding = thresholdConfiguration.binding
 
         let widgetPosition = WidgetMetadataExtractor
             .extractBaseStruct(from: widget.widget?.value)?
@@ -35,97 +101,69 @@ extension PlotListItemViewModelV3 {
         }
     }
 
-    func matchesThresholdSnapshot(_ snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard snapshot.codecId == "THRESHOLDS" else { return false }
-
-        if let target = resolveThresholdTarget() {
-            return snapshot.addressDevice == Int32(target.deviceAddress)
-                && snapshot.parameterID == Int32(target.parameterID)
-                && Self.canonicalThresholdDataCode(for: Int(snapshot.dataCode))
-                    == Self.canonicalThresholdDataCode(for: target.dataCode)
-        }
-
-        return parameterInfoSet.contains {
-            $0.deviceAddress == snapshot.addressDevice
-                && $0.parameterID == snapshot.parameterID
+    func onAction(_ action: PlotListItemActionV3) {
+        switch action {
+        case .samplesReceived(let samples):
+            var graph = uiState.graph
+            if let first = samples.first { graph.samples.first = Int(first.intValue) }
+            if samples.count > 1 { graph.samples.second = Int(samples[1].intValue) }
+            uiState = PlotListItemUiStateV3(thresholds: uiState.thresholds, graph: graph)
+        case .graphTick(let ticks):
+            var graph = uiState.graph
+            graph.advance(ticks: ticks)
+            uiState = PlotListItemUiStateV3(thresholds: uiState.thresholds, graph: graph)
+        case .graphStateRestored(let graph):
+            uiState = PlotListItemUiStateV3(thresholds: uiState.thresholds, graph: graph)
+        case .thresholdsRequested:
+            requestThresholds()
+        case .currentThresholdsRequested:
+            onAction(.thresholdsReceived(getPlotSettingsUseCase.invoke().thresholds))
+        case .thresholdsReceived(let thresholds):
+            uiState = PlotListItemUiStateV3(thresholds: thresholds.map {
+                // The existing iOS labels use the opposite order to the device payload.
+                (open: Int($0.close), close: Int($0.open))
+            }, graph: uiState.graph)
+        case .thresholdsCommitted(let open, let close):
+            // Keep the raw UI draft; only the command values are clamped.
+            uiState = PlotListItemUiStateV3(thresholds: (open: open, close: close), graph: uiState.graph)
+            let normalizedOpen = editPlotThresholdUseCase.invoke(
+                current: V3PlotThresholds(open: 0, close: 0), threshold: .open, value: Int32(clamping: open)
+            )
+            let normalized = editPlotThresholdUseCase.invoke(
+                current: normalizedOpen, threshold: .close, value: Int32(clamping: close)
+            )
+            setPlotThresholdsUseCase.invoke(thresholds: V3PlotThresholds(
+                open: normalized.close, close: normalized.open
+            ))
         }
     }
 
-    func thresholds(from snapshot: ParameterSnapshotV3Bridge) -> (open: Int, close: Int)? {
-        guard
-            let deviceOpen = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openThreshold"),
-            let deviceClose = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeThreshold")
-        else {
-            return nil
+    // The Cell owns the returned subscription, just as it owns its timer and legacy subscription.
+    func observeSamples(onSamples: @escaping (GraphState, Int) -> Void) -> Kotlinx_coroutines_coreJob {
+        observePlotSamplesUseCase.observe { [self] samples in
+            onAction(.samplesReceived(samples))
+            onSamples(uiState.graph, samples.count)
         }
-        // V3 payload returns thresholds in hardware order opposite to current UI semantics.
-        return (open: deviceClose, close: deviceOpen)
     }
 
-    func cachedThresholds() -> (open: Int, close: Int)? {
-        guard let target = resolveThresholdTarget() else {
-            print("[V3-PLOT][VM] cachedThresholds skipped: threshold target is unresolved")
-            return nil
+    func observeThresholds(
+        onThresholds: @escaping ((open: Int, close: Int)) -> Void
+    ) -> Kotlinx_coroutines_coreJob {
+        observePlotThresholdsUseCase.observe { [self] thresholds in
+            onAction(.thresholdsReceived(thresholds))
+            if let thresholds = uiState.thresholds { onThresholds(thresholds) }
         }
-
-        for dataCode in Self.thresholdDataCodeCandidates(for: target.dataCode) {
-            if let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-                addressDevice: Int32(target.deviceAddress),
-                parameterID: Int32(target.parameterID),
-                dataCode: Int32(dataCode)
-            ) {
-                return thresholds(from: snapshot)
-            }
-        }
-
-        return nil
     }
 
-    func requestThresholds() {
-        guard let target = resolveThresholdTarget() else {
+    private func requestThresholds() {
+        guard let target = thresholdTarget else {
             print("[V3-PLOT][VM] requestThresholds skipped: threshold target is unresolved")
             return
         }
         guard Self.requestTracker.shouldRequest(for: identifier) else { return }
-        let readDataCode = Self.canonicalThresholdDataCode(for: target.dataCode)
-        guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
+        requestPlotThresholdsUseCase.invoke(
             parameterID: Int32(target.parameterID),
-            dataCode: Int32(readDataCode)
-        ) else {
-            print("[V3-PLOT][VM] requestThresholds failed: buildReadRequest returned nil, target=\(target)")
-            return
-        }
-
-        print("[V3-PLOT][VM] requestThresholds target=\(target) bytes=\(data.hexString)")
-        sendBytes(data)
-    }
-
-    func sendThresholds(openThreshold: Int, closeThreshold: Int) {
-        let normalizedUiOpen = min(max(openThreshold, 0), 255)
-        let normalizedUiClose = min(max(closeThreshold, 0), 255)
-        // Keep UI semantics aligned with legacy PlotViewCell: swap before sending to device.
-        let deviceOpen = normalizedUiClose
-        let deviceClose = normalizedUiOpen
-        let data = WidgetCommandBridgeV3.shared.buildSendThresholds(
-            openThreshold: Int32(deviceOpen),
-            closeThreshold: Int32(deviceClose)
-        )
-        print(
-            "[V3-PLOT][VM] sendThresholds uiOpen=\(openThreshold)->\(normalizedUiOpen) uiClose=\(closeThreshold)->\(normalizedUiClose) deviceOpen=\(deviceOpen) deviceClose=\(deviceClose) bytes=\(data.hexString)"
-        )
-        sendBytes(data)
-    }
-
-    private func sendBytes(_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        print(
-            "[V3-PLOT][VM] sendBytes command=\(gatt.SERIALPORTCHAR_UUID) type=\(gatt.WRITE) bytes=\(data.hexString)"
-        )
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
+            dataCode: Int32(Self.canonicalThresholdDataCode(for: target.dataCode))
         )
     }
 
@@ -143,8 +181,28 @@ extension PlotListItemViewModelV3 {
         requestTracker.reset()
     }
 
-    private func resolveThresholdTarget() -> WidgetV3BindingInfo? {
-        if let thresholdBinding {
+    static func thresholdDataCodeCandidates(for dataCode: Int) -> [Int] {
+        let canonical = canonicalThresholdDataCode(for: dataCode)
+        return [canonical, ParameterCode.thresholdGetV3, ParameterCode.thresholdLegacyV2]
+            .reduce(into: [Int]()) { acc, code in
+                if !acc.contains(code) {
+                    acc.append(code)
+                }
+            }
+    }
+
+    static func thresholdConfiguration(for widget: Widget) -> ThresholdConfiguration {
+        let parameters = ParameterInfoData.makeSet(
+            from: widget.plotUnified?.baseParameterWidgetStruct?.parameterInfoSet
+        )
+        let binding = selectThresholdBinding(from: WidgetV3Support.bindings(from: widget), fallback: parameters)
+        return (parameters, binding, resolveThresholdTarget(widget: widget, binding: binding, parameters: parameters))
+    }
+
+    private static func resolveThresholdTarget(
+        widget: Widget, binding: WidgetV3BindingInfo?, parameters: Set<ParameterInfoData>
+    ) -> WidgetV3BindingInfo? {
+        if let thresholdBinding = binding {
             return WidgetV3BindingInfo(
                 parameterID: thresholdBinding.parameterID,
                 dataCode: Self.canonicalThresholdDataCode(for: thresholdBinding.dataCode),
@@ -153,7 +211,7 @@ extension PlotListItemViewModelV3 {
             )
         }
 
-        if let fromSet = parameterInfoSet.first(
+        if let fromSet = parameters.first(
             where: {
                 $0.parameterID == Int32(ParameterCode.prosthesisModuleControlV3)
                     && Self.isThresholdDataCode(Int($0.dataCode))
@@ -240,15 +298,6 @@ private extension PlotListItemViewModelV3 {
         }
     }
 
-    static func thresholdDataCodeCandidates(for dataCode: Int) -> [Int] {
-        let canonical = canonicalThresholdDataCode(for: dataCode)
-        return [canonical, ParameterCode.thresholdGetV3, ParameterCode.thresholdLegacyV2]
-            .reduce(into: [Int]()) { acc, code in
-                if !acc.contains(code) {
-                    acc.append(code)
-                }
-            }
-    }
 
     final class RequestTracker {
         private var requestedIdentifiers: Set<String> = []

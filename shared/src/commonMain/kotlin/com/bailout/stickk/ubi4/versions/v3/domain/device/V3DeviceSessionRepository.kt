@@ -14,3 +14,7 @@ interface V3DeviceSessionRepository {
     val updates: Flow<Unit>
     fun getSession(): V3DeviceSession
 }
+
+interface V3DeviceInteractionRepository {
+    fun setInteractionEnabled(enabled: Boolean): Boolean
+}

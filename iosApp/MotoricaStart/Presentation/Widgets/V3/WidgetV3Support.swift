@@ -62,6 +62,21 @@ enum WidgetV3Support {
         bindings(from: widget).first
     }
 
+    static func parameterKey(for binding: WidgetV3BindingInfo?, among keys: [String]) -> String? {
+        guard let binding else { return nil }
+        return keys.first { key in
+            guard let info = PreferenceKeysUbi4.ParameterInfoRegistry.shared.get(key: key),
+                  let parameterID = info.parameterID,
+                  let dataCode = info.dataCode,
+                  let deviceAddress = info.deviceAddress,
+                  let dataOffset = info.dataOffsets else { return false }
+            return binding.parameterID == Int(parameterID.intValue)
+                && binding.dataCode == Int(dataCode.intValue)
+                && binding.deviceAddress == Int(deviceAddress.intValue)
+                && binding.dataOffset == Int(dataOffset.intValue)
+        }
+    }
+
     static func splitTextInputTitle(_ rawTitle: String) -> (placeholder: String, buttonTitle: String) {
         let parts = rawTitle
             .split(separator: "%", omittingEmptySubsequences: false)

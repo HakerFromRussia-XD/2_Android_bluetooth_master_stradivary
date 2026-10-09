@@ -28,9 +28,15 @@ class V3GestureEditorWritingTest {
     private data class Write(val settings: V3GestureSettings, val command: V3GestureCommand, val name: String)
     private val writes = mutableListOf<Write>()
     private val order = mutableListOf<String>()
+    private val responseObservers = mutableListOf<(V3GestureSettingsResponse) -> Unit>()
     private val repository = object : V3GestureEditorRepository {
         override fun getHandSide() = 1
         override fun observeSettings() = events
+        override fun subscribeSettingsResponses(callback: (V3GestureSettingsResponse) -> Unit): () -> Unit {
+            val observer: (V3GestureSettingsResponse) -> Unit = { callback(it) }
+            responseObservers += observer
+            return { responseObservers.remove(observer); Unit }
+        }
         override suspend fun awaitReady() = awaitCancellation()
         override fun requestSettings(gestureId: Int) = error("No read expected")
         override fun writeSettings(settings: V3GestureSettings, command: V3GestureCommand, name: String) {
@@ -55,6 +61,26 @@ class V3GestureEditorWritingTest {
     @AfterEach fun cleanup() { store.clear(); Dispatchers.resetMain() }
     private fun send(action: V3GestureEditorAction) = vm.onAction(action)
     private fun finger(number: Int, value: Int) = send(V3GestureEditorAction.FingerPositionChanged(number, value))
+
+    @Test fun `raw write policy forwards all positions and delays while default clamps only positions for every command`() {
+        val settings = V3GestureSettings(Int.MAX_VALUE,
+            listOf(-1, 0, 101, 255, 256, Int.MIN_VALUE), listOf(Int.MAX_VALUE, 99, 100, -257, 1, 400),
+            listOf(-1, 255, 256, Int.MIN_VALUE, Int.MAX_VALUE, 21), listOf(31, -258, 0, 257, 1000, -500))
+        val raw = WriteGestureSettingsUseCaseV3(repository, clampPositions = false)
+        val default = WriteGestureSettingsUseCaseV3(repository)
+        V3GestureCommand.entries.forEach { command ->
+            repeat(2) { raw(settings, command, "Name") }
+            assertEquals(Write(settings, command, "Name"), writes[writes.lastIndex - 1])
+            assertEquals(Write(settings, command, "Name"), writes.last())
+            default(settings, command, "Name")
+            assertEquals(Write(settings.copy(
+                openPositions = listOf(0, 0, 100, 100, 100, 0),
+                closePositions = listOf(100, 99, 100, 0, 1, 100),
+            ), command, "Name"), writes.last())
+        }
+        assertEquals(15, writes.size)
+        assertTrue(writes.all { it.settings.gestureId == Int.MAX_VALUE && it.name == "Name" })
+    }
 
     @Test fun `renderer finger order and immediate writes are preserved including repeated values`() {
         for (number in 1..4) finger(number, number * 10)

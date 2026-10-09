@@ -12,6 +12,10 @@ interface V3GesturesRepository {
     val updates: Flow<Unit>
     val rotationGroupUpdates: Flow<Unit>
     fun getActiveGesture(): V3ActiveGesture
+    /** Current gesture IDs; native snapshot observation retains raw events without an initial read. */
+    fun observeActiveGesture(): Flow<Int?>
+    /** Native rotation snapshots retain repeated raw events and empty groups without an initial read. */
+    fun observeRotationGroup(): Flow<List<Int>?>
     fun getRotationGroupGestureIds(): List<Int>?
     fun requestActiveGesture(deviceAddress: String): Boolean
     fun requestRotationGroup(deviceAddress: String): Boolean

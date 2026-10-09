@@ -14,6 +14,10 @@ final class SliderViewCellV3: UITableViewCell {
     private var provider: SliderProvider?
     private var job: Kotlinx_coroutines_coreJob?
 
+    deinit {
+        job?.cancel(cause: nil)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         print("[V3-SLIDER][CELL] prepareForReuse")
@@ -26,6 +30,8 @@ final class SliderViewCellV3: UITableViewCell {
 
     @available(iOS 16.0, *)
     func configure(with viewModel: SliderListItemViewModelV3) {
+        job?.cancel(cause: nil)
+        job = nil
         self.viewModel = viewModel
         print(
             "[V3-SLIDER][CELL] configure title=\(viewModel.title) binding=\(String(describing: viewModel.binding)) range=\(viewModel.minProgress)...\(viewModel.maxProgress)"
@@ -56,9 +62,10 @@ final class SliderViewCellV3: UITableViewCell {
         var configuration = UIHostingConfiguration {
             SliderRowView(
                 provider: provider,
-                onFirstSliderEditingEnded: { [weak self] _ in
-                    print("[V3-SLIDER][CELL] onFirstSliderEditingEnded value=\(String(describing: self?.provider?.value_1))")
-                    self?.sliderEditingDidEnd()
+                onFirstSliderEditingEnded: { [weak self, weak provider] _ in
+                    guard let self, let provider, self.provider === provider else { return }
+                    print("[V3-SLIDER][CELL] onFirstSliderEditingEnded value=\(provider.value_1)")
+                    self.sliderEditingDidEnd()
                 },
                 onSecondSliderEditingEnded: nil
             )
@@ -66,28 +73,21 @@ final class SliderViewCellV3: UITableViewCell {
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
 
-        job?.cancel(cause: nil)
-        job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
-            guard let self else { return }
-            guard self.viewModel?.matches(snapshot: snapshot) == true else { return }
-            print(
-                "[V3-SLIDER][CELL] observeUpdates matched codec=\(snapshot.codecId) serialized=\(snapshot.serializedValue)"
-            )
-            guard let value = self.viewModel?.sliderValue(from: snapshot) else { return }
-            print("[V3-SLIDER][CELL] observeUpdates sliderValue=\(value)")
+        job = viewModel.observeSliderValue { [weak self, weak provider] value in
             DispatchQueue.main.async {
-                self.provider?.value_1 = Float(value)
+                guard let self, let provider, self.provider === provider else { return }
+                provider.value_1 = Float(value)
             }
         }
 
         print("[V3-SLIDER][CELL] requestCurrent")
-        viewModel.requestCurrent()
+        viewModel.onAction(.currentValueRequested)
     }
 
     private func sliderEditingDidEnd() {
         guard let provider else { return }
         let rounded = Int(provider.value_1.rounded())
         print("[V3-SLIDER][CELL] sliderEditingDidEnd provider.value_1=\(provider.value_1) rounded=\(rounded)")
-        viewModel?.sendSliderValue(rounded)
+        viewModel?.onAction(.valueChangeCommitted(rounded))
     }
 }

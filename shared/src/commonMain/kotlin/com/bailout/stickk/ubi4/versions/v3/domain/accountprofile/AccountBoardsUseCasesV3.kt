@@ -1,10 +1,19 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.accountprofile
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+
 class GetAccountBoardsUseCaseV3(
     private val repository: V3AccountBoardsRepository,
     private val isZeroVersion: (String?) -> Boolean,
 ) {
     fun cached() = repository.getCachedBoards()
+
+    fun current(missingVersion: String): List<V3AccountBoard> = repository.getBoards()
+        .map { it.copy(version = it.version?.takeIf(String::isNotBlank) ?: missingVersion) }
+        .distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }
 
     fun restore(cached: List<V3AccountBoard>) = cached
         .filterNot { isZeroVersion(it.version) }.map { it.copy(isUpdateAvailable = false) }
@@ -28,6 +37,12 @@ class CacheAccountBoardsUseCaseV3(private val repository: V3AccountBoardsReposit
 }
 
 class ObserveAccountBoardsUseCaseV3(private val repository: V3AccountBoardsRepository) {
+    private val callbackScope by lazy { MainScope() }
+
     fun changes() = repository.changes
     fun bootloaderChanges() = repository.bootloaderChanges
+
+    fun observeBootloaderChanges(callback: (Int, Boolean) -> Unit): Job = callbackScope.launch {
+        repository.bootloaderChanges.collect { (address, isInBootloader) -> callback(address, isInBootloader) }
+    }
 }

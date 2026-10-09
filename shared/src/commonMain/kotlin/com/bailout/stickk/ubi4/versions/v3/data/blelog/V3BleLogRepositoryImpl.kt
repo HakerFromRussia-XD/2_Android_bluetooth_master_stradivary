@@ -11,6 +11,12 @@ class V3BleLogRepositoryImpl(
     private val readGraphStreamHidden: () -> Boolean,
     private val saveGraphStreamHidden: (Boolean) -> Unit,
 ) : V3BleLogRepository {
+    override fun snapshot(): List<V3BleLogEntry> = BleLogStore.snapshot().map { it.toDomain() }
+
+    override fun entriesAfter(id: Long): List<V3BleLogEntry> = BleLogStore.entriesAfter(id).map { it.toDomain() }
+
+    override fun observeVersions() = BleLogStore.version
+
     override fun observeEntryBatches() = flow {
         val initial = BleLogStore.snapshot()
         var lastId = initial.lastOrNull()?.id ?: 0L

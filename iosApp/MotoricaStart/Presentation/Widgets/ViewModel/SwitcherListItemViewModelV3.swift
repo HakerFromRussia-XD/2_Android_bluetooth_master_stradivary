@@ -1,9 +1,39 @@
 import Foundation
 import shared
 
+enum V3AutoLoginAction {
+    case currentStateRequested
+    case stateChanged(Bool)
+}
+
+struct V3AutoLoginUiState {
+    let isEnabled: Bool?
+}
+
+final class V3AutoLoginViewModel {
+    private let getAutoLoginEnabledUseCase: GetAutoLoginEnabledUseCaseV3
+    private let setAutoLoginEnabledUseCase: SetAutoLoginEnabledUseCaseV3
+    private(set) var uiState = V3AutoLoginUiState(isEnabled: nil)
+
+    init(get: GetAutoLoginEnabledUseCaseV3, set: SetAutoLoginEnabledUseCaseV3) {
+        getAutoLoginEnabledUseCase = get
+        setAutoLoginEnabledUseCase = set
+    }
+
+    func onAction(_ action: V3AutoLoginAction) {
+        switch action {
+        case .currentStateRequested:
+            uiState = V3AutoLoginUiState(isEnabled: getAutoLoginEnabledUseCase.invoke())
+        case .stateChanged(let isEnabled):
+            setAutoLoginEnabledUseCase.invoke(enabled: isEnabled)
+            uiState = V3AutoLoginUiState(isEnabled: isEnabled)
+        }
+    }
+}
+
 struct SwitcherListItemViewModelV3: Equatable, Hashable {
     private let identifier: String
-    private let smartConnectionStore = SmartConnectionSettingsStore()
+    private let autoLoginViewModel: V3AutoLoginViewModel
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
@@ -11,10 +41,19 @@ struct SwitcherListItemViewModelV3: Equatable, Hashable {
 }
 
 extension SwitcherListItemViewModelV3 {
-    init(widget: Widget, bleManager: BleManagerKmm) {
+    init(
+        widget: Widget,
+        bleManager: BleManagerKmm,
+        getAutoLoginEnabledUseCase: GetAutoLoginEnabledUseCaseV3,
+        setAutoLoginEnabledUseCase: SetAutoLoginEnabledUseCaseV3
+    ) {
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
+        self.autoLoginViewModel = V3AutoLoginViewModel(
+            get: getAutoLoginEnabledUseCase,
+            set: setAutoLoginEnabledUseCase
+        )
         self.binding = WidgetV3Support.primaryBinding(from: widget)
         let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget?.value)
         let widgetPosition = baseStruct?.widgetPosition ?? -1
@@ -45,7 +84,7 @@ extension SwitcherListItemViewModelV3 {
 
     func sendState(_ isOn: Bool) {
         if isMobileSmartConnectionSetting {
-            smartConnectionStore.setEnabled(isOn)
+            autoLoginViewModel.onAction(.stateChanged(isOn))
             print("[SWITCH][mobile-v3] set smart connection enabled=\(isOn)")
             return
         }
@@ -73,7 +112,8 @@ extension SwitcherListItemViewModelV3 {
 
     func currentState() -> Bool? {
         if isMobileSmartConnectionSetting {
-            return smartConnectionStore.isEnabled
+            autoLoginViewModel.onAction(.currentStateRequested)
+            return autoLoginViewModel.uiState.isEnabled
         }
         guard let binding else { return nil }
         guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(

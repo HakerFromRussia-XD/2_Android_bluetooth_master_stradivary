@@ -38,6 +38,28 @@ final class PlotViewCellV3: UITableViewCell {
     // Счётчик тиков внутри текущего перехода
     private var rampTick: Int = 0            // зачем: понимаем на каком шаге (0...timerTiks)
     
+    // Preserve Cell-lifetime graph state across V3, legacy and reuse without retaining a ViewModel.
+    private var graphState: PlotListItemViewModelV3.GraphState {
+        get {
+            .init(
+                samples: (reseve_sensor_1_data, reseve_sensor_2_data),
+                current: (current_sensor_1, current_sensor_2),
+                start: (start_sensor_1, start_sensor_2),
+                target: (target_sensor_1, target_sensor_2),
+                previous: (old_reseve_sensor_1_data, old_reseve_sensor_2_data),
+                tick: rampTick
+            )
+        }
+        set {
+            (reseve_sensor_1_data, reseve_sensor_2_data) = newValue.samples
+            (current_sensor_1, current_sensor_2) = newValue.current
+            (start_sensor_1, start_sensor_2) = newValue.start
+            (target_sensor_1, target_sensor_2) = newValue.target
+            (old_reseve_sensor_1_data, old_reseve_sensor_2_data) = newValue.previous
+            rampTick = newValue.tick
+        }
+    }
+
     var count: Int = 0
     
     @IBOutlet private weak var backgroundPlot : UIView!
@@ -72,6 +94,12 @@ final class PlotViewCellV3: UITableViewCell {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
+    deinit {
+        plotDateEntryJob?.cancel(cause: nil)
+        thresholdLegacyJob?.cancel(cause: nil)
+        thresholdV3Job?.cancel(cause: nil)
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
         initChart()
@@ -109,34 +137,42 @@ final class PlotViewCellV3: UITableViewCell {
     
     @available(iOS 16.0, *)
     func configure(with viewModel: PlotListItemViewModelV3) {
+        viewModel.onAction(.graphStateRestored(graphState))
         self.viewModelV3 = viewModel
         self.viewModelLegacy = nil
         selectionStyle = .none
         print("[V3-PLOT][CELL] configure title=\(viewModel.title)")
-        viewModel.requestThresholds()
+        viewModel.onAction(.thresholdsRequested)
         sendThresholdsHandler = { [weak self] open, close in
             self?.registerPendingThresholds(open: open, close: close)
-            viewModel.sendThresholds(openThreshold: open, closeThreshold: close)
+            viewModel.onAction(.thresholdsCommitted(open: open, close: close))
         }
 
         configureWidgetPlotInfo(parameterInfoSet: viewModel.parameterInfoSet)
 
-        if let cached = viewModel.cachedThresholds() {
+        viewModel.onAction(.currentThresholdsRequested)
+        if let cached = viewModel.uiState.thresholds {
             applyThresholds(open: cached.open, close: cached.close, animated: false)
         }
         
         plotDateEntryJob?.cancel(cause: nil)
-        plotDateEntryJob = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
-            self?.updatePlotData(ref)
+        plotDateEntryJob = viewModel.observeSamples { [weak self] graph, count in
+            guard let self else { return }
+            if count > 0 {
+                self.reseve_sensor_1_data = graph.samples.first
+                self.widgetPlotInfo?.dataSens1 = graph.samples.first
+            }
+            if count > 1 {
+                self.reseve_sensor_2_data = graph.samples.second
+                self.widgetPlotInfo?.dataSens2 = graph.samples.second
+            }
         }
 
         thresholdLegacyJob?.cancel(cause: nil)
         thresholdLegacyJob = nil
         thresholdV3Job?.cancel(cause: nil)
-        thresholdV3Job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
+        thresholdV3Job = viewModel.observeThresholds { [weak self] thresholds in
             guard let self else { return }
-            guard viewModel.matchesThresholdSnapshot(snapshot) else { return }
-            guard let thresholds = viewModel.thresholds(from: snapshot) else { return }
 
             DispatchQueue.main.async { [weak self] in
                 self?.applyIncomingThresholdSnapshot(open: thresholds.open, close: thresholds.close)
@@ -649,6 +685,13 @@ final class PlotViewCellV3: UITableViewCell {
         stopTimer()
         let t = Timer(timeInterval: 0.01, repeats: true) { [weak self] _ in
             guard let self else { return }
+            if let viewModel = self.viewModelV3 {
+                viewModel.onAction(.graphTick(ticks: self.timerTiks))
+                self.graphState = viewModel.uiState.graph
+                let frame = viewModel.uiState.graph.frame
+                self.addEntry(sens1: frame.first, sens2: frame.second)
+                return
+            }
 //            self.addEntry(sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
             
             // 1) Считываем "сырые" цели (куда хотим прийти)

@@ -7,9 +7,9 @@ enum class V3ProsthesisMovement { OPEN, CLOSE }
 interface V3SensorsCommandsRepository {
     val interactionEnabled: StateFlow<Boolean>
     val refreshInProgress: StateFlow<Boolean>
-    /** Commands are accepted only for the device that owns the screen. */
+    /** Returns whether the command was queued under the repository's device-context policy. */
     fun startMovement(deviceAddress: String, movement: V3ProsthesisMovement): Boolean
-    /** STOP bypasses the interaction lock, but must never target a different device. */
+    /** STOP bypasses the interaction lock; the repository retains its device-context policy. */
     fun stopMovement(deviceAddress: String)
     fun refreshSensors(deviceAddress: String): Boolean
 }

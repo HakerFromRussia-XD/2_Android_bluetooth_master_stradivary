@@ -1,5 +1,5 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.main
 
-class GetMainVisibleDisplaysUseCaseV3(private val repository: V3MainRepository) {
+class GetMainVisibleDisplaysUseCaseV3(private val repository: V3MainDisplaysRepository) {
     operator fun invoke(): Set<Int> = repository.getVisibleDisplays().toSet()
 }

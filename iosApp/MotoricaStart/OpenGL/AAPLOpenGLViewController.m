@@ -696,7 +696,9 @@ static os_log_t V3FrameLog(void) {
         }
         deviceName.text = legacyName ?: [NSString stringWithFormat:@"gesture %ld", (long)_gestureNumber];
     } else {
-        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
+        deviceName.text = self.useV3GestureProtocol
+            ? [gestureService getGestureNameV3WithNumberGesture:_gestureNumber]
+            : [gestureService getGestureNameWithNumberGesture:_gestureNumber];
     }
     
     showRenameTextField = false;
@@ -732,7 +734,7 @@ static os_log_t V3FrameLog(void) {
             NSInteger handSide = self.cardPreviewMode
                 ? 1
                 : (self.useV3GestureProtocol
-                ? [V3HandSideProvider shared].currentSide
+                ? [GestureSettingsViewModelV3 shared].currentHandSide
                 : [gestureService getLegacyHandSide]);
             self->_openGLRenderer = [[AAPLOpenGLRendererV3 alloc]
                 initWithDefaultFBOName:self->_defaultFBOName
@@ -988,7 +990,11 @@ static os_log_t V3FrameLog(void) {
         NSString *legacyResult = [@"    " stringByAppendingString:result];
         [self legacySetGestureName:legacyResult number:_gestureNumber];
     } else {
-        [gestureService setNameGestureWithNumberGesture:_gestureNumber name:result];
+        if (self.useV3GestureProtocol) {
+            [gestureService setNameGestureV3WithNumberGesture:_gestureNumber name:result];
+        } else {
+            [gestureService setNameGestureWithNumberGesture:_gestureNumber name:result];
+        }
     }
 }
 
@@ -1143,7 +1149,11 @@ static os_log_t V3FrameLog(void) {
             NSString *legacyResult = [@"    " stringByAppendingString:result];
             [self legacySetGestureName:legacyResult number:_gestureNumber];
         } else {
-            [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
+            if (self.useV3GestureProtocol) {
+                [gestureService setNameGestureV3WithNumberGesture:_gestureNumber name:result];
+            } else {
+                [gestureService setNameGestureWithNumberGesture:_gestureNumber name:result];
+            }
         }
         [renameBtn setImage:[UIImage imageNamed:@"rename.png"]   forState:UIControlStateNormal];
     } else {

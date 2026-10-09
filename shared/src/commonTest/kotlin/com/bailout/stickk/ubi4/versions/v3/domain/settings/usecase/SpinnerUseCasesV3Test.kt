@@ -94,6 +94,7 @@ class SpinnerUseCasesV3Test {
         override fun observeSpinnerValue(parameterKey: String) =
             values.getOrPut(parameterKey) { MutableStateFlow(null) }
         override fun getSpinnerValue(parameterKey: String) = values[parameterKey]?.value
+        override fun requestSpinnerValue(parameterKey: String) = error("Unexpected spinner request")
         override fun setSpinnerValue(parameterKey: String, value: Int) {
             writes.add(parameterKey to value)
             observeSpinnerValue(parameterKey).value = value

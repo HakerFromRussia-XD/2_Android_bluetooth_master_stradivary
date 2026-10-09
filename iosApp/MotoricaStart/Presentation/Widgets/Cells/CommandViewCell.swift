@@ -55,10 +55,10 @@ final class CommandViewCell: UITableViewCell {
             MultiCommandButtonsWidgetView(
                 titles: viewModel.visibleButtonTitles,
                 onPress: { index in
-                    viewModel.didPressDown(at: index)
+                    viewModel.onAction(.buttonPressed(index: index))
                 },
                 onRelease: { index in
-                    viewModel.didRelease(at: index)
+                    viewModel.onAction(.buttonReleased(index: index))
                 }
             )
         }

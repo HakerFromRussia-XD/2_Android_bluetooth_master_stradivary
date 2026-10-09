@@ -1,9 +1,11 @@
 package com.bailout.stickk.ubi4.versions.v3.data.service
 
 import com.bailout.stickk.ubi4.data.state.*
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.versions.v3.domain.service.*
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField.*
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
@@ -14,10 +16,15 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceInfoWriteResult
 import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.SetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.EditDeviceInfoTextUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.V3DeviceInfoTextEdit
 
 class V3DeviceInfoRepositoryTest {
     private val originalProfile = UiState.activeV3DeviceProfile
     private val originalInteraction = UiState.v3WidgetsInteractionEnabled.value
+    private val originalMode = UiState.isInterfaceV3Activated
+    private val originalAddress = WidgetRepoProvider.mac()
     private val serialInfo = ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
     private val previousConnectionName = runCatching { ConnectionState.connectedDeviceName }.getOrDefault("")
     private val identity = V3DeviceIdentityStore()
@@ -51,6 +58,8 @@ class V3DeviceInfoRepositoryTest {
         ParameterStoreV3.clear()
         UiState.activeV3DeviceProfile = originalProfile
         UiState.v3WidgetsInteractionEnabled.value = originalInteraction
+        UiState.isInterfaceV3Activated = originalMode
+        WidgetRepoProvider.setCurrentMac(originalAddress)
     }
 
     @Test fun `prefill respects every fallback and strips only the name prefix`() {
@@ -139,6 +148,129 @@ class V3DeviceInfoRepositoryTest {
         UiState.v3WidgetsInteractionEnabled.value = true
         assertEquals(V3DeviceInfoWriteResult.SENT, setText(DEVICE_NAME, "ПротезAB"))
         assertTextPacket(packets.single(), 13, "FTHS3-ПротезA")
+    }
+
+    @Test fun `native get reads storage on each prefill without falling back to shared identity or connection name`() {
+        ConnectionState.connectedDeviceName = "FTHS3-connected"
+        serial = "FTHS3-identity"
+        val nameInfo = ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME)
+        ParameterStoreV3.put(nameInfo, ParameterTypedValueV3.Text("FTHS3-typed"))
+        UiState.v3WidgetsInteractionEnabled.value = false
+        UiState.isInterfaceV3Activated = false
+        var storedName: String? = null
+        var reads = 0
+        val nativeRepository = V3DeviceInfoRepositoryImpl(
+            readDeviceNameInput = { reads++; storedName },
+            enqueuePacket = { _, _ -> fail<Unit>("Prefill must not queue a packet") },
+            onDeviceNameQueued = { fail<Unit>("Prefill must not update storage") },
+        )
+        val getText = GetDeviceInfoTextUseCaseV3(nativeRepository)
+        assertSame(UiState.v3WidgetsInteractionEnabled, nativeRepository.interactionEnabled)
+        for ((stored, expected) in listOf(null to "", " \n " to "", " INDY3-storage " to "storage", "FTHS3-next" to "next", "foreign" to "foreign")) {
+            storedName = stored
+            assertEquals(expected, getText(DEVICE_NAME))
+        }
+        assertEquals(5, reads)
+        assertFalse(nativeRepository.interactionEnabled.value)
+        assertEquals("FTHS3-connected", ConnectionState.connectedDeviceName)
+        assertEquals("FTHS3-identity", identity.identity.value?.serial)
+        assertEquals(ParameterTypedValueV3.Text("FTHS3-typed"), ParameterStoreV3.get(nameInfo))
+    }
+
+    @Test fun `injected edit policy and prepared set preserve platform text without another trim or edit`() {
+        val edits = mutableListOf<String>()
+        val edit = EditDeviceInfoTextUseCaseV3 { text -> edits += text; text.take(10) }
+        val raw = " 123456789ABC "
+        val value = edit(DEVICE_NAME, raw)
+        assertEquals(V3DeviceInfoTextEdit(" 123456789", true), value)
+        assertEquals(V3DeviceInfoTextEdit("short ", false), edit(DEVICE_NAME, "short "))
+        assertEquals(V3DeviceInfoTextEdit(raw, false), edit(SERIAL_NUMBER, raw))
+        assertEquals(listOf(raw, "short "), edits)
+        val sent = mutableListOf<Pair<V3DeviceInfoField, String>>()
+        val recordingRepository = object : V3DeviceInfoRepository {
+            override val interactionEnabled = UiState.v3WidgetsInteractionEnabled
+            override fun getTextForInput(field: V3DeviceInfoField): String? = null
+            override fun sendText(field: V3DeviceInfoField, text: String): Boolean {
+                sent += field to text
+                return true
+            }
+        }
+        val nativeSet = SetDeviceInfoTextUseCaseV3(recordingRepository, requireInteractionEnabled = false)
+        UiState.v3WidgetsInteractionEnabled.value = false
+        val defaultSet = SetDeviceInfoTextUseCaseV3(recordingRepository)
+        assertEquals(V3DeviceInfoWriteResult.BLOCKED, defaultSet(DEVICE_NAME, value))
+        assertEquals(V3DeviceInfoWriteResult.BLOCKED, defaultSet(DEVICE_NAME, V3DeviceInfoTextEdit("", false)))
+        assertEquals(V3DeviceInfoWriteResult.SENT, nativeSet(DEVICE_NAME, value))
+        val platformPrepared = "  ABCDEFGHIJKLMN  "
+        assertEquals(V3DeviceInfoWriteResult.SENT, nativeSet(DEVICE_NAME, V3DeviceInfoTextEdit(platformPrepared, false)))
+        assertEquals(V3DeviceInfoWriteResult.EMPTY, nativeSet(DEVICE_NAME, V3DeviceInfoTextEdit("", true)))
+        assertEquals(listOf(DEVICE_NAME to value.text, DEVICE_NAME to platformPrepared), sent)
+        assertEquals(listOf(raw, "short "), edits)
+        assertFalse(recordingRepository.interactionEnabled.value)
+        UiState.v3WidgetsInteractionEnabled.value = true
+        assertEquals(V3DeviceInfoWriteResult.SENT, defaultSet(DEVICE_NAME, "ABCDEFGHIJKLMN"))
+        assertEquals(DEVICE_NAME to "ABCDEFGHIJKLM", sent.last())
+    }
+
+    @ParameterizedTest
+    @CsvSource("STANDARD_V3,FTHS3-", "INDY3,INDY3-")
+    fun `native prepared name queues offline repeatedly and publishes the packet prefix once before any completion`(profile: V3DeviceProfile, prefix: String) {
+        UiState.v3WidgetsInteractionEnabled.value = false
+        UiState.isInterfaceV3Activated = false
+        WidgetRepoProvider.setCurrentMac("")
+        ConnectionState.connectedDeviceName = "unchanged-connected-name"
+        val nameInfo = ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME)
+        ParameterStoreV3.put(nameInfo, ParameterTypedValueV3.Text("unchanged-typed-name"))
+        val otherProfile = if (profile == V3DeviceProfile.INDY3) V3DeviceProfile.STANDARD_V3 else V3DeviceProfile.INDY3
+        val otherPrefix = if (profile == V3DeviceProfile.INDY3) "FTHS3-" else "INDY3-"
+        var storedName: String? = "FTHS3-old"
+        var reads = 0
+        val events = mutableListOf<String>()
+        val publishedNames = mutableListOf<String>()
+        val nativeRepository = V3DeviceInfoRepositoryImpl(
+            readDeviceNameInput = { reads++; storedName },
+            enqueuePacket = { packet, callback ->
+                packets += packet
+                callbacks += callback
+                events += "enqueue"
+                // Prefix evaluation after enqueue would disagree with the already prepared packet.
+                UiState.activeV3DeviceProfile = if (UiState.activeV3DeviceProfile == V3DeviceProfile.INDY3) V3DeviceProfile.STANDARD_V3 else V3DeviceProfile.INDY3
+            },
+            onDeviceNameQueued = { transportText ->
+                storedName = transportText
+                events += "save:$transportText"
+                publishedNames += transportText
+                events += "notify:$transportText"
+            },
+        )
+        val edit = EditDeviceInfoTextUseCaseV3 { it.take(10) }
+        val set = SetDeviceInfoTextUseCaseV3(nativeRepository, requireInteractionEnabled = false)
+        val prepared = edit(DEVICE_NAME, "ABCDEFGHIJK")
+        assertEquals(V3DeviceInfoTextEdit("ABCDEFGHIJ", true), prepared)
+        val expectedNames = mutableListOf<String>()
+        for ((nextProfile, nextPrefix) in listOf(profile to prefix, profile to prefix, otherProfile to otherPrefix)) {
+            UiState.activeV3DeviceProfile = nextProfile
+            val expectedName = nextPrefix + prepared.text
+            assertEquals(V3DeviceInfoWriteResult.SENT, set(DEVICE_NAME, prepared))
+            expectedNames += expectedName
+            assertTextPacket(packets.last(), 13, expectedName)
+            assertEquals(expectedName, storedName)
+            WidgetRepoProvider.setCurrentMac("changed-device")
+        }
+        assertEquals(expectedNames, publishedNames)
+        assertEquals(expectedNames.flatMap { listOf("enqueue", "save:$it", "notify:$it") }, events)
+        assertEquals(0, reads)
+        val eventsBeforeCompletion = events.toList()
+        callbacks.toList().forEach { it(); it() }
+        assertEquals(eventsBeforeCompletion, events)
+        assertEquals(3, packets.size)
+        assertEquals(expectedNames, publishedNames)
+        assertEquals("unchanged-connected-name", ConnectionState.connectedDeviceName)
+        assertEquals(ParameterTypedValueV3.Text("unchanged-typed-name"), ParameterStoreV3.get(nameInfo))
+        assertNull(identity.identity.value)
+        assertSame(UiState.v3WidgetsInteractionEnabled, nativeRepository.interactionEnabled)
+        assertFalse(nativeRepository.interactionEnabled.value)
+        assertEquals(0, customizations)
     }
 
     private fun assertTextPacket(packet: ByteArray, command: Int, text: String) {

@@ -70,11 +70,14 @@ object V3UserFirmwarePolicy {
         !isMain && installedVersion != null && installedVersion != targetVersion
 }
 
-interface V3UserFirmwareRepository {
-    fun observe(): Flow<V3UserFirmwareStatus>
-    fun refreshEnvironment()
+interface V3UserFirmwareActionsRepository {
     fun startUpdate()
     fun postponeUpdate()
     fun acknowledgeCompletion()
+}
+
+interface V3UserFirmwareRepository : V3UserFirmwareActionsRepository {
+    fun observe(): Flow<V3UserFirmwareStatus>
+    fun refreshEnvironment()
     fun close()
 }

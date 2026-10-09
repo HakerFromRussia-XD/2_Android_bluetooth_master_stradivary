@@ -14,23 +14,28 @@ class V3DeviceRoleRepositoryImpl(
     private val readSavedRole: () -> Int,
     private val saveRole: (Int) -> Unit,
     private val settings: V3SpinnerSettingsRepository,
+    private val allowProsthetist: Boolean = false,
+    private val updateSharedAccess: Boolean = true,
 ) : V3DeviceRoleRepository {
     override val interactionEnabled = settings.spinnerInteractionEnabled
     override val serviceEngineerAccess = serviceEngineerAccessState.asStateFlow()
 
-    // The disabled prosthetist role and unknown stored values display as User, as before.
-    override fun getSelectedRole() = if (readSavedRole() == 1) {
-        V3DeviceRole.SERVICE_ENGINEER
-    } else V3DeviceRole.USER
+    // Android keeps its disabled prosthetist role normalized for display; iOS retains all three roles.
+    override fun getSelectedRole() = when (readSavedRole()) {
+        V3DeviceRole.SERVICE_ENGINEER.wireValue -> V3DeviceRole.SERVICE_ENGINEER
+        V3DeviceRole.PROSTHETIST.wireValue -> if (allowProsthetist) V3DeviceRole.PROSTHETIST else V3DeviceRole.USER
+        else -> V3DeviceRole.USER
+    }
 
     override fun updateRoleAccess(role: V3DeviceRole) {
-        serviceEngineerAccessState.value = role == V3DeviceRole.SERVICE_ENGINEER
+        if (updateSharedAccess) serviceEngineerAccessState.value = role == V3DeviceRole.SERVICE_ENGINEER
     }
 
     override fun isPinValid(pin: String) = pin == "1234" // Existing V3 PIN policy.
 
     override fun setSelectedRole(role: V3DeviceRole) {
-        val value = if (role == V3DeviceRole.SERVICE_ENGINEER) 1 else 2
+        require(allowProsthetist || role != V3DeviceRole.PROSTHETIST) { "Prosthetist role is unavailable" }
+        val value = role.wireValue
         saveRole(value)
         updateRoleAccess(role)
         settings.setSpinnerValue(P_KEY_DEVICE_ROLE, value)

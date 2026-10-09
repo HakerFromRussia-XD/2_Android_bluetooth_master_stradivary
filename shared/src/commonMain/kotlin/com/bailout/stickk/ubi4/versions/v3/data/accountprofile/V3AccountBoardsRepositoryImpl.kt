@@ -9,13 +9,17 @@ import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountBoard
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountBoardsRepository
 import kotlinx.coroutines.flow.map
 
-class V3AccountBoardsRepositoryImpl : V3AccountBoardsRepository {
+class V3AccountBoardsRepositoryImpl(
+    private val useAddressNameFallback: Boolean = true,
+) : V3AccountBoardsRepository {
     override fun getBoards() = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
         val codeName = PreferenceKeysUbi4.DeviceCodeV3.fromCode(sub.deviceCode).title.removeSuffix(" board")
         val family = FirmwareBoardFamily.fromDeviceAddress(sub.deviceAddress)
         V3AccountBoard(
-            name = codeName.takeUnless { it.equals("Unknown", ignoreCase = true) }
-                ?: family.takeUnless { it == FirmwareBoardFamily.UNKNOWN }?.name,
+            name = if (useAddressNameFallback) {
+                codeName.takeUnless { it.equals("Unknown", ignoreCase = true) }
+                    ?: family.takeUnless { it == FirmwareBoardFamily.UNKNOWN }?.name
+            } else codeName,
             deviceCode = sub.deviceCode, deviceAddress = sub.deviceAddress, version = sub.fwVersion,
         )
     }

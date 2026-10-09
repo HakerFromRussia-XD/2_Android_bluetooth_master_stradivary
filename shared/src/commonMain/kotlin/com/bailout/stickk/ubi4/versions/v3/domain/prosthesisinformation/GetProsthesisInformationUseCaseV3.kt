@@ -1,9 +1,9 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.prosthesisinformation
 
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetail
-import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountProfileLocalRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetailsReader
 
-class GetProsthesisInformationUseCaseV3(private val repository: V3AccountProfileLocalRepository) {
+class GetProsthesisInformationUseCaseV3(private val repository: V3AccountDetailsReader) {
     operator fun invoke() = V3ProsthesisInformation(
         prosthesisModel = repository.getDetail(V3AccountDetail.MODEL),
         prosthesisSize = repository.getDetail(V3AccountDetail.SIZE),

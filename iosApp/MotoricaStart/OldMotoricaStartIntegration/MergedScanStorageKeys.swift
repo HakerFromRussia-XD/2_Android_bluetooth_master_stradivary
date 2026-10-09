@@ -1,4 +1,5 @@
 import Foundation
+import shared
 
 enum MergedProsthesisFamily: String, Codable {
     case newKmm
@@ -175,6 +176,23 @@ struct SmartConnectionSettingsStore {
         default:
             return (rawValue as NSString).boolValue
         }
+    }
+}
+
+final class V3AutoLoginSettingsRepositoryImpl: NSObject, V3AutoLoginSettingsRepository {
+    private let store: SmartConnectionSettingsStore
+
+    init(store: SmartConnectionSettingsStore = SmartConnectionSettingsStore()) {
+        self.store = store
+        super.init()
+    }
+
+    func getAutoLoginEnabled() -> Bool {
+        store.isEnabled
+    }
+
+    func setAutoLoginEnabled(enabled: Bool) {
+        store.setEnabled(enabled)
     }
 }
 

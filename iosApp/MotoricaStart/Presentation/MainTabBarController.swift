@@ -7,6 +7,32 @@
 import UIKit
 import shared
 
+enum V3MainTabsAction {
+    case widgetsChanged
+}
+
+struct V3MainTabsUiState {
+    let visibleDisplays: Set<Int32>
+}
+
+final class V3MainTabsViewModel {
+    private let getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3
+    private(set) var uiState = V3MainTabsUiState(visibleDisplays: [])
+
+    init(getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3) {
+        self.getVisibleDisplays = getVisibleDisplays
+    }
+
+    func onAction(_ action: V3MainTabsAction) {
+        switch action {
+        case .widgetsChanged:
+            uiState = V3MainTabsUiState(
+                visibleDisplays: Set(getVisibleDisplays.invoke().map { Int32($0.intValue) })
+            )
+        }
+    }
+}
+
 final class MainTabBarController: UITabBarController {
     private struct TabBarContentDescriptor {
         let title: String
@@ -29,6 +55,8 @@ final class MainTabBarController: UITabBarController {
     }
 
     private var userFirmwareUpdates: UserFirmwareUpdatePresenter?
+    private let deviceInteractionViewModel: V3DeviceInteractionViewModel
+    private let mainTabsViewModel: V3MainTabsViewModel
 
     private let appDIContainer: AppDIContainer
     private var didUpdateTabBarFonts = false
@@ -71,6 +99,8 @@ final class MainTabBarController: UITabBarController {
     
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
+        self.deviceInteractionViewModel = appDIContainer.makeDeviceInteractionViewModelV3()
+        self.mainTabsViewModel = appDIContainer.makeMainTabsViewModelV3()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -105,6 +135,7 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        deviceInteractionViewModel.startObserving()
         view.backgroundColor = tabsBackgroundColor
         view.isOpaque = true
         view.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarRoot
@@ -154,7 +185,9 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if userFirmwareUpdates == nil { userFirmwareUpdates = UserFirmwareUpdatePresenter(owner: self) }
+        if userFirmwareUpdates == nil {
+            userFirmwareUpdates = UserFirmwareUpdatePresenter(owner: self, makeViewModel: appDIContainer.makeUserFirmwareViewModelV3)
+        }
         userFirmwareUpdates?.foreground()
         setNeedsStatusBarAppearanceUpdate()
         scheduleTabBarColorRefreshBurst()
@@ -170,7 +203,7 @@ final class MainTabBarController: UITabBarController {
         let specialTitle = SharedLocalizedText.text(SharedRes.strings().special_settings)
         let trainingTitle = SharedLocalizedText.text(SharedRes.strings().training)
 
-        let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
+        let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions, makeAccountScreen: appDIContainer.makeAccountViewController)
         gesturesVC.tabBarItem = makeTabBarItem(
             title: gesturesTitle,
             imageName: "ic_gestures",
@@ -178,21 +211,21 @@ final class MainTabBarController: UITabBarController {
         )
         gesturesVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabGesturesItem
 
-        let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions)
+        let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions, makeAccountScreen: appDIContainer.makeAccountViewController)
         sensorsVC.tabBarItem = makeTabBarItem(
             title: sensorsTitle,
             imageName: "ic_sensors",
             tag: TabTag.sensors
         )
 
-        let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
+        let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions, makeAccountScreen: appDIContainer.makeAccountViewController)
         specialVC.tabBarItem = makeTabBarItem(
             title: specialTitle,
             imageName: "ic_mechanics",
             tag: TabTag.specialSettings
         )
         specialVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabSpecialSettingsItem
-        let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
+        let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions, makeAccountScreen: appDIContainer.makeAccountViewController)
         trainingVC.tabBarItem = makeTabBarItem(
             title: trainingTitle,
             imageName: "ic_trophy",
@@ -225,13 +258,13 @@ final class MainTabBarController: UITabBarController {
 
     private func showBleLogScreen() {
         if navigationController?.topViewController is BleLogViewController { return }
-        navigationController?.pushViewController(BleLogViewController(), animated: true)
+        navigationController?.pushViewController(appDIContainer.makeBleLogViewController(), animated: true)
     }
 
     private func makeServiceSettingsTabViewController() -> ServiceSettingsTabViewController {
         let widgetsDI = appDIContainer.makeWidgetsSceneDIContainer()
         let serviceTitle = SharedLocalizedText.text(SharedRes.strings().service_settings)
-        let serviceVC = widgetsDI.makeServiceSettingsTabViewController(actions: makeWidgetsActions())
+        let serviceVC = widgetsDI.makeServiceSettingsTabViewController(actions: makeWidgetsActions(), makeAccountScreen: appDIContainer.makeAccountViewController)
         serviceVC.tabBarItem = makeTabBarItem(
             title: serviceTitle,
             imageName: "ic_navigate_next",
@@ -260,10 +293,16 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func applyWidgetDrivenTabVisibility(preferredSelectionTag: Int? = nil) {
-        let dataFactory = DataFactory()
-        let visibleDisplays = Set((0...4).compactMap { display -> Int32? in
-            dataFactory.prepareData(display: Int32(display)).isEmpty ? nil : Int32(display)
-        })
+        let visibleDisplays: Set<Int32>
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            mainTabsViewModel.onAction(.widgetsChanged)
+            visibleDisplays = mainTabsViewModel.uiState.visibleDisplays
+        } else {
+            let dataFactory = DataFactory()
+            visibleDisplays = Set((0...4).compactMap { display -> Int32? in
+                dataFactory.prepareData(display: Int32(display)).isEmpty ? nil : Int32(display)
+            })
+        }
         let previousSelectedTag = selectedViewController?.tabBarItem.tag
 
         let permittedControllers = allTabViewControllers.filter { controller in
@@ -977,8 +1016,17 @@ final class MainTabBarController: UITabBarController {
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            self?.updateDeviceInteractionAvailability()
             self?.updateSynchronizationRestrictedTabAvailability()
         }
+        updateDeviceInteractionAvailability()
+    }
+
+    private func updateDeviceInteractionAvailability() {
+        deviceInteractionViewModel.onAction(.synchronizationChanged(
+            completed: WidgetsListViewController.isGlobalSynchronizationCompleted,
+            inProgress: WidgetsListViewController.isGlobalSynchronizationInProgress
+        ))
     }
 
     private func registerWidgetUpdates() {

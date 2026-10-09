@@ -1,7 +1,25 @@
 import Foundation
 import shared
 
-struct TextInputListItemViewModelV3: Equatable, Hashable {
+enum TextInputListItemActionV3 {
+    case textChanged(String)
+    case currentValueRequested(storedFullName: String?)
+    case inputSubmitted(String)
+}
+
+enum TextInputSubmissionV3 {
+    case empty
+    case failed
+    case deviceNameSaved
+    case valueSent(String)
+}
+
+struct TextInputListItemUiStateV3 {
+    let text: String
+    let submission: TextInputSubmissionV3?
+}
+
+final class TextInputListItemViewModelV3: Equatable, Hashable {
     static let maxDeviceNameBytesWithoutPrefix = 10
 
     enum InputKind: Equatable {
@@ -17,6 +35,11 @@ struct TextInputListItemViewModelV3: Equatable, Hashable {
     let binding: WidgetV3BindingInfo?
     let placeholder: String
     let buttonTitle: String
+    let deviceInfoField: V3DeviceInfoField?
+    private let getDeviceInfoTextUseCase: GetDeviceInfoTextUseCaseV3
+    private let editDeviceInfoTextUseCase: EditDeviceInfoTextUseCaseV3
+    private let setDeviceInfoTextUseCase: SetDeviceInfoTextUseCaseV3
+    private(set) var uiState = TextInputListItemUiStateV3(text: "", submission: nil)
 
     var inputKind: InputKind {
         guard let binding else { return .generic }
@@ -26,14 +49,23 @@ struct TextInputListItemViewModelV3: Equatable, Hashable {
         default: return .generic
         }
     }
-}
-
-extension TextInputListItemViewModelV3 {
-    init(widget: Widget, bleManager: BleManagerKmm) {
+    init(
+        widget: Widget,
+        bleManager: BleManagerKmm,
+        getDeviceInfoTextUseCase: GetDeviceInfoTextUseCaseV3,
+        editDeviceInfoTextUseCase: EditDeviceInfoTextUseCaseV3,
+        setDeviceInfoTextUseCase: SetDeviceInfoTextUseCaseV3
+    ) {
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
         self.binding = WidgetV3Support.primaryBinding(from: widget)
+        self.getDeviceInfoTextUseCase = getDeviceInfoTextUseCase
+        self.editDeviceInfoTextUseCase = editDeviceInfoTextUseCase
+        self.setDeviceInfoTextUseCase = setDeviceInfoTextUseCase
+        self.deviceInfoField = WidgetV3Support.widgetCode(from: widget) == WidgetV3Support.WidgetCode.textInputV3
+            && WidgetV3Support.parameterKey(for: binding, among: ["P_KEY_SET_DEVICE_NAME"]) != nil
+            ? .deviceName : nil
         let widgetPosition = WidgetMetadataExtractor
             .extractBaseStruct(from: widget.widget?.value)?
             .widgetPosition ?? -1
@@ -47,7 +79,40 @@ extension TextInputListItemViewModelV3 {
         self.buttonTitle = split.buttonTitle
     }
 
-    func sendInput(_ input: String) -> String? {
+    func onAction(_ action: TextInputListItemActionV3) {
+        switch action {
+        case .textChanged(let text):
+            let value = deviceInfoField.map { editDeviceInfoTextUseCase.invoke(field: $0, text: text).text }
+                ?? trimToByteLimit(text)
+            uiState = TextInputListItemUiStateV3(text: value, submission: nil)
+        case .currentValueRequested(let storedFullName):
+            let value: String
+            if let deviceInfoField {
+                value = getDeviceInfoTextUseCase.invoke(field: deviceInfoField) ?? ""
+            } else {
+                value = prefillText(storedFullName: storedFullName)
+            }
+            uiState = TextInputListItemUiStateV3(text: value, submission: nil)
+        case .inputSubmitted(let text):
+            let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let submission: TextInputSubmissionV3
+            if normalized.isEmpty {
+                submission = .empty
+            } else if let deviceInfoField {
+                let edit = editDeviceInfoTextUseCase.invoke(field: deviceInfoField, text: normalized)
+                submission = setDeviceInfoTextUseCase.invoke(field: deviceInfoField, value: edit) == .sent
+                    ? .deviceNameSaved : .failed
+            } else if let value = sendInput(normalized) {
+                submission = .valueSent(value)
+            } else {
+                submission = .failed
+            }
+            uiState = TextInputListItemUiStateV3(text: uiState.text, submission: submission)
+        }
+    }
+
+    // Serial numbers and non-generated bindings retain their existing native commands.
+    private func sendInput(_ input: String) -> String? {
         guard let binding else { return nil }
         let normalized = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleaned = inputKind == .deviceName ? trimToByteLimit(normalized) : normalized
@@ -76,7 +141,7 @@ extension TextInputListItemViewModelV3 {
         return transportText
     }
 
-    func prefillText(storedFullName: String?) -> String {
+    private func prefillText(storedFullName: String?) -> String {
         switch inputKind {
         case .deviceName:
             return DeviceNameBridgeV3.shared.displayName(deviceName: storedFullName)
@@ -92,20 +157,16 @@ extension TextInputListItemViewModelV3 {
         }
     }
 
-    func trimToByteLimit(_ value: String) -> String {
+    private func trimToByteLimit(_ value: String) -> String {
         guard inputKind == .deviceName else { return value }
-        return trimToUtf8ByteLimit(value, maxBytes: Self.maxDeviceNameBytesWithoutPrefix)
+        return Self.trimDeviceName(value)
     }
 
-    func isWithinLimit(_ value: String) -> Bool {
-        inputKind != .deviceName || value.utf8.count <= Self.maxDeviceNameBytesWithoutPrefix
-    }
-
-    private func trimToUtf8ByteLimit(_ value: String, maxBytes: Int) -> String {
+    static func trimDeviceName(_ value: String) -> String {
         var result = ""
         for scalar in value {
             let candidate = result + String(scalar)
-            if candidate.utf8.count > maxBytes {
+            if candidate.utf8.count > maxDeviceNameBytesWithoutPrefix {
                 break
             }
             result = candidate

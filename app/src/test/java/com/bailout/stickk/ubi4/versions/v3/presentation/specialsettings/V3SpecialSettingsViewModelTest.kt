@@ -462,10 +462,12 @@ class V3SpecialSettingsViewModelTest {
         override val spinnerInteractionEnabled get() = sliderInteractionEnabled
         override fun getSpinnerValue(parameterKey: String): Int? = null
         override fun observeSpinnerValue(parameterKey: String) = MutableStateFlow<Int?>(null)
+        override fun requestSpinnerValue(parameterKey: String) = error("Unexpected spinner request")
         override fun setSpinnerValue(parameterKey: String, value: Int) = error("No Spinner in this fixture")
         override val toggleSliderInteractionEnabled get() = sliderInteractionEnabled
         override fun getToggleSliderValue(parameterKey: String): V3ToggleSliderValue? = null
         override fun observeToggleSliderValue(parameterKey: String) = MutableStateFlow<V3ToggleSliderValue?>(null)
+        override fun requestToggleSliderValue(parameterKey: String) = error("Unexpected toggle slider request")
         override fun saveToggleSliderValue(parameterKey: String, value: V3ToggleSliderValue) = error("No ToggleSlider in this fixture")
         override fun sendToggleSliderValue(parameterKey: String, value: V3ToggleSliderValue) = error("No ToggleSlider in this fixture")
         val values = mapOf(
@@ -477,6 +479,7 @@ class V3SpecialSettingsViewModelTest {
         val writes = mutableListOf<Pair<String, Int>>()
         override fun getSliderValue(parameterKey: String) = values.getValue(parameterKey).value
         override fun observeSliderValue(parameterKey: String) = values.getValue(parameterKey)
+        override fun requestSliderValue(parameterKey: String) = error("Unexpected slider request")
         override fun setSliderValue(parameterKey: String, value: Int) {
             writes.add(parameterKey to value)
             values.getValue(parameterKey).value = value

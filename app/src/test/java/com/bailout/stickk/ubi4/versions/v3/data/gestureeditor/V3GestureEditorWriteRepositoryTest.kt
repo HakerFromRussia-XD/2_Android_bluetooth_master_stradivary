@@ -4,12 +4,14 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.*
+import io.mockk.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -46,12 +48,13 @@ class V3GestureEditorWriteRepositoryTest {
                 packets.add(packet)
                 order.add("enqueue")
             },
-        ) { key, value ->
-            assertEquals(info, key)
-            assertEquals(expectedValue, value)
-            assertEquals(value, ParameterStoreV3.get(key))
-            order.add("profile")
-        }
+            saveProfile = { key, value ->
+                assertEquals(info, key)
+                assertEquals(expectedValue, value)
+                assertEquals(value, ParameterStoreV3.get(key))
+                order.add("profile")
+            },
+        )
         WriteGestureSettingsUseCaseV3(repository)(settings, command, "Original name")
         val expectedCommand = when (command) {
             V3GestureCommand.OPEN -> 0
@@ -72,13 +75,68 @@ class V3GestureEditorWriteRepositoryTest {
             readSavedHandSide = { error("Writing must not read preferences") },
             subscribeSettingsUpdates = { error("Writing must not subscribe") },
             enqueuePacket = { sent++ },
-        ) { _, _ ->
-            throw IllegalStateException("profile failure")
-        }
+            saveProfile = { _, _ -> throw IllegalStateException("profile failure") },
+        )
         assertThrows(IllegalStateException::class.java) {
             WriteGestureSettingsUseCaseV3(repository)(settings, V3GestureCommand.SAVE, "Name")
         }
         assertEquals(expectedValue, ParameterStoreV3.get(info))
         assertEquals(0, sent)
+    }
+
+    @ParameterizedTest @EnumSource(V3GestureCommand::class)
+    fun `native raw write repeats original packet offline for every command without metadata store or profile`(command: V3GestureCommand) {
+        val previousState = BLEState.state.value
+        val raw = V3GestureSettings(Int.MIN_VALUE,
+            listOf(-1, 0, 101, 255, 256, Int.MAX_VALUE), listOf(Int.MIN_VALUE, -257, 17, 99, 100, 400),
+            listOf(-1, 255, 256, Int.MIN_VALUE, Int.MAX_VALUE, 21), listOf(31, -258, 0, 257, 1000, -500))
+        val oldGesture = Gesture(raw.gestureId,
+            -1, 0, 101, 255, 256, Int.MAX_VALUE, Int.MIN_VALUE, -257, 17, 99, 100, 400,
+            -1, 255, 256, Int.MIN_VALUE, Int.MAX_VALUE, 21, 31, -258, 0, 257, 1000, -500, "Name", 0)
+        val oldPacket = BLECommandsV3.sendGestureInfo(GestureWithAddress(91, 92, oldGesture, command.code))
+        ParameterStoreV3.put(info, expectedValue)
+        val beforeValues = ParameterStoreV3.values.value
+        val packets = mutableListOf<ByteArray>()
+        val repository = V3GestureEditorRepositoryImpl(
+            readSavedHandSide = { error("Writing must not read preferences") },
+            subscribeSettingsUpdates = { error("Writing must not subscribe") },
+            enqueuePacket = { assertEquals(beforeValues, ParameterStoreV3.values.value); packets += it },
+            saveProfile = { _, _ -> error("Native writing must not save a profile") },
+            saveSettingsBeforeSending = false,
+        )
+        mockkObject(ParameterInfoRegistry)
+        try {
+            every { ParameterInfoRegistry.require(any()) } throws IllegalStateException("Native writing must not require metadata")
+            BLEState.publishDisconnect()
+            val write = WriteGestureSettingsUseCaseV3(repository, clampPositions = false)
+            repeat(2) { write(raw, command, "Name") }
+            assertEquals(2, packets.size)
+            packets.forEach { assertArrayEquals(oldPacket, it) }
+            val payload = listOf(39, 0, 255, 0, 101, 255, 0, 255, 0, 255, 17, 99, 100, 144,
+                255, 255, 0, 0, 255, 21, 31, 254, 0, 1, 232, 12, command.code)
+            assertEquals(33, packets.first().size)
+            assertBytesWithCrc(packets.first().copyOfRange(0, 5), listOf(128, 15, 27, 0))
+            assertBytesWithCrc(packets.first().copyOfRange(5, 33), payload)
+            assertEquals(raw.gestureId.toByte(), packets.first()[6])
+            assertEquals(beforeValues, ParameterStoreV3.values.value)
+            verify(exactly = 0) { ParameterInfoRegistry.require(any()) }
+        } finally {
+            unmockkObject(ParameterInfoRegistry)
+            when (previousState) {
+                BLEState.State.DISCONNECTED -> BLEState.publishDisconnect()
+                BLEState.State.CONNECTING -> BLEState.publishConnecting()
+                BLEState.State.READY -> BLEState.publishReady()
+                BLEState.State.ERROR -> BLEState.publishError()
+            }
+        }
+    }
+
+    private fun assertBytesWithCrc(packet: ByteArray, body: List<Int>) {
+        var crc = 0
+        body.forEach { byte ->
+            crc = crc xor byte
+            repeat(8) { crc = if (crc and 1 != 0) (crc ushr 1) xor 0x8C else crc ushr 1 }
+        }
+        assertArrayEquals((body + crc).map(Int::toByte).toByteArray(), packet)
     }
 }

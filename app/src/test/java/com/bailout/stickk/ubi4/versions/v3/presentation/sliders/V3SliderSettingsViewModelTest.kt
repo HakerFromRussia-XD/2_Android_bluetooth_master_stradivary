@@ -325,6 +325,7 @@ class V3SliderSettingsViewModelTest {
         val writesByParameter = mutableListOf<Pair<String, Int>>()
         override fun getSliderValue(parameterKey: String) = values.getValue(parameterKey).value
         override fun observeSliderValue(parameterKey: String) = values.getValue(parameterKey)
+        override fun requestSliderValue(parameterKey: String) = error("Unexpected slider request")
         override fun setSliderValue(parameterKey: String, value: Int) {
             writes.add(value)
             writesByParameter.add(parameterKey to value)

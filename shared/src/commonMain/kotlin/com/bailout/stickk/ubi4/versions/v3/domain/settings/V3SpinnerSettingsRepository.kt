@@ -8,5 +8,6 @@ interface V3SpinnerSettingsRepository {
     val spinnerInteractionEnabled: StateFlow<Boolean>
     fun getSpinnerValue(parameterKey: String): Int?
     fun observeSpinnerValue(parameterKey: String): Flow<Int?>
+    fun requestSpinnerValue(parameterKey: String)
     fun setSpinnerValue(parameterKey: String, value: Int)
 }

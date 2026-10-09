@@ -28,3 +28,16 @@ class LoadRotationGroupUseCaseV3(private val repository: V3GesturesRepository) {
         }
     }
 }
+
+class RequestRotationGroupUseCaseV3(
+    private val repository: V3GesturesRepository,
+    private val requireInteractionEnabled: Boolean = true,
+) {
+    operator fun invoke(deviceAddress: String): Boolean {
+        if (requireInteractionEnabled) {
+            val current = repository.getActiveGesture()
+            if (!current.isInteractionEnabled || current.deviceAddress != deviceAddress) return false
+        }
+        return repository.requestRotationGroup(deviceAddress)
+    }
+}

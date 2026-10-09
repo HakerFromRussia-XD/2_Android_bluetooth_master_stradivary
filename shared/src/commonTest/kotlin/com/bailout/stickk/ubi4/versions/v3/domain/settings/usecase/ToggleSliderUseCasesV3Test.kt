@@ -122,6 +122,7 @@ class ToggleSliderUseCasesV3Test {
         override fun observeToggleSliderValue(parameterKey: String) =
             values.getOrPut(parameterKey) { MutableStateFlow(null) }
         override fun getToggleSliderValue(parameterKey: String) = values[parameterKey]?.value
+        override fun requestToggleSliderValue(parameterKey: String) = error("Unexpected toggle slider request")
         override fun saveToggleSliderValue(parameterKey: String, value: V3ToggleSliderValue) {
             saved.add(parameterKey to value)
             observeToggleSliderValue(parameterKey).value = value

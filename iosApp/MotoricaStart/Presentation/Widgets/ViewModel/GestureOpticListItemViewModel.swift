@@ -9,6 +9,150 @@ import shared
 import UIKit
 
 
+enum GestureListItemActionV3 {
+    case viewConfigured
+    case preferencesRequested
+    case activeGestureRequested
+    case currentActiveGestureRequested
+    case activeGestureReceived(Int)
+    case activeGestureSelected(Int)
+    case rotationGroupRequested
+    case rotationGroupReceived([Int])
+    case rotationGroupChanged([Int])
+    case gesturesSectionChanged(Int)
+    case factoryCollectionExpandedChanged(Bool)
+}
+
+struct V3GesturesUiState {
+    let activeGestureId: Int?
+    let rotationGestureIds: [Int]?
+    let preferences: V3GesturesPreferences?
+}
+
+final class V3GesturesViewModel {
+    private let getActiveGestureUseCase: GetActiveGestureUseCaseV3
+    private let observeGesturesChangesUseCase: ObserveGesturesChangesUseCaseV3
+    private let requestActiveGestureUseCase: RequestActiveGestureUseCaseV3
+    private let selectGestureUseCase: SelectGestureUseCaseV3
+    private let requestRotationGroupUseCase: RequestRotationGroupUseCaseV3
+    private let setRotationGroupUseCase: SetRotationGroupUseCaseV3
+    private let getGesturesPreferencesUseCase: GetGesturesPreferencesUseCaseV3
+    private let setGesturesSectionUseCase: SetGesturesSectionUseCaseV3
+    private let setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3
+    private(set) var uiState = V3GesturesUiState(activeGestureId: nil, rotationGestureIds: nil, preferences: nil)
+
+    init(
+        getActiveGestureUseCase: GetActiveGestureUseCaseV3,
+        observeGesturesChangesUseCase: ObserveGesturesChangesUseCaseV3,
+        requestActiveGestureUseCase: RequestActiveGestureUseCaseV3,
+        selectGestureUseCase: SelectGestureUseCaseV3,
+        requestRotationGroupUseCase: RequestRotationGroupUseCaseV3,
+        setRotationGroupUseCase: SetRotationGroupUseCaseV3,
+        getGesturesPreferencesUseCase: GetGesturesPreferencesUseCaseV3,
+        setGesturesSectionUseCase: SetGesturesSectionUseCaseV3,
+        setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3
+    ) {
+        self.getActiveGestureUseCase = getActiveGestureUseCase
+        self.observeGesturesChangesUseCase = observeGesturesChangesUseCase
+        self.requestActiveGestureUseCase = requestActiveGestureUseCase
+        self.selectGestureUseCase = selectGestureUseCase
+        self.requestRotationGroupUseCase = requestRotationGroupUseCase
+        self.setRotationGroupUseCase = setRotationGroupUseCase
+        self.getGesturesPreferencesUseCase = getGesturesPreferencesUseCase
+        self.setGesturesSectionUseCase = setGesturesSectionUseCase
+        self.setFactoryGestureCollectionExpandedUseCase = setFactoryGestureCollectionExpandedUseCase
+    }
+
+    func readGesturesPreferences() -> V3GesturesPreferences {
+        onAction(.preferencesRequested)
+        return uiState.preferences!
+    }
+
+    func onAction(
+        _ action: GestureListItemActionV3,
+        render: ((V3GesturesUiState) -> Void)? = nil
+    ) {
+        switch action {
+        case .viewConfigured:
+            // A fresh provider starts without rotation data until the next device response.
+            uiState = V3GesturesUiState(activeGestureId: uiState.activeGestureId, rotationGestureIds: nil,
+                                      preferences: uiState.preferences)
+        case .preferencesRequested:
+            uiState = V3GesturesUiState(activeGestureId: uiState.activeGestureId,
+                                      rotationGestureIds: uiState.rotationGestureIds,
+                                      preferences: getGesturesPreferencesUseCase.invoke())
+        case .activeGestureRequested:
+            // iOS queues to the selected peripheral without a MAC/interaction gate.
+            _ = requestActiveGestureUseCase.invoke(deviceAddress: "")
+        case .currentActiveGestureRequested:
+            uiState = V3GesturesUiState(
+                activeGestureId: getActiveGestureUseCase.invoke().gestureId.map { Int($0.intValue) },
+                rotationGestureIds: uiState.rotationGestureIds,
+                preferences: uiState.preferences
+            )
+        case .activeGestureReceived(let id):
+            uiState = V3GesturesUiState(activeGestureId: id, rotationGestureIds: uiState.rotationGestureIds,
+                                      preferences: uiState.preferences)
+        case .activeGestureSelected(let id):
+            uiState = V3GesturesUiState(activeGestureId: id, rotationGestureIds: uiState.rotationGestureIds,
+                                      preferences: uiState.preferences)
+            // Keep the existing immediate selection before the packet is queued.
+            render?(uiState)
+            _ = selectGestureUseCase.invoke(deviceAddress: "", gestureId: Int32(id))
+        case .rotationGroupRequested:
+            _ = requestRotationGroupUseCase.invoke(deviceAddress: "")
+        case .rotationGroupReceived(let ids):
+            uiState = V3GesturesUiState(activeGestureId: uiState.activeGestureId, rotationGestureIds: ids,
+                                      preferences: uiState.preferences)
+        case .rotationGroupChanged(let ids):
+            uiState = V3GesturesUiState(activeGestureId: uiState.activeGestureId, rotationGestureIds: ids,
+                                      preferences: uiState.preferences)
+            render?(uiState)
+            _ = setRotationGroupUseCase.invoke(
+                deviceAddress: "", gestureIds: ids.prefix(8).map { KotlinInt(int: Int32($0)) }
+            )
+        case .gesturesSectionChanged(let section):
+            setGesturesSectionUseCase.invoke(section: Int32(section))
+            if let preferences = uiState.preferences {
+                uiState = V3GesturesUiState(
+                    activeGestureId: uiState.activeGestureId,
+                    rotationGestureIds: uiState.rotationGestureIds,
+                    preferences: V3GesturesPreferences(selectedSection: Int32(section),
+                                                      isFactoryCollectionExpanded: preferences.isFactoryCollectionExpanded)
+                )
+            }
+        case .factoryCollectionExpandedChanged(let expanded):
+            setFactoryGestureCollectionExpandedUseCase.invoke(expanded: expanded)
+            if let preferences = uiState.preferences {
+                uiState = V3GesturesUiState(
+                    activeGestureId: uiState.activeGestureId,
+                    rotationGestureIds: uiState.rotationGestureIds,
+                    preferences: V3GesturesPreferences(selectedSection: preferences.selectedSection,
+                                                      isFactoryCollectionExpanded: expanded)
+                )
+            }
+        }
+    }
+
+    func observeActiveGesture(
+        onState: @escaping (V3GesturesUiState) -> Void
+    ) -> Kotlinx_coroutines_coreJob {
+        observeGesturesChangesUseCase.observeActiveGesture { [self] id in
+            onAction(.activeGestureReceived(Int(id.intValue)))
+            onState(uiState)
+        }
+    }
+
+    func observeRotationGroup(
+        onState: @escaping (V3GesturesUiState) -> Void
+    ) -> Kotlinx_coroutines_coreJob {
+        observeGesturesChangesUseCase.observeRotationGroup { [self] ids in
+            onAction(.rotationGroupReceived(ids.map { Int($0.intValue) }))
+            onState(uiState)
+        }
+    }
+}
+
 struct GestureListItemViewModel: Equatable, Hashable {
     private let identifier: String
     let title: String
@@ -19,20 +163,25 @@ struct GestureListItemViewModel: Equatable, Hashable {
     }
     private let parameterInfoSet: Set<ParameterInfoData>
     private let isV3Widget: Bool
-    private let bindings: [WidgetV3BindingInfo]
+    private let gesturesViewModel: V3GesturesViewModel
     
     private let openCustomGestureSettings: ((Int, Bool) -> Void)?
 
-    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: ((Int, Bool) -> Void)? = nil) {
+    init(
+        widget: Widget,
+        bleManager: BleManagerKmm,
+        gesturesViewModel: V3GesturesViewModel,
+        openCustomGestureSettings: ((Int, Bool) -> Void)? = nil
+    ) {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
+        self.gesturesViewModel = gesturesViewModel
         let isUiTestForcedGesturesWidget =
             ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget")
             && widget.id == "ui-test-gestures-widget"
         self.isV3Widget = isUiTestForcedGesturesWidget || WidgetV3Support.isV3Widget(widget)
-        self.bindings = WidgetV3Support.bindings(from: widget)
         
         self.openCustomGestureSettings = openCustomGestureSettings
 
@@ -51,6 +200,40 @@ struct GestureListItemViewModel: Equatable, Hashable {
 }
 
 extension GestureListItemViewModel {
+    func onAction(_ action: GestureListItemActionV3) {
+        guard isV3Widget else { return }
+        gesturesViewModel.onAction(action)
+    }
+
+    static func activeGestureTarget(for widget: Widget) -> WidgetV3BindingInfo? {
+        WidgetV3Support.bindings(from: widget).first {
+            $0.dataCode == ParameterCode.selectGestureV3Get || $0.dataCode == ParameterCode.selectGestureV3Set
+        }
+    }
+
+    static func rotationGroupTarget(for widget: Widget) -> WidgetV3BindingInfo? {
+        WidgetV3Support.bindings(from: widget).first {
+            $0.dataCode == ParameterCode.gestureGroupV3Get || $0.dataCode == ParameterCode.gestureGroupV3Set
+        }
+    }
+
+    func currentActiveGestureState() -> V3GesturesUiState {
+        gesturesViewModel.onAction(.currentActiveGestureRequested)
+        return gesturesViewModel.uiState
+    }
+
+    func observeActiveGesture(
+        onState: @escaping (V3GesturesUiState) -> Void
+    ) -> Kotlinx_coroutines_coreJob {
+        gesturesViewModel.observeActiveGesture(onState: onState)
+    }
+
+    func observeRotationGroup(
+        onState: @escaping (V3GesturesUiState) -> Void
+    ) -> Kotlinx_coroutines_coreJob {
+        gesturesViewModel.observeRotationGroup(onState: onState)
+    }
+
     static func sendFestData(data: KotlinByteArray, bleManager: BleManagerKmm,) {
         let gatt = SampleGattAttributes()
         print("[BLE-COMMUNICATION] sendDataToFest data: \(data.hex)")
@@ -63,6 +246,7 @@ extension GestureListItemViewModel {
     }
     
     func makeProvider() -> GesturesProvider {
+        if isV3Widget { gesturesViewModel.onAction(.viewConfigured) }
         let factory = GestureCatalog.factoryGestures
         let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
         let rotation: [GestureCatalog.GestureItem] = []
@@ -94,7 +278,8 @@ extension GestureListItemViewModel {
             },
             sprGestures: spr,
             activeGestureId: 0,
-            activeGestureTitle: nil
+            activeGestureTitle: nil,
+            preferencesViewModel: isV3Widget ? gesturesViewModel : nil
         )
     }
 
@@ -122,21 +307,28 @@ extension GestureListItemViewModel {
         }
     }
     func selectFactoryGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
-        provider.activeGestureId = item.id
-        provider.activeGestureTitle = item.title
-        sendActiveGesture(gestureId: item.id)
+        selectGesture(item, provider: provider)
     }
 
     func selectCustomGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
-        provider.activeGestureId = item.id
-        provider.activeGestureTitle = item.title
-        sendActiveGesture(gestureId: item.id)
+        selectGesture(item, provider: provider)
     }
 
     func selectRotationGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
-        provider.activeGestureId = item.id
-        provider.activeGestureTitle = item.title
-        sendActiveGesture(gestureId: item.id)
+        selectGesture(item, provider: provider)
+    }
+
+    private func selectGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
+        if isV3Widget {
+            gesturesViewModel.onAction(.activeGestureSelected(item.id)) { state in
+                provider.activeGestureId = state.activeGestureId
+                provider.activeGestureTitle = item.title
+            }
+        } else {
+            provider.activeGestureId = item.id
+            provider.activeGestureTitle = item.title
+            sendActiveGesture(gestureId: item.id)
+        }
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
@@ -152,14 +344,33 @@ extension GestureListItemViewModel {
     func removeRotationGesture(at index: Int, provider: GesturesProvider) {
         print("Rotation removeRotationGesture")
         guard provider.rotationGroup.indices.contains(index) else { return }
+        if isV3Widget {
+            var gestures = provider.rotationGroup
+            gestures.remove(at: index)
+            displayAndSaveRotationGroup(gestures, provider: provider)
+            return
+        }
         provider.rotationGroup.remove(at: index)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
     func updateRotationGestures(_ gestures: [GesturesProvider.GestureDisplayItem], provider: GesturesProvider) {
         print("Rotation updateRotationGestures")
+        if isV3Widget {
+            displayAndSaveRotationGroup(gestures, provider: provider)
+            return
+        }
         provider.rotationGroup = gestures
         sendRotationGroup(with: provider.rotationGroup)
+    }
+
+    private func displayAndSaveRotationGroup(
+        _ gestures: [GesturesProvider.GestureDisplayItem], provider: GesturesProvider
+    ) {
+        gesturesViewModel.onAction(.rotationGroupChanged(gestures.map { $0.id })) { _ in
+            // Retain the caller's display metadata, including duplicate items and raw titles.
+            provider.rotationGroup = gestures
+        }
     }
     
     func rotationGroup(from parameterData: String, provider: GesturesProvider) -> [GesturesProvider.GestureDisplayItem] {
@@ -210,9 +421,7 @@ extension GestureListItemViewModel {
     func requestRotationGroup() {
         print("Rotation requestRotationGroup")
         if isV3Widget {
-            // Android parity: BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE)
-            let data = BLECommandsV3.shared.request(subcommand: Int32(ParameterCode.gestureGroupV3Get))
-            sendBytes(data, useV3Channel: true)
+            onAction(.rotationGroupRequested)
             return
         }
 
@@ -247,12 +456,6 @@ extension GestureListItemViewModel {
         print("sendBytes sendRotationGroup gestures: \(gestures)")
         let rotationGroup = RotationGroup.make(from: gestures)
         print("sendBytes sendRotationGroup rotationGroup: \(rotationGroup)")
-        if isV3Widget {
-            let data = BLECommandsV3.shared.sendRotationGroup(rotationGroup: rotationGroup)
-            sendBytes(data, useV3Channel: true)
-            return
-        }
-
         let parameterID = parameterID(forAnyDataCode: [ParameterCode.gestureGroupLegacy])
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.sendRotationGroupInfo(
@@ -293,9 +496,7 @@ extension GestureListItemViewModel {
     
     func requestActiveGesture() {
         if isV3Widget {
-            // Android parity: BLECommandsV3.request(PWCE_GET_CURRENT_GESTURE_NUM)
-            let data = BLECommandsV3.shared.request(subcommand: Int32(ParameterCode.selectGestureV3Get))
-            sendBytes(data, useV3Channel: true)
+            onAction(.activeGestureRequested)
             return
         }
 
@@ -329,16 +530,6 @@ extension GestureListItemViewModel {
 
     private func sendActiveGesture(gestureId: Int) {
         print("sendBytes sendActiveGesture")
-        if isV3Widget {
-            // Android parity: BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM, activeGesture)
-            let data = BLECommandsV3.shared.sendSubcommand(
-                subcommand: Int32(ParameterCode.selectGestureV3Set),
-                parameter: Int32(gestureId)
-            )
-            sendBytes(data, useV3Channel: true)
-            return
-        }
-
         let parameterID = parameterID(forAnyDataCode: [ParameterCode.selectGestureLegacy])
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.sendActiveGesture(
@@ -351,14 +542,6 @@ extension GestureListItemViewModel {
     
     private func parameterID(forAnyDataCode dataCodes: [Int]) -> Int {
         parameterInfoSet.first(where: { dataCodes.contains($0.dataCode) })?.parameterID ?? 0
-    }
-
-    private func v3Binding(for dataCode: Int) -> WidgetV3BindingInfo? {
-        bindings.first(where: { $0.dataCode == dataCode })
-    }
-
-    private func v3Binding(forAnyDataCode dataCodes: [Int]) -> WidgetV3BindingInfo? {
-        bindings.first(where: { dataCodes.contains($0.dataCode) })
     }
 
     private func sendBytes(_ data: KotlinByteArray, useV3Channel: Bool) {
@@ -389,73 +572,9 @@ extension GestureListItemViewModel {
         }
     }
 
-    func matchesActiveGesture(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding = v3Binding(forAnyDataCode: [
-            ParameterCode.selectGestureV3Get,
-            ParameterCode.selectGestureV3Set
-        ]) else { return false }
-        return snapshot.addressDevice == Int32(binding.deviceAddress)
-            && snapshot.parameterID == Int32(binding.parameterID)
-            && snapshot.dataCode == Int32(binding.dataCode)
-    }
-
-    func matchesRotationGroup(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding = v3Binding(forAnyDataCode: [
-            ParameterCode.gestureGroupV3Get,
-            ParameterCode.gestureGroupV3Set
-        ]) else { return false }
-        return snapshot.addressDevice == Int32(binding.deviceAddress)
-            && snapshot.parameterID == Int32(binding.parameterID)
-            && snapshot.dataCode == Int32(binding.dataCode)
-    }
-
-    func activeGestureId(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
-        guard snapshot.codecId == "CURRENT_GESTURE" else { return nil }
-        return V3SnapshotParser.intField(from: snapshot.serializedValue, field: "currentGesture")
-    }
-
-    func rotationGroup(from snapshot: ParameterSnapshotV3Bridge, provider: GesturesProvider) -> [GesturesProvider.GestureDisplayItem]? {
-        guard snapshot.codecId == "ROTATION_GROUP" else { return nil }
-        let gestureIds = rotationGroupIds(fromSerializedSnapshot: snapshot.serializedValue)
+    func rotationGroup(from state: V3GesturesUiState) -> [GesturesProvider.GestureDisplayItem]? {
+        guard let gestureIds = state.rotationGestureIds else { return nil }
         return buildRotationGroupItems(gestureIds: gestureIds)
-    }
-
-    func currentActiveGestureId() -> Int? {
-        guard let binding = v3Binding(forAnyDataCode: [
-            ParameterCode.selectGestureV3Get,
-            ParameterCode.selectGestureV3Set
-        ]) else { return nil }
-        guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-            addressDevice: Int32(binding.deviceAddress),
-            parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode)
-        ) else { return nil }
-        return activeGestureId(from: snapshot)
-    }
-
-    func currentRotationGroup(provider: GesturesProvider) -> [GesturesProvider.GestureDisplayItem]? {
-        guard let binding = v3Binding(forAnyDataCode: [
-            ParameterCode.gestureGroupV3Get,
-            ParameterCode.gestureGroupV3Set
-        ]) else { return nil }
-        guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-            addressDevice: Int32(binding.deviceAddress),
-            parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode)
-        ) else { return nil }
-        return rotationGroup(from: snapshot, provider: provider)
-    }
-
-    private func rotationGroupIds(fromSerializedSnapshot serialized: String) -> [Int] {
-        guard
-            let data = serialized.data(using: .utf8),
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else { return [] }
-
-        return (1...8).compactMap { index in
-            guard let value = json["gesture\(index)Id"] as? NSNumber else { return nil }
-            return value.intValue
-        }
     }
 
     private func buildRotationGroupItems(gestureIds: [Int]) -> [GesturesProvider.GestureDisplayItem] {

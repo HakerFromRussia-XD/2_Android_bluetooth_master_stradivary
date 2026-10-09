@@ -8,6 +8,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.di.createStatisticsGestureNameReader
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.RequestAccountStatisticsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.V3AccountStatistics
+import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.ObserveAccountStatisticsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics.V3GestureUsage
+import kotlinx.coroutines.Job
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -133,5 +136,34 @@ class V3AccountStatisticsRepositoryTest {
             UiState.isInterfaceV3Activated = oldV3
             UiState.activeV3DeviceProfile = oldProfile
         }
+    }
+
+    @Test fun `native counters subscription preserves repeated events without reading names or subscribing to UI updates`() = runTest {
+        var receive: ((TelemetryGestureCounters) -> Unit)? = null
+        val sourceJob = Job()
+        val nativeRepository = V3AccountStatisticsRepositoryImpl(
+            readCustomGestureName = { error("Native UI resolves names when applying telemetry") },
+            requestTelemetry = { error("Observation must not request") },
+            counters = counters,
+            updates = updates,
+            subscribeTelemetryCounters = { receive = it; sourceJob },
+        )
+        val rows = mutableListOf<List<V3GestureUsage>>()
+        val job = ObserveAccountStatisticsUseCaseV3(nativeRepository).observeCounters { rows += it }
+        assertSame(sourceJob, job)
+        assertTrue(rows.isEmpty())
+        val value = TelemetryGestureCounters(baseGestureMovementCount = listOf(100, 2, -1, 3),
+            customGestureMovementCount = listOf(3, 0, 2))
+        repeat(2) { receive!!(value) }
+        updates.emit(Unit); counters.value = value; runCurrent()
+        assertEquals(2, rows.size)
+        assertEquals(listOf(3, 64, 1, 66), rows[0].map { it.gestureId })
+        assertEquals(listOf(3L, 3L, 2L, 2L), rows[0].map { it.count })
+        assertTrue(rows[0].all { it.customName == null })
+        assertEquals(rows[0], rows[1])
+        assertEquals(0, counters.subscriptionCount.value)
+        assertEquals(0, updates.subscriptionCount.value)
+        job.cancel(); assertTrue(sourceJob.isCancelled)
+        verify { preferences wasNot Called }
     }
 }

@@ -29,7 +29,9 @@ final class TextInputViewCellV3: UITableViewCell {
                 placeholder: viewModel.placeholder,
                 buttonTitle: viewModel.buttonTitle,
                 trimToLimit: { [weak self] text in
-                    self?.viewModel?.trimToByteLimit(text) ?? text
+                    guard let viewModel = self?.viewModel else { return text }
+                    viewModel.onAction(.textChanged(text))
+                    return viewModel.uiState.text
                 },
                 onLimitReached: { [weak self] in
                     self?.showToast(SharedLocalizedText.text(SharedRes.strings().text_limit_reached))
@@ -47,32 +49,40 @@ final class TextInputViewCellV3: UITableViewCell {
     }
 
     private func prefilledText() -> String {
-        let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
-        return viewModel?.prefillText(storedFullName: storedName) ?? ""
+        guard let viewModel else { return "" }
+        let storedName = viewModel.deviceInfoField == .deviceName ? nil
+            : (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
+        viewModel.onAction(.currentValueRequested(storedFullName: storedName))
+        return viewModel.uiState.text
     }
 
     private func handleSend(_ input: String) {
         let normalizedInput = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedInput.isEmpty else {
+        guard let viewModel else {
+            let message = normalizedInput.isEmpty ? SharedRes.strings().enter_text : SharedRes.strings().send_error
+            showToast(SharedLocalizedText.text(message))
+            return
+        }
+        viewModel.onAction(.inputSubmitted(normalizedInput))
+        switch viewModel.uiState.submission {
+        case .empty:
             showToast(SharedLocalizedText.text(SharedRes.strings().enter_text))
-            return
-        }
-
-        guard let viewModel, let transportText = viewModel.sendInput(normalizedInput) else {
+        case .failed, .none:
             showToast(SharedLocalizedText.text(SharedRes.strings().send_error))
-            return
-        }
-
-        switch viewModel.inputKind {
-        case .deviceName:
-            try? keyValueStorage.save(transportText, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
-            let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: transportText)
-            NotificationCenter.default.post(name: .v3DeviceNameDidUpdate, object: displayName)
+        case .deviceNameSaved:
             showToast(SharedLocalizedText.text(SharedRes.strings().name_set))
-        case .serialNumber:
-            showToast(SharedLocalizedText.text(SharedRes.strings().serial_number_set))
-        case .generic:
-            showToast(SharedLocalizedText.text(SharedRes.strings().value_sent))
+        case .valueSent(let transportText):
+            switch viewModel.inputKind {
+            case .deviceName:
+                try? keyValueStorage.save(transportText, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+                let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: transportText)
+                NotificationCenter.default.post(name: .v3DeviceNameDidUpdate, object: displayName)
+                showToast(SharedLocalizedText.text(SharedRes.strings().name_set))
+            case .serialNumber:
+                showToast(SharedLocalizedText.text(SharedRes.strings().serial_number_set))
+            case .generic:
+                showToast(SharedLocalizedText.text(SharedRes.strings().value_sent))
+            }
         }
     }
 

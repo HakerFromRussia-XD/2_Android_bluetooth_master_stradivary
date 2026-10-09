@@ -9,11 +9,24 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.EditPlotThresholdUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.RefreshSensorsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.RequestPlotThresholdsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.SetPlotThresholdsUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.StartProsthesisMovementUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sensors.usecase.StopProsthesisMovementUseCaseV3
 
 class V3SensorsUseCasesTest {
+    @Test
+    fun `threshold requests forward raw targets and repeats independently of the interaction lock`() {
+        val repository = PlotRepository()
+        repository.interactionEnabled.value = false
+        val request = RequestPlotThresholdsUseCaseV3(repository)
+        request(15, 47)
+        request(15, 47)
+        request(7, 26)
+        assertEquals(listOf(15 to 47, 15 to 47, 7 to 26), repository.requests)
+        assertTrue(repository.saved.isEmpty())
+    }
+
     @Test
     fun `editing clamps only the selected threshold and leaves the original unchanged`() {
         val edit = EditPlotThresholdUseCaseV3()
@@ -78,11 +91,13 @@ class V3SensorsUseCasesTest {
     private class PlotRepository : V3SensorsPlotRepository {
         override val interactionEnabled = MutableStateFlow(true)
         val saved = mutableListOf<V3PlotThresholds>()
+        val requests = mutableListOf<Pair<Int, Int>>()
         override fun getThresholds(): V3PlotThresholds? = null
         override fun observeThresholds() = emptyFlow<V3PlotThresholds?>()
         override fun observeSamples() = emptyFlow<List<Int>>()
         override fun getChannelCount() = 2
         override fun arePlotPointsPaused() = false
+        override fun requestThresholds(parameterID: Int, dataCode: Int) { requests.add(parameterID to dataCode) }
         override fun setThresholds(thresholds: V3PlotThresholds) { saved.add(thresholds) }
     }
 

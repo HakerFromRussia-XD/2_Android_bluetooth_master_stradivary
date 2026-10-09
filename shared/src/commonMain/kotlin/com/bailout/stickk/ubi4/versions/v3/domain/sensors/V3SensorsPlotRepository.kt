@@ -10,10 +10,15 @@ interface V3SensorsPlotRepository {
     val interactionEnabled: StateFlow<Boolean>
     fun getThresholds(): V3PlotThresholds?
     fun observeThresholds(): Flow<V3PlotThresholds?>
-    /** Six channels in the existing device order; observation sends no commands. */
+    /**
+     * Device-order samples without commands. The default supplies six retained channels;
+     * an explicit native source supplies up to two raw channels, including partial/empty packets.
+     */
     fun observeSamples(): Flow<List<Int>>
     fun getChannelCount(): Int
     fun arePlotPointsPaused(): Boolean
+    /** Requests the supplied V3 parameter without changing plot state or applying interaction gates. */
+    fun requestThresholds(parameterID: Int, dataCode: Int)
     /** Queues the existing command, then updates the local store, profile and cache. */
     fun setThresholds(thresholds: V3PlotThresholds)
 }

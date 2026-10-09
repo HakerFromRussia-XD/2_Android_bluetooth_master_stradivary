@@ -16,7 +16,7 @@ extension Notification.Name {
     static let customGestureNamesDidUpdate = Notification.Name("CustomGestureNamesDidUpdate")
 }
 
-private func intValue(from value: Any?) -> Int? {
+func gestureSettingsIntValue(from value: Any?) -> Int? {
     switch value {
     case let kotlinInt as KotlinInt:
         return Int(kotlinInt.intValue)
@@ -63,72 +63,100 @@ final class GestureSettingsViewModel: NSObject {
     }
 }
 
+enum V3GestureEditorAction {
+    case settingsRequested(Int32)
+    case settingsWriteRequested(V3GestureSettings, V3GestureCommand, String)
+    case settingsReceived(V3GestureSettingsResponse)
+    case nameChanged(Int, String)
+}
+
+struct V3GestureEditorUiState {
+    let parameterRef: ParameterRef?
+    let parameterData: String?
+    let customGestureNames: [String]
+}
+
 @objcMembers
 final class GestureSettingsViewModelV3: NSObject {
-    static let shared = GestureSettingsViewModelV3()
-    private(set) var latestParameterRef: ParameterRef?
-    private(set) var latestParameterData: String?
+    static let shared = WidgetsSceneDIContainer.makeGestureSettingsViewModelV3()
+    private let requestGestureSettingsUseCase: RequestGestureSettingsUseCaseV3
+    private let writeGestureSettingsUseCase: WriteGestureSettingsUseCaseV3
+    private let getGestureEditorHandSideUseCase: GetGestureEditorHandSideUseCaseV3
+    private let getCustomGestureNamesUseCase: GetCustomGestureNamesUseCaseV3
+    private let renameCustomGestureUseCase: RenameCustomGestureUseCaseV3
+    private var stopSettingsObservation: (() -> Void)?
+    @nonobjc private(set) var uiState: V3GestureEditorUiState?
+    var latestParameterRef: ParameterRef? { uiState?.parameterRef }
+    var latestParameterData: String? { uiState?.parameterData }
+    var currentHandSide: Int { Int(getGestureEditorHandSideUseCase.invoke()) }
 
-    private override init() {
+    init(
+        requestGestureSettingsUseCase: RequestGestureSettingsUseCaseV3,
+        writeGestureSettingsUseCase: WriteGestureSettingsUseCaseV3,
+        observeGestureSettingsUseCase: ObserveGestureSettingsUseCaseV3,
+        getGestureEditorHandSideUseCase: GetGestureEditorHandSideUseCaseV3,
+        getCustomGestureNamesUseCase: GetCustomGestureNamesUseCaseV3,
+        renameCustomGestureUseCase: RenameCustomGestureUseCaseV3
+    ) {
+        self.requestGestureSettingsUseCase = requestGestureSettingsUseCase
+        self.writeGestureSettingsUseCase = writeGestureSettingsUseCase
+        self.getGestureEditorHandSideUseCase = getGestureEditorHandSideUseCase
+        self.getCustomGestureNamesUseCase = getCustomGestureNamesUseCase
+        self.renameCustomGestureUseCase = renameCustomGestureUseCase
         super.init()
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleGestureSettingsUpdate(_:)),
-            name: .gestureSettingsDidUpdateV3,
-            object: nil
-        )
+        stopSettingsObservation = observeGestureSettingsUseCase.observeResponses { [weak self] response in
+            self?.onAction(.settingsReceived(response))
+        }
     }
 
-    @objc private func handleGestureSettingsUpdate(_ notification: Notification) {
-        guard let parameterInfo = notification.userInfo?["dataV3"] as? ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject> else {
-            return
+    deinit {
+        stopSettingsObservation?()
+    }
+
+    @nonobjc func loadCustomGestureNames() -> [String] {
+        let names = getCustomGestureNamesUseCase.invoke().names
+        updateNamesState(names)
+        return names
+    }
+
+    private func updateNamesState(_ names: [String]) {
+        uiState = V3GestureEditorUiState(parameterRef: uiState?.parameterRef,
+                                       parameterData: uiState?.parameterData,
+                                       customGestureNames: names)
+    }
+
+    @nonobjc func onAction(_ action: V3GestureEditorAction) {
+        switch action {
+        case .settingsRequested(let gestureId):
+            requestGestureSettingsUseCase.requestNow(gestureId: gestureId)
+        case .settingsWriteRequested(let settings, let command, let name):
+            writeGestureSettingsUseCase.invoke(settings: settings, command: command, name: name)
+        case .settingsReceived(let response):
+            let parameterRef = ParameterRef(addressDevice: response.addressDevice,
+                                            parameterID: response.parameterID,
+                                            dataCode: response.dataCode)
+            let state = V3GestureEditorUiState(
+                parameterRef: parameterRef,
+                parameterData: response.serializedSettings,
+                customGestureNames: uiState?.customGestureNames ?? []
+            )
+            uiState = state
+            // Reentrant responses must not replace this event's captured pair.
+            NotificationCenter.default.post(
+                name: .gestureSettingsViewModelDidUpdateV3,
+                object: self,
+                userInfo: ["data": parameterRef, "parameterData": response.serializedSettings]
+            )
+        case .nameChanged(let gestureNumber, let name):
+            let names = renameCustomGestureUseCase.invoke(index: Int32(clamping: gestureNumber - 64), name: name)
+            updateNamesState(names)
         }
-        guard
-            let parameterID = intValue(from: parameterInfo.parameterID),
-            let dataCode = intValue(from: parameterInfo.dataCode),
-            let deviceAddress = intValue(from: parameterInfo.deviceAddress)
-        else {
-            return
-        }
-
-        let parameterRef = ParameterRef(
-            addressDevice: Int32(deviceAddress),
-            parameterID: Int32(parameterID),
-            dataCode: Int32(dataCode)
-        )
-
-        var parameterData = WidgetStateBridgeV3.shared.getCurrent(
-            addressDevice: Int32(deviceAddress),
-            parameterID: Int32(parameterID),
-            dataCode: Int32(dataCode)
-        )?.serializedValue
-
-        if parameterData == nil,
-           let typedParameterInfo = parameterInfo as? ParameterInfo<KotlinInt, KotlinInt, KotlinInt, KotlinInt> {
-            parameterData = ParameterProvider.Companion().getParameterV3(parameterInfo: typedParameterInfo).data
-        }
-
-        guard let resolvedParameterData = parameterData else {
-            return
-        }
-
-        latestParameterRef = parameterRef
-        latestParameterData = resolvedParameterData
-        NotificationCenter.default.post(
-            name: .gestureSettingsViewModelDidUpdateV3,
-            object: self,
-            userInfo: [
-                "data": parameterRef,
-                "parameterData": resolvedParameterData
-            ]
-        )
     }
 }
 
 @objcMembers
 final class GestureService: NSObject {
     static let shared = GestureService()
-    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private lazy var bleManager: BleManagerKmm = {
         _ = BLEComponents.shared
         return BleEnvironment.shared.getBleManager()
@@ -143,6 +171,17 @@ final class GestureService: NSObject {
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
         let names = updateName(name, at: index)
+        notifyNameChanged(numberGesture: numberGesture, name: name, names: names)
+    }
+
+    @objc(setNameGestureV3WithNumberGesture:name:)
+    public func setNameGestureV3(numberGesture: Int, name: String) {
+        let viewModel = GestureSettingsViewModelV3.shared
+        viewModel.onAction(.nameChanged(numberGesture, name))
+        notifyNameChanged(numberGesture: numberGesture, name: name, names: viewModel.uiState?.customGestureNames ?? [])
+    }
+
+    private func notifyNameChanged(numberGesture: Int, name: String, names: [String]) {
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)  names = \(names)")
         NotificationCenter.default.post(
             name: .customGestureNamesDidUpdate,
@@ -155,20 +194,23 @@ final class GestureService: NSObject {
         )
     }
     @objc public func getGestureName(numberGesture: Int) -> String {
+        gestureName(numberGesture: numberGesture, names: loadNames())
+    }
+
+    @objc(getGestureNameV3WithNumberGesture:)
+    public func getGestureNameV3(numberGesture: Int) -> String {
+        gestureName(numberGesture: numberGesture, names: GestureSettingsViewModelV3.shared.loadCustomGestureNames())
+    }
+
+    private func gestureName(numberGesture: Int, names: [String]) -> String {
         let index = numberGesture - 64
-        let names = loadNames()
         guard names.indices.contains(index) else { return names.first ?? "" }
         print("Вызвана функция getGestureName numberGesture = \(numberGesture)  names = \(names)")
         print("Вызвана функция getGestureName name = \(names[index])")
         return names[index]
     }
     @objc public func getDeviceName() -> String {
-        do {
-            return try keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey) ?? ""
-        } catch {
-            print("[Storage] failed to load selected device name: \(error)")
-            return ""
-        }
+        V3CustomGestureNamesRepositoryImpl.shared.getDeviceName()
     }
     @objc public func getParameterData(deviceAddress: Int, parameterID: Int) -> NSString {
         let parameter = ParameterProvider.Companion().getParameter(deviceAddress: Int32(deviceAddress), parameterID: Int32(parameterID))
@@ -177,7 +219,7 @@ final class GestureService: NSObject {
     @objc public func getStatusConnection() -> Int { 1 }
     @objc public func getHandSide() -> Int {
         V3HandSideProvider.shared.startObserving()
-        return V3HandSideProvider.shared.currentSide
+        return GestureSettingsViewModelV3.shared.currentHandSide
     }
     @objc public func getLegacyHandSide() -> Int {
         let handSideKey = "HAND_SIDE"
@@ -232,7 +274,7 @@ final class GestureService: NSObject {
 
         let hex = keys
             .map { key -> String in
-                let value = max(0, min(255, intValue(from: json[key]) ?? 0))
+                let value = max(0, min(255, gestureSettingsIntValue(from: json[key]) ?? 0))
                 return String(format: "%02X", value)
             }
             .joined()
@@ -262,68 +304,37 @@ final class GestureService: NSObject {
     }
     @objc(requestGestureSettingsV3WithGestureId:)
     public func requestGestureSettingsV3(gestureId: Int) {
-        let data = BLECommandsV3.shared.requestGestureInfo(gestureId: Int32(gestureId))
-        sendDataToFestV3(dataForWrite: data)
+        GestureSettingsViewModelV3.shared.onAction(.settingsRequested(Int32(gestureId)))
+    }
+
+    @objc(sendGestureSettingsV3WithGestureWithAddress:)
+    public func sendGestureSettingsV3(gestureWithAddress: GestureWithAddress) {
+        guard let command = V3GestureCommand.entries.first(where: { $0.code == gestureWithAddress.gestureState }) else {
+            return
+        }
+        let gesture = gestureWithAddress.gesture
+        // The renderer already stores these fields in device order; keep their raw values.
+        let settings = V3GestureSettings(
+            gestureId: gesture.gestureId,
+            openPositions: [gesture.openPosition1, gesture.openPosition2, gesture.openPosition3,
+                            gesture.openPosition4, gesture.openPosition5, gesture.openPosition6].map { KotlinInt(int: $0) },
+            closePositions: [gesture.closePosition1, gesture.closePosition2, gesture.closePosition3,
+                             gesture.closePosition4, gesture.closePosition5, gesture.closePosition6].map { KotlinInt(int: $0) },
+            openToCloseDelays: [gesture.openToCloseTimeShift1, gesture.openToCloseTimeShift2, gesture.openToCloseTimeShift3,
+                               gesture.openToCloseTimeShift4, gesture.openToCloseTimeShift5, gesture.openToCloseTimeShift6].map { KotlinInt(int: $0) },
+            closeToOpenDelays: [gesture.closeToOpenTimeShift1, gesture.closeToOpenTimeShift2, gesture.closeToOpenTimeShift3,
+                               gesture.closeToOpenTimeShift4, gesture.closeToOpenTimeShift5, gesture.closeToOpenTimeShift6].map { KotlinInt(int: $0) }
+        )
+        GestureSettingsViewModelV3.shared.onAction(.settingsWriteRequested(settings, command, gesture.gestureName))
     }
 
     func loadNames() -> [String] {
-        let defaults = Self.defaultNames()
-        let key = TypedStorageKey<[String]>(
-            rawValue: BluetoothStorageKeys.customGestureNameStorageKey.rawValue + getDeviceName()
-        )
-        do {
-            
-            if var stored = try keyValueStorage.load(for: key) {
-                if stored.count != defaults.count {
-                    stored = Self.mergedNames(stored, defaults: defaults)
-                    try? keyValueStorage.save(stored, for: key)
-                }
-                print ("loadNames 3")
-                return stored
-            }
-        } catch {
-            print ("loadNames 1")
-        }
-
-        try? keyValueStorage.save(defaults, for: key)
-        print ("loadNames 2")
-        return defaults
+        V3CustomGestureNamesRepositoryImpl.shared.loadNames()
     }
+
     @discardableResult
     func updateName(_ name: String, at index: Int) -> [String] {
-        let key = TypedStorageKey<[String]>(
-            rawValue: BluetoothStorageKeys.customGestureNameStorageKey.rawValue + getDeviceName()
-        )
-        var names = loadNames()
-        guard names.indices.contains(index) else { return names }
-        names[index] = name
-        print("Вызвана функция updateName names = \(names)")
-        try? keyValueStorage.save(names, for: key)
-        return names
-    }
-    private static func mergedNames(_ stored: [String], defaults: [String]) -> [String] {
-        if stored.count >= defaults.count {
-            return Array(stored.prefix(defaults.count))
-        }
-        return stored + Array(defaults[stored.count...])
-    }
-    private static func defaultNames() -> [String] {
-        return [
-            SharedRes.strings().gesture_1_btn,
-            SharedRes.strings().gesture_2_btn,
-            SharedRes.strings().gesture_3_btn,
-            SharedRes.strings().gesture_4_btn,
-            SharedRes.strings().gesture_5_btn,
-            SharedRes.strings().gesture_6_btn,
-            SharedRes.strings().gesture_7_btn,
-            SharedRes.strings().gesture_8_btn,
-            SharedRes.strings().gesture_9_btn,
-            SharedRes.strings().gesture_10_btn,
-            SharedRes.strings().gesture_11_btn,
-            SharedRes.strings().gesture_12_btn,
-            SharedRes.strings().gesture_13_btn,
-            SharedRes.strings().gesture_14_btn
-        ].map { $0.desc().localized() }
+        V3CustomGestureNamesRepositoryImpl.shared.updateName(name, at: index)
     }
     
     @objc func gestureStateOpen() -> String {

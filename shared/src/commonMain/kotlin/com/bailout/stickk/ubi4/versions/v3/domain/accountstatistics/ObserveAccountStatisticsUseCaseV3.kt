@@ -3,7 +3,12 @@ package com.bailout.stickk.ubi4.versions.v3.domain.accountstatistics
 import kotlinx.coroutines.flow.map
 
 class ObserveAccountStatisticsUseCaseV3(private val repository: V3AccountStatisticsRepository) {
-    operator fun invoke() = repository.observeStatistics().map { statistics ->
+    operator fun invoke() = repository.observeStatistics().map(::usage)
+
+    fun observeCounters(callback: (List<V3GestureUsage>) -> Unit) =
+        repository.observeCounters { callback(usage(it)) }
+
+    private fun usage(statistics: V3AccountStatistics): List<V3GestureUsage> {
         // Telemetry slots 0..15 match factory IDs; slot 0 is "no gesture".
         val base = statistics.baseGestureCounts.mapIndexedNotNull { index, count ->
             if (index !in 1..15 || count <= 0L) null else V3GestureUsage(index, count)
@@ -16,6 +21,6 @@ class ObserveAccountStatisticsUseCaseV3(private val repository: V3AccountStatist
                 customName = statistics.customGestureNames.getOrNull(index),
             )
         }
-        (base + custom).sortedWith(compareByDescending<V3GestureUsage> { it.count }.thenBy { it.gestureId })
+        return (base + custom).sortedWith(compareByDescending<V3GestureUsage> { it.count }.thenBy { it.gestureId })
     }
 }

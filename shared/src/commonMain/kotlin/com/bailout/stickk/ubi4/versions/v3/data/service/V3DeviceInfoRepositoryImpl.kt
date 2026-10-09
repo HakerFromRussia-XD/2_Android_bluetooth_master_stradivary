@@ -17,22 +17,42 @@ import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.data.device.deviceInteractionEnabledState
 
 /** Keeps the existing transport, name update and send-completion behavior behind a domain contract. */
-class V3DeviceInfoRepositoryImpl(
-    private val deviceIdentity: V3DeviceIdentityStore,
+class V3DeviceInfoRepositoryImpl private constructor(
+    private val deviceIdentity: V3DeviceIdentityStore?,
     private val enqueuePacket: (ByteArray, () -> Unit) -> Unit,
-    private val recordNameCustomization: () -> Unit = AchievementEventManager::recordDeviceNameCustomization,
-    private val currentDeviceAddress: () -> String? = WidgetRepoProvider::mac,
-    private val connectedName: () -> String? = { runCatching { ConnectionState.connectedDeviceName }.getOrNull() },
+    private val recordNameCustomization: () -> Unit,
+    private val currentDeviceAddress: () -> String?,
+    private val connectedName: () -> String?,
+    private val readDeviceNameInput: (() -> String?)?,
+    private val onDeviceNameQueued: ((String) -> Unit)?,
 ) : V3DeviceInfoRepository {
+    constructor(
+        deviceIdentity: V3DeviceIdentityStore,
+        enqueuePacket: (ByteArray, () -> Unit) -> Unit,
+        recordNameCustomization: () -> Unit = AchievementEventManager::recordDeviceNameCustomization,
+        currentDeviceAddress: () -> String? = WidgetRepoProvider::mac,
+        connectedName: () -> String? = { kotlin.runCatching { ConnectionState.connectedDeviceName }.getOrNull() },
+    ) : this(deviceIdentity, enqueuePacket, recordNameCustomization, currentDeviceAddress, connectedName, null, null)
+
+    /** iOS name storage and notification are platform operations, performed immediately after enqueue. */
+    constructor(
+        readDeviceNameInput: () -> String?,
+        enqueuePacket: (ByteArray, () -> Unit) -> Unit,
+        onDeviceNameQueued: (String) -> Unit,
+    ) : this(null, enqueuePacket, AchievementEventManager::recordDeviceNameCustomization, WidgetRepoProvider::mac,
+        { kotlin.runCatching { ConnectionState.connectedDeviceName }.getOrNull() }, readDeviceNameInput, onDeviceNameQueued)
+
     override val interactionEnabled = deviceInteractionEnabledState
 
-    private fun currentDeviceName(): String? = deviceIdentity.identity.value?.serial?.takeUnless { it.isBlank() }
-        ?: deviceIdentity.identity.value?.deviceName?.takeUnless { it.isBlank() }
+    private fun currentDeviceName(): String? = deviceIdentity?.identity?.value?.serial?.takeUnless { it.isBlank() }
+        ?: deviceIdentity?.identity?.value?.deviceName?.takeUnless { it.isBlank() }
         ?: connectedName()?.takeUnless { it.isBlank() }
-        ?: deviceIdentity.intentDeviceName?.takeUnless { it.isBlank() }
+        ?: deviceIdentity?.intentDeviceName?.takeUnless { it.isBlank() }
 
     override fun getTextForInput(field: V3DeviceInfoField): String? = when (field) {
-        V3DeviceInfoField.DEVICE_NAME -> currentDeviceName()?.let(DeviceNameBridgeV3::displayName)
+        V3DeviceInfoField.DEVICE_NAME -> if (readDeviceNameInput != null) {
+            DeviceNameBridgeV3.displayName(readDeviceNameInput())
+        } else currentDeviceName()?.let(DeviceNameBridgeV3::displayName)
         V3DeviceInfoField.SERIAL_NUMBER -> (ParameterStoreV3.get(ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER))
             as? ParameterTypedValueV3.Text)?.value?.takeUnless { it.isBlank() } ?: currentDeviceName()
     }
@@ -41,8 +61,13 @@ class V3DeviceInfoRepositoryImpl(
         val isName = field == V3DeviceInfoField.DEVICE_NAME
         val info = ParameterInfoRegistry.require(if (isName) P_KEY_SET_DEVICE_NAME else P_KEY_SET_SERIAL_NUMBER)
         val transportText = if (isName) DeviceNameBridgeV3.applyPrefixForTransport(text) else text
-        val nameChanged = isName && DeviceNameBridgeV3.hasDisplayNameChanged(currentDeviceName(), transportText)
+        val nameChanged = isName && onDeviceNameQueued == null && DeviceNameBridgeV3.hasDisplayNameChanged(currentDeviceName(), transportText)
         val packet = WidgetCommandBridgeV3.buildSetText(info.parameterID, info.dataCode, info.deviceAddress, transportText) ?: return false
+        if (isName && onDeviceNameQueued != null) {
+            enqueuePacket(packet) {}
+            onDeviceNameQueued(transportText)
+            return true
+        }
         val readPacket = if (isName) null else WidgetCommandBridgeV3.buildReadRequest(info.parameterID, info.dataCode)
         val address = currentDeviceAddress()
         val profile = UiState.activeV3DeviceProfile
@@ -54,7 +79,7 @@ class V3DeviceInfoRepositoryImpl(
                 if (readPacket != null) enqueuePacket(readPacket) {}
             }
         }
-        if (isName) deviceIdentity.applyDeviceName(transportText)
+        if (isName) deviceIdentity?.applyDeviceName(transportText)
         return true
     }
 }

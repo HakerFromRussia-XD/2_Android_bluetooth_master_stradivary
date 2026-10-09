@@ -4,6 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -14,16 +15,97 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.EditRotationGroupSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.GetGesturesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.GetActiveGestureUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.GetRotationGroupSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.LoadRotationGroupUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.MoveGestureInRotationGroupUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.RemoveGestureFromRotationGroupUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.RequestActiveGestureUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.RequestRotationGroupUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SaveRotationGroupSelectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SelectGestureUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SetRotationGroupUseCaseV3
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GesturesUseCasesV3Test {
+    @Test
+    fun `direct rotation commands skip reads only with explicit policy and preserve raw ordered drafts and repeats`() {
+        val repository = Repository()
+        repository.current = V3ActiveGesture("device", null, false)
+        val request = RequestRotationGroupUseCaseV3(repository, requireInteractionEnabled = false)
+        val set = SetRotationGroupUseCaseV3(repository, requireInteractionEnabled = false)
+        val draft = listOf(4, 4, 0, -1, 256, Int.MIN_VALUE, Int.MAX_VALUE, 77, 2)
+        assertTrue(request(""))
+        assertTrue(request("stale-device"))
+        repeat(2) { assertTrue(set("", draft)) }
+        assertTrue(set("other", emptyList()))
+        assertEquals(2, repository.rotationRequests)
+        assertEquals(listOf(draft, draft, emptyList()), repository.written)
+        assertEquals(0, repository.activeReads)
+        assertEquals(0, repository.rotationReads)
+        assertEquals(V3ActiveGesture("device", null, false), repository.current)
+        assertEquals(0, repository.rotationGroupUpdates.subscriptionCount.value)
+
+        val guardedRequest = RequestRotationGroupUseCaseV3(repository)
+        val guardedSet = SetRotationGroupUseCaseV3(repository)
+        assertFalse(guardedRequest("device"))
+        assertFalse(guardedSet("device", listOf(4)))
+        repository.current = repository.current.copy(isInteractionEnabled = true)
+        assertFalse(guardedRequest("other"))
+        assertFalse(guardedSet("other", listOf(4)))
+        assertEquals(2, repository.rotationRequests)
+        assertEquals(3, repository.written.size)
+        assertTrue(guardedRequest("device"))
+        assertTrue(guardedSet("device", listOf(4, 4)))
+        assertEquals(3, repository.rotationRequests)
+        assertEquals(listOf(4, 4), repository.written.last())
+        assertEquals(6, repository.activeReads)
+        assertEquals(0, repository.rotationReads)
+        assertTrue(repository.selected.isEmpty())
+        assertEquals(0, repository.activeRequests)
+    }
+
+    @Test
+    fun `active getter returns factual nullable state without reading or modifying rotation`() {
+        val repository = Repository()
+        val get = GetActiveGestureUseCaseV3(repository)
+        assertEquals(repository.current, get())
+        repository.current = V3ActiveGesture("", null, false)
+        assertEquals(repository.current, get())
+        repository.current = repository.current.copy(gestureId = Int.MIN_VALUE)
+        assertEquals(repository.current, get())
+        assertEquals(3, repository.activeReads)
+        assertEquals(0, repository.rotationReads)
+        assertTrue(repository.selected.isEmpty())
+        assertTrue(repository.written.isEmpty())
+        assertEquals(0, repository.activeRequests)
+    }
+
+    @Test
+    fun `native active commands skip getter and context only with explicit policies while retaining raw IDs and repeats`() {
+        val repository = Repository()
+        repository.current = repository.current.copy(isInteractionEnabled = false)
+        val request = RequestActiveGestureUseCaseV3(repository, requireInteractionEnabled = false)
+        val select = SelectGestureUseCaseV3(repository, requireInteractionEnabled = false, validateGestureId = false)
+        assertTrue(request(""))
+        assertTrue(request("other"))
+        val rawIds = listOf(0, -1, 16, 78, 256, Int.MIN_VALUE, Int.MAX_VALUE, 77, 77)
+        rawIds.forEach { assertTrue(select("", it)) }
+        assertEquals(0, repository.activeReads)
+        assertEquals(rawIds, repository.selected)
+        assertEquals(2, repository.activeRequests)
+        assertEquals(V3ActiveGesture("device", 4, false), repository.current)
+
+        assertFalse(SelectGestureUseCaseV3(repository, requireInteractionEnabled = false)("", 0))
+        assertEquals(0, repository.activeReads)
+        assertFalse(SelectGestureUseCaseV3(repository, validateGestureId = false)("", 0))
+        assertFalse(RequestActiveGestureUseCaseV3(repository)(""))
+        assertEquals(2, repository.activeReads)
+        assertEquals(rawIds, repository.selected)
+        assertEquals(2, repository.activeRequests)
+        assertTrue(repository.written.isEmpty())
+    }
+
     @Test
     fun `protocol selections include hidden gesture while editor targets only custom gestures`() {
         val repository = Repository()
@@ -167,10 +249,20 @@ class GesturesUseCasesV3Test {
         val selected = mutableListOf<Int>()
         val written = mutableListOf<List<Int>>()
         var activeRequests = 0
+        var activeReads = 0
         var rotationRequests = 0
+        var rotationReads = 0
         var onRotationRequest: () -> Unit = {}
-        override fun getActiveGesture() = current
-        override fun getRotationGroupGestureIds() = group
+        override fun getActiveGesture(): V3ActiveGesture {
+            activeReads++
+            return current
+        }
+        override fun observeActiveGesture() = updates.map { getActiveGesture().gestureId }
+        override fun observeRotationGroup() = rotationGroupUpdates.map { getRotationGroupGestureIds() }
+        override fun getRotationGroupGestureIds(): List<Int>? {
+            rotationReads++
+            return group
+        }
         override fun requestActiveGesture(deviceAddress: String): Boolean {
             activeRequests++
             return true

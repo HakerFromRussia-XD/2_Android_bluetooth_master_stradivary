@@ -84,6 +84,8 @@ class V3AccountStatisticsViewModelTest {
         val values = MutableStateFlow(V3AccountStatistics(baseGestureCounts = listOf(0, 5)))
         var requests = 0
         override fun observeStatistics() = values
+        override fun observeCounters(callback: (V3AccountStatistics) -> Unit): kotlinx.coroutines.Job =
+            error("This Android ViewModel observes the statistics flow")
         override fun requestStatistics() { requests++ }
     }
 }

@@ -3,6 +3,11 @@ package com.bailout.stickk.ubi4.versions.v3.data.appsettings
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetSpecialSettingsSectionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetCustomGestureNamesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3CustomGestureNames
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3CustomGestureNamesReader
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3CustomGestureNamesRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.RenameCustomGestureUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SaveGestureEditorNamesUseCaseV3
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetGesturesPreferencesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetGesturesSectionUseCaseV3
@@ -12,12 +17,17 @@ import com.bailout.stickk.ubi4.versions.v3.domain.gestures.usecase.SaveGestureSe
 import com.bailout.stickk.ubi4.versions.v3.domain.gestures.V3GestureSettingsTarget
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.SetAutoLoginEnabledUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.GetAutoLoginEnabledUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AutoLoginSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3GesturesPreferencesRepository
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3AppSettingsRepositoryTest {
@@ -74,13 +84,14 @@ class V3AppSettingsRepositoryTest {
         val watcher = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             com.bailout.stickk.ubi4.data.state.UiState.updateFlow.collect { events.add("update:$it") }
         }
-        repository.saveGestureEditorNames(listOf("First", ""))
+        val save = SaveGestureEditorNamesUseCaseV3(repository)
+        save(listOf("First", ""))
         runCurrent()
         val prefix = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM
         assertEquals(listOf(prefix + "text0=First", "apply", prefix + "text1=", "apply", "update:0"), events)
         events.clear()
         storedStrings[PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4] = "NEW"
-        repository.saveGestureEditorNames(listOf("Renamed"))
+        save(listOf("Renamed"))
         runCurrent()
         assertEquals(listOf(prefix + "NEW0=Renamed", "apply", "update:0"), events)
         watcher.cancel()
@@ -142,6 +153,37 @@ class V3AppSettingsRepositoryTest {
         verify(exactly = 0) { preferences.edit() }
     }
 
+    @Test fun `narrow custom names reader retains raw lists and rereads the current source`() {
+        val reader = mockk<V3CustomGestureNamesReader>()
+        val first = V3CustomGestureNames(listOf("", " \tимя ✋\n"), listOf(null, ""))
+        val second = V3CustomGestureNames(listOf("Another device"), listOf("Another device"))
+        every { reader.getCustomGestureNames() } returnsMany listOf(first, second)
+        val get = GetCustomGestureNamesUseCaseV3(reader)
+        verify(exactly = 0) { reader.getCustomGestureNames() }
+        assertEquals(first, get())
+        assertEquals(second, get())
+        assertEquals(listOf("", " \tимя ✋\n"), first.names)
+        verify(exactly = 2) { reader.getCustomGestureNames() }
+        confirmVerified(reader)
+    }
+
+    @ParameterizedTest @ValueSource(ints = [-1, 0, 13, 14])
+    fun `indexed rename delegates raw repeated and invalid edits once without a preliminary read`(index: Int) {
+        val nativeRepository = mockk<V3CustomGestureNamesRepository>()
+        val name = if (index < 0) "" else " \tимя ✋\n"
+        val firstResult = listOf("Localized normalization", "")
+        val secondResult = listOf("Current device", name)
+        every { nativeRepository.getCustomGestureNames() } throws IllegalStateException("Repository must own load and write-key ordering")
+        every { nativeRepository.renameGesture(index, name) } returnsMany listOf(firstResult, secondResult)
+        val rename = RenameCustomGestureUseCaseV3(nativeRepository)
+        verify(exactly = 0) { nativeRepository.renameGesture(any(), any()) }
+        assertEquals(firstResult, rename(index, name))
+        assertEquals(secondResult, rename(index, name))
+        verify(exactly = 2) { nativeRepository.renameGesture(index, name) }
+        verify(exactly = 0) { nativeRepository.getCustomGestureNames() }
+        confirmVerified(nativeRepository)
+    }
+
     @Test
     fun `use case writes only changes to the existing preference using apply`() {
         val setAutoLogin = SetAutoLoginEnabledUseCaseV3(repository)
@@ -152,6 +194,48 @@ class V3AppSettingsRepositoryTest {
         verify(exactly = 2) { editor.apply() }
         confirmVerified(editor)
         assertFalse(repository.getAutoLoginEnabled())
+    }
+
+    @Test fun `narrow auto login getter reads the current native value once per action`() {
+        val nativeRepository = mockk<V3AutoLoginSettingsRepository>()
+        every { nativeRepository.getAutoLoginEnabled() } returnsMany listOf(false, true, false)
+        val get = GetAutoLoginEnabledUseCaseV3(nativeRepository)
+        verify(exactly = 0) { nativeRepository.getAutoLoginEnabled() }
+        assertFalse(get())
+        assertTrue(get())
+        assertFalse(get())
+        verify(exactly = 3) { nativeRepository.getAutoLoginEnabled() }
+        verify(exactly = 0) { nativeRepository.setAutoLoginEnabled(any()) }
+        confirmVerified(nativeRepository)
+    }
+
+    @Test fun `native auto login writes retain repeated values without a preliminary read`() {
+        val nativeRepository = mockk<V3AutoLoginSettingsRepository>()
+        every { nativeRepository.getAutoLoginEnabled() } throws IllegalStateException("Read would mirror native storage")
+        every { nativeRepository.setAutoLoginEnabled(any()) } just Runs
+        val set = SetAutoLoginEnabledUseCaseV3(nativeRepository, skipUnchanged = false)
+        verify(exactly = 0) { nativeRepository.setAutoLoginEnabled(any()) }
+        listOf(true, true, false, false, true).forEach(set::invoke)
+        verifySequence {
+            nativeRepository.setAutoLoginEnabled(true)
+            nativeRepository.setAutoLoginEnabled(true)
+            nativeRepository.setAutoLoginEnabled(false)
+            nativeRepository.setAutoLoginEnabled(false)
+            nativeRepository.setAutoLoginEnabled(true)
+        }
+        verify(exactly = 0) { nativeRepository.getAutoLoginEnabled() }
+        confirmVerified(nativeRepository)
+    }
+
+    @Test fun `native auto login write failures propagate without a fallback read or retry`() {
+        val nativeRepository = mockk<V3AutoLoginSettingsRepository>()
+        val failure = IllegalStateException("Native write failed")
+        every { nativeRepository.setAutoLoginEnabled(true) } throws failure
+        val set = SetAutoLoginEnabledUseCaseV3(nativeRepository, skipUnchanged = false)
+        assertSame(failure, assertThrows(IllegalStateException::class.java) { set(true) })
+        verify(exactly = 1) { nativeRepository.setAutoLoginEnabled(true) }
+        verify(exactly = 0) { nativeRepository.getAutoLoginEnabled() }
+        confirmVerified(nativeRepository)
     }
 
     @Test
@@ -228,6 +312,43 @@ class V3AppSettingsRepositoryTest {
             }
         }
         verify(exactly = 0) { preferences.edit() }
+    }
+
+    @ParameterizedTest @ValueSource(ints = [Int.MIN_VALUE, -1, 0, 1, 2, 3, Int.MAX_VALUE])
+    fun `narrow gestures preference read preserves raw sections and each current source without writes`(section: Int) {
+        val nativeRepository = mockk<V3GesturesPreferencesRepository>()
+        every { nativeRepository.getGesturesPreferences() } returnsMany listOf(
+            V3GesturesPreferences(section, false), V3GesturesPreferences(0, true),
+        )
+        val get = GetGesturesPreferencesUseCaseV3(nativeRepository)
+        verify(exactly = 0) { nativeRepository.getGesturesPreferences() }
+        assertEquals(V3GesturesPreferences(section, false), get())
+        assertEquals(V3GesturesPreferences(0, true), get())
+        verify(exactly = 2) { nativeRepository.getGesturesPreferences() }
+        confirmVerified(nativeRepository)
+    }
+
+    @Test fun `narrow gesture preference setters retain repeated writes raw section and factory booleans without read gates`() {
+        val nativeRepository = mockk<V3GesturesPreferencesRepository>()
+        every { nativeRepository.getGesturesPreferences() } throws IllegalStateException("Setters must not load or normalize preferences")
+        every { nativeRepository.setGesturesSection(any()) } just Runs
+        every { nativeRepository.setFactoryGestureCollectionExpanded(any()) } just Runs
+        val setSection = SetGesturesSectionUseCaseV3(nativeRepository)
+        val setExpanded = SetFactoryGestureCollectionExpandedUseCaseV3(nativeRepository)
+        setSection(0); setSection(0); setSection(2); setSection(-1)
+        setExpanded(false); setExpanded(false); setExpanded(true); setExpanded(true)
+        verifySequence {
+            nativeRepository.setGesturesSection(0)
+            nativeRepository.setGesturesSection(0)
+            nativeRepository.setGesturesSection(2)
+            nativeRepository.setGesturesSection(-1)
+            nativeRepository.setFactoryGestureCollectionExpanded(false)
+            nativeRepository.setFactoryGestureCollectionExpanded(false)
+            nativeRepository.setFactoryGestureCollectionExpanded(true)
+            nativeRepository.setFactoryGestureCollectionExpanded(true)
+        }
+        verify(exactly = 0) { nativeRepository.getGesturesPreferences() }
+        confirmVerified(nativeRepository)
     }
 
     @Test fun `gestures writes retain existing keys integer encoding and explicit repeated selections`() {

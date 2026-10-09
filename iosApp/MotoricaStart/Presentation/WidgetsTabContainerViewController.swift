@@ -12,13 +12,12 @@ import shared
 class WidgetsTabContainerViewController: UIViewController {
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
-    static let sharedStatusBarViewModel: StatusBarViewModel = {
-        let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
-        return StatusBarViewModel(isConnected: initialState == 2)
-    }()
+    static let sharedStatusBarViewModel = AppDIContainer.makeInitialStatusBarViewModel()
 
     fileprivate let contentViewController: WidgetsListViewController
+    private let makeAccountScreen: () -> AccountViewController
     private let statusBarViewModel = WidgetsTabContainerViewController.sharedStatusBarViewModel
+    private let statusBarViewModelV3: V3StatusBarViewModel
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
     private var statusBarHeightConstraint: NSLayoutConstraint?
@@ -31,8 +30,11 @@ class WidgetsTabContainerViewController: UIViewController {
         ProcessInfo.processInfo.arguments.contains("-ui-test-force-connected-status")
     }
 
-    init(contentViewController: WidgetsListViewController) {
+    init(contentViewController: WidgetsListViewController, makeAccountScreen: @escaping () -> AccountViewController,
+         makeStatusBarViewModelV3: (StatusBarViewModel) -> V3StatusBarViewModel) {
         self.contentViewController = contentViewController
+        self.makeAccountScreen = makeAccountScreen
+        self.statusBarViewModelV3 = makeStatusBarViewModelV3(WidgetsTabContainerViewController.sharedStatusBarViewModel)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -127,7 +129,7 @@ class WidgetsTabContainerViewController: UIViewController {
 
     private func openAccount() {
         if navigationController?.topViewController is AccountViewController { return }
-        navigationController?.pushViewController(AccountViewController(), animated: true)
+        navigationController?.pushViewController(makeAccountScreen(), animated: true)
     }
 
     private func openHelp() {
@@ -150,6 +152,10 @@ class WidgetsTabContainerViewController: UIViewController {
     }
 
     private func refreshStatusBarFromStorage() {
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            statusBarViewModelV3.onAction(.appearance)
+            return
+        }
         let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
         let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
         if !displayName.isEmpty {
@@ -168,14 +174,24 @@ class WidgetsTabContainerViewController: UIViewController {
             queue: .main
         ) { [weak self] notification in
             guard let serial = notification.object as? String, !serial.isEmpty else { return }
-            self?.statusBarViewModel.update(serialNumber: serial)
+            if UiInterfaceModeBridgeV3.shared.isEnabled() { self?.statusBarViewModelV3.onAction(.nameReceived(serial)) }
+            else { self?.statusBarViewModel.update(serialNumber: serial) }
         }
     }
 
     private func observeBleConnectionState() {
         bleStateJob?.cancel(cause: nil)
         if isUiTestForceConnectedStatus {
-            statusBarViewModel.update(isConnected: true)
+            if UiInterfaceModeBridgeV3.shared.isEnabled() { statusBarViewModelV3.onAction(.forceConnected) }
+            else { statusBarViewModel.update(isConnected: true) }
+            return
+        }
+
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            statusBarViewModelV3.onAction(.currentConnectionRequested)
+            bleStateJob = statusBarViewModelV3.observeConnectionReady { [weak self] ready in
+                DispatchQueue.main.async { self?.statusBarViewModelV3.onAction(.connectionReceived(ready)) }
+            }
             return
         }
 
@@ -192,6 +208,12 @@ class WidgetsTabContainerViewController: UIViewController {
 
     private func observeBatteryPercent() {
         batteryPercentJob?.cancel(cause: nil)
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            batteryPercentJob = statusBarViewModelV3.observeBatteryPercent { [weak self] rawPercent in
+                DispatchQueue.main.async { self?.statusBarViewModelV3.onAction(.batteryReceived(rawPercent.int32Value)) }
+            }
+            return
+        }
         batteryPercentJob = WidgetStateBridge.shared.observeBatteryPercent { [weak self] rawPercent in
             DispatchQueue.main.async {
                 let percent = max(0, min(100, Int(truncating: rawPercent as NSNumber)))

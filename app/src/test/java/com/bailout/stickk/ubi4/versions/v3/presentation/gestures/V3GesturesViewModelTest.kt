@@ -15,6 +15,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.gestures.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -820,6 +821,8 @@ class V3GesturesViewModelTest {
         val requests = mutableListOf<String>()
         val selections = mutableListOf<Int>()
         override fun getActiveGesture() = current
+        override fun observeActiveGesture() = updates.map { getActiveGesture().gestureId }
+        override fun observeRotationGroup() = rotationGroupUpdates.map { getRotationGroupGestureIds() }
         override fun requestActiveGesture(deviceAddress: String): Boolean {
             requests.add(deviceAddress); return true
         }

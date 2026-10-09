@@ -15,10 +15,19 @@ enum class V3GestureCommand(val code: Int) {
     OPEN(0), CLOSE(1), OPEN_WITH_DELAY(128), CLOSE_WITH_DELAY(129), SAVE(255)
 }
 
+/** Immutable device response; serialized settings stay opaque at the existing renderer boundary. */
+data class V3GestureSettingsResponse(
+    val addressDevice: Int,
+    val parameterID: Int,
+    val dataCode: Int,
+    val serializedSettings: String,
+)
+
 interface V3GestureEditorRepository {
     fun getHandSide(): Int
     // Null preserves the existing malformed-response notification.
     fun observeSettings(): Flow<V3GestureSettings?>
+    fun subscribeSettingsResponses(callback: (V3GestureSettingsResponse) -> Unit): () -> Unit
     suspend fun awaitReady()
     fun requestSettings(gestureId: Int)
     fun writeSettings(settings: V3GestureSettings, command: V3GestureCommand, name: String)

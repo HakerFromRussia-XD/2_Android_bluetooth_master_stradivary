@@ -16,6 +16,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureCommand
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureEditorRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettings
+import com.bailout.stickk.ubi4.versions.v3.domain.gestureeditor.V3GestureSettingsResponse
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetStateBridgeV3
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.buffer
@@ -28,10 +30,13 @@ class V3GestureEditorRepositoryImpl(
     private val subscribeSettingsUpdates: ((ParameterInfo<Int, Int, Int, Int>) -> Unit) -> (() -> Unit),
     private val enqueuePacket: (ByteArray) -> Unit,
     private val saveProfile: (ParameterInfo<Int, Int, Int, Int>, ParameterTypedValueV3) -> Unit = SettingsProfileManager::saveBleValue,
+    private val saveSettingsBeforeSending: Boolean = true,
+    private val readTypedHandSideFirst: Boolean = true,
 ) : V3GestureEditorRepository {
     private val json = Json { encodeDefaults = true }
 
     override fun getHandSide(): Int {
+        if (!readTypedHandSideFirst) return readSavedHandSide()
         val info = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
         val storedSide = (ParameterStoreV3.get(info) as? ParameterTypedValueV3.Spinner)
             ?.value?.spinnerValue?.coerceIn(0, 1)
@@ -57,6 +62,17 @@ class V3GestureEditorRepositoryImpl(
         awaitClose { unsubscribe() }
     }.buffer(Channel.UNLIMITED)
 
+    override fun subscribeSettingsResponses(callback: (V3GestureSettingsResponse) -> Unit): () -> Unit =
+        subscribeSettingsUpdates(update@{ info ->
+            val fields: ParameterInfo<*, *, *, *> = info
+            val addressDevice = fields.deviceAddress as? Int ?: return@update
+            val parameterID = fields.parameterID as? Int ?: return@update
+            val dataCode = fields.dataCode as? Int ?: return@update
+            val serialized = WidgetStateBridgeV3.getCurrent(addressDevice, parameterID, dataCode)?.serializedValue
+                ?: ParameterProvider.getParameterV3(info).data
+            callback(V3GestureSettingsResponse(addressDevice, parameterID, dataCode, serialized))
+        })
+
     override suspend fun awaitReady() {
         BLEState.state.first { it == BLEState.State.READY }
     }
@@ -77,26 +93,29 @@ class V3GestureEditorRepositoryImpl(
             settings.closeToOpenDelays[0], settings.closeToOpenDelays[1], settings.closeToOpenDelays[2],
             settings.closeToOpenDelays[3], settings.closeToOpenDelays[4], settings.closeToOpenDelays[5], name, 0,
         )
-        val typedValue = ParameterTypedValueV3.GestureSettings(GestureV3(
-            gestureId = gesture.gestureId,
-            openPosition1 = gesture.openPosition1, openPosition2 = gesture.openPosition2,
-            openPosition3 = gesture.openPosition3, openPosition4 = gesture.openPosition4,
-            openPosition5 = gesture.openPosition5, openPosition6 = gesture.openPosition6,
-            closePosition1 = gesture.closePosition1, closePosition2 = gesture.closePosition2,
-            closePosition3 = gesture.closePosition3, closePosition4 = gesture.closePosition4,
-            closePosition5 = gesture.closePosition5, closePosition6 = gesture.closePosition6,
-            openToCloseTimeShift1 = gesture.openToCloseTimeShift1, openToCloseTimeShift2 = gesture.openToCloseTimeShift2,
-            openToCloseTimeShift3 = gesture.openToCloseTimeShift3, openToCloseTimeShift4 = gesture.openToCloseTimeShift4,
-            openToCloseTimeShift5 = gesture.openToCloseTimeShift5, openToCloseTimeShift6 = gesture.openToCloseTimeShift6,
-            closeToOpenTimeShift1 = gesture.closeToOpenTimeShift1, closeToOpenTimeShift2 = gesture.closeToOpenTimeShift2,
-            closeToOpenTimeShift3 = gesture.closeToOpenTimeShift3, closeToOpenTimeShift4 = gesture.closeToOpenTimeShift4,
-            closeToOpenTimeShift5 = gesture.closeToOpenTimeShift5, closeToOpenTimeShift6 = gesture.closeToOpenTimeShift6,
-        ))
-        val baseInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
-        val info = ParameterInfo(baseInfo.parameterID, baseInfo.dataCode, baseInfo.deviceAddress, gesture.gestureId)
-        ParameterStoreV3.put(info, typedValue)
-        saveProfile(info, typedValue)
+        val parameterID = if (saveSettingsBeforeSending) {
+            val typedValue = ParameterTypedValueV3.GestureSettings(GestureV3(
+                gestureId = gesture.gestureId,
+                openPosition1 = gesture.openPosition1, openPosition2 = gesture.openPosition2,
+                openPosition3 = gesture.openPosition3, openPosition4 = gesture.openPosition4,
+                openPosition5 = gesture.openPosition5, openPosition6 = gesture.openPosition6,
+                closePosition1 = gesture.closePosition1, closePosition2 = gesture.closePosition2,
+                closePosition3 = gesture.closePosition3, closePosition4 = gesture.closePosition4,
+                closePosition5 = gesture.closePosition5, closePosition6 = gesture.closePosition6,
+                openToCloseTimeShift1 = gesture.openToCloseTimeShift1, openToCloseTimeShift2 = gesture.openToCloseTimeShift2,
+                openToCloseTimeShift3 = gesture.openToCloseTimeShift3, openToCloseTimeShift4 = gesture.openToCloseTimeShift4,
+                openToCloseTimeShift5 = gesture.openToCloseTimeShift5, openToCloseTimeShift6 = gesture.openToCloseTimeShift6,
+                closeToOpenTimeShift1 = gesture.closeToOpenTimeShift1, closeToOpenTimeShift2 = gesture.closeToOpenTimeShift2,
+                closeToOpenTimeShift3 = gesture.closeToOpenTimeShift3, closeToOpenTimeShift4 = gesture.closeToOpenTimeShift4,
+                closeToOpenTimeShift5 = gesture.closeToOpenTimeShift5, closeToOpenTimeShift6 = gesture.closeToOpenTimeShift6,
+            ))
+            val baseInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+            val info = ParameterInfo(baseInfo.parameterID, baseInfo.dataCode, baseInfo.deviceAddress, gesture.gestureId)
+            ParameterStoreV3.put(info, typedValue)
+            saveProfile(info, typedValue)
+            baseInfo.dataCode
+        } else 0
         // Address/parameter are unused by the V3 codec; the common UBI4 path retains its own values.
-        enqueuePacket(BLECommandsV3.sendGestureInfo(GestureWithAddress(0, baseInfo.dataCode, gesture, command.code)))
+        enqueuePacket(BLECommandsV3.sendGestureInfo(GestureWithAddress(0, parameterID, gesture, command.code)))
     }
 }

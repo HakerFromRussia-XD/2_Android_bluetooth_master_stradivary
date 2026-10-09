@@ -7,15 +7,19 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsS
 import androidx.lifecycle.ViewModelStore
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.data.state.ParameterStoreKeyV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
@@ -23,6 +27,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREE
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.EditToggleSliderUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetToggleSliderSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.RequestToggleSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SendToggleSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetInfo
@@ -127,10 +133,148 @@ class V3ToggleSliderSettingsIntegrationTest {
         val parameter = ParameterInfoRegistry.require(parameterKey)
         return BaseParameterInfoStruct(ID = parameter.parameterID, dataCode = parameter.dataCode, data = "{\"toggleValue\":$packed}")
     }
+    private fun uncachedRepository() = V3DeviceSettingsRepositoryImpl(
+        enqueuePacket = packets::add,
+        saveBleValue = { parameter, value -> savedParameters.add(parameter); savedValues.add(value) },
+        readCachedValues = false,
+    )
+    private fun cachedData() = cachedValues.mapValues { it.value.data }
+    private fun seedUnrelatedSlider() = ParameterStoreV3.put(
+        ParameterInfoRegistry.require(P_KEY_FORCE_SETTINGS), ParameterTypedValueV3.Slider(SliderV3(70)),
+    )
+    private fun assertUnchanged(receivedStore: Map<ParameterStoreKeyV3, ParameterTypedValueV3>, cache: Map<String, String>) {
+        assertEquals(receivedStore, ParameterStoreV3.values.value)
+        assertEquals(cache, cachedData())
+        assertTrue(savedValues.isEmpty())
+        assertTrue(savedParameters.isEmpty())
+        assertFalse(UiState.v3WidgetsInteractionEnabled.value)
+    }
 
     private fun showAllToggleSliders() {
         source.parameterKeys = setOf(P_KEY_EMG_CHANGE_GESTURE, key, P_KEY_SCREEN_TIMEOUT)
         attach()
+    }
+
+    @Test
+    fun `uncached ToggleSlider reads preserve absent values and received bits without writes`() {
+        val getSettings = GetToggleSliderSettingsUseCaseV3(uncachedRepository())
+        val cache = cachedData()
+        var expectedValues: Map<String, V3ToggleSliderValue?> = cachedValues.keys.associateWith { null }
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        val initialStore = ParameterStoreV3.values.value
+        assertEquals(expectedValues, getSettings(cachedValues.keys).values)
+        assertUnchanged(initialStore, cache)
+
+        cachedValues.keys.forEach { parameterKey ->
+            val parameter = ParameterInfoRegistry.require(parameterKey)
+            listOf(
+                0 to V3ToggleSliderValue(0, false), 0x80 to V3ToggleSliderValue(0, true),
+                0x89 to V3ToggleSliderValue(9, true), 0xFF to V3ToggleSliderValue(127, true),
+                0x2A to V3ToggleSliderValue(42, false),
+            ).forEach { (packed, received) ->
+                ParameterStoreV3.put(parameter, ParameterTypedValueV3.Toggle(ToggleV3(packed)))
+                expectedValues = expectedValues + (parameterKey to received)
+                val receivedStore = ParameterStoreV3.values.value
+                val snapshot = getSettings(cachedValues.keys)
+                assertEquals(expectedValues, snapshot.values)
+                assertFalse(snapshot.isInteractionEnabled)
+                assertUnchanged(receivedStore, cache)
+                assertTrue(packets.isEmpty())
+            }
+        }
+    }
+
+    @Test
+    fun `explicit ToggleSlider sends queue complete values immediately while received state stays unchanged`() {
+        val queuedRepository = uncachedRepository()
+        val getSettings = GetToggleSliderSettingsUseCaseV3(queuedRepository)
+        val defaultSend = SendToggleSliderValueUseCaseV3(queuedRepository)
+        val send = SendToggleSliderValueUseCaseV3(queuedRepository, requireInteractionEnabled = false)
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        var expectedValues: Map<String, V3ToggleSliderValue?> = cachedValues.keys.associateWith { null }
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        cachedValues.keys.forEach { parameterKey ->
+            val parameter = ParameterInfoRegistry.require(parameterKey)
+            listOf(null, 0xA5 to V3ToggleSliderValue(37, true), 0x12 to V3ToggleSliderValue(18, false)).forEach { received ->
+                if (received != null) {
+                    ParameterStoreV3.put(parameter, ParameterTypedValueV3.Toggle(ToggleV3(received.first)))
+                    expectedValues = expectedValues + (parameterKey to received.second)
+                }
+                val receivedStore = ParameterStoreV3.values.value
+                listOf(
+                    V3ToggleSliderValue(10, false) to 0x0A, V3ToggleSliderValue(10, true) to 0x8A,
+                    V3ToggleSliderValue(100, false) to 0x64, V3ToggleSliderValue(100, true) to 0xE4,
+                    V3ToggleSliderValue(100, true) to 0xE4,
+                ).forEach { (value, packed) ->
+                    val count = packets.size
+                    defaultSend(parameterKey, value)
+                    assertEquals(count, packets.size)
+                    assertUnchanged(receivedStore, cache)
+                    send(parameterKey, value)
+                    assertEquals(count + 1, packets.size)
+                    assertArrayEquals(requireNotNull(WidgetCommandBridgeV3.buildSetInt(
+                        parameter.parameterID, parameter.dataCode, parameter.deviceAddress, parameter.dataOffsets, packed,
+                    )), packets.last())
+                    assertEquals(expectedValues, getSettings(cachedValues.keys).values)
+                    assertUnchanged(receivedStore, cache)
+                    assertEquals(bleState, BLEState.state.value)
+                    assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+                }
+            }
+        }
+        val receivedStore = ParameterStoreV3.values.value
+        val count = packets.size
+        listOf(defaultSend, send).forEach { useCase ->
+            cachedValues.keys.forEach { parameterKey ->
+                listOf(9, 101).forEach { invalid ->
+                    assertThrows(IllegalArgumentException::class.java) { useCase(parameterKey, V3ToggleSliderValue(invalid, true)) }
+                }
+            }
+            listOf(P_KEY_FORCE_SETTINGS, "unknown-toggle-slider").forEach { unsupported ->
+                assertThrows(IllegalArgumentException::class.java) { useCase(unsupported, V3ToggleSliderValue(10, true)) }
+            }
+        }
+        assertEquals(cachedValues.size * 15, packets.size)
+        assertEquals(count, packets.size)
+        assertUnchanged(receivedStore, cache)
+    }
+
+    @Test
+    fun `ToggleSlider requests repeat old read packets offline for cached and received values without writes`() {
+        val request = RequestToggleSliderValueUseCaseV3(repository)
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        UiState.v3WidgetsInteractionEnabled.value = false
+        seedUnrelatedSlider()
+        listOf(false, true).forEach { hasReceivedValues ->
+            if (hasReceivedValues) {
+                cachedValues.keys.forEachIndexed { index, parameterKey ->
+                    ParameterStoreV3.put(
+                        ParameterInfoRegistry.require(parameterKey), ParameterTypedValueV3.Toggle(ToggleV3(0x91 + index)),
+                    )
+                }
+            }
+            val receivedStore = ParameterStoreV3.values.value
+            cachedValues.keys.forEach { parameterKey ->
+                val parameter = ParameterInfoRegistry.require(parameterKey)
+                val expectedPacket = requireNotNull(WidgetCommandBridgeV3.buildReadRequest(parameter.parameterID, parameter.dataCode))
+                repeat(2) {
+                    val count = packets.size
+                    request(parameterKey)
+                    assertEquals(count + 1, packets.size)
+                    assertArrayEquals(expectedPacket, packets.last())
+                    assertUnchanged(receivedStore, cache)
+                    assertEquals(bleState, BLEState.state.value)
+                    assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+                }
+            }
+        }
+        assertEquals(cachedValues.size * 4, packets.size)
     }
 
     @ParameterizedTest

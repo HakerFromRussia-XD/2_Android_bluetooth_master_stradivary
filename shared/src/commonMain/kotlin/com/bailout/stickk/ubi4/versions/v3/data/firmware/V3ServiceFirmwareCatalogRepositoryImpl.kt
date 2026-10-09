@@ -12,6 +12,8 @@ class V3ServiceFirmwareCatalogRepositoryImpl(
     private val cacheDirectory: () -> String,
     private val remote: YandexDiskFirmwareRepository = YandexDiskFirmwareRepository(),
 ) : V3ServiceFirmwareCatalogRepository {
+    constructor(cacheDirectory: () -> String) : this(cacheDirectory, YandexDiskFirmwareRepository())
+
     override suspend fun loadCatalog() = remote.loadCatalog().map {
         V3ServiceFirmwareFile(it.family.name, it.name, it.path, it.size)
     }

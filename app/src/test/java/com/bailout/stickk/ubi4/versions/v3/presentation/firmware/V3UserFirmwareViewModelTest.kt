@@ -105,4 +105,33 @@ class V3UserFirmwareViewModelTest {
         assertEquals(0, observers)
         assertTrue(calls.isEmpty())
     }
+
+    @Test fun `dialog use cases accept only actions and preserve repeated calls in order`() {
+        val actions = mutableListOf<String>()
+        val repository = object : V3UserFirmwareActionsRepository {
+            override fun startUpdate() { actions += "start" }
+            override fun postponeUpdate() { actions += "postpone" }
+            override fun acknowledgeCompletion() { actions += "acknowledge" }
+        }
+        val start = StartUserFirmwareUpdateUseCaseV3(repository)
+        val postpone = PostponeUserFirmwareUpdateUseCaseV3(repository)
+        val acknowledge = AcknowledgeUserFirmwareCompletionUseCaseV3(repository)
+        assertTrue(actions.isEmpty())
+        start(); start(); postpone(); postpone(); acknowledge(); acknowledge()
+        assertEquals(listOf("start", "start", "postpone", "postpone", "acknowledge", "acknowledge"), actions)
+    }
+
+    @Test fun `dialog use cases propagate source failure without retrying another action`() {
+        var calls = 0
+        val failure = IllegalStateException("source failure")
+        val repository = object : V3UserFirmwareActionsRepository {
+            override fun startUpdate() { calls++; throw failure }
+            override fun postponeUpdate() { calls++; throw failure }
+            override fun acknowledgeCompletion() { calls++; throw failure }
+        }
+        assertSame(failure, assertThrows<IllegalStateException> { StartUserFirmwareUpdateUseCaseV3(repository)() })
+        assertSame(failure, assertThrows<IllegalStateException> { PostponeUserFirmwareUpdateUseCaseV3(repository)() })
+        assertSame(failure, assertThrows<IllegalStateException> { AcknowledgeUserFirmwareCompletionUseCaseV3(repository)() })
+        assertEquals(3, calls)
+    }
 }

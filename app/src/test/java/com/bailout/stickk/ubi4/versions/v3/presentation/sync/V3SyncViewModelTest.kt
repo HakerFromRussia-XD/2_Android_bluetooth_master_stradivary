@@ -23,6 +23,9 @@ class V3SyncViewModelTest {
                 subscriptions++
                 try { emitAll(events) } finally { subscriptions-- }
             }
+            override fun observeWidgetsLoadCompletion(): Flow<Unit> = error("not used by Android observation")
+            override fun observeInitializationInfo(): Flow<V3SyncInitializationInfo> = error("not used by Android observation")
+            override fun observeWidgetsLoadingProgress(): Flow<V3SyncLoadingProgress> = error("not used by Android observation")
         }))
         store.put("sync", vm)
         vm.onAction(V3SyncAction.ViewCreated)

@@ -8,11 +8,14 @@ import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.models.user.ClientDataV2
 import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.models.user.UserV2
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridgeProfile
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridgeResult
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
 import io.mockk.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.Assertions.*
@@ -155,6 +158,113 @@ class V3AccountProfileRepositoryTest {
         response.complete(NetworkResult.Success(UserV2(ClientDataV2(fname = "First"))))
         assertEquals("First", (first.await() as V3AccountProfileResult.Success).value.firstName)
     }
+
+    @Test fun `snapshot copies all fourteen raw fields repeats synchronously and returns the same cancellable job`() {
+        val fields = listOf(" \tA😀 ", "e\u0301", " independent full name ", "", "\u00A0", "raw ПР model\n",
+            "0", "-1", "null", " ", "⚡", "unknown", " malformed date ", " raw warranty ")
+        val result = AccountBridgeResult(true, bridgeProfile(fields), " raw success message ")
+        val sourceJob = Job()
+        val order = mutableListOf<String>()
+        val received = mutableListOf<V3AccountProfileSnapshotResult>()
+        var calls = 0
+        val snapshotRepository = V3AccountProfileSnapshotRepositoryImpl { serial, language, callback ->
+            calls++
+            assertEquals(" not-FEST serial \n", serial)
+            assertEquals(" RU raw ", language)
+            order += "source-before"
+            callback(result)
+            callback(result)
+            order += "source-after"
+            sourceJob
+        }
+        val load = LoadAccountProfileSnapshotUseCaseV3(snapshotRepository)
+        assertEquals(0, calls)
+        assertTrue(order.isEmpty())
+        try {
+            val returned = load(" not-FEST serial \n", " RU raw ") { received += it; order += "callback" }
+            assertSame(sourceJob, returned)
+            assertEquals(listOf("source-before", "callback", "callback", "source-after"), order)
+            assertEquals(1, calls)
+            assertEquals(2, received.size)
+            assertEquals(received.first(), received.last())
+            assertEquals(fields, snapshotFields(requireNotNull(received.first().profile)))
+            assertTrue(received.first().isSuccess)
+            assertEquals(" raw success message ", received.first().errorMessage)
+            returned.cancel()
+            assertTrue(sourceJob.isCancelled)
+            verify { api wasNot Called }
+            assertTrue(encryptedInputs.isEmpty())
+        } finally { sourceJob.cancel() }
+    }
+
+    @Test fun `snapshot retains offline null and partial results and independent raw request contexts`() {
+        val requests = mutableListOf<Pair<String, String>>()
+        val callbacks = mutableListOf<(AccountBridgeResult) -> Unit>()
+        val sourceJobs = listOf(Job(), Job())
+        val load = LoadAccountProfileSnapshotUseCaseV3(V3AccountProfileSnapshotRepositoryImpl { serial, language, callback ->
+            requests += serial to language
+            callbacks += callback
+            sourceJobs[requests.lastIndex]
+        })
+        val first = mutableListOf<V3AccountProfileSnapshotResult>()
+        val second = mutableListOf<V3AccountProfileSnapshotResult>()
+        try {
+            assertSame(sourceJobs[0], load("  FEST-F-06879  ", "ru") { first += it })
+            assertSame(sourceJobs[1], load("", "EN") { second += it })
+            assertEquals(listOf("  FEST-F-06879  " to "ru", "" to "EN"), requests)
+            assertTrue(first.isEmpty() && second.isEmpty())
+            val partial = List(14) { if (it == 0 || it == 2) " First " else if (it == 4) "phone" else "" }
+            callbacks[1](AccountBridgeResult(true, bridgeProfile(partial), ""))
+            callbacks[0](AccountBridgeResult(false, bridgeProfile(List(14) { "" }), " No user data on server "))
+            callbacks[0](AccountBridgeResult(false, null, "Cannot encrypt serial number"))
+            assertEquals(2, first.size)
+            assertFalse(first[0].isSuccess)
+            assertEquals(List(14) { "" }, snapshotFields(requireNotNull(first[0].profile)))
+            assertEquals(" No user data on server ", first[0].errorMessage)
+            assertEquals(V3AccountProfileSnapshotResult(false, null, "Cannot encrypt serial number"), first[1])
+            assertTrue(second.single().isSuccess)
+            assertEquals(partial, snapshotFields(requireNotNull(second.single().profile)))
+            assertEquals("", second.single().errorMessage)
+            assertEquals(2, requests.size)
+            verify { api wasNot Called }
+        } finally { sourceJobs.forEach { it.cancel() } }
+    }
+
+    @Test fun `snapshot source and consumer exceptions propagate directly without retries or dispatch`() {
+        val sourceFailure = IllegalStateException("source failed")
+        var calls = 0
+        val load = LoadAccountProfileSnapshotUseCaseV3(V3AccountProfileSnapshotRepositoryImpl { _, _, _ ->
+            calls++
+            throw sourceFailure
+        })
+        var thrown: Throwable? = null
+        try { load("serial", "lang") { fail<Unit>("Unexpected callback") } } catch (failure: Throwable) { thrown = failure }
+        assertSame(sourceFailure, thrown)
+        assertEquals(1, calls)
+        val callbackFailure = IllegalArgumentException("consumer failed")
+        val sourceJob = Job()
+        val callbackLoad = LoadAccountProfileSnapshotUseCaseV3(V3AccountProfileSnapshotRepositoryImpl { _, _, callback ->
+            callback(AccountBridgeResult(false, null, "raw"))
+            sourceJob
+        })
+        thrown = null
+        try { callbackLoad("serial", "lang") { throw callbackFailure } } catch (failure: Throwable) { thrown = failure }
+        finally { sourceJob.cancel() }
+        assertSame(callbackFailure, thrown)
+        verify { api wasNot Called }
+    }
+
+    private fun bridgeProfile(fields: List<String>) = AccountBridgeProfile(
+        fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6],
+        fields[7], fields[8], fields[9], fields[10], fields[11], fields[12], fields[13],
+    )
+
+    private fun snapshotFields(profile: V3AccountProfileSnapshot) = listOf(
+        profile.firstName, profile.lastName, profile.fullName, profile.managerName, profile.managerPhone,
+        profile.prosthesisModel, profile.prosthesisSize, profile.handSide, profile.rotatorType,
+        profile.touchscreenFingerPads, profile.batteryType, profile.prosthesisStatus,
+        profile.dateOfReceipt, profile.warrantyExpirationDate,
+    )
 
     private suspend fun call(operation: String): V3AccountProfileResult<*> = when (operation) {
         "token" -> repository.getToken("serial")

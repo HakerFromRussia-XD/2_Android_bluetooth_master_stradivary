@@ -203,6 +203,7 @@ class V3ServiceViewModelTest {
         override val spinnerInteractionEnabled = MutableStateFlow(true)
         override fun getSpinnerValue(parameterKey: String): Int? = null
         override fun observeSpinnerValue(parameterKey: String) = MutableStateFlow<Int?>(null)
+        override fun requestSpinnerValue(parameterKey: String) = error("Unexpected spinner request")
         override fun setSpinnerValue(parameterKey: String, value: Int) = error("No Spinner in this fixture")
         override val sliderInteractionEnabled = MutableStateFlow(true)
         val values = mapOf(P_KEY_GLOBAL_THUMB_CLOSED_POSITION to MutableStateFlow<Int?>(65),
@@ -210,6 +211,7 @@ class V3ServiceViewModelTest {
         val writes = mutableListOf<Pair<String, Int>>()
         override fun getSliderValue(parameterKey: String) = values.getValue(parameterKey).value
         override fun observeSliderValue(parameterKey: String) = values.getValue(parameterKey)
+        override fun requestSliderValue(parameterKey: String) = error("Unexpected slider request")
         override fun setSliderValue(parameterKey: String, value: Int) {
             writes += parameterKey to value
             values.getValue(parameterKey).value = value

@@ -14,3 +14,16 @@ class SaveRotationGroupSelectionUseCaseV3(private val repository: V3GesturesRepo
         return repository.setRotationGroup(deviceAddress, selection.resultingGestureIds().take(8))
     }
 }
+
+class SetRotationGroupUseCaseV3(
+    private val repository: V3GesturesRepository,
+    private val requireInteractionEnabled: Boolean = true,
+) {
+    operator fun invoke(deviceAddress: String, gestureIds: List<Int>): Boolean {
+        if (requireInteractionEnabled) {
+            val current = repository.getActiveGesture()
+            if (!current.isInteractionEnabled || current.deviceAddress != deviceAddress) return false
+        }
+        return repository.setRotationGroup(deviceAddress, gestureIds)
+    }
+}

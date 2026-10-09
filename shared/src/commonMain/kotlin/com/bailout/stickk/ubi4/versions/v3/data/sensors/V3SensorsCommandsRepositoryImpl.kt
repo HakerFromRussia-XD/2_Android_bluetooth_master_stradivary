@@ -11,12 +11,14 @@ import com.bailout.stickk.ubi4.versions.v3.domain.sensors.V3SensorsCommandsRepos
 class V3SensorsCommandsRepositoryImpl(
     private val enqueuePacket: (ByteArray) -> Unit,
     private val refreshWidgets: () -> Unit,
+    // Native iOS has always queued these addressless serial commands without a ready-device check.
+    private val validateCommandDeviceContext: Boolean = true,
 ) : V3SensorsCommandsRepository {
     override val interactionEnabled = deviceInteractionEnabledState
     override val refreshInProgress = UiState.fullInitInProgress
 
     override fun startMovement(deviceAddress: String, movement: V3ProsthesisMovement): Boolean {
-        if (!isCurrentDevice(deviceAddress) || !UiState.isInterfaceV3Activated || !interactionEnabled.value) return false
+        if (validateCommandDeviceContext && (!isCurrentDevice(deviceAddress) || !UiState.isInterfaceV3Activated || !interactionEnabled.value)) return false
         val command = when (movement) {
             V3ProsthesisMovement.OPEN -> ProsthesisModuleControlEnum.PMCE_OPEN_COMMAND
             V3ProsthesisMovement.CLOSE -> ProsthesisModuleControlEnum.PMCE_CLOSE_COMMAND
@@ -26,7 +28,7 @@ class V3SensorsCommandsRepositoryImpl(
     }
 
     override fun stopMovement(deviceAddress: String) {
-        if (isCurrentDevice(deviceAddress)) enqueuePacket(BLECommandsV3.sendSubcommand(0, 0))
+        if (!validateCommandDeviceContext || isCurrentDevice(deviceAddress)) enqueuePacket(BLECommandsV3.sendSubcommand(0, 0))
     }
 
     override fun refreshSensors(deviceAddress: String): Boolean {

@@ -12,9 +12,13 @@ enum BleLogSettings {
             return UserDefaults.standard.bool(forKey: hideGraphStreamKey)
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: hideGraphStreamKey)
+            saveGraphStreamHiddenPreference(newValue)
             BleLogBridge.shared.setHideGraphStream(hide: newValue)
         }
+    }
+
+    static func saveGraphStreamHiddenPreference(_ hidden: Bool) {
+        UserDefaults.standard.set(hidden, forKey: hideGraphStreamKey)
     }
 
     static func syncSharedStore() {
@@ -22,7 +26,59 @@ enum BleLogSettings {
     }
 }
 
+enum BleLogActionV3 {
+    case viewLoaded
+    case graphStreamFilterChanged(hidden: Bool)
+    case snapshotRequested
+    case entriesAfterRequested(Int64)
+}
+
+struct BleLogUiStateV3 {
+    let hidesGraphStream: Bool
+    let entries: [BleLogEntryUi]
+}
+
+final class BleLogViewModelV3 {
+    private let filter: ManageBleLogFilterUseCaseV3
+    private let observeLog: ObserveBleLogUseCaseV3
+    private(set) var uiState = BleLogUiStateV3(hidesGraphStream: true, entries: [])
+
+    init(filter: ManageBleLogFilterUseCaseV3, observeLog: ObserveBleLogUseCaseV3) {
+        self.filter = filter
+        self.observeLog = observeLog
+    }
+
+    func onAction(_ action: BleLogActionV3) {
+        switch action {
+        case .viewLoaded:
+            uiState = BleLogUiStateV3(hidesGraphStream: filter.restore(), entries: uiState.entries)
+        case .graphStreamFilterChanged(let hidden):
+            filter.setGraphStreamHidden(hidden: hidden)
+            uiState = BleLogUiStateV3(hidesGraphStream: hidden, entries: uiState.entries)
+        case .snapshotRequested:
+            updateEntries(observeLog.snapshot())
+        case .entriesAfterRequested(let id):
+            updateEntries(observeLog.entriesAfter(id: id))
+        }
+    }
+
+    func observeVersion(onUpdate: @escaping () -> Void) -> Kotlinx_coroutines_coreJob {
+        observeLog.observeVersion { _ in onUpdate() }
+    }
+
+    private func updateEntries(_ entries: [V3BleLogEntry]) {
+        uiState = BleLogUiStateV3(
+            hidesGraphStream: uiState.hidesGraphStream,
+            entries: entries.map {
+                BleLogEntryUi(id: $0.id, timestampMillis: $0.timestampMillis,
+                              isOutgoing: $0.isOutgoing, bytesHex: $0.bytesHex)
+            }
+        )
+    }
+}
+
 final class BleLogViewController: UIViewController {
+    private let viewModelV3: BleLogViewModelV3?
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
     private let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
     private let borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444)
@@ -45,7 +101,8 @@ final class BleLogViewController: UIViewController {
     private var isAppendScheduled = false
     private var rowHeightCache: [Int64: CGFloat] = [:]
 
-    init() {
+    init(viewModelV3: BleLogViewModelV3? = nil) {
+        self.viewModelV3 = viewModelV3
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -57,7 +114,11 @@ final class BleLogViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        BleLogSettings.syncSharedStore()
+        if let viewModelV3 {
+            viewModelV3.onAction(.viewLoaded)
+        } else {
+            BleLogSettings.syncSharedStore()
+        }
         setupView()
         reloadSnapshot()
         observeLog()
@@ -137,7 +198,10 @@ final class BleLogViewController: UIViewController {
         )
         graphStreamFilterControl.addSubview(graphStreamFilterLabel)
 
-        let switchProvider = SwitchProvider(isOn: BleLogSettings.hidesGraphStream, title: "")
+        let switchProvider = SwitchProvider(
+            isOn: viewModelV3?.uiState.hidesGraphStream ?? BleLogSettings.hidesGraphStream,
+            title: ""
+        )
         graphStreamSwitchProvider = switchProvider
         graphStreamSwitchCancellable = switchProvider.$isOn
             .dropFirst()
@@ -219,15 +283,28 @@ final class BleLogViewController: UIViewController {
 
     private func observeLog() {
         observeJob?.cancel(cause: nil)
-        observeJob = BleLogBridge.shared.observeVersion { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.scheduleAppendNewEntries()
+        if let viewModelV3 {
+            observeJob = viewModelV3.observeVersion { [weak self] in
+                DispatchQueue.main.async {
+                    self?.scheduleAppendNewEntries()
+                }
+            }
+        } else {
+            observeJob = BleLogBridge.shared.observeVersion { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.scheduleAppendNewEntries()
+                }
             }
         }
     }
 
     private func reloadSnapshot() {
-        entries = BleLogBridge.shared.snapshot()
+        if let viewModelV3 {
+            viewModelV3.onAction(.snapshotRequested)
+            entries = viewModelV3.uiState.entries
+        } else {
+            entries = BleLogBridge.shared.snapshot()
+        }
         lastEntryId = entries.last?.id ?? 0
         rowHeightCache.removeAll()
         emptyLabel.isHidden = !entries.isEmpty
@@ -246,7 +323,13 @@ final class BleLogViewController: UIViewController {
     }
 
     private func appendNewEntries() {
-        let newEntries = BleLogBridge.shared.entriesAfter(id: lastEntryId)
+        let newEntries: [BleLogEntryUi]
+        if let viewModelV3 {
+            viewModelV3.onAction(.entriesAfterRequested(lastEntryId))
+            newEntries = viewModelV3.uiState.entries
+        } else {
+            newEntries = BleLogBridge.shared.entriesAfter(id: lastEntryId)
+        }
         guard !newEntries.isEmpty else { return }
         let wasAtBottom = isScrolledNearBottom()
         let startIndex = entries.count
@@ -290,7 +373,11 @@ final class BleLogViewController: UIViewController {
     }
 
     private func updateGraphStreamFilter(_ isOn: Bool) {
-        BleLogSettings.hidesGraphStream = isOn
+        if let viewModelV3 {
+            viewModelV3.onAction(.graphStreamFilterChanged(hidden: isOn))
+        } else {
+            BleLogSettings.hidesGraphStream = isOn
+        }
     }
 
     private func height(for entry: BleLogEntryUi) -> CGFloat {

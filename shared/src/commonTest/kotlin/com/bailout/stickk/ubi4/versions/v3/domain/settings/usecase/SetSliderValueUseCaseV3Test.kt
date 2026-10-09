@@ -29,6 +29,7 @@ class SetSliderValueUseCaseV3Test {
         override val sliderInteractionEnabled = interactionEnabled
         override fun observeSliderValue(parameterKey: String) = MutableStateFlow<Int?>(null)
         override fun getSliderValue(parameterKey: String): Int? = null
+        override fun requestSliderValue(parameterKey: String) = error("Unexpected slider request")
         override fun setSliderValue(parameterKey: String, value: Int) { writes.add(parameterKey to value) }
     }
     private val useCase = SetSliderValueUseCaseV3(repository)

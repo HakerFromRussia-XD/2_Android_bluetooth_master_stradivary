@@ -4,9 +4,11 @@ import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceInfoField
 
 data class V3DeviceInfoTextEdit(val text: String, val limitReached: Boolean)
 
-class EditDeviceInfoTextUseCaseV3 {
+class EditDeviceInfoTextUseCaseV3(
+    private val trimDeviceName: (String) -> String = V3DeviceNameInputRules::trimToLimit,
+) {
     operator fun invoke(field: V3DeviceInfoField, text: String): V3DeviceInfoTextEdit {
-        val result = if (field == V3DeviceInfoField.DEVICE_NAME) V3DeviceNameInputRules.trimToLimit(text) else text
+        val result = if (field == V3DeviceInfoField.DEVICE_NAME) trimDeviceName(text) else text
         return V3DeviceInfoTextEdit(result, result != text)
     }
 }

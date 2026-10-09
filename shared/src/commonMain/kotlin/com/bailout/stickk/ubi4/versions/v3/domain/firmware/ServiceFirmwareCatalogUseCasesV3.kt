@@ -1,10 +1,12 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.firmware
 
 class LoadServiceFirmwareCatalogUseCaseV3(private val repository: V3ServiceFirmwareCatalogRepository) {
+    @Throws(Exception::class)
     suspend operator fun invoke() = repository.loadCatalog()
 }
 
 class DownloadServiceFirmwareFilesUseCaseV3(private val repository: V3ServiceFirmwareCatalogRepository) {
+    @Throws(Exception::class)
     suspend operator fun invoke(files: List<V3ServiceFirmwareFile>) = repository.downloadFiles(files)
 }
 

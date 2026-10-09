@@ -55,7 +55,7 @@ final class ToggleSliderViewCellV3: UITableViewCell {
                     return
                 }
                 let progress = Int(self.provider?.progress ?? Float(self.viewModel?.minProgress ?? 0))
-                self.viewModel?.sendValue(enabled: isEnabled, progress: progress)
+                self.viewModel?.onAction(.valueChangeCommitted(enabled: isEnabled, progress: progress))
             }
 
         var configuration = UIHostingConfiguration {
@@ -63,10 +63,10 @@ final class ToggleSliderViewCellV3: UITableViewCell {
                 provider: provider,
                 onSliderEditingEnded: { [weak self] finalValue in
                     guard let self else { return }
-                    self.viewModel?.sendValue(
+                    self.viewModel?.onAction(.valueChangeCommitted(
                         enabled: self.provider?.isEnabled ?? false,
                         progress: Int(finalValue.rounded())
-                    )
+                    ))
                 },
                 onToggleTap: { [weak self] in
                     guard let self else { return }
@@ -74,10 +74,10 @@ final class ToggleSliderViewCellV3: UITableViewCell {
                 },
                 onStepEditingEnded: { [weak self] finalValue in
                     guard let self else { return }
-                    self.viewModel?.sendValue(
+                    self.viewModel?.onAction(.valueChangeCommitted(
                         enabled: self.provider?.isEnabled ?? false,
                         progress: Int(finalValue.rounded())
-                    )
+                    ))
                 }
         )
         }
@@ -95,7 +95,7 @@ final class ToggleSliderViewCellV3: UITableViewCell {
             }
         }
 
-        viewModel.requestCurrent()
+        viewModel.onAction(.currentValueRequested)
     }
 }
 

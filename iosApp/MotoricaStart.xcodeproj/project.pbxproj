@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A6100910D320405081AABD02 /* V3GesturesPreferencesRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */; };
+		A6100910D320405081AABC02 /* V3AccountDetailsSnapshotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */; };
+		A6100910D320405081AABB02 /* CustomGestureNamesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABB01 /* CustomGestureNamesStorage.swift */; };
+		A6100710D320405081AABB04 /* V3DeviceInteractionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100710D320405081AABB03 /* V3DeviceInteractionViewModelTests.swift */; };
+		A6100710D320405081AABB02 /* V3DeviceInteractionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100710D320405081AABB01 /* V3DeviceInteractionViewModel.swift */; };
 		024CD56B23ACECDDDD15333A /* festh3_test11_gofra_1.v3bin in Resources */ = {isa = PBXBuildFile; fileRef = C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */; };
 		03AC1AA39B113799F46BD962 /* DialogFingersDelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */; };
 		059524415962DA54885D8A4C /* DialogDisconnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */; };
@@ -319,6 +324,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3GesturesPreferencesRepositoryImpl.swift; sourceTree = "<group>"; };
+		A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3AccountDetailsSnapshotRepository.swift; sourceTree = "<group>"; };
+		A6100910D320405081AABB01 /* CustomGestureNamesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomGestureNamesStorage.swift; sourceTree = "<group>"; };
+		A6100710D320405081AABB03 /* V3DeviceInteractionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3DeviceInteractionViewModelTests.swift; sourceTree = "<group>"; };
+		A6100710D320405081AABB01 /* V3DeviceInteractionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = V3DeviceInteractionViewModel.swift; path = Widgets/V3/V3DeviceInteractionViewModel.swift; sourceTree = "<group>"; };
 		0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSetSerialNumberViewController.swift; path = ViewControllers/Dialogs/DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
 		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
 		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
@@ -841,6 +851,7 @@
 			children = (
 				1FFFC83D221B02BA007D99D2 /* Info.plist */,
 				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
+				A6100710D320405081AABB03 /* V3DeviceInteractionViewModelTests.swift */,
 				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
 				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
 				65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */,
@@ -951,6 +962,7 @@
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
 				0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */,
 				FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */,
+				A6100710D320405081AABB01 /* V3DeviceInteractionViewModel.swift */,
 				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
@@ -1070,6 +1082,8 @@
 		1FFFC824221B0041007D99D2 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
+				A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */,
+				A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */,
 				1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */,
 				1FFFC827221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift */,
 				1F6B52142363002C002FCDE9 /* Utils */,
@@ -1137,6 +1151,7 @@
 		651DDBAF2EFD7E0100199FD8 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				A6100910D320405081AABB01 /* CustomGestureNamesStorage.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -2045,6 +2060,9 @@
 				65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */,
 				659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
 				651DDBB62F14F3DB00199FD8 /* GestureService.swift in Sources */,
+				A6100910D320405081AABD02 /* V3GesturesPreferencesRepositoryImpl.swift in Sources */,
+				A6100910D320405081AABC02 /* V3AccountDetailsSnapshotRepository.swift in Sources */,
+				A6100910D320405081AABB02 /* CustomGestureNamesStorage.swift in Sources */,
 				651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
@@ -2059,6 +2077,7 @@
 				9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */,
 				6547F5132F8E86E2009E2575 /* SliderViewCellV3.swift in Sources */,
 				19B079BAF376328CFA27B243 /* WidgetV3Support.swift in Sources */,
+				A6100710D320405081AABB02 /* V3DeviceInteractionViewModel.swift in Sources */,
 				44BE111C65C4FFCFE50F26C6 /* SpinnerListItemViewModelV3.swift in Sources */,
 				46214BAD4C6C41E5515B0D4F /* SwitcherListItemViewModelV3.swift in Sources */,
 				2504F9E1A3A7422D61CD66C0 /* ToggleSliderListItemViewModelV3.swift in Sources */,
@@ -2084,6 +2103,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
+				A6100710D320405081AABB04 /* V3DeviceInteractionViewModelTests.swift in Sources */,
 				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
 				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
 				65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */,

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="drawable" name="ubi4_help_service_widget_1">@drawable/ubi4_help_service_widget_1_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_2">@drawable/ubi4_help_service_widget_2_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_3">@drawable/ubi4_help_service_widget_3_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_4">@drawable/ubi4_help_service_widget_4_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_5">@drawable/ubi4_help_service_widget_5_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_6">@drawable/ubi4_help_service_widget_6_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_7">@drawable/ubi4_help_service_widget_7_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_8">@drawable/ubi4_help_service_widget_8_en</item>
+    <item type="drawable" name="ubi4_help_service_widget_9">@drawable/ubi4_help_service_widget_9_en</item>
+</resources>

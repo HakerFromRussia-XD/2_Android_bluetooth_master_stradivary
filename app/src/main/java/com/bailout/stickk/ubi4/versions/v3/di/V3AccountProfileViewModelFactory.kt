@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.di.BleDependencies
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.V3AccountProfileLocalRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.V3AccountProfileRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.V3AccountSerialNumberSource
 import com.bailout.stickk.ubi4.versions.v3.data.accountprofile.toAccountProfileDeviceContext
 import com.bailout.stickk.ubi4.versions.v3.data.service.V3DeviceRoleRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
@@ -28,6 +29,7 @@ class V3AccountProfileViewModelFactory(
             getViewData = GetAccountProfileViewDataUseCaseV3(local),
             loadProfile = LoadAccountProfileUseCaseV3(remote, local),
             cacheHeader = CacheAccountProfileHeaderUseCaseV3(local),
+            observeSerialNumber = ObserveAccountSerialNumberUseCaseV3(local),
             restoreDeviceRole = RestoreDeviceRoleUseCaseV3(role),
             observeServiceEngineerAccess = ObserveServiceEngineerAccessUseCaseV3(role),
         ) as T
@@ -47,4 +49,8 @@ class V3AccountProfileViewModelFactory(
 internal fun createAccountProfileLocalRepository(context: Context) =
     V3AccountProfileLocalRepositoryImpl(context.applicationContext.getSharedPreferences(
         PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
-    ), deviceContext = { BleDependencies.currentDeviceIdentity.toAccountProfileDeviceContext() })
+    ), deviceContext = { BleDependencies.currentDeviceIdentity.toAccountProfileDeviceContext() },
+        serialNumbers = V3AccountSerialNumberSource { packet, onSent ->
+            BleDependencies.v3CommandTransport.enqueue(packet, onSent)
+        }::observe,
+    )

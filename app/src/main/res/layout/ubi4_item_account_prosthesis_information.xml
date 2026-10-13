@@ -47,23 +47,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/prosthesis_model_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -76,7 +79,8 @@
                         <TextView
                             android:id="@+id/prosthesis_model_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/prosthesis_model_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"
@@ -99,23 +103,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/prosthesis_size_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -128,7 +135,8 @@
                         <TextView
                             android:id="@+id/prosthesis_size_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/prosthesis_size_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"
@@ -150,23 +158,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/hand_side_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -179,7 +190,8 @@
                         <TextView
                             android:id="@+id/hand_side_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/hand_side_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"
@@ -201,23 +213,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/rotator_type_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -230,7 +245,8 @@
                         <TextView
                             android:id="@+id/rotator_type_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/rotator_type_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"
@@ -252,23 +268,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/touchscreen_finger_pads_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -281,7 +300,8 @@
                         <TextView
                             android:id="@+id/touchscreen_finger_pads_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/touchscreen_finger_pads_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"
@@ -303,23 +323,26 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp">
+                android:layout_height="wrap_content"
+                android:minHeight="56dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="4">
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:paddingBottom="8dp">
 
                         <TextView
                             android:id="@+id/battery_type_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginStart="25dp"
@@ -332,7 +355,8 @@
                         <TextView
                             android:id="@+id/battery_type_str_tv_ubi4"
                             android:layout_width="wrap_content"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
+                            android:minHeight="20dp"
                             android:layout_below="@id/battery_type_tv_ubi4"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"

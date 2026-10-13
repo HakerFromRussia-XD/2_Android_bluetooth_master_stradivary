@@ -35,6 +35,11 @@
 
     <queries>
         <package android:name="com.motorica.games.stk" />
+        <package android:name="com.motorica.games.subway" />
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
     </queries>
 
     <application

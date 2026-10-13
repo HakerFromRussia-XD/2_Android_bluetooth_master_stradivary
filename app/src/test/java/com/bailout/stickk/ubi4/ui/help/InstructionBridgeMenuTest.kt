@@ -20,12 +20,23 @@ class InstructionBridgeMenuTest {
     }
 
     @Test
-    fun serviceHelpIsEmptyAndAvailableOnlyWithV3ServiceAccess() {
+    fun serviceHelpHasNineLocalizedCardsAndIsAvailableOnlyWithV3ServiceAccess() {
         assertNull(InstructionBridge.page("service_settings", true, false))
         assertNull(InstructionBridge.page("service_settings", false, true))
         val page = requireNotNull(InstructionBridge.page("service_settings", true, true))
         assertEquals(SharedRes.strings.service_settings, page.title)
-        assertTrue(page.cards.isEmpty())
+        assertEquals(9, page.cards.size)
+        page.cards.forEachIndexed { index, card ->
+            assertEquals(3, card.blocks.size)
+            assertEquals(14, card.blocks[0].textSize)
+            assertEquals(20.8, card.blocks[1].textLineHeight)
+            assertEquals(SharedRes.images.run {
+                listOf(ubi4_help_service_widget_1_ru, ubi4_help_service_widget_2_ru, ubi4_help_service_widget_3_ru,
+                    ubi4_help_service_widget_4_ru, ubi4_help_service_widget_5_ru, ubi4_help_service_widget_6_ru,
+                    ubi4_help_service_widget_7_ru, ubi4_help_service_widget_8_ru, ubi4_help_service_widget_9_ru)
+            }[index], card.blocks[2].image)
+            assertTrue(card.blocks[2].englishImage != null)
+        }
         assertTrue(page.relatedItems.isEmpty())
     }
 

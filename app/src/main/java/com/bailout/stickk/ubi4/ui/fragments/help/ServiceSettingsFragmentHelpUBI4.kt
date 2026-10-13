@@ -13,7 +13,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import kotlinx.coroutines.launch
 
-/** Empty help page until the service-settings instruction design is approved. */
+/** Localized service instruction, available with the same access as service settings. */
 class ServiceSettingsFragmentHelpUBI4 : Fragment(R.layout.ubi4_fragment_service_settings_help) {
     private val navigationPreferences by lazy {
         requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, Context.MODE_PRIVATE)

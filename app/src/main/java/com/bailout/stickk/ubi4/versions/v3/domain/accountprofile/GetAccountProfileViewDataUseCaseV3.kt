@@ -5,7 +5,8 @@ class GetAccountProfileViewDataUseCaseV3(private val repository: V3AccountProfil
         val env = repository.getEnvironment()
         return V3AccountProfileViewData(
             context = V3AccountProfileContext(
-                env.device.name?.takeIf { it.startsWith("FEST-") } ?: previous.serialNumber,
+                // Bluetooth names are editable and are not the device's serial number.
+                "",
                 if (env.device.language?.contains("ru") == true) "ru" else previous.language,
             ),
             versions = V3AccountProfileVersions(

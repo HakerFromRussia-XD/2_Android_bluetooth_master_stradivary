@@ -23,6 +23,63 @@ import kotlin.math.roundToInt
 /** Render the real instruction layout without connecting to a prosthesis. */
 @RunWith(AndroidJUnit4::class)
 class AdvancedInstructionLocalizationTest {
+    @Test fun serviceInstructionUsesNineLocalizedCardsAndNativeHelpStyles() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        for ((tag, expectedTitle) in listOf(
+            "ru-RU" to "Закрытое положение большого пальца",
+            "en-US" to "Thumb closed position"
+        )) {
+            instrumentation.runOnMainSync {
+                val configuration = Configuration(instrumentation.targetContext.resources.configuration)
+                configuration.setLocale(Locale.forLanguageTag(tag))
+                val localized = instrumentation.targetContext.createConfigurationContext(configuration)
+                val context = ContextThemeWrapper(localized, androidx.appcompat.R.style.Theme_AppCompat)
+                val root = LayoutInflater.from(context).inflate(R.layout.ubi4_fragment_service_settings_help, null)
+                val content = root.findViewById<ViewGroup>(R.id.ubi4ServiceSettingsContentLl)
+                assertEquals(9, content.childCount)
+                val texts = descendants(content).filterIsInstance<TextView>()
+                assertEquals(18, texts.size)
+                assertEquals(expectedTitle, texts.first().text.toString())
+                for (text in texts) {
+                    val heading = context.resources.getResourceEntryName(text.id).endsWith("TitleTv")
+                    assertEquals(context.resources.getFont(if (heading) R.font.font_inter_semi_bold else R.font.font_open_sans_regular), text.typeface)
+                    assertEquals(14f, text.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
+                }
+                val locale = if (tag.startsWith("ru")) "ru" else "en"
+                val images = descendants(content).filterIsInstance<ImageView>()
+                assertEquals(9, images.size)
+                for (index in 1..9) {
+                    val id = context.resources.getIdentifier("ubi4_help_service_widget_$index", "drawable", context.packageName)
+                    val value = TypedValue()
+                    context.resources.getValue(id, value, true)
+                    assertTrue(value.string.toString(), value.string.toString().endsWith("ubi4_help_service_widget_${index}_$locale.png"))
+                }
+                val width = (360 * context.resources.displayMetrics.density).roundToInt()
+                root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(width * 2, View.MeasureSpec.EXACTLY))
+                root.layout(0, 0, root.measuredWidth, root.measuredHeight)
+                for (text in texts) {
+                    assertTrue("Unmeasured text: ${text.text}", text.lineCount > 0)
+                    assertEquals("Truncated text: ${text.text}", 0, text.layout.getEllipsisCount(text.lineCount - 1))
+                    assertTrue(text.layout.getLineBottom(text.lineCount - 1) <= text.height)
+                }
+                for (image in images) {
+                    assertNotNull(image.drawable)
+                    assertTrue(image.width > 0 && image.height > 0)
+                    assertEquals(image.drawable.intrinsicHeight.toFloat() / image.drawable.intrinsicWidth,
+                        image.height.toFloat() / image.width, 0.01f)
+                }
+                val bitmap = Bitmap.createBitmap(content.width, content.height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                canvas.drawColor(context.getColor(R.color.ubi4_back))
+                content.draw(canvas)
+                File(instrumentation.targetContext.getExternalFilesDir(null), "service-instruction-$locale.png").outputStream().use {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+                bitmap.recycle()
+            }
+        }
+    }
+
     @Test fun sensorLegendMatchesFigmaReference() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         for ((tag, openingTitle, closingTitle) in listOf(

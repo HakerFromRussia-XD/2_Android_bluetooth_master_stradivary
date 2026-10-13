@@ -1,6 +1,11 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.accountprofile
 
+import kotlinx.coroutines.flow.Flow
+
 interface V3AccountProfileLocalRepository {
+    fun observeSerialNumber(): Flow<String?>
+    fun selectSerialNumber(serialNumber: String?)
+    fun observeDetails(): Flow<Unit>
     fun getEnvironment(): V3AccountProfileEnvironment
     fun getCachedHeader(): V3AccountProfileHeader?
     fun cacheHeader(header: V3AccountProfileHeader)
@@ -20,7 +25,7 @@ data class V3AccountProfileEnvironment(
     val storedDriverVersion: Int, val storedBmsVersion: Int, val storedSensorsVersion: Int,
 )
 
-data class V3AccountProfileContext(val serialNumber: String = "FEST-F-06879", val language: String = "en")
+data class V3AccountProfileContext(val serialNumber: String = "", val language: String = "en")
 data class V3AccountProfileVersions(val driver: String = "0.01", val bms: String = "0.01", val sensors: String = "0.01")
 data class V3AccountProfileHeader(
     val firstName: String = "", val lastName: String = "", val versions: V3AccountProfileVersions = V3AccountProfileVersions(),

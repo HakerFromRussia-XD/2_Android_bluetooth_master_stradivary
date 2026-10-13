@@ -11,6 +11,10 @@ class LoadAccountProfileUseCaseV3(
     private val local: V3AccountProfileLocalRepository,
 ) {
     operator fun invoke(session: V3AccountProfileLoadSession): Flow<V3AccountProfileLoadEvent> = flow {
+        if (session.context.serialNumber.isBlank()) {
+            emit(V3AccountProfileLoadEvent.RefreshFinished)
+            return@flow
+        }
         while (true) {
             val result = remote.getToken(session.context.serialNumber)
             currentCoroutineContext().ensureActive()
@@ -51,7 +55,13 @@ class LoadAccountProfileUseCaseV3(
         val deviceId = when (devices) {
             is V3AccountProfileResult.Error -> { reportError(devices); return@flow }
             is V3AccountProfileResult.Success -> devices.value
-                .firstOrNull { it.serialNumber == session.context.serialNumber }?.id ?: return@flow
+                .firstOrNull { it.serialNumber?.replace("\u0000", "")?.trim() == session.context.serialNumber }?.id
+        }
+        if (deviceId == null) {
+            local.saveDetails(V3AccountDetail.entries.map { V3AccountDetailValue(it, "") })
+            emit(V3AccountProfileLoadEvent.RefreshFinished)
+            emit(V3AccountProfileLoadEvent.NoUserData)
+            return@flow
         }
         val info = remote.getDeviceInfo(deviceId, session.token, session.context.language)
         currentCoroutineContext().ensureActive()
@@ -92,6 +102,8 @@ class LoadAccountProfileUseCaseV3(
             }
         }
         if (info.options.none { it.id == 3 }) values.add(V3AccountDetailValue(V3AccountDetail.ROTATOR, "-"))
+        if (info.options.none { it.id == 15 }) values.add(V3AccountDetailValue(V3AccountDetail.ACCUMULATOR, ""))
+        if (info.options.none { it.id == 5 }) values.add(V3AccountDetailValue(V3AccountDetail.TOUCHSCREEN_FINGERS, ""))
         local.saveDetails(values)
     }
 }

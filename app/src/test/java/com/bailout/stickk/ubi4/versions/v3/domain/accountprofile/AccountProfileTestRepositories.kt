@@ -1,5 +1,9 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.accountprofile
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+
 class FakeAccountProfileRemote(val trace: MutableList<String> = mutableListOf()) : V3AccountProfileRepository {
     var tokenCalls = 0
     var token: suspend (String) -> V3AccountProfileResult<String> = { V3AccountProfileResult.Success("token") }
@@ -32,11 +36,26 @@ class FakeAccountProfileLocal(val trace: MutableList<String> = mutableListOf()) 
     var cacheWrites = 0
     val values = mutableMapOf<V3AccountDetail, String>()
     val writes = mutableListOf<V3AccountDetailValue>()
+    val serialNumbers = MutableStateFlow<String?>("FEST-test")
+    val detailsRevision = MutableStateFlow(0L)
+    var selectedSerialNumber: String? = "FEST-test"
+        private set
+    val selectedSerialNumbers = mutableListOf<String?>()
+    override fun observeSerialNumber(): Flow<String?> = serialNumbers
+    override fun selectSerialNumber(serialNumber: String?) {
+        selectedSerialNumbers.add(serialNumber)
+        if (selectedSerialNumber == serialNumber) return
+        selectedSerialNumber = serialNumber
+        storedHeader = null
+        saveDetails(V3AccountDetail.entries.map { V3AccountDetailValue(it, "") })
+    }
+    override fun observeDetails(): Flow<Unit> = detailsRevision.map { Unit }
     override fun getEnvironment() = currentEnvironment
     override fun getCachedHeader() = storedHeader
     override fun cacheHeader(header: V3AccountProfileHeader) { storedHeader = header; cacheWrites++ }
     override fun getDetail(detail: V3AccountDetail) = values[detail] ?: "null"
     override fun saveDetails(values: List<V3AccountDetailValue>) {
         values.forEach { this.values[it.detail] = it.value; writes.add(it); trace.add("save:${it.detail}") }
+        detailsRevision.value++
     }
 }

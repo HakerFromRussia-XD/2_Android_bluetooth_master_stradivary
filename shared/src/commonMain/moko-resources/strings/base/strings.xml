@@ -918,4 +918,24 @@
     <string name="help_advanced_none_body">After the gesture changes, the prosthesis keeps its current position without any additional movement.</string>
     <string name="help_advanced_open_title">Move to open position</string>
     <string name="help_advanced_open_body">After the gesture changes, the prosthesis opens automatically so that the new gesture starts from the initial position.</string>
+
+    <!-- Service-settings instruction: approved Figma RU/EN wording. -->
+    <string name="help_service_thumb_closed_title">Thumb closed position</string>
+    <string name="help_service_thumb_closed_body">Adjust this setting so that the thumb aligns correctly in a pinch grip. This setting is then used to calibrate all factory gestures (Gesture collection tab).</string>
+    <string name="help_service_index_middle_closed_title">Index and middle finger closed position</string>
+    <string name="help_service_index_middle_closed_body">Adjust this setting so that the index and middle fingers align correctly in a pinch grip. This setting is then used to calibrate all factory gestures (Gesture collection tab).</string>
+    <string name="help_service_emg_mode_title">EMG operation mode</string>
+    <string name="help_service_emg_mode_body">The EMG operating mode is selected based on what the sensors currently connected to the device support:\nEMG 3.0 — standard operating mode.\nEMG 4.0 — the board was moved to the electrodes; the communication protocol changed, and each sensor is separate.\nEMG 4.1 — refined circuitry and software.</string>
+    <string name="help_service_hand_side_title">Hand side</string>
+    <string name="help_service_hand_side_body">Set the selector to the actual side of the prosthetic hand.</string>
+    <string name="help_service_role_title">Role</string>
+    <string name="help_service_role_body">Select the device role: prosthetist, service engineer, or user.</string>
+    <string name="help_service_name_title">Prosthesis name</string>
+    <string name="help_service_name_body">Enter a new prosthesis name and press Write.</string>
+    <string name="help_service_serial_title">Serial number</string>
+    <string name="help_service_serial_body">Enter the device serial number and press Write.</string>
+    <string name="help_service_calibration_title">Prosthesis calibration</string>
+    <string name="help_service_calibration_body">This button starts the prosthesis calibration procedure.</string>
+    <string name="help_service_ble_log_title">BLE Log</string>
+    <string name="help_service_ble_log_body">Opens the device communication log.</string>
 </resources>

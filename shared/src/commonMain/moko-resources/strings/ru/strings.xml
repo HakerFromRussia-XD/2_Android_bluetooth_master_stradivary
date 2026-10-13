@@ -918,4 +918,24 @@
     <string name="help_advanced_none_body">После смены жеста протез сохраняет текущее положение и не выполняет дополнительного движения.</string>
     <string name="help_advanced_open_title">Перейти в открытое положение</string>
     <string name="help_advanced_open_body">После смены жеста протез автоматически переводится в открытое положение, чтобы начать работу с новым жестом из исходного состояния.</string>
+
+    <!-- Service-settings instruction: approved Figma RU/EN wording. -->
+    <string name="help_service_thumb_closed_title">Закрытое положение большого пальца</string>
+    <string name="help_service_thumb_closed_body">Настраивается таким образом чтобы большой палец корректно сходился в щёпоть. В дальнейшем эта настройка применяется для калибровки всех заводских жестов (вкладка коллекция жестов)</string>
+    <string name="help_service_index_middle_closed_title">Закрытое положение указательного и среднего пальцев</string>
+    <string name="help_service_index_middle_closed_body">Настраивается таким образом чтобы указательный и средний пальцы корректно сходились в щёпоть. В дальнейшем эта настройка применяется для калибровки всех заводских жестов (вкладка коллекция жестов)</string>
+    <string name="help_service_emg_mode_title">Режим работы ЕМГ</string>
+    <string name="help_service_emg_mode_body">Режим работы ЕМГ выбирается в зависимости от того, какой поддерживается конкретными датчиками, подключёнными в данный момент к устройству:\nЕМГ 3.0 - обычный режим работы.\nЕМГ 4.0 - плата переехала на электроды,  изменился протокол передачи каждый датчик отдельный.\nЕМГ 4.1 - Доработана схемотехника и ПО.</string>
+    <string name="help_service_hand_side_title">Сторона руки</string>
+    <string name="help_service_hand_side_body">Переключатель должен соответствовать реальной стороне руки протеза.</string>
+    <string name="help_service_role_title">Роль</string>
+    <string name="help_service_role_body">Выбор роли устройства: протезист, сервисный инженер или пользователь.</string>
+    <string name="help_service_name_title">Имя протеза</string>
+    <string name="help_service_name_body">Введите новое имя протеза и нажмите «Записать».</string>
+    <string name="help_service_serial_title">Серийный номер</string>
+    <string name="help_service_serial_body">Введите серийный номер устройства и нажмите «Записать».</string>
+    <string name="help_service_calibration_title">Калибровка протеза</string>
+    <string name="help_service_calibration_body">Кнопка запускает процедуру калибровки протеза.</string>
+    <string name="help_service_ble_log_title">BLE Log</string>
+    <string name="help_service_ble_log_body">Открывает журнал обмена данными с устройством.</string>
 </resources>

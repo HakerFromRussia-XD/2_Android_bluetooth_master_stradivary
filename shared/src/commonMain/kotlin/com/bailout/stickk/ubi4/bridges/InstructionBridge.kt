@@ -105,13 +105,7 @@ object InstructionBridge {
         PAGE_CHARGING -> chargingPage()
         PAGE_CARE -> carePage()
         PAGE_SERVICE -> servicePage()
-        PAGE_SERVICE_SETTINGS -> if (isV3 && serviceSettingsVisible) InstructionPage(
-            id = PAGE_SERVICE_SETTINGS,
-            title = SharedRes.strings.service_settings,
-            cards = emptyList(),
-            relatedItems = emptyList(),
-            relatedTitle = null
-        ) else null
+        PAGE_SERVICE_SETTINGS -> if (isV3 && serviceSettingsVisible) serviceSettingsPage() else null
         else -> null
         } ?: return null
         if (!isV3) return page
@@ -327,6 +321,36 @@ object InstructionBridge {
         relatedItems = relatedAppItems(),
         relatedTitle = SharedRes.strings.app_control
     )
+
+    private fun serviceSettingsPage(): InstructionPage = InstructionPage(
+        id = PAGE_SERVICE_SETTINGS,
+        title = SharedRes.strings.service_settings,
+        cards = listOf(
+            serviceSettingsCard(SharedRes.strings.help_service_thumb_closed_title, SharedRes.strings.help_service_thumb_closed_body,
+                SharedRes.images.ubi4_help_service_widget_1_ru, SharedRes.images.ubi4_help_service_widget_1_en),
+            serviceSettingsCard(SharedRes.strings.help_service_index_middle_closed_title, SharedRes.strings.help_service_index_middle_closed_body,
+                SharedRes.images.ubi4_help_service_widget_2_ru, SharedRes.images.ubi4_help_service_widget_2_en),
+            serviceSettingsCard(SharedRes.strings.help_service_emg_mode_title, SharedRes.strings.help_service_emg_mode_body,
+                SharedRes.images.ubi4_help_service_widget_3_ru, SharedRes.images.ubi4_help_service_widget_3_en),
+            serviceSettingsCard(SharedRes.strings.help_service_hand_side_title, SharedRes.strings.help_service_hand_side_body,
+                SharedRes.images.ubi4_help_service_widget_4_ru, SharedRes.images.ubi4_help_service_widget_4_en),
+            serviceSettingsCard(SharedRes.strings.help_service_role_title, SharedRes.strings.help_service_role_body,
+                SharedRes.images.ubi4_help_service_widget_5_ru, SharedRes.images.ubi4_help_service_widget_5_en),
+            serviceSettingsCard(SharedRes.strings.help_service_name_title, SharedRes.strings.help_service_name_body,
+                SharedRes.images.ubi4_help_service_widget_6_ru, SharedRes.images.ubi4_help_service_widget_6_en),
+            serviceSettingsCard(SharedRes.strings.help_service_serial_title, SharedRes.strings.help_service_serial_body,
+                SharedRes.images.ubi4_help_service_widget_7_ru, SharedRes.images.ubi4_help_service_widget_7_en),
+            serviceSettingsCard(SharedRes.strings.help_service_calibration_title, SharedRes.strings.help_service_calibration_body,
+                SharedRes.images.ubi4_help_service_widget_8_ru, SharedRes.images.ubi4_help_service_widget_8_en),
+            serviceSettingsCard(SharedRes.strings.help_service_ble_log_title, SharedRes.strings.help_service_ble_log_body,
+                SharedRes.images.ubi4_help_service_widget_9_ru, SharedRes.images.ubi4_help_service_widget_9_en)
+        ),
+        relatedItems = emptyList(),
+        relatedTitle = null
+    )
+
+    private fun serviceSettingsCard(title: StringResource, body: StringResource, russian: ImageResource, english: ImageResource): InstructionCard =
+        InstructionCard(listOf(heading(title), paragraph(body, 14, textLineHeight = 20.8), localizedImage(russian, english)))
 
     private fun howWorksPage(): InstructionPage = InstructionPage(
         id = PAGE_HOW_WORKS,

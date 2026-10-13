@@ -1,0 +1,385 @@
+{
+  "fileKey": "YyKUU1lMucdDkGyA5OeoRg",
+  "cards": [
+    {
+      "index": 1,
+      "key": "thumb_closed",
+      "title": [
+        "Закрытое положение большого пальца",
+        "Thumb closed position"
+      ],
+      "body": [
+        "Настраивается таким образом чтобы большой палец корректно сходился в щёпоть. В дальнейшем эта настройка применяется для калибровки всех заводских жестов (вкладка коллекция жестов)",
+        "Adjust this setting so that the thumb aligns correctly in a pinch grip. This setting is then used to calibrate all factory gestures (Gesture collection tab)."
+      ],
+      "widget": [
+        "2332:1930",
+        "2332:2718"
+      ]
+    },
+    {
+      "index": 2,
+      "key": "index_middle_closed",
+      "title": [
+        "Закрытое положение указательного и среднего пальцев",
+        "Index and middle finger closed position"
+      ],
+      "body": [
+        "Настраивается таким образом чтобы указательный и средний пальцы корректно сходились в щёпоть. В дальнейшем эта настройка применяется для калибровки всех заводских жестов (вкладка коллекция жестов)",
+        "Adjust this setting so that the index and middle fingers align correctly in a pinch grip. This setting is then used to calibrate all factory gestures (Gesture collection tab)."
+      ],
+      "widget": [
+        "2332:1954",
+        "2332:2742"
+      ]
+    },
+    {
+      "index": 3,
+      "key": "emg_mode",
+      "title": [
+        "Режим работы ЕМГ",
+        "EMG operation mode"
+      ],
+      "body": [
+        "Режим работы ЕМГ выбирается в зависимости от того, какой поддерживается конкретными датчиками, подключёнными в данный момент к устройству:\nЕМГ 3.0 - обычный режим работы.\nЕМГ 4.0 - плата переехала на электроды,  изменился протокол передачи каждый датчик отдельный.\nЕМГ 4.1 - Доработана схемотехника и ПО.",
+        "The EMG operating mode is selected based on what the sensors currently connected to the device support:\nEMG 3.0 — standard operating mode.\nEMG 4.0 — the board was moved to the electrodes; the communication protocol changed, and each sensor is separate.\nEMG 4.1 — refined circuitry and software."
+      ],
+      "widget": [
+        "2332:1977",
+        "2332:2765"
+      ]
+    },
+    {
+      "index": 4,
+      "key": "hand_side",
+      "title": [
+        "Сторона руки",
+        "Hand side"
+      ],
+      "body": [
+        "Переключатель должен соответствовать реальной стороне руки протеза.",
+        "Set the selector to the actual side of the prosthetic hand."
+      ],
+      "widget": [
+        "2332:1997",
+        "2332:2785"
+      ]
+    },
+    {
+      "index": 5,
+      "key": "role",
+      "title": [
+        "Роль",
+        "Role"
+      ],
+      "body": [
+        "Выбор роли устройства: протезист, сервисный инженер или пользователь.",
+        "Select the device role: prosthetist, service engineer, or user."
+      ],
+      "widget": [
+        "2332:2017",
+        "2332:2805"
+      ]
+    },
+    {
+      "index": 6,
+      "key": "name",
+      "title": [
+        "Имя протеза",
+        "Prosthesis name"
+      ],
+      "body": [
+        "Введите новое имя протеза и нажмите «Записать».",
+        "Enter a new prosthesis name and press Write."
+      ],
+      "widget": [
+        "2356:1572",
+        "2356:1667"
+      ]
+    },
+    {
+      "index": 7,
+      "key": "serial",
+      "title": [
+        "Серийный номер",
+        "Serial number"
+      ],
+      "body": [
+        "Введите серийный номер устройства и нажмите «Записать».",
+        "Enter the device serial number and press Write."
+      ],
+      "widget": [
+        "2356:1578",
+        "2356:1673"
+      ]
+    },
+    {
+      "index": 8,
+      "key": "calibration",
+      "title": [
+        "Калибровка протеза",
+        "Prosthesis calibration"
+      ],
+      "body": [
+        "Кнопка запускает процедуру калибровки протеза.",
+        "This button starts the prosthesis calibration procedure."
+      ],
+      "widget": [
+        "2356:1584",
+        "2356:1679"
+      ]
+    },
+    {
+      "index": 9,
+      "key": "ble_log",
+      "title": [
+        "BLE Log",
+        "BLE Log"
+      ],
+      "body": [
+        "Открывает журнал обмена данными с устройством.",
+        "Opens the device communication log."
+      ],
+      "widget": [
+        "2356:1586",
+        "2356:1681"
+      ]
+    }
+  ],
+  "exports": [
+    {
+      "index": 1,
+      "locale": "ru",
+      "nodeId": "2332:1930",
+      "width": 296,
+      "height": 47,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 149.1699981689453,
+        "width": 306.9599609375,
+        "height": 57.96000671386719
+      }
+    },
+    {
+      "index": 1,
+      "locale": "en",
+      "nodeId": "2332:2718",
+      "width": 296,
+      "height": 46.80082321166992,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 86.16999816894531,
+        "width": 306.9599609375,
+        "height": 57.760833740234375
+      }
+    },
+    {
+      "index": 2,
+      "locale": "ru",
+      "nodeId": "2332:1954",
+      "width": 296,
+      "height": 46.80082321166992,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 471.1700134277344,
+        "width": 306.9599609375,
+        "height": 57.760833740234375
+      }
+    },
+    {
+      "index": 2,
+      "locale": "en",
+      "nodeId": "2332:2742",
+      "width": 296,
+      "height": 46.80082321166992,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 344.9708557128906,
+        "width": 306.9599609375,
+        "height": 57.76080322265625
+      }
+    },
+    {
+      "index": 3,
+      "locale": "ru",
+      "nodeId": "2332:1977",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 831.9707641601562,
+        "width": 306.9599609375,
+        "height": 57.26171875
+      }
+    },
+    {
+      "index": 3,
+      "locale": "en",
+      "nodeId": "2332:2765",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 667.7716674804688,
+        "width": 306.9599609375,
+        "height": 57.26171875
+      }
+    },
+    {
+      "index": 4,
+      "locale": "ru",
+      "nodeId": "2332:1997",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 1026.2724609375,
+        "width": 306.9599609375,
+        "height": 57.2615966796875
+      }
+    },
+    {
+      "index": 4,
+      "locale": "en",
+      "nodeId": "2332:2785",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 862.0733032226562,
+        "width": 306.9599609375,
+        "height": 57.26171875
+      }
+    },
+    {
+      "index": 5,
+      "locale": "ru",
+      "nodeId": "2332:2017",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 1220.5740966796875,
+        "width": 306.9599609375,
+        "height": 57.2615966796875
+      }
+    },
+    {
+      "index": 5,
+      "locale": "en",
+      "nodeId": "2332:2805",
+      "width": 296,
+      "height": 46.30167770385742,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 1056.3751220703125,
+        "width": 306.9599609375,
+        "height": 57.2615966796875
+      }
+    },
+    {
+      "index": 6,
+      "locale": "ru",
+      "nodeId": "2356:1572",
+      "width": 296,
+      "height": 46.301673889160156,
+      "renderBounds": {
+        "x": 1156.1065673828125,
+        "y": 1414.4622802734375,
+        "width": 307.786865234375,
+        "height": 58.0885009765625
+      }
+    },
+    {
+      "index": 6,
+      "locale": "en",
+      "nodeId": "2356:1667",
+      "width": 296,
+      "height": 46.301673889160156,
+      "renderBounds": {
+        "x": 1596.1065673828125,
+        "y": 1250.2633056640625,
+        "width": 307.786865234375,
+        "height": 58.0885009765625
+      }
+    },
+    {
+      "index": 7,
+      "locale": "ru",
+      "nodeId": "2356:1578",
+      "width": 296,
+      "height": 46.301673889160156,
+      "renderBounds": {
+        "x": 1156.1065673828125,
+        "y": 1608.763916015625,
+        "width": 307.786865234375,
+        "height": 58.0885009765625
+      }
+    },
+    {
+      "index": 7,
+      "locale": "en",
+      "nodeId": "2356:1673",
+      "width": 296,
+      "height": 46.301673889160156,
+      "renderBounds": {
+        "x": 1596.1065673828125,
+        "y": 1444.56494140625,
+        "width": 307.786865234375,
+        "height": 58.0885009765625
+      }
+    },
+    {
+      "index": 8,
+      "locale": "ru",
+      "nodeId": "2356:1584",
+      "width": 296,
+      "height": 39.68714904785156,
+      "renderBounds": {
+        "x": 1156.1065673828125,
+        "y": 1803.0655517578125,
+        "width": 307.786865234375,
+        "height": 51.4739990234375
+      }
+    },
+    {
+      "index": 8,
+      "locale": "en",
+      "nodeId": "2356:1679",
+      "width": 296,
+      "height": 39.68714904785156,
+      "renderBounds": {
+        "x": 1596.1065673828125,
+        "y": 1638.8665771484375,
+        "width": 307.786865234375,
+        "height": 51.4739990234375
+      }
+    },
+    {
+      "index": 9,
+      "locale": "ru",
+      "nodeId": "2356:1586",
+      "width": 296,
+      "height": 39.68714904785156,
+      "renderBounds": {
+        "x": 1156.52001953125,
+        "y": 1991.1661376953125,
+        "width": 306.9599609375,
+        "height": 50.6470947265625
+      }
+    },
+    {
+      "index": 9,
+      "locale": "en",
+      "nodeId": "2356:1681",
+      "width": 296,
+      "height": 39.68714904785156,
+      "renderBounds": {
+        "x": 1596.52001953125,
+        "y": 1805.9671630859375,
+        "width": 306.9599609375,
+        "height": 50.6470947265625
+      }
+    }
+  ]
+}

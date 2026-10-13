@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
 import com.bailout.stickk.ubi4.versions.v3.domain.service.ObserveServiceEngineerAccessUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.service.RestoreDeviceRoleUseCaseV3
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -17,6 +18,7 @@ class V3AccountProfileViewModel(
     private val getViewData: GetAccountProfileViewDataUseCaseV3,
     private val loadProfile: LoadAccountProfileUseCaseV3,
     private val cacheHeader: CacheAccountProfileHeaderUseCaseV3,
+    private val observeSerialNumber: ObserveAccountSerialNumberUseCaseV3,
     private val restoreDeviceRole: RestoreDeviceRoleUseCaseV3,
     private val observeServiceEngineerAccess: ObserveServiceEngineerAccessUseCaseV3,
 ) : ViewModel() {
@@ -26,6 +28,10 @@ class V3AccountProfileViewModel(
     private var currentHeader = V3AccountProfileHeader()
     private var session: V3AccountProfileLoadSession? = null
     private var viewScope: CoroutineScope? = null
+    private var profileLoadJob: Job? = null
+    private var serialObservationJob: Job? = null
+    private var loadRequested = false
+    private var serialObserved = false
     private var nextHeaderRevision = 0L
     private var nextMessageId = 0L
     private var cleared = false
@@ -39,18 +45,22 @@ class V3AccountProfileViewModel(
                 val serviceEngineerAccess = observeServiceEngineerAccess()
                 val data = getViewData(context)
                 context = data.context
-                session = V3AccountProfileLoadSession(context)
+                session = null
+                loadRequested = false
+                serialObserved = false
                 viewScope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob(viewModelScope.coroutineContext[Job]))
-                val header = data.cachedHeader ?: currentHeader.takeIf { action.loadInBackground }
+                currentHeader = V3AccountProfileHeader()
+                val header = currentHeader.takeIf { action.loadInBackground }
                 state.value = V3AccountProfileUiState(
                     header = header,
                     headerRevision = ++nextHeaderRevision,
-                    hasCachedProfile = data.cachedHeader != null,
-                    isContentVisible = action.loadInBackground || data.cachedHeader != null || action.hasCachedBoards,
+                    hasCachedProfile = false,
+                    isContentVisible = action.loadInBackground || action.hasCachedBoards,
                     areBoardServiceActionsVisible = serviceEngineerAccess.value,
                 )
                 // The old adapter was initialized before the current device versions were read.
                 currentHeader = currentHeader.copy(versions = data.versions)
+                observeDeviceSerial()
                 viewScope?.launch {
                     serviceEngineerAccess.collect { allowed ->
                         state.value = state.value.copy(areBoardServiceActionsVisible = allowed)
@@ -59,12 +69,12 @@ class V3AccountProfileViewModel(
             }
             V3AccountProfileAction.ViewDetached -> detachView()
             V3AccountProfileAction.LoadRequested -> {
-                val activeSession = session ?: return
-                viewScope?.launch {
-                    loadProfile(activeSession).collect { event ->
-                        if (session === activeSession) handleResult(event)
-                    }
-                }
+                if (viewScope == null) return
+                val retrySerialRead = loadRequested && session == null
+                loadRequested = true
+                if (retrySerialRead) observeDeviceSerial()
+                else if (session != null) startProfileLoad()
+                if (session == null) finishRefresh()
             }
             V3AccountProfileAction.HeaderRefreshRequested -> if (viewScope != null) updateHeader()
             is V3AccountProfileAction.HeaderRendered -> {
@@ -73,6 +83,55 @@ class V3AccountProfileViewModel(
             is V3AccountProfileAction.MessageShown -> {
                 if (viewScope == null) return
                 state.value = state.value.copy(messages = state.value.messages.filterNot { it.id == action.id })
+            }
+        }
+    }
+
+    private fun observeDeviceSerial() {
+        serialObservationJob?.cancel()
+        serialObservationJob = viewScope?.launch(start = CoroutineStart.UNDISPATCHED) {
+            observeSerialNumber().collect(::onSerialNumber)
+        }
+    }
+
+    private fun onSerialNumber(serialNumber: String?) {
+        val serial = serialNumber.orEmpty()
+        if (serialObserved && serial == context.serialNumber) return
+        val changedDevice = serialObserved
+        serialObserved = true
+        profileLoadJob?.cancel()
+        profileLoadJob = null
+        context = context.copy(serialNumber = serial)
+        session = serial.takeIf(String::isNotEmpty)?.let { V3AccountProfileLoadSession(context) }
+        if (changedDevice || serial.isEmpty()) {
+            currentHeader = currentHeader.copy(firstName = "", lastName = "")
+            state.value = state.value.copy(
+                header = state.value.header?.let { currentHeader },
+                headerRevision = ++nextHeaderRevision,
+                hasCachedProfile = false,
+                isTokenLoaded = false,
+                messages = emptyList(),
+            )
+        }
+        if (serial.isNotEmpty()) {
+            getViewData(context).cachedHeader?.let { cached ->
+                state.value = state.value.copy(
+                    header = cached,
+                    headerRevision = ++nextHeaderRevision,
+                    hasCachedProfile = true,
+                    isContentVisible = true,
+                )
+            }
+        }
+        if (loadRequested && session != null) startProfileLoad()
+    }
+
+    private fun startProfileLoad() {
+        val activeSession = session ?: return
+        profileLoadJob?.cancel()
+        profileLoadJob = viewScope?.launch {
+            loadProfile(activeSession).collect { event ->
+                if (session === activeSession) handleResult(event)
             }
         }
     }
@@ -103,6 +162,12 @@ class V3AccountProfileViewModel(
     }
     private fun detachView() {
         session = null
+        profileLoadJob?.cancel()
+        profileLoadJob = null
+        serialObservationJob?.cancel()
+        serialObservationJob = null
+        loadRequested = false
+        serialObserved = false
         viewScope?.cancel()
         viewScope = null
         state.value = state.value.copy(isTokenLoaded = false, messages = emptyList())

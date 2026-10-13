@@ -2,15 +2,42 @@ package com.bailout.stickk.ubi4.versions.v3.domain.customerservice
 
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.FakeAccountProfileLocal
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetail
+import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDetailValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class GetCustomerServiceInfoUseCaseV3Test {
     private val repository = FakeAccountProfileLocal()
     private val getInfo = GetCustomerServiceInfoUseCaseV3(repository)
+
+    @Test fun `observation publishes changed support details and omits identical revisions`() = runTest {
+        val received = mutableListOf<V3CustomerServiceInfo>()
+        backgroundScope.launch { getInfo.observe().collect { received.add(it) } }
+        runCurrent()
+        assertEquals(1, received.size)
+
+        val values = listOf(
+            V3AccountDetailValue(V3AccountDetail.MANAGER_NAME, "Current manager"),
+            V3AccountDetailValue(V3AccountDetail.STATUS, "Issued"),
+        )
+        repository.saveDetails(values)
+        runCurrent()
+        assertEquals("Current manager", received.last().managerName)
+        assertEquals("Issued", received.last().prosthesisStatus)
+        assertEquals(2, received.size)
+
+        repository.saveDetails(values)
+        runCurrent()
+        assertEquals(2, received.size)
+    }
 
     @ParameterizedTest
     @CsvSource("29.02.2024,29.02.2027", "01.01.2020,01.01.2023", "12342024,1234202027")

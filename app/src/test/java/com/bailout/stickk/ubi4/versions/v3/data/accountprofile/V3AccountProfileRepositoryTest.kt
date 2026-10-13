@@ -14,7 +14,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -31,20 +34,20 @@ class V3AccountProfileRepositoryTest {
     }, dispatcher)
 
     @Test fun `token keeps serial and auth header unchanged and encrypts on the supplied dispatcher`() = runTest(dispatcher) {
-        coEvery { api.getToken("Aesserial encrypted:00001") } returns NetworkResult.Success(Token("token-one"))
-        val result = async { repository.getToken("00001") }
+        coEvery { api.getToken("Aesserial encrypted:FEST-HM-13261") } returns NetworkResult.Success(Token("token-one"))
+        val result = async { repository.getToken("FEST-HM-13261") }
         assertTrue(encryptedInputs.isEmpty())
         runCurrent()
         assertEquals(V3AccountProfileResult.Success("token-one"), result.await())
-        assertEquals(listOf("00001"), encryptedInputs)
-        coVerify(exactly = 1) { api.getToken("Aesserial encrypted:00001") }
+        assertEquals(listOf("FEST-HM-13261"), encryptedInputs)
+        coVerify(exactly = 1) { api.getToken("Aesserial encrypted:FEST-HM-13261") }
         confirmVerified(api)
     }
 
     @Test fun `null encryption retains the existing null header without adding rejection or retry`() = runTest(dispatcher) {
         val repository = V3AccountProfileRepositoryImpl(api, { null }, dispatcher)
         coEvery { api.getToken("Aesserial null") } returns NetworkResult.Error(500, "HTTP 500")
-        assertEquals(V3AccountProfileResult.Error(500, "HTTP 500"), repository.getToken("FEST-F-06879"))
+        assertEquals(V3AccountProfileResult.Error(500, "HTTP 500"), repository.getToken("FEST-HM-13261"))
         coVerify(exactly = 1) { api.getToken("Aesserial null") }
         confirmVerified(api)
     }
@@ -110,6 +113,57 @@ class V3AccountProfileRepositoryTest {
             model = null, size = null, side = null, status = null,
         ))
         assertEquals(V3AccountProfileResult.Success(V3AccountDeviceInfo("", "", "", "", "", "", emptyList())), repository.getDeviceInfo(9, "token", "en"))
+    }
+
+    @Test fun `server JSON selects device 14063 by BLE serial and saves its left hand information`() = runTest(dispatcher) {
+        val json = Json { ignoreUnknownKeys = true; isLenient = true }
+        val user = json.decodeFromString<UserV2>("""
+            {"user_info":{"client_id":16207,"fname":"","sname":"","manager":null}}
+        """.trimIndent())
+        val devices = json.decodeFromString<List<DeviceInList_DEV>>("""
+            [
+              {"id":9352,"serial_number":"FEST-H-08670","model_id":90,"date_transfer":0},
+              {"id":14063,"serial_number":"FEST-HM-13261","model_id":114,"date_transfer":0},
+              {"id":14402,"serial_number":"FEST-HM-13557","model_id":113,"date_transfer":0}
+            ]
+        """.trimIndent())
+        val info = json.decodeFromString<DeviceInfo>("""
+            {
+              "id":14063,"serial_number ":"FEST-HM-13261",
+              "model":{"id":114,"name":"Узел кисти FEST.HS.30.000.000"},
+              "side":{"id":"0","name":"Left"},"size":{"id":4,"name":"L"},
+              "status":{"id":8,"name":"In repair"},"date_transfer":null,"guarantee_period":null,
+              "options":[
+                {"id":3,"name":"Wrist connection","type":1,"value":{"id":285,"name":"Quick-release wireless rotator 1.1"}},
+                {"id":15,"name":"Accume type","type":1,"value":{"id":54,"name":"3450 mA*h (18650)"}}
+              ]
+            }
+        """.trimIndent())
+        // The server's detail key has a trailing space. Selection relies on the correctly named list key.
+        assertNull(info.serialNumber)
+        assertEquals("FEST-HM-13261", devices[1].serialNumber)
+        coEvery { api.getToken("Aesserial encrypted:FEST-HM-13261") } returns NetworkResult.Success(Token("token"))
+        coEvery { api.getUserInfoV2("token", "en") } returns NetworkResult.Success(user)
+        coEvery { api.getDevicesList(16207, "token", "en") } returns NetworkResult.Success(devices)
+        coEvery { api.getDeviceInfo(14063, "token", "en") } returns NetworkResult.Success(info)
+        val local = FakeAccountProfileLocal().also { it.selectSerialNumber("FEST-HM-13261") }
+        LoadAccountProfileUseCaseV3(repository, local)(
+            V3AccountProfileLoadSession(V3AccountProfileContext("FEST-HM-13261", "en")),
+        ).toList()
+        assertEquals(listOf("FEST-HM-13261"), encryptedInputs)
+        assertEquals("Left", local.values[V3AccountDetail.SIDE])
+        assertEquals("Узел кисти FEST.HS.30.000.000", local.values[V3AccountDetail.MODEL])
+        assertEquals("L", local.values[V3AccountDetail.SIZE])
+        assertEquals("Quick-release wireless rotator 1.1", local.values[V3AccountDetail.ROTATOR])
+        assertEquals("3450 mA*h (18650)", local.values[V3AccountDetail.ACCUMULATOR])
+        assertEquals("", local.values[V3AccountDetail.TOUCHSCREEN_FINGERS])
+        coVerifySequence {
+            api.getToken("Aesserial encrypted:FEST-HM-13261")
+            api.getUserInfoV2("token", "en")
+            api.getDevicesList(16207, "token", "en")
+            api.getDeviceInfo(14063, "token", "en")
+        }
+        confirmVerified(api)
     }
 
     @ParameterizedTest @ValueSource(strings = ["token", "profile", "devices", "deviceInfo"])

@@ -5,6 +5,82 @@ import shared
 
 final class HelpInstructionLocalizationTests: XCTestCase {
     @MainActor
+    func testServiceInstructionUsesEnglishTextAndNineEnglishWidgets() throws {
+        try assertServiceInstruction(locale: "en", expectedTitle: "Service settings")
+    }
+
+    @MainActor
+    func testServiceInstructionUsesRussianTextAndNineRussianWidgets() throws {
+        try assertServiceInstruction(locale: "ru", expectedTitle: "Сервисные настройки")
+    }
+
+    @MainActor
+    private func assertServiceInstruction(locale: String, expectedTitle: String) throws {
+        let previousLocale = StringDescCompanion.shared.localeType
+        let previousProfile = UiInterfaceModeBridgeV3.shared.activeProfile()
+        StringDescCompanion.shared.localeType = StringDescLocaleType.Custom(locale: locale)
+        UiInterfaceModeBridgeV3.shared.setEnabled(enabled: true)
+        defer {
+            StringDescCompanion.shared.localeType = previousLocale
+            UiInterfaceModeBridgeV3.shared.setActiveProfile(profile: previousProfile)
+        }
+        XCTAssertNil(InstructionBridge.shared.page(id: "service_settings", isV3: true, serviceSettingsVisible: false))
+        let page = try XCTUnwrap(InstructionBridge.shared.page(id: "service_settings", isV3: true, serviceSettingsVisible: true))
+        XCTAssertEqual(page.title.desc().localized(), expectedTitle)
+        XCTAssertEqual(page.cards.count, 9)
+
+        let tabs = MainTabBarController(appDIContainer: AppDIContainer())
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = tabs
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        let controller = HelpViewController(pageId: "service_settings")
+        let navigation = UINavigationController(rootViewController: controller)
+        navigation.tabBarItem.tag = 4
+        tabs.setViewControllers([navigation], animated: false)
+        XCTAssertTrue(tabs.isServiceSettingsHelpVisible)
+        controller.loadViewIfNeeded()
+        window.layoutIfNeeded()
+        controller.view.layoutIfNeeded()
+
+        let views = descendants(controller.view)
+        let labels = views.compactMap { $0 as? UILabel }
+        XCTAssertTrue(labels.contains { $0.text == expectedTitle })
+        let widgets = views.compactMap { $0 as? UIImageView }.filter {
+            $0.accessibilityIdentifier?.hasPrefix("help.widget.ubi4_help_service_widget_") == true
+        }
+        XCTAssertEqual(widgets.count, 9)
+        for (index, card) in page.cards.enumerated() {
+            for block in card.blocks where block.type == .heading || block.type == .paragraph {
+                let text = try XCTUnwrap(block.text?.desc().localized())
+                let label = try XCTUnwrap(labels.first { $0.text == text })
+                XCTAssertEqual(label.font.pointSize, 14)
+                XCTAssertTrue(label.font.fontName.hasPrefix(block.type == .heading ? "Inter" : "OpenSans"))
+                let required = label.sizeThatFits(CGSize(width: label.bounds.width, height: .greatestFiniteMagnitude))
+                XCTAssertGreaterThanOrEqual(label.bounds.height + 1, required.height, "Truncated text: \(text)")
+            }
+            guard index < widgets.count else { continue }
+            let widget = widgets[index]
+            XCTAssertEqual(widget.accessibilityIdentifier, "help.widget.ubi4_help_service_widget_\(index + 1)_\(locale)")
+            let resource = try XCTUnwrap(locale == "ru" ? card.blocks.last?.image : card.blocks.last?.englishImage)
+            XCTAssertEqual(try XCTUnwrap(widget.image?.pngData()), try XCTUnwrap(resource.toUIImage()?.pngData()))
+            XCTAssertGreaterThan(widget.bounds.width, 0)
+            XCTAssertGreaterThan(widget.bounds.height, 0)
+        }
+        let scroll = try XCTUnwrap(views.compactMap { $0 as? UIScrollView }.first)
+        let stack = try XCTUnwrap(scroll.subviews.compactMap { $0 as? UIStackView }.first)
+        let snapshot = UIGraphicsImageRenderer(bounds: stack.bounds).image { context in
+            (controller.view.backgroundColor ?? .black).setFill()
+            context.fill(stack.bounds)
+            stack.layer.render(in: context.cgContext)
+        }
+        let attachment = XCTAttachment(image: snapshot)
+        attachment.name = "service-instruction-\(locale)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
     func testGestureInstructionImagesFollowEnglishLocalizedText() throws {
         try assertGestureInstructionImages(locale: "en", expectedHelp: "Help", expectedTitle: "Gesture settings")
     }

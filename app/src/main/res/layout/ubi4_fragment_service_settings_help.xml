@@ -1,23 +1,566 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ubi4_back">
 
-    <TextView
-        android:id="@+id/ubi4HelpTitleInContentTv"
+    <View
+        android:id="@+id/ubi4TitleClickBlockBtn"
+        android:visibility="gone"
         android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/ubi4MainSv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/ubi4_back" />
+
+    <ImageView
+        android:id="@+id/ubi4ImageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/ubi4BackBtn"
+        android:layout_alignTop="@+id/ubi4BackBtn"
+        android:layout_alignEnd="@+id/ubi4BackBtn"
+        android:layout_alignBottom="@+id/ubi4BackBtn"
+        android:layout_margin="6dp"
+        android:src="@drawable/ic_arrow_left"
+        android:visibility="gone"
+        app:tint="@color/ubi4_white"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/ubi4BackBtn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/ubi4HelpTitleTv"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_alignTop="@+id/ubi4ImageView33"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="26dp"
-        android:fontFamily="@font/font_inter_semi_bold"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
         android:text="@string/service_settings"
         android:textColor="@color/ubi4_white"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/ubi4MainSv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
+        android:background="@color/ubi4_back"
+        tools:ignore="UselessParent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="26dp"
+            android:paddingBottom="24dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4BeginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4EndGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.96107054" />
+
+            <TextView
+                android:id="@+id/ubi4HelpTitleInContentTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_inter_semi_bold"
+                android:text="@string/service_settings"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/ubi4ServiceSettingsContentLl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/ubi4HelpTitleInContentTv">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceThumbClosedCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceThumbClosedTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_thumb_closed_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceThumbClosedBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_thumb_closed_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget1Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_thumb_closed_title"
+                            android:src="@drawable/ubi4_help_service_widget_1" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceIndexMiddleClosedCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceIndexMiddleClosedTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_index_middle_closed_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceIndexMiddleClosedBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_index_middle_closed_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget2Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_index_middle_closed_title"
+                            android:src="@drawable/ubi4_help_service_widget_2" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceEmgModeCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceEmgModeTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_emg_mode_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceEmgModeBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_emg_mode_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget3Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_emg_mode_title"
+                            android:src="@drawable/ubi4_help_service_widget_3" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceHandSideCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceHandSideTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_hand_side_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceHandSideBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_hand_side_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget4Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_hand_side_title"
+                            android:src="@drawable/ubi4_help_service_widget_4" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceRoleCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceRoleTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_role_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceRoleBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_role_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget5Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_role_title"
+                            android:src="@drawable/ubi4_help_service_widget_5" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceNameCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceNameTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_name_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceNameBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_name_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget6Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_name_title"
+                            android:src="@drawable/ubi4_help_service_widget_6" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceSerialCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceSerialTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_serial_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceSerialBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_serial_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget7Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_serial_title"
+                            android:src="@drawable/ubi4_help_service_widget_7" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceCalibrationCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceCalibrationTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_calibration_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceCalibrationBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_calibration_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget8Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_calibration_title"
+                            android:src="@drawable/ubi4_help_service_widget_8" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ubi4ServiceBleLogCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceBleLogTitleTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_inter_semi_bold"
+                            android:text="@string/help_service_ble_log_title"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/ubi4HelpServiceBleLogBodyTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:includeFontPadding="false"
+                            android:lineSpacingMultiplier="1.1"
+                            android:letterSpacing="0.01"
+                            android:text="@string/help_service_ble_log_body"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ubi4HelpServiceWidget9Iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/help_service_ble_log_title"
+                            android:src="@drawable/ubi4_help_service_widget_9" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</RelativeLayout>

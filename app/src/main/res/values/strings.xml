@@ -789,4 +789,6 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+    <string name="motorica_subway_title">Subway Surf</string>
+    <string name="game_status_not_installed">Game is not installed</string>
 </resources>

@@ -6,6 +6,8 @@ sealed interface V3GamesAction {
     data object ViewDetached : V3GamesAction
     data object PrimaryClicked : V3GamesAction
     data object DeleteClicked : V3GamesAction
+    data object SubwayClicked : V3GamesAction
+    data object SubwayDeleteClicked : V3GamesAction
     data class EffectHandled(val id: Long) : V3GamesAction
     data class PlatformActionFailed(val message: V3GamesMessage) : V3GamesAction
 }

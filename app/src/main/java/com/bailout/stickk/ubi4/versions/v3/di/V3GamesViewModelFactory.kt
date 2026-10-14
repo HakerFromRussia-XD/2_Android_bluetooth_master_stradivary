@@ -12,7 +12,7 @@ class V3GamesViewModelFactory(private val repository: V3GamesRepository) : ViewM
         require(modelClass == V3GamesViewModel::class.java)
         @Suppress("UNCHECKED_CAST")
         return V3GamesViewModel(GetGameAvailabilityUseCaseV3(repository), LoadGameManifestUseCaseV3(repository),
-            CheckGameInRuStoreUseCaseV3(repository)) as T
+            CheckGameInRuStoreUseCaseV3(repository), GetSubwayAvailabilityUseCaseV3(repository)) as T
     }
     companion object {
         fun from(context: Context) = V3GamesViewModelFactory(V3GamesRepositoryImpl(context))

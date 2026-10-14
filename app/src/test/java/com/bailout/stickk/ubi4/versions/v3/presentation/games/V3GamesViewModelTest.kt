@@ -162,4 +162,80 @@ class V3GamesViewModelTest {
         assertEquals(loads, repository.loads)
         assertTrue(commands().isEmpty())
     }
+
+    @Test fun `Subway attach and resume reflect installation changes independently of STK`() = runTest(dispatcher) {
+        repository.manifestUrl = ""
+        repository.installed = 1
+        attach(); runCurrent()
+        assertFalse(vm.uiState.value.subwayInstalled)
+        repository.subwayInstalled = 1
+        vm.onAction(V3GamesAction.ViewResumed); runCurrent()
+        assertTrue(vm.uiState.value.subwayInstalled)
+        repository.subwayInstalled = null
+        vm.onAction(V3GamesAction.ViewResumed); runCurrent()
+        assertFalse(vm.uiState.value.subwayInstalled)
+        assertTrue(vm.uiState.value.availability!!.isInstalled)
+        assertEquals(0, repository.loads)
+        assertEquals(0, repository.checks)
+    }
+
+    @Test fun `Subway click launches only its installed package without network requests`() = runTest(dispatcher) {
+        repository.manifestUrl = ""
+        attach(); runCurrent()
+        vm.onAction(V3GamesAction.SubwayClicked)
+        assertTrue(commands().isEmpty())
+        repository.subwayInstalled = 7
+        vm.onAction(V3GamesAction.SubwayClicked)
+        assertEquals(listOf(V3GamesCommand.LaunchGame(GetSubwayAvailabilityUseCaseV3.GAME)), commands())
+        assertTrue(vm.uiState.value.subwayInstalled)
+        clearEffects()
+        repository.subwayInstalled = null
+        vm.onAction(V3GamesAction.SubwayClicked)
+        assertTrue(commands().isEmpty())
+        assertFalse(vm.uiState.value.subwayInstalled)
+        assertEquals(0, repository.loads)
+        assertEquals(0, repository.checks)
+    }
+
+    @Test fun `Subway delete rechecks current installation and emits its own uninstall command`() = runTest(dispatcher) {
+        repository.manifestUrl = ""
+        repository.subwayInstalled = 1
+        attach(); runCurrent()
+        vm.onAction(V3GamesAction.SubwayDeleteClicked)
+        assertEquals(listOf(V3GamesCommand.UninstallSubway), commands())
+        clearEffects()
+        repository.subwayInstalled = null
+        vm.onAction(V3GamesAction.SubwayDeleteClicked)
+        assertTrue(commands().isEmpty())
+        assertFalse(vm.uiState.value.subwayInstalled)
+        assertEquals(0, repository.loads)
+        assertEquals(0, repository.checks)
+    }
+
+    @Test fun `Subway launch failure refreshes availability and does not retry launch`() = runTest(dispatcher) {
+        repository.manifestUrl = ""
+        repository.subwayInstalled = 1
+        attach(); runCurrent()
+        vm.onAction(V3GamesAction.SubwayClicked)
+        clearEffects()
+        repository.subwayInstalled = null
+        vm.onAction(V3GamesAction.PlatformActionFailed(V3GamesMessage.LAUNCH_FAILED))
+        assertFalse(vm.uiState.value.subwayInstalled)
+        assertEquals(listOf(V3GamesCommand.ShowMessage(V3GamesMessage.LAUNCH_FAILED)), commands())
+    }
+
+    @Test fun `Subway actions are ignored after detach or clearing`() = runTest(dispatcher) {
+        repository.manifestUrl = ""
+        repository.subwayInstalled = 1
+        attach(); runCurrent()
+        vm.onAction(V3GamesAction.ViewDetached)
+        vm.onAction(V3GamesAction.SubwayClicked)
+        vm.onAction(V3GamesAction.SubwayDeleteClicked)
+        assertTrue(commands().isEmpty())
+        attach(); runCurrent()
+        store.clear()
+        vm.onAction(V3GamesAction.SubwayClicked)
+        vm.onAction(V3GamesAction.SubwayDeleteClicked)
+        assertTrue(commands().isEmpty())
+    }
 }

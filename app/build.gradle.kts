@@ -1,6 +1,12 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
+import com.android.build.gradle.internal.tasks.FinalizeBundleTask
+import com.android.build.gradle.internal.tasks.PackageBundleTask
+import com.android.build.gradle.tasks.PackageAndroidArtifact
 import groovy.json.JsonSlurper
+import java.io.ByteArrayInputStream
+import java.security.KeyStore
+import java.security.MessageDigest
 import java.util.Properties
 
 plugins {
@@ -29,18 +35,53 @@ val motoricaReleaseStoreFile = signingProperty("motoricaReleaseStoreFile")
 val motoricaReleaseStorePassword = signingProperty("motoricaReleaseStorePassword")
 val motoricaReleaseKeyAlias = signingProperty("motoricaReleaseKeyAlias")
 val motoricaReleaseKeyPassword = signingProperty("motoricaReleaseKeyPassword")
-val hasMotoricaReleaseSigning = listOf(
-    motoricaReleaseStoreFile,
-    motoricaReleaseStorePassword,
-    motoricaReleaseKeyAlias,
-    motoricaReleaseKeyPassword
-).all { !it.isNullOrBlank() }
 val missingMotoricaReleaseSigning = buildList {
     if (motoricaReleaseStoreFile.isNullOrBlank()) add("motoricaReleaseStoreFile")
     if (motoricaReleaseStorePassword.isNullOrBlank()) add("motoricaReleaseStorePassword")
     if (motoricaReleaseKeyAlias.isNullOrBlank()) add("motoricaReleaseKeyAlias")
     if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
 }
+
+// MS and its games must share the existing RuStore certificate for CONTROL_GAME.
+val motoricaCertificateSha256 = "d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8"
+val injectedSigningProperties = properties.keys.filter { it.startsWith("android.injected.signing.") }
+val motoricaSigningError = when {
+    injectedSigningProperties.isNotEmpty() ->
+        "Android injected signing overrides are disabled; use the configured Motorica signing key."
+    missingMotoricaReleaseSigning.isNotEmpty() ->
+        "Motorica signing is not configured. Missing: " + missingMotoricaReleaseSigning.joinToString()
+    else -> runCatching {
+        // Provider reads participate in configuration-cache invalidation; no credentials enter logs.
+        val keyStoreFile = layout.file(providers.provider { file(motoricaReleaseStoreFile!!) })
+        val keyStoreBytes = providers.fileContents(keyStoreFile).asBytes.get()
+        val keyStore = KeyStore.getInstance("JKS")
+        ByteArrayInputStream(keyStoreBytes).use {
+            keyStore.load(it, motoricaReleaseStorePassword!!.toCharArray())
+        }
+        val certificate = keyStore.getCertificate(motoricaReleaseKeyAlias)
+            ?: throw GradleException("Configured signing certificate is missing.")
+        val actualSha256 = MessageDigest.getInstance("SHA-256")
+            .digest(certificate.encoded).joinToString("") { "%02x".format(it) }
+        if (actualSha256 == motoricaCertificateSha256) ""
+        else "Configured signing certificate differs from the Motorica RuStore certificate."
+    }.getOrElse { "Cannot read the configured Motorica signing certificate; check the signing properties." }
+}
+
+val requireMotoricaSigning = tasks.register("requireMotoricaSigning") {
+    group = "verification"
+    description = "Require the existing Motorica RuStore certificate before producing an APK or AAB."
+    inputs.property("signingError", motoricaSigningError)
+    doLast {
+        val error = inputs.properties.getValue("signingError") as String
+        if (error.isNotEmpty()) throw GradleException(error)
+    }
+}
+
+// Guard output-producing task types, including test APKs and every build variant.
+// Keep sync, compilation and unit tests available without signing credentials.
+tasks.withType<PackageAndroidArtifact>().configureEach { dependsOn(requireMotoricaSigning) }
+tasks.withType<PackageBundleTask>().configureEach { dependsOn(requireMotoricaSigning) }
+tasks.withType<FinalizeBundleTask>().configureEach { dependsOn(requireMotoricaSigning) }
 
 val v3ManifestFile = file("src/main/assets/STR2_V3/festh3_test3_manifest.json")
 val packagedV3AssetNames = mutableSetOf(v3ManifestFile.name)
@@ -64,21 +105,6 @@ val unusedV3AssetNames = listOf("STR2_V3", "STR2_V3_BIN")
     .map { it.name }
     .filterNot(packagedV3AssetNames::contains)
     .distinct()
-
-gradle.taskGraph.whenReady {
-    val needsReleaseApk = allTasks.any { task ->
-        task.path == ":app:assembleRelease" ||
-            task.path == ":app:installRelease" ||
-            task.path == ":app:packageRelease"
-    }
-    if (needsReleaseApk && !hasMotoricaReleaseSigning) {
-        throw GradleException(
-            "Motorica release signing is not configured. Missing: " +
-                missingMotoricaReleaseSigning.joinToString() +
-                ". Add uncommented values to ${rootProject.file("local.properties").absolutePath}."
-        )
-    }
-}
 
 kotlin {
     androidTarget()
@@ -125,13 +151,14 @@ android {
     }
 
     signingConfigs {
-        if (hasMotoricaReleaseSigning) {
-            create("motoricaRelease") {
-                storeFile = file(motoricaReleaseStoreFile!!)
-                storePassword = motoricaReleaseStorePassword
-                keyAlias = motoricaReleaseKeyAlias
-                keyPassword = motoricaReleaseKeyPassword
-            }
+        create("motoricaRelease")
+        // Also replace AGP's default debug configuration: it must never select another key.
+        configureEach {
+            storeFile = motoricaReleaseStoreFile?.let { file(it) }
+            storePassword = motoricaReleaseStorePassword
+            keyAlias = motoricaReleaseKeyAlias
+            keyPassword = motoricaReleaseKeyPassword
+            storeType = "JKS"
         }
     }
 
@@ -156,11 +183,10 @@ android {
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
-            if (hasMotoricaReleaseSigning) {
-                signingConfig = signingConfigs.getByName("motoricaRelease")
-            }
         }
+    }
+    buildTypes.configureEach {
+        signingConfig = signingConfigs.getByName("motoricaRelease")
     }
     lint {
         checkReleaseBuilds = false

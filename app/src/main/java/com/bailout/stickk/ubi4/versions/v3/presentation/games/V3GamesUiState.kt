@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.games.V3GameAvailability
 data class V3GamesUiState(
     val availability: V3GameAvailability? = null,
     val isActionEnabled: Boolean = false,
+    val subwayInstalled: Boolean = false,
     val effects: List<V3GamesEffect> = emptyList(),
 )
 
@@ -15,6 +16,7 @@ sealed interface V3GamesCommand {
     data class LaunchGame(val game: V3Game) : V3GamesCommand
     data object OpenStore : V3GamesCommand
     data object UninstallGame : V3GamesCommand
+    data object UninstallSubway : V3GamesCommand
     data class ShowMessage(val message: V3GamesMessage, val detail: String? = null) : V3GamesCommand
 }
 

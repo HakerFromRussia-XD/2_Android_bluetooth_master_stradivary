@@ -18,6 +18,7 @@ class V3GamesViewModel(
     private val getAvailability: GetGameAvailabilityUseCaseV3,
     private val loadManifest: LoadGameManifestUseCaseV3,
     private val checkStore: CheckGameInRuStoreUseCaseV3,
+    private val getSubwayAvailability: GetSubwayAvailabilityUseCaseV3,
 ) : ViewModel() {
     private val state = MutableStateFlow(V3GamesUiState())
     val uiState = state.asStateFlow()
@@ -53,6 +54,12 @@ class V3GamesViewModel(
                         if (getAvailability(remoteGame).isInstalled) emit(V3GamesCommand.UninstallGame)
                         else renderIdleState()
                     }
+                    V3GamesAction.SubwayClicked -> {
+                        if (refreshSubwayAvailability()) emit(V3GamesCommand.LaunchGame(GetSubwayAvailabilityUseCaseV3.GAME))
+                    }
+                    V3GamesAction.SubwayDeleteClicked -> {
+                        if (refreshSubwayAvailability()) emit(V3GamesCommand.UninstallSubway)
+                    }
                     is V3GamesAction.EffectHandled -> state.value = state.value.copy(effects = state.value.effects.filterNot { it.id == action.id })
                     is V3GamesAction.PlatformActionFailed -> {
                         if (action.message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
@@ -66,7 +73,15 @@ class V3GamesViewModel(
 
     private fun renderIdleState() {
         val availability = getAvailability(remoteGame)
-        state.value = state.value.copy(availability = availability, isActionEnabled = availability.action != V3GameAction.UNAVAILABLE)
+        state.value = state.value.copy(
+            availability = availability,
+            isActionEnabled = availability.action != V3GameAction.UNAVAILABLE,
+            subwayInstalled = getSubwayAvailability(),
+        )
+    }
+
+    private fun refreshSubwayAvailability(): Boolean = getSubwayAvailability().also { installed ->
+        state.value = state.value.copy(subwayInstalled = installed)
     }
 
     private fun refreshManifest(showErrors: Boolean) {

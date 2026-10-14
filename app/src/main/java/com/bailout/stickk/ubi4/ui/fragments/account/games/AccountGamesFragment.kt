@@ -2,12 +2,14 @@ package com.bailout.stickk.ubi4.ui.fragments.account.games
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -37,6 +39,11 @@ class AccountGamesFragment : Fragment() {
     private var remoteGame: RemoteGame? = null
     private var currentAction: GameAction = GameAction.UNAVAILABLE
 
+    private companion object {
+        const val SUBWAY_PACKAGE = "com.motorica.games.subway"
+        const val SUBWAY_ACTIVITY = "com.unity3d.player.UnityPlayerActivity"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,6 +56,33 @@ class AccountGamesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val useV3 = UiState.isInterfaceV3Activated
+        binding.subwayGameBackgroundIv.doOnLayout { image ->
+            // Crop the unchanged square source around the faces; use one scale for both axes.
+            val drawable = binding.subwayGameBackgroundIv.drawable ?: return@doOnLayout
+            val scale = maxOf(
+                image.width.toFloat() / drawable.intrinsicWidth,
+                image.height.toFloat() / drawable.intrinsicHeight
+            )
+            val dx = (image.width - drawable.intrinsicWidth * scale) / 2f
+            val dy = (image.height / 2f - drawable.intrinsicHeight * 0.4f * scale)
+                .coerceIn(image.height - drawable.intrinsicHeight * scale, 0f)
+            binding.subwayGameBackgroundIv.imageMatrix = Matrix().apply {
+                setScale(scale, scale)
+                postTranslate(dx, dy)
+            }
+        }
+        binding.subwayGameActionBtn.setOnClickListener {
+            if (useV3) {
+                v3ViewModel?.onAction(V3GamesAction.SubwayClicked)
+            } else launchGame(SUBWAY_PACKAGE, SUBWAY_ACTIVITY) {
+                renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
+                showToast(R.string.game_launch_failed)
+            }
+        }
+        binding.subwayGameDeleteBtn.setOnClickListener {
+            if (useV3) v3ViewModel?.onAction(V3GamesAction.SubwayDeleteClicked)
+            else requestGameUninstall(SUBWAY_PACKAGE)
+        }
         binding.gameActionBtn.setOnClickListener {
             if (useV3) {
                 v3ViewModel?.onAction(V3GamesAction.PrimaryClicked)
@@ -65,6 +99,7 @@ class AccountGamesFragment : Fragment() {
             if (useV3) v3ViewModel?.onAction(V3GamesAction.DeleteClicked) else uninstallGame()
         }
         if (useV3) bindV3Games() else {
+            renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
             renderIdleState()
             refreshGameManifest(showErrors = false)
         }
@@ -74,6 +109,7 @@ class AccountGamesFragment : Fragment() {
         super.onResume()
         val viewModel = v3ViewModel
         if (viewModel != null) viewModel.onAction(V3GamesAction.ViewResumed) else {
+            renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
             renderIdleState()
             refreshGameManifest(showErrors = false)
         }
@@ -101,6 +137,7 @@ class AccountGamesFragment : Fragment() {
     }
 
     private fun renderV3Games(state: V3GamesUiState) {
+        renderSubwayCard(state.subwayInstalled)
         state.availability?.let { availability ->
             renderGame(availability.game.title, GameAction.valueOf(availability.action.name),
                 availability.isInstalled, state.isActionEnabled)
@@ -111,6 +148,7 @@ class AccountGamesFragment : Fragment() {
                 is V3GamesCommand.LaunchGame -> launchGame(command.game.packageName, command.game.launcherActivity)
                 V3GamesCommand.OpenStore -> openGameInRuStore()
                 V3GamesCommand.UninstallGame -> requestGameUninstall()
+                V3GamesCommand.UninstallSubway -> requestGameUninstall(SUBWAY_PACKAGE)
                 is V3GamesCommand.ShowMessage -> Toast.makeText(requireContext(),
                     command.detail ?: getString(command.message.messageRes()), Toast.LENGTH_LONG).show()
             }
@@ -133,6 +171,18 @@ class AccountGamesFragment : Fragment() {
             if (message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
             showToast(message.messageRes())
         }
+    }
+
+    private fun renderSubwayCard(installed: Boolean) {
+        binding.subwayGameTitleTv.setText(R.string.motorica_subway_title)
+        binding.subwayGameDescriptionTv.setText(
+            if (installed) R.string.game_status_installed else R.string.game_status_not_installed
+        )
+        binding.subwayGameActionTv.setText(R.string.play)
+        binding.subwayGameActionBtn.isEnabled = installed
+        binding.subwayGameActionBackground.isEnabled = installed
+        binding.subwayGameDeleteBtn.visibility = if (installed) View.VISIBLE else View.GONE
+        binding.subwayGameDeleteIv.visibility = if (installed) View.VISIBLE else View.GONE
     }
 
     private fun renderIdleState() {
@@ -266,15 +316,15 @@ class AccountGamesFragment : Fragment() {
         requestGameUninstall()
     }
 
-    private fun requestGameUninstall() {
-        val packageName = BuildConfig.MOTORICA_STK_PACKAGE
+    private fun requestGameUninstall(packageName: String = BuildConfig.MOTORICA_STK_PACKAGE) {
         requireContext().applicationContext.stopService(
             Intent(requireContext(), GameControlBridgeService::class.java)
         )
         try {
             startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:$packageName")))
         } catch (_: ActivityNotFoundException) {
-            reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
+            if (packageName == SUBWAY_PACKAGE) showToast(R.string.game_uninstall_failed)
+            else reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
         }
     }
 
@@ -283,15 +333,20 @@ class AccountGamesFragment : Fragment() {
         launchGame(game.packageName, game.launcherActivity)
     }
 
-    private fun launchGame(packageName: String, launcherActivity: String) {
+    private fun launchGame(
+        packageName: String,
+        launcherActivity: String,
+        onFailure: () -> Unit = { reportPlatformFailure(V3GamesMessage.LAUNCH_FAILED) }
+    ) {
         GameControlBridgeService.start(requireContext().applicationContext)
         val intent = Intent()
             .setClassName(packageName, launcherActivity)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .apply { if (packageName == SUBWAY_PACKAGE) putExtra("motorica_ms_control", true) }
         try {
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            reportPlatformFailure(V3GamesMessage.LAUNCH_FAILED)
+            onFailure()
         }
     }
 

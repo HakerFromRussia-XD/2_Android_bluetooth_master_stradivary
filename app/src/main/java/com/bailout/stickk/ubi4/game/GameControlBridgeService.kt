@@ -27,6 +27,11 @@ import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.motorica.gamecontrol.GameControlSnapshot
 import com.motorica.gamecontrol.IGameControlCallback
 import com.motorica.gamecontrol.IGameControlService
+import com.bailout.stickk.ubi4.versions.v3.data.sensors.V3SensorsPlotRepositoryImpl
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.PlotThresholds
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -45,6 +50,22 @@ class GameControlBridgeService : Service() {
     private var systemReceiverRegistered = false
 
     private val binder = object : IGameControlService.Stub() {
+        override fun getLatestThresholds(): IntArray? = runCatching {
+            // Read the same parameter store/cache as the MS Sensors graph; send no BLE commands.
+            val values = V3SensorsPlotRepositoryImpl(enqueuePacket = {}).getThresholds()
+            if (values != null) {
+                intArrayOf(values.open.coerceIn(0, 255), values.close.coerceIn(0, 255))
+            } else {
+                // UBI4 uses the same legacy decoder as its Sensors graph.
+                val raw = ParameterProvider.getParameterDeprecated(
+                    ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                ).data
+                if (raw.length < 6) return@runCatching null
+                val legacy = Json.decodeFromString<PlotThresholds>("\"$raw\"")
+                intArrayOf(legacy.threshold1, legacy.threshold2)
+            }
+        }.getOrNull()
+
         override fun getLatestSnapshot(): GameControlSnapshot {
             val snapshot = synchronized(snapshotLock) {
                 this@GameControlBridgeService.latestSnapshot

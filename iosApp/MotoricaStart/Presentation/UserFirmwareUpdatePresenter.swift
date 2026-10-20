@@ -10,6 +10,10 @@ enum UserFirmwareRoleAccess {
               (0...2).contains(role) else { return 2 }
         return role
     }
+    static var canUpdateFirmware: Bool {
+        let role = selectedRole
+        return role == 0 || role == 1
+    }
     static func isRoleSelector(parameterID: Int, dataCode: Int) -> Bool {
         parameterID == 1 && dataCode == 15
     }

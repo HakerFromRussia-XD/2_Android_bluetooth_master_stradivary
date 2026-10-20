@@ -19,7 +19,8 @@ final class AccountFirmwareDialogPresenter {
     func showFirmwareFiles(
         files: [AccountFirmwareFile],
         onSelect: @escaping (AccountFirmwareFile) -> Void,
-        onDelete: @escaping (AccountFirmwareFile) -> Void
+        onDelete: @escaping (AccountFirmwareFile) -> Void,
+        onCancel: (() -> Void)? = nil
     ) {
         let dialog = FirmwareFilesDialogViewController(
             files: files,
@@ -29,29 +30,46 @@ final class AccountFirmwareDialogPresenter {
             },
             onDelete: onDelete,
             onCancel: { [weak self] in
+                onCancel?()
                 self?.dismissCurrent(animated: true)
             }
         )
         present(dialog)
     }
 
+    func updateFirmwareFiles(_ files: [AccountFirmwareFile]) {
+        (currentDialog as? FirmwareFilesDialogViewController)?.updateFiles(files)
+    }
+
+    func setFirmwareFilesLoading(_ isLoading: Bool, message: String?) {
+        (currentDialog as? FirmwareFilesDialogViewController)?.setLoading(isLoading, message: message)
+    }
+
     func showConfirmSendFirmwareFile(
-        onConfirm: @escaping () -> Void
+        onConfirm: @escaping () -> Void,
+        onCancel: (() -> Void)? = nil
     ) {
+        var resolved = false
+        let confirm = { [weak self] in
+            guard let self, !resolved else { return }
+            resolved = true
+            self.currentDialog?.view.isUserInteractionEnabled = false
+            self.dismissCurrent(animated: true) {
+                DispatchQueue.main.async(execute: onConfirm)
+            }
+        }
+        let cancel = { [weak self] in
+            guard let self, !resolved else { return }
+            resolved = true
+            onCancel?()
+            self.dismissCurrent(animated: true)
+        }
         if let filesDialog = currentDialog as? FirmwareFilesDialogViewController {
             filesDialog.showConfirm(
                 title: FirmwareLocalizedText.prosthesesUpdateTitle,
                 message: FirmwareLocalizedText.startUpdateMessage,
-                onConfirm: { [weak self] in
-                    self?.dismissCurrent(animated: true) {
-                        DispatchQueue.main.async {
-                            onConfirm()
-                        }
-                    }
-                },
-                onCancel: { [weak self] in
-                    self?.dismissCurrent(animated: true)
-                }
+                onConfirm: confirm,
+                onCancel: cancel
             )
             return
         }
@@ -60,16 +78,8 @@ final class AccountFirmwareDialogPresenter {
             title: FirmwareLocalizedText.prosthesesUpdateTitle,
             message: FirmwareLocalizedText.startUpdateMessage,
             colors: colors,
-            onConfirm: { [weak self] in
-                self?.dismissCurrent(animated: true) {
-                    DispatchQueue.main.async {
-                        onConfirm()
-                    }
-                }
-            },
-            onCancel: { [weak self] in
-                self?.dismissCurrent(animated: true)
-            }
+            onConfirm: confirm,
+            onCancel: cancel
         )
         present(dialog)
     }
@@ -96,6 +106,10 @@ final class AccountFirmwareDialogPresenter {
             return
         }
         self.currentDialog = nil
+        guard currentDialog.presentingViewController != nil else {
+            completion?()
+            return
+        }
         if animated, let firmwareDialog = currentDialog as? FirmwareBaseDialogViewController {
             firmwareDialog.animateOut {
                 currentDialog.dismiss(animated: false) {
@@ -121,15 +135,23 @@ final class AccountFirmwareDialogPresenter {
     }
 
     private func present(_ dialog: UIViewController) {
-        dismissCurrent(animated: false) { [weak self] in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.currentDialog = dialog
+        let previousDialog = currentDialog
+        currentDialog = dialog
+        let show = { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.currentDialog === dialog,
+                      let owner = self.presentingViewController,
+                      owner.viewIfLoaded?.window != nil else { return }
                 dialog.modalPresentationStyle = .overFullScreen
-                self.presentingViewController?.present(dialog, animated: false) {
+                owner.present(dialog, animated: false) {
                     (dialog as? FirmwareBaseDialogViewController)?.animateIn()
                 }
             }
+        }
+        if let previousDialog, previousDialog.presentingViewController != nil {
+            previousDialog.dismiss(animated: false, completion: show)
+        } else {
+            show()
         }
     }
 }
@@ -275,6 +297,26 @@ enum FirmwareLocalizedText {
         SharedRes.strings().the_firmware_file_was_not_successfully_downloaded.desc().localized()
     }
 
+    static var catalogLoadingMessage: String {
+        SharedLocalizedText.text(SharedRes.strings().firmware_catalog_loading)
+    }
+
+    static var catalogLoadFailedMessage: String {
+        SharedLocalizedText.text(SharedRes.strings().user_firmware_unavailable)
+    }
+
+    static var noFirmwareFilesMessage: String {
+        SharedLocalizedText.text(SharedRes.strings().firmware_catalog_empty)
+    }
+
+    static var archiveDownloadingMessage: String {
+        SharedLocalizedText.text(SharedRes.strings().firmware_is_being_downloaded)
+    }
+
+    static var archiveDownloadFailedMessage: String {
+        SharedLocalizedText.text(SharedRes.strings().firmware_archive_download_failed)
+    }
+
     static var updateInstalledMessage: String {
         SharedRes.strings().update_installed.desc().localized()
     }
@@ -327,6 +369,8 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
     private let onCancel: () -> Void
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let cellReuseIdentifier = "FirmwareFileCell"
+    private let statusLabel = UILabel()
+    private var isLoading = false
 
     init(
         files: [AccountFirmwareFile],
@@ -355,7 +399,16 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         title.textAlignment = .center
         title.numberOfLines = 2
         title.translatesAutoresizingMaskIntoConstraints = false
-        card.addSubview(title)
+        statusLabel.textColor = colors.text
+        statusLabel.font = .systemFont(ofSize: 12)
+        statusLabel.textAlignment = .center
+        statusLabel.numberOfLines = 0
+        statusLabel.isHidden = true
+        let header = UIStackView(arrangedSubviews: [title, statusLabel])
+        header.axis = .vertical
+        header.spacing = 8
+        header.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(header)
 
         let listContainer = UIView()
         listContainer.backgroundColor = colors.back
@@ -389,11 +442,11 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         card.addSubview(cancel)
 
         NSLayoutConstraint.activate([
-            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
-            title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
-            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+            header.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
+            header.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
+            header.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
 
-            listContainer.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
+            listContainer.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 16),
             listContainer.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
             listContainer.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
             listContainer.heightAnchor.constraint(equalToConstant: 352),
@@ -414,6 +467,21 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
             cancel.heightAnchor.constraint(equalToConstant: 52),
             cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor)
         ])
+    }
+
+    func updateFiles(_ files: [AccountFirmwareFile]) {
+        loadViewIfNeeded()
+        self.files = files
+        tableView.reloadData()
+    }
+
+    func setLoading(_ isLoading: Bool, message: String?) {
+        loadViewIfNeeded()
+        self.isLoading = isLoading
+        tableView.isUserInteractionEnabled = !isLoading
+        tableView.alpha = isLoading ? 0.55 : 1
+        statusLabel.text = message
+        statusLabel.isHidden = message == nil
     }
 
     func showConfirm(title: String, message: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
@@ -454,8 +522,9 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
     }
 
     private func select(_ file: AccountFirmwareFile) {
+        guard !isLoading else { return }
         view.accessibilityValue = "selected=\(file.name)"
-        tableView.isUserInteractionEnabled = false
+        setLoading(true, message: nil)
         onSelect(file)
     }
 

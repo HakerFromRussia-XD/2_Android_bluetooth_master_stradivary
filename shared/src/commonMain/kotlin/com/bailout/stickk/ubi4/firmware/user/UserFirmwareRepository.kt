@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.firmware.user
 
-import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
+import com.bailout.stickk.ubi4.data.network.FirmwareRepository
+import com.bailout.stickk.ubi4.data.network.FirmwareRepositoryProvider
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CancellationException
@@ -10,7 +11,7 @@ import kotlin.coroutines.resume
 class UserFirmwareRepository(
     private val directory: String,
     private val reader: UserFirmwareArchiveReader,
-    private val disk: YandexDiskFirmwareRepository = YandexDiskFirmwareRepository()
+    private val disk: FirmwareRepository = FirmwareRepositoryProvider.active()
 ) {
     suspend fun targets(boards: List<UserFirmwareBoard>): List<UserFirmwareTarget> {
         val assembly = FirmwareAssembly.parse(disk.readPublicFile("assembly.json").decodeToString())

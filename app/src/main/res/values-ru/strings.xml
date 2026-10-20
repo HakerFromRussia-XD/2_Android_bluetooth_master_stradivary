@@ -77,6 +77,7 @@
     <string name="firmware_catalog_unavailable">Данные прошивок недоступны</string>
     <string name="firmware_not_found_for_board">Для этой платы прошивки не найдены</string>
     <string name="firmware_downloading">Загрузка прошивок…</string>
+    <string name="firmware_download_failed">Не удалось скачать %1$s. Повторите попытку или выберите другую прошивку.</string>
     <string name="firmware_source_catalog">Из каталога</string>
     <string name="select_firmware_file">Выберите файл прошивки</string>
     <string name="firmware_source_zip">Выбрать ZIP</string>

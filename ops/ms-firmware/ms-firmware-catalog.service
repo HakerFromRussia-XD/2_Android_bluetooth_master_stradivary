@@ -1,0 +1,25 @@
+[Unit]
+Description=MS Firmware direct catalog generator
+After=local-fs.target
+
+[Service]
+Type=simple
+User=ms-upload
+Group=ms-staging
+WorkingDirectory=/usr/local/lib/ms-firmware
+ExecStart=/usr/bin/python3 /usr/local/lib/ms-firmware/catalog_watcher.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/ms-firmware/staging/firmware
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=64M
+CPUQuota=10%
+TasksMax=16
+
+[Install]
+WantedBy=multi-user.target

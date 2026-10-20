@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -23,10 +24,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
-import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.RemoteFirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.network.FirmwareRepositoryProvider
 import com.bailout.stickk.ubi4.data.network.RemoteFirmwareFile
-import com.bailout.stickk.ubi4.data.network.YandexDiskFirmwareRepository
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
@@ -79,10 +80,10 @@ class AccountFragmentMainV3 : Fragment() {
     private var canRenderBoards = false
     private var isBoardsRendered = false
     private var systemBackCallback: OnBackPressedCallback? = null
-    private val firmwareRepository = YandexDiskFirmwareRepository()
+    private val firmwareRepository = FirmwareRepositoryProvider.active()
     private var remoteFirmwareCatalog: List<RemoteFirmwareFile>? = null
     private var firmwareCatalogJob: Job? = null
-    private var firmwareDownloadJob: Job? = null
+    private var firmwareFilesDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -293,17 +294,18 @@ class AccountFragmentMainV3 : Fragment() {
                 ?: unknownName
             val fw = sub.fwVersion.takeIf { it.isNotBlank() }
                 ?: "—"
-            val familyFileNames = remoteFirmwareCatalog
+            val familyVersions = remoteFirmwareCatalog
                 ?.asSequence()
                 ?.filter { it.family == family }
-                ?.map { it.name }
+                ?.filter { FirmwareCompatibility.isCompatible(sub.deviceAddress, it.name) }
+                ?.map { it.version }
                 ?.toList()
                 .orEmpty()
             val isUpdateAvailable = remoteFirmwareCatalog != null &&
-                FirmwareCompatibility.isUpdateAvailable(
+                FirmwareCompatibility.isUpdateAvailableFromVersions(
                     deviceAddress = sub.deviceAddress,
                     installedVersion = fw,
-                    fileNames = familyFileNames
+                    availableVersions = familyVersions
                 )
             if (name == unknownName) {
                 Log.w(
@@ -382,18 +384,19 @@ class AccountFragmentMainV3 : Fragment() {
                 val catalog = firmwareRepository.loadCatalog()
                 remoteFirmwareCatalog = catalog
                 if (canRenderBoards) refreshBoards()
-                Log.d(FIRMWARE_LOG_TAG, "Loaded ${catalog.size} firmware files from Yandex Disk")
+                Log.d(FIRMWARE_LOG_TAG, "Loaded ${catalog.size} firmware files from active source")
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
                 remoteFirmwareCatalog = null
                 if (canRenderBoards) refreshBoards()
-                Log.w(FIRMWARE_LOG_TAG, "Yandex firmware catalog is unavailable", error)
+                Log.w(FIRMWARE_LOG_TAG, "Active firmware catalog is unavailable", error)
             }
         }
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
+        if (firmwareFilesDialog?.isShowing == true) return
         val catalog = remoteFirmwareCatalog
         if (catalog == null) {
             showFirmwareCatalogUnavailableToast()
@@ -410,26 +413,7 @@ class AccountFragmentMainV3 : Fragment() {
             Toast.makeText(requireContext(), R.string.firmware_not_found_for_board, Toast.LENGTH_SHORT).show()
             return
         }
-        if (firmwareDownloadJob?.isActive == true) return
-
-        Toast.makeText(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT).show()
-        firmwareDownloadJob = viewLifecycleOwner.lifecycleScope.launch {
-            val cacheDirectory = sharedFile(requireContext().cacheDir.absolutePath)
-            try {
-                val items = candidates.map { remote ->
-                    FirmwareFileItem(
-                        name = remote.name,
-                        file = java.io.File(firmwareRepository.download(remote, cacheDirectory).path)
-                    )
-                }
-                if (isAdded && _binding != null) showDownloadedFirmwareDialog(boardItem, items)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                Log.w(FIRMWARE_LOG_TAG, "Cannot download firmware files", error)
-                if (isAdded && _binding != null) showFirmwareCatalogUnavailableToast()
-            }
-        }
+        showRemoteFirmwareDialog(boardItem, candidates)
     }
 
     private fun compareFirmwareForBoard(
@@ -437,35 +421,69 @@ class AccountFragmentMainV3 : Fragment() {
         left: RemoteFirmwareFile,
         right: RemoteFirmwareFile
     ): Int {
-        val leftVersion = FirmwareCompatibility.versionForDevice(deviceAddress, left.name)
-        val rightVersion = FirmwareCompatibility.versionForDevice(deviceAddress, right.name)
         return when {
-            FirmwareVersionCatalog.isLocalVersionNewer(rightVersion, leftVersion) -> -1
-            FirmwareVersionCatalog.isLocalVersionNewer(leftVersion, rightVersion) -> 1
+            FirmwareVersionCatalog.isLocalVersionNewer(right.version, left.version) -> -1
+            FirmwareVersionCatalog.isLocalVersionNewer(left.version, right.version) -> 1
             else -> left.name.compareTo(right.name, ignoreCase = true)
         }
     }
 
-    private fun showDownloadedFirmwareDialog(
+    private fun showRemoteFirmwareDialog(
         boardItem: BootloaderBoardItemUBI4,
-        downloadedItems: List<FirmwareFileItem>
+        files: List<RemoteFirmwareFile>
     ) {
-        val items = downloadedItems.toMutableList()
-
+        val dialogBinding = binding
         val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
         val dialog = AlertDialog.Builder(requireContext()).setView(view).create()
+        var downloadJob: Job? = null
+        val title = view.findViewById<TextView>(R.id.dialogFirmwareTitleTv)
         val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
         rv.layoutManager = LinearLayoutManager(requireContext())
-        rv.adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
-            override fun onDelete(position: Int, fileItem: FirmwareFileItem) = Unit
-
-            override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
-                main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, fileItem) {}
-                dialog.dismiss()
+        lateinit var adapter: RemoteFirmwareFilesAdapter
+        adapter = RemoteFirmwareFilesAdapter(files) { selected ->
+            if (downloadJob?.isActive != true) {
+                adapter.isSelectionEnabled = false
+                title.setText(R.string.firmware_downloading)
+                val cacheDirectory = sharedFile(requireContext().cacheDir.absolutePath)
+                downloadJob = viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        val downloaded = firmwareRepository.download(selected, cacheDirectory)
+                        if (isAdded && !isHidden && _binding === dialogBinding && dialog.isShowing) {
+                            val fileItem = FirmwareFileItem(selected.name, java.io.File(downloaded.path))
+                            // Dismissing a completed picker must not cancel this successful selection.
+                            downloadJob = null
+                            dialog.dismiss()
+                            main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, fileItem) {}
+                        }
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        Log.w(FIRMWARE_LOG_TAG, "Cannot download selected firmware ${selected.name}", error)
+                        if (isAdded && !isHidden && _binding === dialogBinding && dialog.isShowing) {
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.firmware_download_failed, selected.name),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } finally {
+                        if (dialog.isShowing) {
+                            adapter.isSelectionEnabled = true
+                            title.setText(R.string.select_firmware_file)
+                        }
+                    }
+                }
             }
-        }, showDeleteButton = false)
+        }
+        rv.adapter = adapter
         view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn).setOnClickListener { dialog.dismiss() }
+        dialog.setOnDismissListener {
+            downloadJob?.cancel()
+            downloadJob = null
+            if (firmwareFilesDialog === dialog) firmwareFilesDialog = null
+        }
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        firmwareFilesDialog = dialog
         dialog.show()
     }
 
@@ -538,13 +556,15 @@ class AccountFragmentMainV3 : Fragment() {
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         systemBackCallback?.isEnabled = !hidden
+        if (hidden) firmwareFilesDialog?.dismiss()
         if (!hidden && _binding != null) refreshFirmwareCatalog()
     }
 
     override fun onDestroyView() {
         profileViewModel.onAction(V3AccountProfileAction.ViewDetached)
         firmwareCatalogJob?.cancel()
-        firmwareDownloadJob?.cancel()
+        firmwareFilesDialog?.dismiss()
+        firmwareFilesDialog = null
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
         canRenderBoards = false

@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_BINDING_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_BINDING_DATA
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
@@ -14,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class BindingGroupV3Test {
 
@@ -88,15 +90,19 @@ class BindingGroupV3Test {
     }
 
     @Test
-    fun `binding response route should target V3 binding flow`() {
+    fun `binding codec metadata remains available without the disabled UI response route`() {
+        val metadata = ParameterInfoRegistry.requireMeta(P_KEY_BINDING_DATA)
+        assertEquals(ParameterCodecIdV3.BINDING_GROUP, metadata.codecId)
+        assertEquals(PROSTHESIS_MODULE_CONTROL.number.toInt(), metadata.parameterInfo.parameterID)
+        assertEquals(PWCE_SET_BINDING_DATA.number.toInt(), metadata.parameterInfo.dataCode)
+
         val route = WidgetResponseRoutesV3.find(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
             responseSubcommand = PWCE_GET_BINDING_DATA.number.toInt()
         )
 
-        assertNotNull(route)
-        assertEquals(P_KEY_BINDING_DATA, route.parameterKey)
-        assertEquals(WidgetEmitTargetV3.BINDING_GROUP_FLOW, route.emitTarget)
+        // The codec and SET/readback commands remain supported, but this UI route is disabled.
+        assertNull(route)
     }
 
     private fun crcExcludeLast(data: ByteArray): Int {

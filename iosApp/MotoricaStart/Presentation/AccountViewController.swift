@@ -12,12 +12,18 @@ private enum AccountMetrics {
 }
 
 final class AccountViewController: UIViewController {
-    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var loadJob: Kotlinx_coroutines_coreJob?
+    private var serialNumberJob: Kotlinx_coroutines_coreJob?
+    private var serialObservationID = UUID()
+    private var accountLoadID = UUID()
+    private var accountSerialNumber = ""
     private var boardModeJob: Kotlinx_coroutines_coreJob?
+    private var boardsJob: Kotlinx_coroutines_coreJob?
     private var profile: AccountBridgeProfile?
     private var boards: [AccountBridgeBoard] = []
-    private var firmwareFileNames: [String] = []
+    private var roleObserver: NSObjectProtocol?
+    private var selectedRole = UserFirmwareRoleAccess.selectedRole
+    private var isAccountVisible = false
     private lazy var firmwareUpdateController = AccountFirmwareUpdateController(presentingViewController: self)
 
     private let scrollView = UIScrollView()
@@ -45,20 +51,41 @@ final class AccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        firmwareFileNames = firmwareUpdateController.availableFirmwareFileNames()
         setupView()
         observeBoardMode()
-        reloadAccount()
+        observeBoards()
+        observeFirmwareRole()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
+        isAccountVisible = true
+        selectedRole = UserFirmwareRoleAccess.selectedRole
+        renderContent()
+        refreshFirmwareCatalog()
+        reloadAccount()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let isNavigatingAway = navigationController.map { $0.topViewController !== self } ?? false
+        // Firmware dialogs cover this screen; keep their selected download alive.
+        guard presentedViewController == nil || isMovingFromParent || isBeingDismissed ||
+                navigationController?.isBeingDismissed == true || isNavigatingAway else { return }
+        isAccountVisible = false
+        stopAccountLoading()
+        firmwareUpdateController.cancelPendingDownloads()
     }
 
     deinit {
         loadJob?.cancel(cause: nil)
+        serialNumberJob?.cancel(cause: nil)
         boardModeJob?.cancel(cause: nil)
+        boardsJob?.cancel(cause: nil)
+        if let roleObserver {
+            NotificationCenter.default.removeObserver(roleObserver)
+        }
     }
 
     private func setupView() {
@@ -148,6 +175,60 @@ final class AccountViewController: UIViewController {
         }
     }
 
+    private func observeBoards() {
+        boardsJob?.cancel(cause: nil)
+        boardsJob = AccountBridge.shared.observeBoards { [weak self] boards in
+            DispatchQueue.main.async {
+                self?.applyBoards(boards)
+            }
+        }
+    }
+
+    private func applyBoards(_ incomingBoards: [AccountBridgeBoard]) {
+        guard !incomingBoards.isEmpty || boards.isEmpty else { return }
+        let previousBoards = boards
+        boards = incomingBoards.map { board in
+            guard let previous = previousBoards.first(where: { $0.deviceAddress == board.deviceAddress }) else {
+                return board
+            }
+            return AccountBridgeBoard(
+                boardName: board.boardName,
+                deviceCode: board.deviceCode,
+                deviceAddress: board.deviceAddress,
+                version: board.version,
+                canUpdate: board.canUpdate,
+                isInBootloader: previous.isInBootloader
+            )
+        }
+        renderContent()
+    }
+
+    private func observeFirmwareRole() {
+        roleObserver = UserFirmwareRoleAccess.observeChanges { [weak self] in
+            guard let self else { return }
+            let role = UserFirmwareRoleAccess.selectedRole
+            guard self.selectedRole != role else { return }
+            self.selectedRole = role
+            if !UserFirmwareRoleAccess.canUpdateFirmware {
+                self.firmwareUpdateController.cancelPendingDownloads()
+            }
+            self.renderContent()
+            if self.isAccountVisible && UserFirmwareRoleAccess.canUpdateFirmware {
+                self.refreshFirmwareCatalog()
+            }
+        }
+    }
+
+    private func refreshFirmwareCatalog() {
+        guard UserFirmwareRoleAccess.canUpdateFirmware else {
+            firmwareUpdateController.cancelPendingDownloads()
+            return
+        }
+        firmwareUpdateController.refreshCatalog { [weak self] in
+            self?.renderContent()
+        }
+    }
+
     private func applyBoardMode(_ mode: AccountBridgeBoardMode) {
         boards = boards.map { board in
             guard board.deviceAddress == mode.deviceAddress else { return board }
@@ -164,32 +245,96 @@ final class AccountViewController: UIViewController {
     }
 
     @objc private func handleRefresh() {
-        firmwareFileNames = firmwareUpdateController.availableFirmwareFileNames()
+        refreshFirmwareCatalog()
         reloadAccount()
     }
 
     private func reloadAccount() {
-        if profile == nil {
-            activityIndicator.startAnimating()
+        stopAccountLoading()
+        accountSerialNumber = ""
+        view.accessibilityValue = nil
+        profile = nil
+        activityIndicator.startAnimating()
+        applyBoards(AccountBridge.shared.currentBoards())
+
+        let observationID = serialObservationID
+        serialNumberJob = AccountSerialNumberBridge.shared.observe(
+            lang: currentLanguageCode(),
+            request: { data in
+                let gatt = SampleGattAttributes()
+                BLEComponents.shared.bleManager.sendBytesKmm(
+                    data: data,
+                    command: gatt.SERIALPORTCHAR_UUID,
+                    typeCommand: gatt.WRITE,
+                    onChunkSent: {}
+                )
+            }
+        ) { [weak self] state in
+            DispatchQueue.main.async {
+                guard let self, self.serialObservationID == observationID else { return }
+                self.applySerialNumber(state)
+            }
+        }
+    }
+
+    private func stopAccountLoading() {
+        // Invalidate callbacks already queued on the main queue before cancelling their jobs.
+        serialObservationID = UUID()
+        accountLoadID = UUID()
+        serialNumberJob?.cancel(cause: nil)
+        serialNumberJob = nil
+        loadJob?.cancel(cause: nil)
+        loadJob = nil
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+    }
+
+    private func applySerialNumber(_ state: AccountSerialNumberState) {
+        guard !state.serialNumber.isEmpty else {
+            accountLoadID = UUID()
+            loadJob?.cancel(cause: nil)
+            loadJob = nil
+            accountSerialNumber = ""
+            view.accessibilityValue = nil
+            profile = nil
+            renderContent()
+            if state.isLoading {
+                activityIndicator.startAnimating()
+            } else {
+                activityIndicator.stopAnimating()
+                refreshControl.endRefreshing()
+            }
+            if isAccountVisible, !state.errorMessage.isEmpty {
+                showToast(state.errorMessage)
+            }
+            return
         }
 
-        boards = AccountBridge.shared.currentBoards()
-        renderContent()
-
+        guard state.serialNumber != accountSerialNumber else { return }
+        accountLoadID = UUID()
         loadJob?.cancel(cause: nil)
+        accountSerialNumber = state.serialNumber
+        view.accessibilityValue = accountSerialNumber
+        profile = nil
+        renderContent()
+        activityIndicator.startAnimating()
+
+        let serialNumber = accountSerialNumber
+        let loadID = accountLoadID
         loadJob = AccountBridge.shared.loadAccount(
-            serialNumber: currentSerialNumber(),
+            serialNumber: serialNumber,
             lang: currentLanguageCode()
         ) { [weak self] result in
             DispatchQueue.main.async {
-                self?.activityIndicator.stopAnimating()
-                self?.refreshControl.endRefreshing()
-                if let loadedProfile = result.profile {
-                    self?.profile = loadedProfile
-                    self?.renderContent()
-                }
-                if !result.isSuccess, !result.errorMessage.isEmpty {
-                    self?.showToast(result.errorMessage)
+                guard let self, self.accountLoadID == loadID,
+                      self.accountSerialNumber == serialNumber else { return }
+                self.loadJob = nil
+                self.activityIndicator.stopAnimating()
+                self.refreshControl.endRefreshing()
+                self.profile = result.profile
+                self.renderContent()
+                if self.isAccountVisible, !result.isSuccess, !result.errorMessage.isEmpty {
+                    self.showToast(result.errorMessage)
                 }
             }
         }
@@ -304,12 +449,13 @@ final class AccountViewController: UIViewController {
             section.addRow(
                 AccountBoardRow(
                     board: board,
-                    firmwareFileNames: firmwareFileNames,
+                    highlight: firmwareUpdateController.isUpdateAvailable(for: board),
+                    showUpdate: UserFirmwareRoleAccess.canUpdateFirmware,
                     textColor: textColor,
                     inactiveTextColor: inactiveTextColor,
                     activeColor: activeColor
                 ) { [weak self] in
-                    guard let self else { return }
+                    guard let self, UserFirmwareRoleAccess.canUpdateFirmware else { return }
                     self.firmwareUpdateController.showFirmwarePicker(for: board) { [weak self] in
                         self?.handleRefresh()
                     }
@@ -328,9 +474,7 @@ final class AccountViewController: UIViewController {
     }
 
     private func currentSerialNumber() -> String {
-//        let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
-//        return DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
-        return "FEST-F-06879"
+        accountSerialNumber
     }
 
     private func currentLanguageCode() -> String {
@@ -905,7 +1049,8 @@ private final class AccountDetailRow: UIView {
 private final class AccountBoardRow: UIView {
     init(
         board: AccountBridgeBoard,
-        firmwareFileNames: [String],
+        highlight: Bool,
+        showUpdate: Bool,
         textColor: UIColor,
         inactiveTextColor: UIColor,
         activeColor: UIColor,
@@ -914,7 +1059,8 @@ private final class AccountBoardRow: UIView {
         super.init(frame: .zero)
         setup(
             board: board,
-            firmwareFileNames: firmwareFileNames,
+            highlight: highlight,
+            showUpdate: showUpdate,
             textColor: textColor,
             inactiveTextColor: inactiveTextColor,
             activeColor: activeColor,
@@ -929,7 +1075,8 @@ private final class AccountBoardRow: UIView {
 
     private func setup(
         board: AccountBridgeBoard,
-        firmwareFileNames: [String],
+        highlight: Bool,
+        showUpdate: Bool,
         textColor: UIColor,
         inactiveTextColor: UIColor,
         activeColor: UIColor,
@@ -954,7 +1101,6 @@ private final class AccountBoardRow: UIView {
         versionLabel.font = .accountOpenSansSemibold(size: 12)
         versionLabel.textColor = textColor
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(versionLabel)
 
         let bootloaderLabel = UILabel()
         bootloaderLabel.text = "▷"
@@ -964,37 +1110,32 @@ private final class AccountBoardRow: UIView {
         bootloaderLabel.textColor = textColor
         bootloaderLabel.isHidden = !board.isInBootloader
         bootloaderLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(bootloaderLabel)
 
         let updateButton = UIButton(type: .system)
         updateButton.setTitle(SharedLocalizedText.text(SharedRes.strings().update_firmware), for: .normal)
         updateButton.accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardUpdateButtonPrefix).\(boardKey)"
         updateButton.titleLabel?.font = .accountOpenSansSemibold(size: 12)
-        let highlight = FirmwareVersionCatalog.shared.shouldHighlightUpdate(
-            boardName: board.boardName,
-            deviceVersion: board.version,
-            fileNames: firmwareFileNames
-        )
+        let canUpdate = board.canUpdate && showUpdate
         updateButton.setTitleColor(board.canUpdate ? (highlight ? activeColor : textColor) : inactiveTextColor, for: .normal)
-        updateButton.accessibilityValue = "board=\(board.boardName);version=\(board.version);updateAvailable=\(highlight);enabled=\(board.canUpdate)"
-        updateButton.isEnabled = board.canUpdate
+        updateButton.accessibilityValue = "board=\(board.boardName);version=\(board.version);updateAvailable=\(highlight);enabled=\(canUpdate)"
+        updateButton.isHidden = !showUpdate
+        updateButton.isEnabled = canUpdate
         updateButton.addAction(UIAction { _ in updateAction() }, for: .touchUpInside)
         updateButton.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(updateButton)
+
+        let trailingStack = UIStackView(arrangedSubviews: [versionLabel, bootloaderLabel, updateButton])
+        trailingStack.axis = .horizontal
+        trailingStack.alignment = .center
+        trailingStack.spacing = 12
+        trailingStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(trailingStack)
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: versionLabel.leadingAnchor, constant: -12),
-
-            updateButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            updateButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            bootloaderLabel.trailingAnchor.constraint(equalTo: updateButton.leadingAnchor, constant: -12),
-            bootloaderLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-
-            versionLabel.trailingAnchor.constraint(equalTo: bootloaderLabel.leadingAnchor, constant: -12),
-            versionLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingStack.leadingAnchor, constant: -12),
+            trailingStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            trailingStack.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 }

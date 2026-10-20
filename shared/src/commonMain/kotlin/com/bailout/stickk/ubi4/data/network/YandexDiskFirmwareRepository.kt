@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.network
 
 import com.bailout.stickk.ubi4.firmware.FirmwareBoardFamily
+import com.bailout.stickk.ubi4.firmware.FirmwareVersionCatalog
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -11,20 +12,13 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-data class RemoteFirmwareFile(
-    val family: FirmwareBoardFamily,
-    val name: String,
-    val path: String,
-    val size: Long
-)
-
 class YandexDiskFirmwareRepository(
     private val client: HttpClient = PlatformClientProvider.firmwareClient,
     private val publicUrl: String = PUBLIC_FIRMWARE_URL,
     private val apiBaseUrl: String = YANDEX_API_BASE_URL
-) {
+) : FirmwareRepository {
     /** Fetch a manifest or an exact archive path; no catalog/latest-file substitution. */
-    suspend fun readPublicFile(path: String): ByteArray =
+    override suspend fun readPublicFile(path: String): ByteArray =
         requestImmediately("Firmware resource download failed") {
             // A downloader URL can be pinned to one unavailable CDN endpoint.
             // Obtain a fresh URL together with every immediate retry.
@@ -34,12 +28,12 @@ class YandexDiskFirmwareRepository(
             response.body<ByteArray>()
         }
 
-    suspend fun loadCatalog(): List<RemoteFirmwareFile> =
+    override suspend fun loadCatalog(): List<RemoteFirmwareFile> =
         FirmwareBoardFamily.entries
             .filterNot { it == FirmwareBoardFamily.UNKNOWN }
             .flatMap { family -> loadFolder(family) }
 
-    suspend fun download(file: RemoteFirmwareFile, cacheDirectory: SharedFile): SharedFile {
+    override suspend fun download(file: RemoteFirmwareFile, cacheDirectory: SharedFile): SharedFile {
         val bytes = readPublicFile(file.path)
         if (file.size > 0L && bytes.size.toLong() != file.size) {
             throw IOException("Downloaded firmware size does not match catalog metadata")
@@ -76,7 +70,8 @@ class YandexDiskFirmwareRepository(
                     family = family,
                     name = item.name,
                     path = item.path,
-                    size = item.size
+                    size = item.size,
+                    version = FirmwareVersionCatalog.parseVersionFromFileName(item.name).orEmpty()
                 )
             }
             .toList()

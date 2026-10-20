@@ -68,6 +68,26 @@ class FirmwareBoardFamilyTest {
     }
 
     @Test
+    fun `remote update availability uses FW ini versions instead of archive names`() {
+        val versionsFromDescriptors = listOf("0.2.3")
+
+        assertFalse(
+            FirmwareCompatibility.isUpdateAvailableFromVersions(
+                deviceAddress = 0x00,
+                installedVersion = "0.2.3",
+                availableVersions = versionsFromDescriptors
+            )
+        )
+        assertTrue(
+            FirmwareCompatibility.isUpdateAvailableFromVersions(
+                deviceAddress = 0x00,
+                installedVersion = "0.2.2",
+                availableVersions = versionsFromDescriptors
+            )
+        )
+    }
+
+    @Test
     fun `zero firmware versions are recognized as unavailable boards`() {
         assertTrue(FirmwareVersionCatalog.isZeroVersion("0.0.0"))
         assertTrue(FirmwareVersionCatalog.isZeroVersion("0.0.0.0"))

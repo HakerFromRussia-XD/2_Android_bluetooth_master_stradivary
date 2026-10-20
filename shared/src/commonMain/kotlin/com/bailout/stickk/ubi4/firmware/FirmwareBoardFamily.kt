@@ -81,6 +81,27 @@ object FirmwareCompatibility {
         )
     }
 
+    fun isUpdateAvailableFromVersions(
+        deviceAddress: Int,
+        installedVersion: String?,
+        availableVersions: List<String>
+    ): Boolean {
+        val newest = availableVersions
+            .filter(String::isNotBlank)
+            .fold(null as String?) { current, candidate ->
+                if (current == null || FirmwareVersionCatalog.isLocalVersionNewer(current, candidate)) {
+                    candidate
+                } else {
+                    current
+                }
+            }
+            ?: return false
+        return FirmwareVersionCatalog.isLocalVersionNewer(
+            deviceVersion = normalizeInstalledVersion(deviceAddress, installedVersion),
+            localVersion = newest
+        )
+    }
+
     private fun parseBldcMetadata(fileName: String): FirmwareArtifactMetadata? {
         val baseName = fileName.substringAfterLast('/').removeZipExtension()
         val markerIndex = maxOf(

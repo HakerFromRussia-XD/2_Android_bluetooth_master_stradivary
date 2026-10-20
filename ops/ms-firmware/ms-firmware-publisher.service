@@ -1,0 +1,25 @@
+[Unit]
+Description=MS Firmware Publisher
+After=network.target
+
+[Service]
+Type=simple
+User=ms-publisher
+Group=ms-firmware
+WorkingDirectory=/usr/local/lib/ms-firmware
+ExecStart=/usr/bin/python3 /usr/local/lib/ms-firmware/publisher_web.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/ms-firmware
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=64M
+CPUQuota=20%
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

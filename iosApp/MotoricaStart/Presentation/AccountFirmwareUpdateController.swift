@@ -9,61 +9,139 @@ final class AccountFirmwareUpdateController {
     )
     private var updateJob: Kotlinx_coroutines_coreJob?
     private var stalledProgressWorkItem: DispatchWorkItem?
+    private let catalog = AccountFirmwareCatalogBridge()
+    private var catalogJob: Kotlinx_coroutines_coreJob?
+    private var catalogRequestID: UUID?
+    private var catalogCallbacks: [() -> Void] = []
+    private var downloadJob: Kotlinx_coroutines_coreJob?
+    private var pickerID: UUID?
 
     init(presentingViewController: UIViewController) {
         self.presentingViewController = presentingViewController
     }
 
     deinit {
+        catalogJob?.cancel(cause: nil)
+        downloadJob?.cancel(cause: nil)
         updateJob?.cancel(cause: nil)
         stalledProgressWorkItem?.cancel()
     }
 
-    func availableFirmwareFiles() -> [AccountFirmwareFile] {
-        var files: [AccountFirmwareFile] = []
-        let bundleFiles = Bundle.main.urls(forResourcesWithExtension: "zip", subdirectory: nil) ?? []
-        files += bundleFiles.map {
-            AccountFirmwareFile(name: $0.lastPathComponent, url: $0, isDeletable: false)
-        }
-
-        FirmwareDocumentsDirectory.prepareSharedFolder()
-        files += FirmwareDocumentsDirectory.firmwareFiles()
-
-        return files
-            .reduce(into: [String: AccountFirmwareFile]()) { partial, file in
-                let key = file.name.lowercased()
-                if file.isDeletable || partial[key] == nil {
-                    partial[key] = file
-                }
+    func refreshCatalog(onUpdated: @escaping () -> Void) {
+        catalogCallbacks.append(onUpdated)
+        guard catalogRequestID == nil else { return }
+        let requestID = UUID()
+        catalogRequestID = requestID
+        catalogJob = catalog.refresh { [weak self] _ in
+            DispatchQueue.main.async {
+                guard let self, self.catalogRequestID == requestID else { return }
+                self.catalogRequestID = nil
+                self.catalogJob = nil
+                let callbacks = self.catalogCallbacks
+                self.catalogCallbacks.removeAll()
+                callbacks.forEach { $0() }
             }
-            .values
-            .sorted { $0.name.lowercased() < $1.name.lowercased() }
+        }
     }
 
-    func availableFirmwareFileNames() -> [String] {
-        availableFirmwareFiles().map(\.name)
+    func isUpdateAvailable(for board: AccountBridgeBoard) -> Bool {
+        catalog.isUpdateAvailable(address: board.deviceAddress, version: board.version)
     }
 
     func showFirmwarePicker(for board: AccountBridgeBoard, onFinished: @escaping () -> Void) {
+        guard UserFirmwareRoleAccess.canUpdateFirmware, pickerID == nil, updateJob == nil else { return }
+        let requestID = UUID()
+        pickerID = requestID
+        let files = remoteFiles(for: board)
         dialogPresenter.showFirmwareFiles(
-            files: availableFirmwareFiles(),
+            files: files,
             onSelect: { [weak self] file in
-                self?.confirmAndRunUpdate(board: board, file: file, onFinished: onFinished)
+                guard let self, let remoteFile = file.remoteFile,
+                      self.pickerID == requestID, UserFirmwareRoleAccess.canUpdateFirmware else { return }
+                self.downloadSelectedFile(remoteFile, board: board, pickerID: requestID, onFinished: onFinished)
             },
-            onDelete: { file in
-                guard file.isDeletable else { return }
-                try? FileManager.default.removeItem(at: file.url)
+            onDelete: { _ in },
+            onCancel: { [weak self] in
+                self?.cancelSelection()
             }
         )
+        if catalog.isLoaded() {
+            dialogPresenter.setFirmwareFilesLoading(false, message: files.isEmpty ? FirmwareLocalizedText.noFirmwareFilesMessage : nil)
+            return
+        }
+        dialogPresenter.setFirmwareFilesLoading(true, message: FirmwareLocalizedText.catalogLoadingMessage)
+        refreshCatalog { [weak self] in
+            guard let self, self.pickerID == requestID else { return }
+            let files = self.remoteFiles(for: board)
+            self.dialogPresenter.updateFirmwareFiles(files)
+            let message = self.catalog.isLoaded()
+                ? (files.isEmpty ? FirmwareLocalizedText.noFirmwareFilesMessage : nil)
+                : FirmwareLocalizedText.catalogLoadFailedMessage
+            self.dialogPresenter.setFirmwareFilesLoading(false, message: message)
+        }
     }
 
-    private func confirmAndRunUpdate(
+    func cancelPendingDownloads() {
+        catalogRequestID = nil
+        catalogJob?.cancel(cause: nil)
+        catalogJob = nil
+        catalogCallbacks.removeAll()
+        let hadPicker = pickerID != nil
+        cancelSelection()
+        if hadPicker {
+            dialogPresenter.dismissCurrent(animated: false)
+        }
+    }
+
+    private func cancelSelection() {
+        pickerID = nil
+        downloadJob?.cancel(cause: nil)
+        downloadJob = nil
+    }
+
+    private func remoteFiles(for board: AccountBridgeBoard) -> [AccountFirmwareFile] {
+        catalog.filesForBoard(address: board.deviceAddress).map { AccountFirmwareFile(remoteFile: $0) }
+    }
+
+    private func downloadSelectedFile(
+        _ file: RemoteFirmwareFile,
         board: AccountBridgeBoard,
-        file: AccountFirmwareFile,
+        pickerID requestID: UUID,
         onFinished: @escaping () -> Void
     ) {
-        dialogPresenter.showConfirmSendFirmwareFile { [weak self] in
-            self?.runUpdate(board: board, file: file, onFinished: onFinished)
+        guard downloadJob == nil else { return }
+        guard let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            dialogPresenter.setFirmwareFilesLoading(false, message: FirmwareLocalizedText.archiveDownloadFailedMessage)
+            return
+        }
+        dialogPresenter.setFirmwareFilesLoading(
+            true,
+            message: "\(FirmwareLocalizedText.archiveDownloadingMessage)\n\(file.name)"
+        )
+        // Only the explicitly selected catalog entry is downloaded.
+        downloadJob = catalog.download(file: file, cachePath: cacheURL.path) { [weak self] path in
+            DispatchQueue.main.async {
+                guard let self, self.pickerID == requestID,
+                      UserFirmwareRoleAccess.canUpdateFirmware else { return }
+                self.downloadJob = nil
+                guard let path else {
+                    self.dialogPresenter.setFirmwareFilesLoading(
+                        false,
+                        message: "\(file.name)\n\(FirmwareLocalizedText.archiveDownloadFailedMessage)"
+                    )
+                    return
+                }
+                let downloadedFile = AccountFirmwareFile(name: file.name, url: URL(fileURLWithPath: path), isDeletable: false)
+                self.dialogPresenter.showConfirmSendFirmwareFile(
+                    onConfirm: { [weak self] in
+                        guard let self, self.pickerID == requestID,
+                              UserFirmwareRoleAccess.canUpdateFirmware else { return }
+                        self.pickerID = nil
+                        self.runUpdate(board: board, file: downloadedFile, onFinished: onFinished)
+                    },
+                    onCancel: { [weak self] in self?.cancelSelection() }
+                )
+            }
         }
     }
 
@@ -72,8 +150,9 @@ final class AccountFirmwareUpdateController {
         file: AccountFirmwareFile,
         onFinished: @escaping () -> Void
     ) {
+        guard let fileURL = file.url else { return }
         do {
-            let archive = try FirmwareArchiveReader.readArchive(at: file.url)
+            let archive = try FirmwareArchiveReader.readArchive(at: fileURL)
             let progressDialog = dialogPresenter.showProgress()
             scheduleStalledProgressWarning()
 
@@ -92,6 +171,7 @@ final class AccountFirmwareUpdateController {
                         return
                     }
 
+                    self.updateJob = nil
                     self.stalledProgressWorkItem?.cancel()
                     self.dialogPresenter.dismissCurrent(animated: true) {
                         if event.isSuccess {

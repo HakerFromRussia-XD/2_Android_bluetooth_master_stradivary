@@ -138,7 +138,8 @@ class YandexDiskFirmwareRepositoryTest {
                 family = FirmwareBoardFamily.GUI,
                 name = "GUI_v0.4.6.zip",
                 path = "disk:/firmware/GUI/GUI_v0.4.6.zip",
-                size = firmwareBytes.size.toLong()
+                size = firmwareBytes.size.toLong(),
+                version = "0.4.6"
             ),
             cacheDirectory = sharedFile(cacheDirectory.absolutePath)
         )

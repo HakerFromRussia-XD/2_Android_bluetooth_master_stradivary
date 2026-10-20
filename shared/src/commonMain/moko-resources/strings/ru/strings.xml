@@ -803,6 +803,9 @@
 <string name="plot_array_flow_collect_error">Ошибка plotArrayFlowCollect</string>
 <string name="no_user_data_on_server">Нет данных пользователя на сервере</string>
 <string name="select_firmware_file">Выберите файл прошивки</string>
+<string name="firmware_catalog_loading">Загрузка списка прошивок…</string>
+<string name="firmware_catalog_empty">Для этой платы нет доступных файлов прошивок.</string>
+<string name="firmware_archive_download_failed">Не удалось скачать архив. Повторите попытку или выберите другую прошивку.</string>
 <string name="update_firmware">Обновить</string>
 <string name="update_board" formatted="true">Обновить %1$s</string>
 <string name="unknown_board">Неизвестно</string>

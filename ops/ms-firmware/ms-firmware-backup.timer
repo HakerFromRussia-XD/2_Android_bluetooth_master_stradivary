@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily MS firmware backup
+
+[Timer]
+OnCalendar=*-*-* 04:05:00
+Persistent=true
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target

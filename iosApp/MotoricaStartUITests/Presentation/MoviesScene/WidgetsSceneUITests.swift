@@ -143,6 +143,129 @@ class WidgetsSceneUITests: XCTestCase {
         )
     }
 
+    func testAccountRealDevice_whenSerialIsFestHM13261_thenLeftDetailsLoad() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+
+        func capture(_ stage: String) {
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "account-real-device-\(stage)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            let hierarchy = XCTAttachment(
+                data: Data(app.debugDescription.utf8),
+                uniformTypeIdentifier: "public.plain-text"
+            )
+            hierarchy.name = "account-real-device-\(stage)-hierarchy"
+            hierarchy.lifetime = .keepAlways
+            add(hierarchy)
+        }
+
+        func waitUntil(timeout: TimeInterval, _ condition: @escaping () -> Bool) -> Bool {
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in condition() },
+                object: nil
+            )
+            return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+        }
+
+        func require(_ condition: Bool, _ message: String, stage: String) -> Bool {
+            guard condition else {
+                capture("failed-\(stage)")
+                XCTFail(message)
+                return false
+            }
+            return true
+        }
+
+        app.launch()
+        capture("launched")
+        let mainRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        guard require(
+            waitUntil(timeout: 20) { mainRoot.exists || devicesTable.exists },
+            "Neither the connected main screen nor the real BLE scan appeared",
+            stage: "connection-screen"
+        ) else { return }
+
+        if !mainRoot.exists {
+            guard let device = waitForDeviceElement(
+                namedAnyOf: ["FTHS3-00001", "00001", "FEST-HM-13261"],
+                in: devicesTable,
+                timeout: 45
+            ) else {
+                capture("failed-target-not-found")
+                XCTFail("Real target prosthesis FTHS3-00001 / 00001 / FEST-HM-13261 was not found")
+                return
+            }
+            device.tap()
+            guard require(
+                mainRoot.waitForExistence(timeout: 30),
+                "The main screen did not open after connecting to the real target prosthesis",
+                stage: "connection"
+            ) else { return }
+        }
+        capture("connected")
+
+        let accountButton = app.buttons[AccessibilityIdentifier.statusBarAccountButton]
+        guard require(
+            waitUntil(timeout: 15) { accountButton.exists && accountButton.isHittable },
+            "The account button is unavailable on the connected main screen",
+            stage: "account-button"
+        ) else { return }
+        accountButton.tap()
+
+        let accountRoot = app.otherElements[AccessibilityIdentifier.accountRoot]
+        guard require(
+            accountRoot.waitForExistence(timeout: 10),
+            "The account screen did not open",
+            stage: "account-root"
+        ) else { return }
+        guard require(
+            waitUntil(timeout: 30) {
+                (accountRoot.value as? String) == "FEST-HM-13261" &&
+                    !app.activityIndicators.allElementsBoundByIndex.contains { $0.exists && $0.isHittable }
+            },
+            "Account data did not finish loading with fresh BLE serial FEST-HM-13261",
+            stage: "account-loaded"
+        ) else { return }
+        XCTAssertEqual(accountRoot.value as? String, "FEST-HM-13261")
+        capture("account-loaded")
+
+        let informationRow = app.staticTexts["Prosthesis information"]
+        guard require(
+            informationRow.exists && informationRow.isHittable,
+            "The Prosthesis information row is unavailable",
+            stage: "information-row"
+        ) else { return }
+        informationRow.tap()
+
+        let modelTitle = app.staticTexts["Prosthesis model"]
+        let sizeTitle = app.staticTexts["Prosthesis size"]
+        let leftSide = app.staticTexts.matching(NSPredicate(format: "label == %@", "Left")).firstMatch
+        guard require(
+            waitUntil(timeout: 30) {
+                modelTitle.exists && sizeTitle.exists && leftSide.exists && leftSide.isHittable
+            },
+            "Real server details did not show Left for FEST-HM-13261",
+            stage: "left-details"
+        ) else { return }
+
+        let modelValue = app.staticTexts.allElementsBoundByIndex.first { element in
+            let text = element.label.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !["", "-", "null", "No data"].contains(text) &&
+                element.frame.minY >= modelTitle.frame.maxY - 1 &&
+                element.frame.maxY <= sizeTitle.frame.minY + 1
+        }
+        guard require(
+            modelValue != nil,
+            "The prosthesis model value is missing or a placeholder",
+            stage: "model-value"
+        ) else { return }
+        XCTAssertEqual(leftSide.label, "Left")
+        capture("left-details-success")
+    }
+
     func testMergedScanRealDevice_whenTapFestH04921_thenLegacyFlowOpens() {
         let app = XCUIApplication()
         app.launch()

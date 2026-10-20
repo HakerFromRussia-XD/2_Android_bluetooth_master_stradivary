@@ -1,0 +1,26 @@
+[Unit]
+Description=MS Firmware Web File Manager
+After=network.target
+
+[Service]
+Type=simple
+User=ms-upload
+Group=ms-staging
+WorkingDirectory=/srv/ms-firmware/staging
+Environment=SFTPGO_HTTPD__BINDINGS__0__ADDRESS=127.0.0.1
+ExecStart=/usr/bin/sftpgo portable -c /usr/share/sftpgo --directory /srv/ms-firmware/staging --username ms-firmware --password-file /etc/ms-firmware/webclient.password --permissions=* --httpd-port 8090 --sftpd-port -1 --ftpd-port -1 --webdav-port -1 --log-level info
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/ms-firmware/staging
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+CPUQuota=20%
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

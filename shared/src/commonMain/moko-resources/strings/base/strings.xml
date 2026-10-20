@@ -802,6 +802,9 @@
     <string name="plot_array_flow_collect_error">ERROR plotArrayFlowCollect</string>
     <string name="no_user_data_on_server">No user data on server</string>
     <string name="select_firmware_file">Select firmware file</string>
+    <string name="firmware_catalog_loading">Loading firmware list…</string>
+    <string name="firmware_catalog_empty">No firmware files are available for this board.</string>
+    <string name="firmware_archive_download_failed">Could not download the archive. Try again or select another firmware file.</string>
     <string name="update_firmware">Update</string>
     <string name="update_board" formatted="true">Update %1$s</string>
     <string name="unknown_board">Unknown</string>

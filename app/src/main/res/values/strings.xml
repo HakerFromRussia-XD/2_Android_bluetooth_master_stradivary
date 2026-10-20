@@ -701,6 +701,7 @@
     <string name="firmware_catalog_unavailable">Firmware data is unavailable</string>
     <string name="firmware_not_found_for_board">No firmware found for this board</string>
     <string name="firmware_downloading">Downloading firmware…</string>
+    <string name="firmware_download_failed">Could not download %1$s. Try again or select another firmware file.</string>
     <string name="update_board" formatted="true">Update %1$s</string>
     <string name="unknown_board">Unknown</string>
 

@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/dark_orange</item>
+        <item name="android:progressBarStyleHorizontal">@style/MotoricaHorizontalProgressBar</item>
     </style>
 
     <style name="MyDarkToolbarStyle" parent="ThemeOverlay.AppCompat.Light">

@@ -107,7 +107,15 @@ expect suspend fun writeFirmwareJournal(path: String, text: String)
 @Serializable
 data class UserFirmwareTarget(val module: AssemblyModule, val version: UserFirmwareVersion, val path: String)
 
-data class UserFirmwareBoard(val address: Int, val version: UserFirmwareVersion?, val isMain: Boolean)
+data class UserFirmwareBoard(
+    val address: Int,
+    val version: UserFirmwareVersion?,
+    val isMain: Boolean,
+    val deviceCode: Int
+) {
+    val isConfirmed: Boolean
+        get() = deviceCode > 0 && version != null && version != UserFirmwareVersion(0, 0, 0)
+}
 
 @Serializable
 data class UserFirmwareJournal(
@@ -120,7 +128,7 @@ data class UserFirmwareJournal(
 
 object UserFirmwarePolicy {
     fun queue(boards: List<UserFirmwareBoard>, targets: List<UserFirmwareTarget>): List<UserFirmwareTarget> {
-        val present = boards.associateBy { it.address }
+        val present = boards.filter { it.isConfirmed }.associateBy { it.address }
         return targets.filter { target ->
             val board = present[target.module.address] ?: return@filter false
             val installed = requireNotNull(board.version) { "Unknown firmware version at ${board.address}" }
@@ -140,7 +148,7 @@ data class UserFirmwareUiState(
     val progress: Int = 0,
     val detail: String = ""
 ) {
-    val blocksInteraction: Boolean get() = phase in setOf("offered", "preparing", "updating", "verifying", "complete")
+    val blocksInteraction: Boolean get() = phase in setOf("offered", "preparing", "updating", "verifying", "waiting", "complete")
 }
 
 object UserFirmwareActivity { var isActive: Boolean = false

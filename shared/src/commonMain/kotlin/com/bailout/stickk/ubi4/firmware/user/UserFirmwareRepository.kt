@@ -15,7 +15,7 @@ class UserFirmwareRepository(
 ) {
     suspend fun targets(boards: List<UserFirmwareBoard>): List<UserFirmwareTarget> {
         val assembly = FirmwareAssembly.parse(disk.readPublicFile("assembly.json").decodeToString())
-        val present = boards.map { it.address }.toSet()
+        val present = boards.filter { it.isConfirmed }.map { it.address }.toSet()
         platformLog("USER_DFU", "assembly modules=${assembly.modules.joinToString { "${it.address}:${it.file}" }} present=$present")
         return assembly.modules.filter { it.address in present }.map { module ->
             val path = "$directory/${module.sha256}.zip"

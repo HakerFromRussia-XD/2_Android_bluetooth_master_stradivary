@@ -1,0 +1,8 @@
+<resources>
+    <style name="MotoricaHorizontalProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
+        <item name="android:indeterminate">false</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:indeterminateDrawable">@null</item>
+        <item name="android:progressDrawable">@drawable/ubi4_progress_bar</item>
+    </style>
+</resources>

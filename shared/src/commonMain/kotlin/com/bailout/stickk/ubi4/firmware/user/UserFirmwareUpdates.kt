@@ -10,7 +10,6 @@ import com.bailout.stickk.ubi4.firmware.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.RunProgramType
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.resume
 
@@ -21,7 +20,7 @@ interface UserFirmwareHost : UserFirmwareArchiveReader {
 /** A single app-owned instance. UI renders it; all sequencing is shared by Android and iOS. */
 class UserFirmwareUpdates(private val directory: String, private val host: UserFirmwareHost) {
     private val scope = MainScope()
-    private val changed = Channel<Unit>(Channel.CONFLATED)
+    private val environmentRevision = MutableStateFlow(0L)
     private val mutableState = MutableStateFlow(UserFirmwareUiState())
     private var userRole = false
     private var deviceId = ""
@@ -35,7 +34,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         scope.launch {
             BLEState.state.collect { state ->
                 if (state != BLEState.State.READY) { hadDisconnect = true; return@collect }
-                changed.trySend(Unit)
+                environmentRevision.update { it + 1 }
                 if (hadDisconnect) {
                     hadDisconnect = false
                     checkIfNeeded()
@@ -44,13 +43,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         }
         scope.launch {
             FirmwareInfoState.boardListUpdatedFlow.collect {
-                if (coordinator?.state?.value?.phase == "verifying") changed.trySend(Unit)
                 if (operation?.isActive != true && coordinator?.state?.value?.blocksInteraction != true) checkIfNeeded()
-            }
-        }
-        scope.launch {
-            FirmwareInfoState.runProgramTypeFlow.collect {
-                if (coordinator?.state?.value?.phase == "verifying") changed.trySend(Unit)
             }
         }
     }
@@ -72,7 +65,7 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
 
     /** Called by network availability and foreground callbacks, never by a retry timer. */
     fun environmentChanged() {
-        changed.trySend(Unit)
+        environmentRevision.update { it + 1 }
         if (operation?.isActive != true && coordinator?.state?.value?.blocksInteraction != true) checkIfNeeded()
     }
 
@@ -141,12 +134,20 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
         override suspend fun validate(target: UserFirmwareTarget) = repository.validate(target)
         override suspend fun probe(address: Int): UserFirmwareBoard {
             ready()
+            val prepared = suspendCancellableCoroutine { continuation ->
+                host.prepareTransfer { if (continuation.isActive) continuation.resume(it) }
+            }
+            check(prepared) { "Firmware transport is not ready" }
             val type = coroutineScope {
                 val response = async(start = CoroutineStart.UNDISPATCHED) {
                     withTimeout(5_000) { FirmwareInfoState.runProgramTypeFlow.first { it.first == address }.second }
                 }
                 PlatformFirmwareCommandSender.send(BLECommandsV3.requestRunProgramTypeFw(address), FirmwareTransportChannel.V3_SERIAL)
                 response.await()
+            }
+            if (type.isBootloader) {
+                platformLog("USER_DFU", "probe bootloader address=$address mode=$type; main board list is not required")
+                return UserFirmwareBoard(address, version = null, isMain = false, deviceCode = 0)
             }
             val board = freshBoards().firstOrNull { it.address == address } ?: error("Board is not responding")
             return board.copy(isMain = type == RunProgramType.MAIN_APP)
@@ -156,14 +157,17 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
                 withTimeout(5_000) {
                     FirmwareInfoState.boardListUpdatedFlow.first()
                     GlobalParameters.baseSubDevicesInfoStructSet.map {
-                        UserFirmwareBoard(it.deviceAddress, UserFirmwareVersion.parse(it.fwVersion), it.isBoot == 0)
+                        UserFirmwareBoard(
+                            it.deviceAddress, UserFirmwareVersion.parse(it.fwVersion), it.isBoot == 0,
+                            deviceCode = it.deviceCode
+                        )
                     }
                 }
             }
             PlatformFirmwareCommandSender.send(BLECommandsV3.requestDeviceData(), FirmwareTransportChannel.V3_SERIAL)
             val result = response.await()
             check(isSameDevice()) { "Device changed during board read" }
-            platformLog("USER_DFU", "boards=${result.joinToString { "${it.address}:${it.version}:${if (it.isMain) "main" else "boot"}" }}")
+            platformLog("USER_DFU", "boards=${result.joinToString { "${it.address}:${it.version}:${if (it.isMain) "main" else "boot"}:code=${it.deviceCode}:confirmed=${it.isConfirmed}" }}")
             result
         }
         override suspend fun transfer(target: UserFirmwareTarget, progress: (Int) -> Unit) {
@@ -194,7 +198,10 @@ class UserFirmwareUpdates(private val directory: String, private val host: UserF
             if (it.exists()) it.readBytes().decodeToString() else null
         }
         override suspend fun writeJournal(text: String) = writeFirmwareJournal(journalPath, text)
-        override suspend fun awaitChange() { changed.receive() }
+        override val changeRevision: Long get() = environmentRevision.value
+        override suspend fun awaitChange(afterRevision: Long) {
+            environmentRevision.first { it > afterRevision && isSameDevice() }
+        }
     }
 }
 

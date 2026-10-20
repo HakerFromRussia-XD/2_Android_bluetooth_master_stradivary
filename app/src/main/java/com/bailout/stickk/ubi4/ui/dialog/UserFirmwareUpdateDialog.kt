@@ -15,6 +15,7 @@ import android.app.Dialog
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
@@ -48,26 +49,20 @@ class UserFirmwareUpdateController(private val activity: MainActivityUBI4) : Use
     }
     private fun render(state: UserFirmwareUiState) {
         val completedNow = state.phase == "complete" && lastState.phase != "complete"
+        val failedNow = state.phase == "unavailable" && lastState.phase in setOf("preparing", "verifying", "updating")
         lastState = state
         activity.getBLEController().setFirmwareUpdateSessionActive(state.blocksInteraction && state.phase !in listOf("offered", "complete"))
         if (completedNow) activity.getBLEController().resumeAfterUserFirmwareUpdate()
         if (state.blocksInteraction) {
             activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             val existing = activity.supportFragmentManager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog
-            // A user update owns one modal from consent until completion.
-            // BLE probes and reconnect callbacks are internal queue work, not
-            // separate user-visible dialogs. Keep displaying the update modal.
-            val displayState = if (state.phase in setOf("preparing", "verifying")) {
-                state.copy(phase = "updating")
-            } else {
-                state
-            }
-            if (existing != null) existing.render(displayState)
+            if (existing != null) existing.render(state)
             else if (!activity.supportFragmentManager.isStateSaved) UserFirmwareUpdateDialog().showNow(activity.supportFragmentManager, TAG)
         } else {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             (activity.supportFragmentManager.findFragmentByTag(TAG) as? UserFirmwareUpdateDialog)?.dismissAllowingStateLoss()
             if (state.phase == "unavailable") Log.w("USER_DFU", state.detail)
+            if (failedNow) Toast.makeText(activity, SharedRes.strings.update_failed.resourceId, Toast.LENGTH_LONG).show()
         }
     }
     fun state() = lastState
@@ -139,6 +134,9 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         val status = when (state.phase) {
             "offered" -> context.getString(SharedRes.strings.user_firmware_offer.resourceId)
             "complete" -> context.getString(SharedRes.strings.user_firmware_complete.resourceId)
+            "preparing" -> context.getString(SharedRes.strings.user_firmware_preparing.resourceId)
+            "verifying" -> context.getString(SharedRes.strings.user_firmware_verifying.resourceId)
+            "waiting" -> context.getString(SharedRes.strings.user_firmware_waiting.resourceId)
             else -> context.getString(SharedRes.strings.user_firmware_updating.resourceId, state.boardNumber, state.boardCount)
         }
         title?.text = if (needsProgressLayout) status else context.getString(
@@ -147,7 +145,8 @@ class UserFirmwareUpdateDialog : DialogFragment() {
         )
         message?.text = status
         progress?.apply {
-            isIndeterminate = state.phase != "updating"
+            isIndeterminate = false
+            visibility = if (state.phase == "updating") View.VISIBLE else View.GONE
             progress = state.progress
         }
         action?.apply {

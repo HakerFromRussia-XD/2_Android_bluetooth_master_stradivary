@@ -63,7 +63,7 @@
             <!-- прогресс вокруг -->
             <ProgressBar
                 android:id="@+id/account_pb"
-                style="@android:attr/progressBarStyleHorizontal"
+                style="@style/MotoricaHorizontalProgressBar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:indeterminate="false"
@@ -124,7 +124,7 @@
             <!-- Круговой прогресс-бар, показывающий уровень заряда -->
             <ProgressBar
                 android:id="@+id/batteryProgressBar"
-                style="@android:attr/progressBarStyleHorizontal"
+                style="@style/MotoricaHorizontalProgressBar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:indeterminate="false"

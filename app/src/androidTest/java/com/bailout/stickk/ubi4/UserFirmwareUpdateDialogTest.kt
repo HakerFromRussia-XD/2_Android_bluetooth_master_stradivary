@@ -2,7 +2,10 @@ package com.bailout.stickk.ubi4
 
 import android.Manifest
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -22,6 +25,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 
 /** Checks actual window layout without connecting to or flashing a device. */
 @RunWith(AndroidJUnit4::class)
@@ -33,6 +37,45 @@ class UserFirmwareUpdateDialogTest {
     )
 
     @After fun tearDown() = V3BleEmulatorTestHooks.disable()
+
+    @Test fun firmwareProgressIsOnlyVisibleDuringTransfer() {
+        V3BleEmulatorTestHooks.reset()
+        V3BleEmulatorTestHooks.enable()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val intent = Intent(context, MainActivityUBI4::class.java).apply {
+            putExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME, "FTHS3-EMU")
+            putExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS, "00:11:22:33:44:55")
+            putExtra(V3BleEmulatorTestHooks.EXTRA_ENABLED, true)
+        }
+        ActivityScenario.launch<MainActivityUBI4>(intent).use { scenario ->
+            lateinit var fragment: UserFirmwareUpdateDialog
+            scenario.onActivity { activity ->
+                fragment = UserFirmwareUpdateDialog()
+                fragment.showNow(activity.supportFragmentManager, "firmware_progress_style_test")
+                val bar = fragment.requireDialog().findViewById<ProgressBar>(R.id.loadingFirmwareProgressBar)
+                for (phase in listOf("preparing", "verifying", "waiting")) {
+                    fragment.render(UserFirmwareUiState(phase = phase, boardNumber = 1, boardCount = 1))
+                    assertEquals(View.GONE, bar.visibility)
+                    assertTrue(!bar.isIndeterminate)
+                }
+            }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()?.let { screenshot ->
+                File(context.cacheDir, "firmware-waiting-no-stripes.png").outputStream().use {
+                    screenshot.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+                screenshot.recycle()
+            }
+            scenario.onActivity {
+                fragment.render(UserFirmwareUiState(phase = "updating", boardNumber = 1, boardCount = 1, progress = 50))
+                val bar = fragment.requireDialog().findViewById<ProgressBar>(R.id.loadingFirmwareProgressBar)
+                assertEquals(View.VISIBLE, bar.visibility)
+                assertEquals(50, bar.progress)
+                assertTrue(!bar.isIndeterminate)
+                fragment.dismissNow()
+            }
+        }
+    }
 
     @Test fun offerAndCompletionHaveVisibleContent() {
         V3BleEmulatorTestHooks.reset()

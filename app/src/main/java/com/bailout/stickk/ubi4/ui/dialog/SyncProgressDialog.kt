@@ -80,8 +80,8 @@ class SyncProgressDialog(
             }
         }
         progressBar?.apply {
-            visibility = if (state.isProgressVisible) View.VISIBLE else View.GONE
-            isIndeterminate = state.isIndeterminate
+            visibility = if (state.isProgressVisible && !state.isIndeterminate) View.VISIBLE else View.GONE
+            isIndeterminate = false
             if (!state.isIndeterminate && Build.VERSION.SDK_INT >= 24) setProgress(state.progress, true)
             else progress = state.progress
         }
@@ -120,7 +120,7 @@ class SyncProgressDialog(
                     // -------- STARTUP MODE --------
                     if (startup) {
                         progressBar?.visibility = View.GONE
-                        progressBar?.isIndeterminate = true
+                        progressBar?.isIndeterminate = false
                         progressBar?.progress = 0
                         return
                     }
@@ -160,7 +160,7 @@ class SyncProgressDialog(
                     progressBar?.visibility = if (total > 0) View.VISIBLE else View.GONE
 
                     if (total <= 0) {
-                        progressBar?.isIndeterminate = true
+                        progressBar?.isIndeterminate = false
                         progressBar?.progress = 0
                         return
                     }

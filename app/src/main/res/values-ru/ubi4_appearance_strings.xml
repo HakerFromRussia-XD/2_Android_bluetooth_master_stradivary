@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ubi4_theme_title">Тема</string>
+    <string name="ubi4_theme_system">Системная</string>
+    <string name="ubi4_theme_light">Светлая</string>
+    <string name="ubi4_theme_dark">Тёмная</string>
+</resources>

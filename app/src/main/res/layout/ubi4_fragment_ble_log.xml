@@ -55,13 +55,12 @@
                 android:textSize="11sp" />
 
             <Switch
+                style="@style/Ubi4Switch"
                 android:id="@+id/graphStreamFilterSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:checked="true"
-                android:thumb="@drawable/switch_le_thumb"
-                android:track="@drawable/ubi4_switch_truck" />
+                android:checked="true" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

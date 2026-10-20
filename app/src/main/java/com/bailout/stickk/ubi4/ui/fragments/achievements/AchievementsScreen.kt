@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -32,13 +33,20 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementI
 import kotlinx.coroutines.delay
 
 internal object AchievementsColors {
-    val Background = Color(0xFF2A2A2A)
-    val Card = Color(0xFF373737)
-    val ProgressTrack = Color(0xFF242424)
-    val Border = Color(0xFF444444)
-    val White = Color(0xFFFCFCFC)
-    val Accent = Color(0xFFC6F158)
-    val SystemBlue = Color(0xFF0A84FF)
+    val Background: Color
+        @Composable get() = colorResource(R.color.ubi4_back)
+    val Card: Color
+        @Composable get() = colorResource(R.color.ubi4_gray)
+    val ProgressTrack: Color
+        @Composable get() = colorResource(R.color.ubi4_progress_track)
+    val Border: Color
+        @Composable get() = colorResource(R.color.ubi4_gray_border)
+    val White: Color
+        @Composable get() = colorResource(R.color.ubi4_white)
+    val Accent: Color
+        @Composable get() = colorResource(R.color.ubi4_active)
+    val SystemBlue: Color
+        @Composable get() = colorResource(R.color.ubi4_yes_system_blue)
     val Bronze = Color(0xFFCD7F32)
     val Silver = Color(0xFFC0C0C0)
     val Gold = Color(0xFFFFD700)

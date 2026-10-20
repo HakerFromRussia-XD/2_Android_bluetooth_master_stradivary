@@ -9,6 +9,7 @@
     tools:layout_editor_absoluteY="-2dp">
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/widgetTextInputRoot"
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -17,7 +18,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/ubi4_view_with_corners_back_outside"
-        android:elevation="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,6 +31,7 @@
         app:layout_constraintGuide_percent="0.62" />
 
     <EditText
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/widgetInputEt"
         android:layout_width="0dp"
         android:layout_height="40dp"
@@ -59,6 +60,7 @@
         app:layout_constraintTop_toTopOf="@id/widgetTextInputRoot" />
 
     <View
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/widgetInputUnderline"
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -71,6 +73,7 @@
         app:layout_constraintStart_toStartOf="@id/widgetTextInputRoot" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/sendBtnContainer"
         android:layout_width="0dp"
         android:layout_height="40dp"
@@ -88,7 +91,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/sf_pro_display_light"
             android:text="@string/send"
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

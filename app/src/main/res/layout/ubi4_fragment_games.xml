@@ -81,24 +81,25 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <View
+                    style="@style/Ubi4Surface"
                     android:id="@+id/gameActionBackground"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="@drawable/ubi4_view_with_corners_back_outside"
-                    android:elevation="3dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/gameActionTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:elevation="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="@string/install_game"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -106,6 +107,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/gameActionBtn"
                     android:layout_width="0dp"
                     android:layout_height="0dp"

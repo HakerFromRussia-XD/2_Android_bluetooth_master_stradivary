@@ -7,12 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnNextLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.di.ThemeDependencies
+import com.bailout.stickk.ubi4.domain.theme.AppThemeMode
+import com.bailout.stickk.ubi4.ui.theme.AppThemeModeApplier
+import com.bailout.stickk.ubi4.ui.theme.ThemeSettingsAction
+import com.bailout.stickk.ubi4.ui.theme.ThemeSettingsViewModel
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
 import com.bailout.stickk.ubi4.versions.v3.presentation.autologin.AutoLoginDelegateAdapterV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderDelegateAdapterV3
@@ -42,6 +48,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
+    private val themeSettingsViewModel by lazy {
+        ViewModelProvider(this, ThemeDependencies.viewModelFactory(requireContext()))[ThemeSettingsViewModel::class.java]
+    }
+    private var themeDialog: AlertDialog? = null
     private val v3SpinnerParameterKeys = V3SpecialSettingsViewModel.spinnerParameterKeys
     private val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
     private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
@@ -132,6 +142,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         renderedV3Widgets = null
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
+        bindAppearanceSettings()
         bindV3SpecialSettings()
         if (v3SpecialSettingsViewModel == null) {
             isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
@@ -154,6 +165,35 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
                 if (_binding != null) updateUI(animateSelector = false)
             }
         }
+    }
+
+    private fun bindAppearanceSettings() {
+        binding.appearanceSettingsRow.setOnClickListener {
+            val modes = AppThemeMode.entries
+            val selectedMode = themeSettingsViewModel.uiState.value.selectedMode
+            themeDialog?.dismiss()
+            themeDialog = AlertDialog.Builder(requireContext())
+                .setTitle(R.string.ubi4_theme_title)
+                .setSingleChoiceItems(modes.map { getString(themeLabel(it)) }.toTypedArray(), modes.indexOf(selectedMode)) { dialog, index ->
+                    dialog.dismiss()
+                    themeSettingsViewModel.onAction(ThemeSettingsAction.ThemeSelected(modes[index]))
+                }
+                .show()
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                themeSettingsViewModel.uiState.collect { state ->
+                    binding.appearanceSelectedTheme.setText(themeLabel(state.selectedMode))
+                    AppThemeModeApplier.apply(state.selectedMode)
+                }
+            }
+        }
+    }
+
+    private fun themeLabel(mode: AppThemeMode): Int = when (mode) {
+        AppThemeMode.SYSTEM -> R.string.ubi4_theme_system
+        AppThemeMode.LIGHT -> R.string.ubi4_theme_light
+        AppThemeMode.DARK -> R.string.ubi4_theme_dark
     }
 
     private fun bindV3SpecialSettings() {
@@ -286,10 +326,11 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
 
     private fun updateSelectorUI(animate: Boolean = true) {
+        binding.appearanceSettingsRow.visibility = if (isMobileSettings) View.VISIBLE else View.GONE
         val duration = 200L
         val context = context ?: return
-        val selectedColor = context.getColor(R.color.white)
-        val unselectedColor = context.getColor(android.R.color.darker_gray)
+        val selectedColor = context.getColor(R.color.ubi4_text_primary)
+        val unselectedColor = context.getColor(R.color.ubi4_text_muted)
         val leftTargetColor = if (isMobileSettings) unselectedColor else selectedColor
         val rightTargetColor = if (isMobileSettings) selectedColor else unselectedColor
         val containerWidth = binding.settingsSelectorContainer.width
@@ -359,6 +400,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        themeDialog?.dismiss()
+        themeDialog = null
         dismissSettingsProfileNameDialog()
         pendingV3Render?.let { _binding?.settingsRecyclerView?.removeCallbacks(it) }
         pendingV3Render = null

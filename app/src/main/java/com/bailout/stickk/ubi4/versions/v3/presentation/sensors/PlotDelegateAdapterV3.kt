@@ -198,7 +198,7 @@ class PlotDelegateAdapterV3(
         val chart = row.binding.EMGChartLc
         val data = chart.data ?: LineData().also { chart.data = it }
         if (data.getDataSetByIndex(1) == null) {
-            listOf(createSet(), createSet1(chart), createSet2(chart), createSet3(), createSet4(), createSet5(), createSet6(),
+            listOf(createSet(chart), createSet1(chart), createSet2(chart), createSet3(), createSet4(), createSet5(), createSet6(),
                 createBoundsSet(), createBoundsSet()).forEach(data::addDataSet)
         }
         if (data.getDataSetByIndex(1).entryCount > 200) {
@@ -259,13 +259,13 @@ class PlotDelegateAdapterV3(
         else -> "plot-$title"
     }
 
-    private fun createSet(): LineDataSet {
+    private fun createSet(emgChart: LineChart): LineDataSet {
         val set = LineDataSet(null, null)
         set.setDrawCircles(false)
         set.setDrawValues(false)
         set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
         set.lineWidth = 0.1f
-        set.color = Color.WHITE
+        set.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
         set.mode = LineDataSet.Mode.LINEAR
         set.setCircleColor(Color.TRANSPARENT)
         set.circleHoleColor = Color.TRANSPARENT
@@ -443,7 +443,7 @@ class PlotDelegateAdapterV3(
         // =======================================================
 
         val y = emgChart.axisLeft
-        y.textColor = Color.WHITE
+        y.textColor = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
         y.axisMaximum = 281f
         y.axisMinimum = 0f
         y.isGranularityEnabled = true
@@ -453,7 +453,7 @@ class PlotDelegateAdapterV3(
         y.textColor = Color.TRANSPARENT
         y.setDrawGridLines(true)
         y.setDrawAxisLine(false)
-        y.gridColor = Color.WHITE
+        y.gridColor = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
 
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT

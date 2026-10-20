@@ -148,7 +148,7 @@ class SliderDelegateAdapterV3(
         seekBar.isEnabled = enabled
         infoWidget.minusBtnRipple.isClickable = enabled
         infoWidget.plusBtnRipple.isClickable = enabled
-        val colorRes = if (enabled) R.color.ubi4_white else R.color.ubi4_gray_border
+        val colorRes = if (enabled) R.color.ubi4_text_primary else R.color.ubi4_control_disabled_text
         infoWidget.minusBtnTv.setTextColor(context.getColor(colorRes))
         infoWidget.plusBtnTv.setTextColor(context.getColor(colorRes))
     }

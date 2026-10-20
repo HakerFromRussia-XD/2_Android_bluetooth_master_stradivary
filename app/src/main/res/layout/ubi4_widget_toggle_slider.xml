@@ -9,6 +9,7 @@
 
     <!-- Card -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -16,7 +17,6 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/ubi4_view_with_corners_back_inside"
-        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +37,7 @@
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/toggle_slider"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="0"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toStartOf="@id/toggleSliderUnitTv"
                 app:layout_constraintTop_toTopOf="@id/toggleSliderUnitTv"
@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text=""
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="@+id/togglePlusBtnCl1"
                 app:layout_constraintTop_toTopOf="@id/toggleSliderTitleTv" />
@@ -78,17 +78,17 @@
                 app:layout_constraintTop_toTopOf="@id/toggleSliderSb"
                 app:layout_constraintBottom_toBottomOf="@id/toggleSliderSb">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/ubi4_view_with_corners_gray_outside" />
-
                 <ImageView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/toggleTurnOffBtnIv1"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@drawable/ubi4_toggle_power_background"
                     android:elevation="4dp"
+                    android:padding="6dp"
+                    android:scaleType="centerInside"
                     android:src="@drawable/ubi4_turn_off"
+                    android:tint="@color/ubi4_toggle_power_tint"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -96,6 +96,7 @@
                     tools:ignore="ContentDescription" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/toggle_turn_off_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -125,6 +126,7 @@
                     android:background="@drawable/ubi4_view_with_corners_gray_outside" />
 
                 <TextView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/toggleMinusBtnTv1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -132,7 +134,7 @@
                     android:elevation="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="-"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -140,6 +142,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/toggle_minus_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -185,6 +188,7 @@
                     android:background="@drawable/ubi4_view_with_corners_gray_outside" />
 
                 <TextView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/togglePlusBtnTv1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -193,7 +197,7 @@
                     android:elevation="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="+"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -201,6 +205,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/toggle_plus_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -233,7 +238,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="@string/close_sensitivity"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -244,7 +249,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="0"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toStartOf="@id/toggleSliderUnit2Tv"
                     app:layout_constraintTop_toTopOf="@id/toggleSliderUnit2Tv"
@@ -256,7 +261,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text=""
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="@+id/togglePlusBtnCl2"
                     app:layout_constraintTop_toTopOf="@id/toggleSliderTitle2Tv" />
@@ -272,17 +277,17 @@
                     app:layout_constraintTop_toTopOf="@id/toggleSlider2Sb"
                     app:layout_constraintBottom_toBottomOf="@id/toggleSlider2Sb">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/ubi4_view_with_corners_gray_outside" />
-
                     <ImageView
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/toggleTurnOffBtnIv2"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/ubi4_toggle_power_background"
                         android:elevation="4dp"
+                        android:padding="6dp"
+                        android:scaleType="centerInside"
                         android:src="@drawable/ubi4_turn_off"
+                        android:tint="@color/ubi4_toggle_power_tint"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -290,6 +295,7 @@
                         tools:ignore="ContentDescription" />
 
                     <View
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/toggleTurnOffBtnRipple2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -319,6 +325,7 @@
                         android:background="@drawable/ubi4_view_with_corners_gray_outside" />
 
                     <TextView
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/toggleMinusBtnTv2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -326,7 +333,7 @@
                         android:elevation="4dp"
                         android:fontFamily="@font/sf_pro_display_light"
                         android:text="-"
-                        android:textColor="@color/white"
+                        android:textColor="@color/ubi4_text_primary"
                         android:textSize="12sp"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -334,6 +341,7 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                     <View
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/toggleMinusBtnRipple2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -378,6 +386,7 @@
                         android:background="@drawable/ubi4_view_with_corners_gray_outside" />
 
                     <TextView
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/togglePlusBtnTv2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -386,7 +395,7 @@
                         android:elevation="4dp"
                         android:fontFamily="@font/sf_pro_display_light"
                         android:text="+"
-                        android:textColor="@color/white"
+                        android:textColor="@color/ubi4_text_primary"
                         android:textSize="12sp"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -394,6 +403,7 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                     <View
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/togglePlusBtnRipple2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

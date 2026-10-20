@@ -36,7 +36,7 @@
                 android:maxLines="2"
                 android:text="@string/add_gestures_to_the_group"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ubi4_back">#F4F5F2</color>
+    <color name="ubi4_dark_back">#ECEEE8</color>
+    <color name="ubi4_gray">#FFFFFF</color>
+    <color name="ubi4_gray_border">#DDE1D7</color>
+    <color name="ubi4_white">#242722</color>
+    <color name="ubi4_text_primary">#242722</color>
+    <color name="ubi4_deactivate_text">#6B7168</color>
+    <color name="ubi4_text_muted">#6B7168</color>
+    <!-- The brand fill stays #C6F158; small text/icons use a readable companion. -->
+    <color name="ubi4_active_foreground">#526B1F</color>
+    <color name="ubi4_progress_track">#E4E8DE</color>
+    <color name="ubi4_surface_raised">#ECEEE8</color>
+    <color name="ubi4_text_40">#66242722</color>
+    <color name="ubi4_battery_track">#DDE1D7</color>
+    <color name="ubi4_control_disabled_text">@color/ubi4_deactivate_text</color>
+    <color name="ubi4_switch_track_off">#E5E8E3</color>
+    <color name="ubi4_switch_track_border">#BFC7B9</color>
+    <color name="ubi4_switch_thumb_disabled">#A1A7A0</color>
+    <color name="ubi4_open_threshold">#242722</color>
+    <color name="ubi4_close_threshold">#242722</color>
+    <color name="ubi4_yes_system_blue">#0066CC</color>
+    <color name="ubi4_no_system_red">#C62D26</color>
+    <color name="ubi4_no_system_yellow">#9B5800</color>
+    <bool name="ubi4_light_system_bars">true</bool>
+</resources>

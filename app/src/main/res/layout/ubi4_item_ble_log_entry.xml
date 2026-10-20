@@ -13,6 +13,7 @@
     android:paddingBottom="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/ubi4_view_with_corners_back_inside"

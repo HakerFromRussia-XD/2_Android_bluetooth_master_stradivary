@@ -10,6 +10,7 @@
 
     <!-- Основной контейнер с фоном и скруглёнными углами -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -17,7 +18,6 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/ubi4_view_with_corners_back_inside"
-        android:elevation="4dp"
         app:cardUseCompatPadding="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -41,7 +41,7 @@
                 android:fontFamily="@font/sf_pro_display_light"
                 android:maxLines="2"
                 android:text="@string/setting_description"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toStartOf="@id/widgetSliderNumTv"
                 app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="123"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/widgetSliderTitleTv" />
@@ -79,6 +79,7 @@
                     android:elevation="0dp" />
 
                 <TextView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/minusBtnTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,7 +87,7 @@
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="-"
                     android:layout_marginBottom="2dp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -94,6 +95,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/minusBtnRipple"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -141,13 +143,14 @@
                     android:elevation="0dp" />
 
                 <TextView
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/plusBtnTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:elevation="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="+"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     android:layout_marginStart="2dp"
                     android:layout_marginBottom="3dp"
@@ -157,6 +160,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
+                    style="@style/Ubi4SurfaceContent"
                     android:id="@+id/plusBtnRipple"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -189,7 +193,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="@string/close_sensitivity"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -200,7 +204,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="123"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ubi4_text_primary"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/widgetSliderTitle2Tv" />
@@ -223,6 +227,7 @@
                         android:elevation="0dp" />
 
                     <TextView
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/minusBtnTv2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -230,7 +235,7 @@
                         android:fontFamily="@font/sf_pro_display_light"
                         android:text="-"
                         android:layout_marginBottom="2dp"
-                        android:textColor="@color/white"
+                        android:textColor="@color/ubi4_text_primary"
                         android:textSize="12sp"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -238,6 +243,7 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                     <View
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/minusBtnRipple2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -282,6 +288,7 @@
                         android:elevation="0dp" />
 
                     <TextView
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/plusBtnTv2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -290,7 +297,7 @@
                         android:layout_marginBottom="3dp"
                         android:fontFamily="@font/sf_pro_display_light"
                         android:text="+"
-                        android:textColor="@color/white"
+                        android:textColor="@color/ubi4_text_primary"
                         android:textSize="12sp"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -298,6 +305,7 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                     <View
+                        style="@style/Ubi4SurfaceContent"
                         android:id="@+id/plusBtnRipple2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

@@ -205,7 +205,7 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun configureSpinner(spinner: PowerSpinnerView) = with(spinner) {
-        setTextColor(ContextCompat.getColor(context, R.color.white))
+        setTextColor(ContextCompat.getColor(context, R.color.ubi4_text_primary))
         textSize = 12f
         typeface = ResourcesCompat.getFont(context, R.font.sf_pro_display_light)
         gravity = Gravity.CENTER

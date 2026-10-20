@@ -176,18 +176,22 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FragmentActivity restores fragments inside super.onCreate(), including legacy UBI4
+        // fragments that read gesture names from the host's preferences in Fragment.onCreate().
+        mSettings = getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        main = this
         supportFragmentManager.fragmentFactory = supportFragmentManager.fragmentFactory.withAccountStatisticsCompatibility()
         super.onCreate(savedInstanceState)
         Log.i(DFU_TRACE_TAG, "diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=${BuildConfig.DFU_BOOT_ENTRY_PROBE_ONLY} version=${BuildConfig.VERSION_NAME} type=${BuildConfig.BUILD_TYPE} package=$packageName")
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
 //        applyDfuDiagnostics(intent)
-        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
-        main = this
+        activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         val window = this.window
         window.statusBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
+        com.bailout.stickk.ubi4.ui.theme.AppThemeModeApplier.applySystemBars(window, resources.getBoolean(R.bool.ubi4_light_system_bars))
         window.setBackgroundDrawableResource(R.color.ubi4_back)
         isV3BleEmulatorMode = intent.getBooleanExtra(
             V3BleEmulatorTestHooks.EXTRA_ENABLED,
@@ -211,6 +215,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        savedInstanceState?.let { state ->
+            binding.bottomNavigation.menu.findItem(state.getInt("ubi4_selected_bottom_item", R.id.page_2))?.isChecked = true
+        }
         setupImeBottomNavBehavior()
         if (UiState.isInterfaceV3Activated) {
             bindV3MainState()
@@ -413,6 +420,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             val c = WidgetRepoProvider.get().count()
             platformLog("ROOM_CHECK", "Widget rows = $c")
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("ubi4_selected_bottom_item", binding.bottomNavigation.selectedItemId)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {

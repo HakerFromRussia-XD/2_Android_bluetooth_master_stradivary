@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark defaults retain the existing UBI4/V3 palette. -->
+    <color name="ubi4_text_primary">@color/white</color>
+    <color name="ubi4_text_muted">@android:color/darker_gray</color>
+    <color name="ubi4_active_foreground">@color/ubi4_active</color>
+    <color name="ubi4_on_active">#212121</color>
+    <color name="ubi4_progress_track">#242424</color>
+    <color name="ubi4_surface_raised">#3D3D3D</color>
+    <color name="ubi4_text_40">#66FFFFFF</color>
+    <color name="ubi4_battery_track">#4DFFFFFF</color>
+    <color name="ubi4_control_disabled_text">@color/ubi4_gray_border</color>
+    <color name="ubi4_close_threshold">@color/close_threshold</color>
+    <bool name="ubi4_light_system_bars">false</bool>
+
+    <style name="Theme.UBI4" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="buttonStyle">@style/Ubi4Button</item>
+        <item name="colorPrimary">@color/ubi4_back</item>
+        <item name="colorPrimaryDark">@color/ubi4_dark_back</item>
+        <item name="colorAccent">@color/ubi4_active_foreground</item>
+        <item name="colorControlNormal">@color/ubi4_deactivate_text</item>
+        <item name="colorControlActivated">@color/ubi4_active_foreground</item>
+        <item name="android:colorBackground">@color/ubi4_back</item>
+        <item name="android:windowBackground">@color/ubi4_back</item>
+        <item name="android:textColorPrimary">@color/ubi4_text_primary</item>
+        <item name="android:textColorSecondary">@color/ubi4_deactivate_text</item>
+        <item name="android:statusBarColor">@color/ubi4_back</item>
+        <item name="android:navigationBarColor">@color/ubi4_dark_back</item>
+        <item name="android:windowLightStatusBar">@bool/ubi4_light_system_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/ubi4_light_system_bars</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>

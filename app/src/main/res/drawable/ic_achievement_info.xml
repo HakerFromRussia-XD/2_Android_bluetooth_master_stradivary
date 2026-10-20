@@ -6,15 +6,15 @@
     <path
         android:fillColor="@android:color/transparent"
         android:pathData="M12,2.75A9.25,9.25 0,1 0,12 21.25A9.25,9.25 0,1 0,12 2.75"
-        android:strokeColor="#FFFFFFFF"
+        android:strokeColor="@color/ubi4_text_primary"
         android:strokeWidth="1.5" />
     <path
         android:fillColor="@android:color/transparent"
         android:pathData="M12,10.5L12,16.5"
-        android:strokeColor="#FFFFFFFF"
+        android:strokeColor="@color/ubi4_text_primary"
         android:strokeLineCap="round"
         android:strokeWidth="1.5" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="@color/ubi4_text_primary"
         android:pathData="M12,7.25m-1,0a1,1 0,1 0,2 0a1,1 0,1 0,-2 0" />
 </vector>

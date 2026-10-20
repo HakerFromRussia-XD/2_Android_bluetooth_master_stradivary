@@ -399,13 +399,13 @@ class PlotDelegateAdapter (
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
     //////////////////////////////////////////////////////////////////////////////
-    private fun createSet(): LineDataSet {
+    private fun createSet(emgChart: LineChart): LineDataSet {
         val set = LineDataSet(null, null)
         set.setDrawCircles(false)
         set.setDrawValues(false)
         set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
         set.lineWidth = 0.1f
-        set.color = Color.WHITE
+        set.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
         set.mode = LineDataSet.Mode.LINEAR
         set.setCircleColor(Color.TRANSPARENT)
         set.circleHoleColor = Color.TRANSPARENT
@@ -619,7 +619,7 @@ class PlotDelegateAdapter (
 
         if (set1 == null) {
             Log.d("Plot view","создание новых DataSet  numberOfCharts = $numberOfCharts  countBinding = $countBinding ")
-            set = createSet()
+            set = createSet(emgChart)
             set1 = createSet1(emgChart)
             set2 = createSet2(emgChart)
             set3 = createSet3()
@@ -745,7 +745,7 @@ class PlotDelegateAdapter (
         // =======================================================
 
         val y = emgChart.axisLeft
-        y.textColor = Color.WHITE
+        y.textColor = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
         y.axisMaximum = 281f
         y.axisMinimum = 0f
         y.isGranularityEnabled = true
@@ -755,7 +755,7 @@ class PlotDelegateAdapter (
         y.textColor = Color.TRANSPARENT
         y.setDrawGridLines(true)
         y.setDrawAxisLine(false)
-        y.gridColor = Color.WHITE
+        y.gridColor = ContextCompat.getColor(emgChart.context, R.color.ubi4_text_primary)
 
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT

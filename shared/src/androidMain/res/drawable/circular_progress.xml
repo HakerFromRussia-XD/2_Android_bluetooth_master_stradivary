@@ -6,7 +6,7 @@
 
                 android:width="20dp"
                 android:height="20dp"
-            <solid android:color="#4DFFFFFF"/>
+            <solid android:color="@color/ubi4_battery_track"/>
         </shape>
     </item>
     <item android:id="@android:id/progress">

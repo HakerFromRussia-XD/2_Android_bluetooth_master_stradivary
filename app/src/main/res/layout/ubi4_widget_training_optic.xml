@@ -16,7 +16,7 @@
         android:textSize="22sp"
         android:textAlignment="center"
         android:fontFamily="@font/sf_pro_text_bold"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -32,7 +32,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="34dp"
         android:fontFamily="@font/sf_pro_display_light"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         app:layout_constraintTop_toBottomOf="@id/trainingTitleTv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -81,6 +81,7 @@
 
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/trainingBtn"
         android:layout_width="0dp"
         android:layout_height="52dp"
@@ -88,12 +89,12 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ubi4_viwe_with_corners_white"
-        android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/animationContainer"/>
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/trainingBtnTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -109,6 +110,7 @@
 
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/showFileBtn"
         android:layout_width="0dp"
         android:layout_height="52dp"
@@ -116,12 +118,12 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ubi4_viwe_with_corners_white"
-        android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/trainingBtnTv"/>
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/showFileBtnTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -143,7 +145,7 @@
         android:fontFamily="@font/sf_pro_text_bold"
         android:gravity="center"
         android:text="100 %"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="15sp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/animationContainer"
@@ -151,6 +153,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/trainingSubTitleTv" />
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/showFileModelBtn"
         android:layout_width="0dp"
         android:layout_height="52dp"
@@ -158,12 +161,12 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ubi4_viwe_with_corners_white"
-        android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/showFileBtnTv"/>
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/showFileModelBtnTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

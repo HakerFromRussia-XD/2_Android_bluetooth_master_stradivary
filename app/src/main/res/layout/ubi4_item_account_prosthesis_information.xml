@@ -23,17 +23,19 @@
         app:layout_constraintGuide_end="16dp" />
 
     <androidx.cardview.widget.CardView
+        style="@style/Ubi4Surface"
         android:id="@+id/cardView3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="8dp"
+        app:cardElevation="@dimen/ubi4_surface_elevation"
+        app:cardMaxElevation="@dimen/ubi4_surface_elevation"
         app:cardCornerRadius="12dp"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="false"
         android:clipToOutline="true"
-        android:elevation="3dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/ubi4_gray"
         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
         app:layout_constraintTop_toTopOf="parent">

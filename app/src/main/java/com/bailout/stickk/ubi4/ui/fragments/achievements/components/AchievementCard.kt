@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -62,7 +63,7 @@ internal fun AchievementCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         backgroundColor = AchievementsColors.Card,
-        elevation = 3.dp
+        elevation = dimensionResource(R.dimen.ubi4_surface_elevation)
     ) {
         Column(
             modifier = Modifier

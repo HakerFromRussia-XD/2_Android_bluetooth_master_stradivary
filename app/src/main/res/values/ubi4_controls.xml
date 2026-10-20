@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Ubi4Switch">
+        <item name="android:thumb">@drawable/switch_le_thumb</item>
+        <item name="android:track">@drawable/ubi4_switch_truck</item>
+    </style>
+</resources>

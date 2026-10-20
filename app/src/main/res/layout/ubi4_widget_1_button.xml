@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/ubi4_back"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:orientation="horizontal"
     android:paddingHorizontal="10dp"
     android:paddingVertical="4dp">
@@ -14,27 +16,29 @@
         android:id="@+id/btn1Container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:layout_marginHorizontal="6dp"
         android:layout_weight="1">
 
         <View
+            style="@style/Ubi4Surface"
             android:id="@+id/backgroundBtn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget1ButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
             app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
@@ -42,6 +46,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
 
         <View
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget1Button"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -61,28 +66,30 @@
         android:id="@+id/btn2Container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:layout_marginHorizontal="6dp"
         android:layout_weight="1"
         android:visibility="gone">
 
         <View
+            style="@style/Ubi4Surface"
             android:id="@+id/backgroundBtn2"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget2ButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
             app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
@@ -90,6 +97,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
 
         <View
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget2Button"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -109,28 +117,30 @@
         android:id="@+id/btn3Container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:layout_marginHorizontal="6dp"
         android:layout_weight="1"
         android:visibility="gone">
 
         <View
+            style="@style/Ubi4Surface"
             android:id="@+id/backgroundBtn3"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget3ButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
             app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
@@ -138,6 +148,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
 
         <View
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/widget3Button"
             android:layout_width="0dp"
             android:layout_height="0dp"

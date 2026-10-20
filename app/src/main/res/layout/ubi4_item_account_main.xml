@@ -51,14 +51,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
+        style="@style/Ubi4Surface"
         android:id="@+id/cardView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        app:cardElevation="@dimen/ubi4_surface_elevation"
+        app:cardMaxElevation="@dimen/ubi4_surface_elevation"
         app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/ubi4_gray"
         android:clipToOutline="true"
-        android:elevation="3dp"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
@@ -84,7 +86,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/customer_service"
-                    app:tint="@color/white"
+                    app:tint="@color/ubi4_text_primary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -155,7 +157,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/prosthesis_information"
-                    app:tint="@color/white"
+                    app:tint="@color/ubi4_text_primary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -227,7 +229,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/white" />
+                    app:tint="@color/ubi4_text_primary" />
 
                 <TextView
                     android:id="@+id/statisticsTv"
@@ -280,7 +282,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/white" />
+                    app:tint="@color/ubi4_text_primary" />
 
                 <TextView
                     android:id="@+id/gamesTv"
@@ -348,7 +350,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/white" />
+                    app:tint="@color/ubi4_text_primary" />
 
                 <TextView
                     android:id="@+id/achievementsTv"
@@ -393,15 +395,17 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView2" />
 
     <androidx.cardview.widget.CardView
+        style="@style/Ubi4Surface"
         android:id="@+id/cardView3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
+        app:cardElevation="@dimen/ubi4_surface_elevation"
+        app:cardMaxElevation="@dimen/ubi4_surface_elevation"
         app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/ubi4_gray"
         android:clipToOutline="true"
-        android:elevation="3dp"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"

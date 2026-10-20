@@ -35,7 +35,7 @@
                 android:maxLines="2"
                 android:text="@string/firmware_is_being_downloaded"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"

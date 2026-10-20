@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ubi4_surface_elevation">3dp</dimen>
+
+    <style name="Ubi4Surface">
+        <item name="android:elevation">@dimen/ubi4_surface_elevation</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Keep foreground controls above their surface without a second shadow. -->
+    <style name="Ubi4SurfaceContent">
+        <item name="android:outlineProvider">none</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Ubi4Button" parent="Widget.AppCompat.Button">
+        <item name="android:elevation">@dimen/ubi4_surface_elevation</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+</resources>

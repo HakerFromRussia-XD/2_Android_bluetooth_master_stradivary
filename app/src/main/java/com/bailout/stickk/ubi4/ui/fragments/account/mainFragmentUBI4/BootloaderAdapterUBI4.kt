@@ -64,7 +64,7 @@ class BootloaderAdapterUBI4(
 
         val defColor = (holder.updateBtn.tag as? Int)
             ?: holder.updateBtn.currentTextColor.also { holder.updateBtn.tag = it }
-        val active = androidx.core.content.ContextCompat.getColor(holder.itemView.context, R.color.ubi4_active)
+        val active = androidx.core.content.ContextCompat.getColor(holder.itemView.context, R.color.ubi4_active_foreground)
         holder.updateBtn.setTextColor(if (highlight) active else defColor)
 
         holder.updateBtn.isEnabled = item.canUpdate

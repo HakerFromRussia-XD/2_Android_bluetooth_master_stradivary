@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Ubi4Switch">
+        <item name="android:thumb">@drawable/ubi4_switch_thumb_light</item>
+        <item name="android:track">@drawable/ubi4_switch_track_light</item>
+        <item name="android:thumbTint">@null</item>
+        <item name="android:trackTint">@null</item>
+    </style>
+</resources>

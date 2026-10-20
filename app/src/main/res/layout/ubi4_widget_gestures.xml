@@ -18,18 +18,19 @@
         app:layout_constraintGuide_percent="0.5" />
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/ubi4GesturesSelectorV"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
-        android:elevation="3dp"
         android:background="@drawable/ubi4_view_with_corners_gray_outside"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <View
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/gesturesSelectV"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -41,19 +42,21 @@
         app:layout_constraintStart_toStartOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/collectionOfGesturesTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_display_light"
         android:text="@string/collection_of_gestures"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
         app:layout_constraintStart_toStartOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/rotationGroupTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -67,6 +70,7 @@
         app:layout_constraintStart_toStartOf="@+id/guidline_mid"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
     <View
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/collectionOfGesturesSelectBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -81,6 +85,7 @@
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="SpeakableTextPresentCheck" />
     <View
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/rotationGroupSelectBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -97,6 +102,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:id="@+id/activeGestureNameCl"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -105,7 +111,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/ubi4_view_with_corners_back_active_gesture"
-        android:elevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ubi4GesturesSelectorV">
@@ -125,7 +130,7 @@
                 android:fontFamily="@font/sf_pro_display_light"
                 android:maxLines="2"
                 android:text="@string/active_gesture_is"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -164,12 +169,13 @@
             android:fontFamily="@font/sf_pro_display_light"
             android:gravity="center_vertical"
             android:text="@string/collection_of_gestures"
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
+            style="@style/Ubi4Surface"
             android:id="@+id/hideCollectionBtn"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -177,7 +183,6 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
             android:contentDescription="@string/collapse_gesture_collection"
-            android:elevation="3dp"
             android:padding="6dp"
             android:src="@drawable/baseline_keyboard_arrow_down_24"
             app:layout_constraintEnd_toEndOf="parent"
@@ -203,6 +208,7 @@
                 app:layout_constraintGuide_percent="0.5" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection0Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -210,13 +216,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection0Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -225,12 +231,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/that_rocks"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection0Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection0Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection0Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -243,6 +250,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection0Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection1Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -250,13 +258,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection1Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -265,12 +273,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/ok"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection1Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection1Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection1Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -285,6 +294,7 @@
                 app:layout_constraintVertical_bias="0.507" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection2Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -292,13 +302,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection0Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection2Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -307,12 +317,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection2Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection2Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection2Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -325,6 +336,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection2Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection3Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -332,13 +344,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection1Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection3Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -347,12 +359,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection3Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection3Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection3Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -365,6 +378,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection3Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection4Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -372,13 +386,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection2Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection4Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -387,12 +401,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection4Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection4Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection4Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -405,6 +420,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection4Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection5Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -412,13 +428,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection3Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection5Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -427,12 +443,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection5Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection5Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection5Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -445,6 +462,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection5Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection6Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -452,13 +470,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection4Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection6Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -467,12 +485,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection6Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection6Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection6Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -485,6 +504,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection6Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection7Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -492,13 +512,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection5Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection7Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -507,12 +527,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection7Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection7Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection7Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -525,6 +546,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection7Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection8Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -532,13 +554,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection6Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection8Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -547,12 +569,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection8Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection8Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection8Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -565,6 +588,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection8Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection9Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -572,13 +596,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection7Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection9Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -587,12 +611,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection9Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection9Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection9Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -605,6 +630,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection9Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection10Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -612,13 +638,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection8Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection10Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -627,12 +653,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection10Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection10Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection10Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -645,6 +672,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection10Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection11Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -652,13 +680,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection9Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection11Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -667,12 +695,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection11Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection11Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection11Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -685,6 +714,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection11Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection12Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -692,13 +722,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection10Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection12Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -707,12 +737,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/grip_the_ball"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection12Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection12Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection12Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -725,6 +756,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection12Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCollection13Btn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -732,13 +764,13 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCollection11Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection13Tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -747,12 +779,13 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/fist"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection13Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection13Btn" />
 
             <ImageView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gestureCollection13Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -827,12 +860,13 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/custom_gestures_section"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom1Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -840,24 +874,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/customGesturesSectionTitleTv" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture1SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom1Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom1Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom1Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture1NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -865,13 +900,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_1_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom1Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom1Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom1Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom2Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -879,24 +915,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/customGesturesSectionTitleTv" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture2SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom2Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom2Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom2Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture2NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -904,13 +941,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_2_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom2Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom2Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom2Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom3Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -918,24 +956,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom1Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture3SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom3Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom3Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom3Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture3NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -943,13 +982,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_3_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom3Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom3Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom3Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom4Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -957,24 +997,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom2Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture4SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom4Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom4Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom4Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture4NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -982,13 +1023,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_4_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom4Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom4Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom4Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom5Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -996,24 +1038,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom3Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture5SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom5Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom5Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom5Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture5NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1021,13 +1064,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_5_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom5Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom5Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom5Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom6Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1035,24 +1079,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom4Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture6SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom6Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom6Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom6Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture6NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1060,13 +1105,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_6_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom6Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom6Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom6Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom7Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1074,24 +1120,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom5Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture7SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom7Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom7Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom7Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture7NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1099,13 +1146,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_7_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom7Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom7Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom7Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom8Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1113,24 +1161,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom6Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture8SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom8Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom8Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom8Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture8NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1138,13 +1187,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_8_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom8Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom8Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom8Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom9Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1152,24 +1202,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom7Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture9SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom9Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom9Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom9Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture9NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1177,13 +1228,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_9_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom9Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom9Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom9Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom10Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1191,24 +1243,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom8Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture10SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom10Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom10Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom10Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture10NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1216,13 +1269,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_10_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom10Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom10Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom10Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom11Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1230,24 +1284,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom9Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture11SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom11Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom11Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom11Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture11NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1255,13 +1310,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_11_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom11Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom11Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom11Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom12Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1269,24 +1325,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom10Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture12SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom12Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom12Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom12Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture12NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1294,13 +1351,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_12_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom12Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom12Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom12Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom13Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1308,24 +1366,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom11Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture13SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom13Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom13Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom13Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture13NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1333,13 +1392,14 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_13_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom13Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom13Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom13Btn" />
 
             <View
+                style="@style/Ubi4Surface"
                 android:id="@+id/gestureCustom14Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -1347,24 +1407,25 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
-                android:elevation="3dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom12Btn" />
 
             <View
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture14SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+                android:backgroundTint="@color/ubi4_text_primary"
                 android:elevation="3dp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom14Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCustom14Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCustom14Btn" />
 
             <TextView
+                style="@style/Ubi4SurfaceContent"
                 android:id="@+id/gesture14NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -1372,7 +1433,7 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="@string/gesture_14_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom14Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCustom14Btn"
@@ -1410,23 +1471,24 @@
             tools:listitem="@layout/ubi4_item_rotation_group"/>
 
         <View
+            style="@style/Ubi4Surface"
             android:id="@+id/addGestureToRotationGroupBtn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginTop="24dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rotationGroupDragLv" />
 
         <ImageView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/plusIv"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:background="@drawable/ic_add"
-            android:backgroundTint="@android:color/white"
-            android:elevation="3dp"
+            android:src="@drawable/ic_add"
+            app:tint="@color/ubi4_text_primary"
+            android:elevation="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/addGestureToRotationGroupBtn"
             app:layout_constraintEnd_toEndOf="@+id/addGestureToRotationGroupBtn"
             app:layout_constraintStart_toStartOf="@+id/addGestureToRotationGroupBtn"

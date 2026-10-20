@@ -5,16 +5,16 @@
     android:viewportHeight="72">
   <path
       android:pathData="m19.076,42.528 l2.637,5.118 -0.141,5.147 -3.548,1.794 -9.457,-0.877 0.319,-9.397 5.514,-1.85 1.425,-5.955 2.173,-1.047z"
-      android:fillColor="#ffffff"/>
+      android:fillColor="@color/ubi4_text_primary"/>
   <path
       android:pathData="M48.134,53.595l-5.313,-0.286l0,-6.04l3.624,-2.416l4.832,4.832z"
-      android:fillColor="#ffffff"/>
+      android:fillColor="@color/ubi4_text_primary"/>
   <path
       android:pathData="M43.356,52.759l-2.416,2.416l-15.718,0l-2.416,-2.416l0,-6.04l2.416,-2.416l15.718,0l2.416,2.416z"
-      android:fillColor="#ffffff"/>
+      android:fillColor="@color/ubi4_text_primary"/>
   <path
       android:pathData="M49.706,21.016l6.625,-4.404l7.716,3.312l0,6.612l-9.924,22.044l-3.312,1.104l-4.404,-4.404l1.104,-12.133z"
-      android:fillColor="#ffffff"/>
+      android:fillColor="@color/ubi4_text_primary"/>
   <path
       android:pathData="m59.84,19.09s1.206,8.559 -9.042,29.17c0.159,1.189 4.087,1.766 9.719,-12.93 0,0 8.38,-14.96 -0.676,-16.24"
       android:strokeWidth="2"

@@ -3,5 +3,5 @@
     <size
         android:width="10dp"
         android:height="10dp" />
-    <solid android:color="@color/ubi4_active" />
+    <solid android:color="@color/ubi4_active_foreground" />
 </shape>

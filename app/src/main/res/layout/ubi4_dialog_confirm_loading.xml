@@ -36,7 +36,7 @@
                 android:maxLines="3"
                 android:text="@string/are_you_sure_you_want_to_start_downloading_the_file"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="@color/ubi4_text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"

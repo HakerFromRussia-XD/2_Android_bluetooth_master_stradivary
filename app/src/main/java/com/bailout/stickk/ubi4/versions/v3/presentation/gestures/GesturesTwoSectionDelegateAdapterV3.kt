@@ -436,7 +436,7 @@ class GesturesTwoSectionDelegateAdapterV3(
         mRotationGroupDragLv?.setCanDragVertically(isInteractionEnabled)
         mRotationGroupDragLv?.setCustomDragItem(
             MyDragItem(
-                main.applicationContext,
+                main,
                 R.layout.ubi4_item_rotation_group_drag
             )
         )
@@ -447,14 +447,14 @@ class GesturesTwoSectionDelegateAdapterV3(
 
         val showCollection = activeFilter == 1
         val collectionTargetColor = if (showCollection) {
-            main.getColor(R.color.white)
+            main.getColor(R.color.ubi4_text_primary)
         } else {
             main.getColor(R.color.ubi4_deactivate_text)
         }
         val rotationTargetColor = if (showCollection) {
             main.getColor(R.color.ubi4_deactivate_text)
         } else {
-            main.getColor(R.color.white)
+            main.getColor(R.color.ubi4_text_primary)
         }
 
         if (!_ubi4GesturesSelectorV.isLaidOut && !force) {

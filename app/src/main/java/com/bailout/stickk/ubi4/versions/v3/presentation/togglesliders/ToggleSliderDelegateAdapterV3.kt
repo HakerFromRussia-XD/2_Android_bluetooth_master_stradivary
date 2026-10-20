@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat.getColor
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetToggleSliderBinding
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
@@ -131,13 +130,10 @@ class ToggleSliderDelegateAdapterV3(
         binding.toggleMinusRipple1Btn.isClickable = sliderEnabled
         binding.togglePlusRipple1Btn.isClickable = sliderEnabled
         binding.toggleTurnOffRipple1Btn.isClickable = state?.isInteractionEnabled == true
-        val textColor = context.getColor(if (sliderEnabled) R.color.ubi4_white else R.color.ubi4_gray_border)
+        val textColor = context.getColor(if (sliderEnabled) R.color.ubi4_text_primary else R.color.ubi4_control_disabled_text)
         binding.toggleMinusBtnTv1.setTextColor(textColor)
         binding.togglePlusBtnTv1.setTextColor(textColor)
-        binding.toggleTurnOffBtnIv1.setColorFilter(
-            context.getColor(if (sliderEnabled) R.color.ubi4_active else R.color.ubi4_gray_border),
-            android.graphics.PorterDuff.Mode.SRC_IN,
-        )
+        binding.toggleTurnOffBtnIv1.isActivated = sliderEnabled
     }
 
 

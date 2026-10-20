@@ -35,6 +35,7 @@ class WDApplication : MultiDexApplication() {
 
   override fun onCreate() {
     super.onCreate()
+    com.bailout.stickk.ubi4.di.ThemeDependencies.applySavedTheme(this)
     app = this
     instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()

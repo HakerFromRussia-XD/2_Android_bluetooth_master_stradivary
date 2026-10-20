@@ -30,6 +30,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         V3ModelLoadMetrics.log("modelActivity onCreate ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}")
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = resources.getColor(R.color.ubi4_back, theme)
+        com.bailout.stickk.ubi4.ui.theme.AppThemeModeApplier.applySystemBars(window, resources.getBoolean(R.bool.ubi4_light_system_bars))
 
         settings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         root = FrameLayout(this).apply {

@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    android:background="@color/transparent"
-    android:elevation="3dp">
+    android:clipChildren="false"
+    android:background="@color/transparent">
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/gestureSprCollection1Btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/ubi4_view_with_corners_gray_active"
-        android:elevation="3dp"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -21,13 +21,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/gestureNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elevation="3dp"
         android:fontFamily="@font/sf_pro_display_light"
         android:text="@string/gesture_1_btn"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:layout_marginBottom="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,6 +37,7 @@
 
 
     <com.airbnb.lottie.LottieAnimationView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/lottieAnimationGesture"
         android:layout_width="140dp"
         android:layout_height="140dp"
@@ -52,6 +54,7 @@
         />
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/gestureSprTitleTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,6 +69,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/dotsThreeBtnSpr"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -74,6 +78,7 @@
         android:elevation="3dp"
         android:importantForAccessibility="no"
         android:src="@drawable/dotsthree"
+        app:tint="@color/ubi4_text_primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

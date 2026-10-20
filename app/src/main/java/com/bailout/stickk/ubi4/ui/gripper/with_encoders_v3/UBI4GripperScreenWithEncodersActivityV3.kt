@@ -194,6 +194,7 @@ class UBI4GripperScreenWithEncodersActivityV3
         setContentView(binding.root)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
+        com.bailout.stickk.ubi4.ui.theme.AppThemeModeApplier.applySystemBars(window, resources.getBoolean(R.bool.ubi4_light_system_bars))
         useV3GestureProtocol = intent.getBooleanExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
         if (!useV3GestureProtocol) {
             mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
@@ -1162,15 +1163,15 @@ class UBI4GripperScreenWithEncodersActivityV3
         ObjectAnimator.ofInt(
             binding.gestureOpenBtn,
             "textColor",
-            if (isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
-            if (isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+            if (isOpen) resources.getColor(R.color.ubi4_text_muted) else resources.getColor(R.color.ubi4_text_primary),
+            if (isOpen) resources.getColor(R.color.ubi4_text_primary) else resources.getColor(R.color.ubi4_text_muted)
         ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
 
         ObjectAnimator.ofInt(
             binding.gestureCloseBtn,
             "textColor",
-            if (!isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
-            if (!isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+            if (!isOpen) resources.getColor(R.color.ubi4_text_muted) else resources.getColor(R.color.ubi4_text_primary),
+            if (!isOpen) resources.getColor(R.color.ubi4_text_primary) else resources.getColor(R.color.ubi4_text_muted)
         ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
     }
 

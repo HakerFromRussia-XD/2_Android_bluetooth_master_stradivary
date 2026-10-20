@@ -13,7 +13,7 @@
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/sf_pro_text_bold"
         android:text="@string/remaining_gestures_count_placeholder"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="14sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -25,7 +25,7 @@
         android:layout_marginTop="68dp"
         android:fontFamily="@font/sf_pro_text_bold"
         android:text="@string/flexion"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +62,7 @@
         android:visibility="visible"
         android:fontFamily="@font/sf_pro_display_light"
         android:text="@string/prepare_to_perform_the_gesture_in"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -102,7 +102,7 @@
             android:layout_centerInParent="true"
             android:fontFamily="@font/sf_pro_text_bold"
             android:text="7"
-            android:textColor="#ffffff"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -112,6 +112,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
+        style="@style/Ubi4Surface"
         android:id="@+id/stopTrainingBtn"
         android:layout_width="0dp"
         android:layout_height="52dp"
@@ -119,7 +120,6 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ubi4_viwe_with_corners_white"
-        android:elevation="3dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -127,6 +127,7 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
+        style="@style/Ubi4SurfaceContent"
         android:id="@+id/trainingBtnTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

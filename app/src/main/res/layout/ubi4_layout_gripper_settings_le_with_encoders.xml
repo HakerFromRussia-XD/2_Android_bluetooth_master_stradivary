@@ -13,6 +13,7 @@
 
     <!-- Селектор состояния Open/Close -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:id="@+id/gestureStateSelectorContainer"
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -24,6 +25,7 @@
 
         <!-- Ползунок -->
         <View
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/selectorIndicator"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -45,13 +47,14 @@
 
         <!-- Кнопка Open -->
         <TextView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/gestureOpenBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="2dp"
             android:gravity="center"
             android:text="@string/gesture_state_open"
-            android:textColor="@android:color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="12sp"
             android:fontFamily="@font/sf_pro_display_light"
             android:elevation="3dp"
@@ -62,13 +65,14 @@
 
         <!-- Кнопка Close -->
         <TextView
+            style="@style/Ubi4SurfaceContent"
             android:id="@+id/gestureCloseBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="2dp"
             android:gravity="center"
             android:text="@string/gesture_state_close"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/ubi4_text_muted"
             android:textSize="12sp"
             android:fontFamily="@font/sf_pro_display_light"
             android:elevation="3dp"
@@ -85,7 +89,7 @@
         android:layout_height="56dp"
         android:layout_gravity="bottom|center_horizontal"
         android:text="@string/save"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="10sp"
         android:background="@android:color/transparent"
         app:fontFamily="@font/sf_pro_text_bold"/>
@@ -98,7 +102,7 @@
         android:gravity="center"
         android:layout_marginTop="24dp"
         android:layout_gravity="center_horizontal"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/ubi4_text_primary"
         style="@style/Text"
         android:visibility="visible"
         android:text="@string/gesture_1_btn"
@@ -114,9 +118,9 @@
         android:layout_gravity="center_horizontal"
         android:maxLength="12"
         android:textSize="14sp"
-        android:textColor="#FFFFFFFF"
-        android:backgroundTint="@android:color/white"
-        android:textColorHighlight="#66FFFFFF"
+        android:textColor="@color/ubi4_text_primary"
+        android:backgroundTint="@color/ubi4_text_primary"
+        android:textColorHighlight="@color/ubi4_text_40"
         android:textCursorDrawable="@drawable/ubi4_gesture_name_cursor_white"
         style="@style/Text"
         app:hintTextAppearance="@style/TextInputLayout"

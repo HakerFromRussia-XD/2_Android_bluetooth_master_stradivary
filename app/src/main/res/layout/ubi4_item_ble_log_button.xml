@@ -8,6 +8,7 @@
     android:background="@color/ubi4_back">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Ubi4Surface"
         android:id="@+id/bleLogContainer"
         android:layout_width="0dp"
         android:layout_height="48dp"

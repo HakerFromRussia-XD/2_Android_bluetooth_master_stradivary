@@ -7,15 +7,15 @@
       android:pathData="M35,61.25C49.498,61.25 61.25,49.498 61.25,35C61.25,20.503 49.498,8.75 35,8.75C20.503,8.75 8.75,20.503 8.75,35C8.75,49.498 20.503,61.25 35,61.25Z"
       android:strokeWidth="2"
       android:fillColor="#00000000"
-      android:strokeColor="#ffffff"/>
+      android:strokeColor="@color/ubi4_text_primary"/>
   <path
       android:pathData="M35,21.875V37.188"
       android:strokeLineJoin="round"
       android:strokeWidth="2"
       android:fillColor="#00000000"
-      android:strokeColor="#ffffff"
+      android:strokeColor="@color/ubi4_text_primary"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M35,48C36.105,48 37,47.105 37,46C37,44.895 36.105,44 35,44C33.895,44 33,44.895 33,46C33,47.105 33.895,48 35,48Z"
-      android:fillColor="#ffffff"/>
+      android:fillColor="@color/ubi4_text_primary"/>
 </vector>

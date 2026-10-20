@@ -473,17 +473,17 @@ class GesturesOpticDelegateAdapter(
         if (!force && lastRenderedFilter == normalizedFilter) return
 
         val collectionTargetColor = if (normalizedFilter == 1) {
-            main.getColor(R.color.white)
+            main.getColor(R.color.ubi4_text_primary)
         } else {
             main.getColor(R.color.ubi4_deactivate_text)
         }
         val rotationTargetColor = if (normalizedFilter == 2) {
-            main.getColor(R.color.white)
+            main.getColor(R.color.ubi4_text_primary)
         } else {
             main.getColor(R.color.ubi4_deactivate_text)
         }
         val bindingTargetColor = if (normalizedFilter == 3) {
-            main.getColor(R.color.white)
+            main.getColor(R.color.ubi4_text_primary)
         } else {
             main.getColor(R.color.ubi4_deactivate_text)
         }
@@ -900,7 +900,7 @@ class GesturesOpticDelegateAdapter(
         mRotationGroupDragLv?.setCanDragVertically(true)
         mRotationGroupDragLv?.setCustomDragItem(
             MyDragItem(
-                main.applicationContext,
+                main,
                 R.layout.ubi4_item_rotation_group_drag
             )
         )

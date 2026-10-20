@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -44,12 +45,18 @@ import androidx.compose.ui.window.DialogProperties
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.local.repository.SETTINGS_PROFILE_NAME_MAX_LENGTH
 
-private val SettingsProfileDialogBackground = Color(0xFF373737)
-private val SettingsProfileDialogScreenBackground = Color(0xFF2A2A2A)
-private val SettingsProfileDialogBorder = Color(0xFF444444)
-private val SettingsProfileDialogText = Color(0xFFFCFCFC)
-private val SettingsProfileDialogSecondaryText = Color(0xFF838383)
-private val SettingsProfileDialogAccent = Color(0xFF0A84FF)
+private val SettingsProfileDialogBackground: Color
+    @Composable get() = colorResource(R.color.ubi4_gray)
+private val SettingsProfileDialogScreenBackground: Color
+    @Composable get() = colorResource(R.color.ubi4_back)
+private val SettingsProfileDialogBorder: Color
+    @Composable get() = colorResource(R.color.ubi4_gray_border)
+private val SettingsProfileDialogText: Color
+    @Composable get() = colorResource(R.color.ubi4_white)
+private val SettingsProfileDialogSecondaryText: Color
+    @Composable get() = colorResource(R.color.ubi4_deactivate_text)
+private val SettingsProfileDialogAccent: Color
+    @Composable get() = colorResource(R.color.ubi4_yes_system_blue)
 
 private val SettingsProfileDialogFontFamily = FontFamily(
     Font(R.font.sf_pro_display_light, weight = FontWeight.Normal),

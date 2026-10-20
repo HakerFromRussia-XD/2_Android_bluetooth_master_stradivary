@@ -40,7 +40,7 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_arrow_left"
-                app:tint="@android:color/white"
+                app:tint="@color/ubi4_text_primary"
                 tools:ignore="ContentDescription" />
         </FrameLayout>
 
@@ -92,7 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="........."
-            android:textColor="@color/white"
+            android:textColor="@color/ubi4_text_primary"
             android:textSize="18sp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -139,6 +139,7 @@
                 android:layout_width="19dp"
                 android:layout_height="19dp"
                 android:src="@drawable/lightning_bolt"
+                android:tint="@color/ubi4_text_primary"
                 android:layout_gravity="center"/>
 
         </FrameLayout>
@@ -174,7 +175,7 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:background="@color/ubi4_dark_back"
-        app:itemBackground="@color/ubi4_dark_back"
+        app:itemBackground="@drawable/ubi4_bottom_navigation_background"
         app:itemIconTint="@drawable/selector"
         app:itemTextAppearanceActive="@style/BottomNavigationView.Active"
         app:itemTextAppearanceInactive="@style/BottomNavigationView"

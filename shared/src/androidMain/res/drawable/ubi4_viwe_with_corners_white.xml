@@ -8,6 +8,6 @@
         android:radius="12dp"/>
 
     <stroke
-        android:color="@color/white"/>
+        android:color="@color/ubi4_text_primary"/>
 
 </shape>

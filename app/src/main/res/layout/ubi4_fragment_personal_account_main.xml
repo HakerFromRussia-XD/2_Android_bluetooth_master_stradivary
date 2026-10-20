@@ -43,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="@+id/back_btn"
         app:layout_constraintStart_toStartOf="@+id/back_btn"
         app:layout_constraintTop_toTopOf="@+id/back_btn"
-        app:tint="@android:color/white"
+        app:tint="@color/ubi4_text_primary"
         tools:ignore="ContentDescription" />
 
     <View

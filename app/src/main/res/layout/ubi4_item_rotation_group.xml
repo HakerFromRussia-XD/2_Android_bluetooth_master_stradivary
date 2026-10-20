@@ -19,7 +19,7 @@
         android:fontFamily="@font/sf_pro_display_light"
         android:gravity="left|center_vertical"
         android:text="@string/no_data"
-        android:textColor="@color/white"
+        android:textColor="@color/ubi4_text_primary"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

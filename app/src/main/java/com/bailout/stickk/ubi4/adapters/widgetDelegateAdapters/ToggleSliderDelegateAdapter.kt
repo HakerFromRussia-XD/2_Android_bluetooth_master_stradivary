@@ -11,7 +11,6 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetToggleSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -591,14 +590,7 @@ class ToggleSliderDelegateAdapter(
         sb.isEnabled = enabled
 
 
-        val colorRes =
-            if (enabled) R.color.ubi4_active
-            else R.color.ubi4_gray_border
-
-        info.turnOffBtnIv.getOrNull(sliderIndex)?.setColorFilter(
-            ContextCompat.getColor(ctx, colorRes),
-            android.graphics.PorterDuff.Mode.SRC_IN
-        )
+        info.turnOffBtnIv.getOrNull(sliderIndex)?.isActivated = enabled
     }
 
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {

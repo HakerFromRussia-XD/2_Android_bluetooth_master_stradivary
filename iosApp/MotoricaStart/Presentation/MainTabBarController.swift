@@ -17,10 +17,17 @@ struct V3MainTabsUiState {
 
 final class V3MainTabsViewModel {
     private let getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3
+    private let observeWidgetUpdatesUseCase: ObserveWidgetUpdatesUseCaseV3
     private(set) var uiState = V3MainTabsUiState(visibleDisplays: [])
 
-    init(getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3) {
+    init(getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3,
+         observeWidgetUpdatesUseCase: ObserveWidgetUpdatesUseCaseV3) {
         self.getVisibleDisplays = getVisibleDisplays
+        self.observeWidgetUpdatesUseCase = observeWidgetUpdatesUseCase
+    }
+
+    func observeWidgetUpdates(_ callback: @escaping () -> Void) -> Kotlinx_coroutines_coreJob {
+        observeWidgetUpdatesUseCase.observeUpdates { _ in callback() }
     }
 
     func onAction(_ action: V3MainTabsAction) {
@@ -1031,11 +1038,14 @@ final class MainTabBarController: UITabBarController {
 
     private func registerWidgetUpdates() {
         widgetsUpdateJob?.cancel(cause: nil)
-        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] _ in
+        let onUpdate: () -> Void = { [weak self] in
             DispatchQueue.main.async {
                 self?.applyWidgetDrivenTabVisibility()
             }
         }
+        widgetsUpdateJob = UiInterfaceModeBridgeV3.shared.isEnabled()
+            ? mainTabsViewModel.observeWidgetUpdates(onUpdate)
+            : UiStateBridge.shared.observeUpdates { _ in onUpdate() }
     }
 
     private func updateSynchronizationRestrictedTabAvailability() {

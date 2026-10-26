@@ -659,7 +659,9 @@ static os_log_t V3FrameLog(void) {
         [self registerGestureSettingsObserverIfNeeded];
         connectStatus = [UIImage imageNamed: @"connect_status.png"];
         disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
-        [gestureService getDeviceName];
+        if (!self.useV3GestureProtocol) {
+            [gestureService getDeviceName];
+        }
     }
     state = 0;
     if (self.modelTestMode) {

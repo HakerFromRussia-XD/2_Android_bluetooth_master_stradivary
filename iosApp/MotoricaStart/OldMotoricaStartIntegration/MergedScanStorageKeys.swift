@@ -34,10 +34,14 @@ final class MergedScanAppearanceStore {
     }
 
     func markNewConnection(device: BLEDevice) {
+        markNewConnection(deviceName: device.name, deviceUUID: device.uuid.uuidString)
+    }
+
+    func markNewConnection(deviceName: String, deviceUUID: String) {
         save(true, for: MergedScanStorageKeys.hasConnectedNewProsthesis)
         save(MergedProsthesisFamily.newKmm, for: MergedScanStorageKeys.lastConnectedFamily)
-        save(device.name, for: MergedScanStorageKeys.lastNewDeviceName)
-        save(device.uuid.uuidString, for: MergedScanStorageKeys.lastNewDeviceUUID)
+        save(deviceName, for: MergedScanStorageKeys.lastNewDeviceName)
+        save(deviceUUID, for: MergedScanStorageKeys.lastNewDeviceUUID)
     }
 
     func markOldSelection(device: BLEDevice) {

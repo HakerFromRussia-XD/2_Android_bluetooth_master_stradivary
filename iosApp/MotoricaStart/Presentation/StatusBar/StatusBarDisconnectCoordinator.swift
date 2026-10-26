@@ -18,18 +18,22 @@ enum StatusBarDisconnectCoordinator {
         isDisconnectFlowInProgress = true
         defer { isDisconnectFlowInProgress = false }
 
-        let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
-        SmartConnectionSettingsStore().deactivateScanAutoConnectionUntilNextLaunch()
-        if disconnectKmm {
-            BLEComponents.shared.bleManager.disconnectFromDevice()
+        if disconnectKmm && UiInterfaceModeBridgeV3.shared.isEnabled() {
+            WidgetsTabContainerViewController.sharedStatusBarViewModel.onAction(.disconnectConfirmed)
+        } else {
+            let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
+            SmartConnectionSettingsStore().deactivateScanAutoConnectionUntilNextLaunch()
+            if disconnectKmm {
+                BLEComponents.shared.bleManager.disconnectFromDevice()
+            }
+            keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+            WidgetsTabContainerViewController.sharedStatusBarViewModel.update(
+                serialNumber: "—",
+                batteryLevel: 0,
+                isConnected: false
+            )
+            UiStateBridge.shared.resetWidgetsState()
         }
-        keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
-        WidgetsTabContainerViewController.sharedStatusBarViewModel.update(
-            serialNumber: "—",
-            batteryLevel: 0,
-            isConnected: false
-        )
-        UiStateBridge.shared.resetWidgetsState()
         WidgetsListViewController.resetGlobalSynchronizationState()
         LegacyDocumentsCompatibility.restoreNewAppDocumentsIfNeeded()
 

@@ -7,10 +7,23 @@ interface V3MainDisplaysRepository {
     fun getVisibleDisplays(): Set<Int>
 }
 
+interface V3WidgetUpdatesRepository {
+    fun observeWidgetUpdates(): Flow<Int>
+}
+
 interface V3MainStatusReader {
     fun currentConnectionReady(): Boolean
     fun observeConnectionReady(): Flow<Boolean>
     fun observeBatteryPercent(): Flow<Int>
+}
+
+interface V3DeviceDisconnectionRepository {
+    fun disconnectDevice()
+}
+
+interface V3DeviceConnectionRepository {
+    fun prepareConnection(deviceName: String, deviceAddress: String): Boolean
+    fun connectDevice(deviceAddress: String)
 }
 
 interface V3MainRepository : V3MainDisplaysRepository {

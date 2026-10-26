@@ -8,6 +8,19 @@
     android:orientation="horizontal">
 
 
+    <View
+        android:id="@+id/rotationActiveMarker"
+        style="@style/Ubi4RotationActiveMarker"
+        android:layout_width="4dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ubi4_rotation_active_marker"
+        android:duplicateParentState="true"
+        android:importantForAccessibility="no"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <TextView
         android:id="@+id/gestureInRotationGroupTv"
         android:layout_width="match_parent"

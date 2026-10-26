@@ -71,7 +71,6 @@ struct CommandListItemViewModelV3: Equatable, Hashable {
     private let identifier: String
     let title: String
     let widget: Widget
-    let bleManager: BleManagerKmm
     private let orderedButtonBindings: [WidgetV3BindingInfo]
     private let parsedButtonTitles: [String]
     private let getDeviceSessionUseCase: GetDeviceSessionUseCaseV3
@@ -79,26 +78,27 @@ struct CommandListItemViewModelV3: Equatable, Hashable {
     private let stopMovementUseCase: StopProsthesisMovementUseCaseV3
     private let startCalibrationUseCase: StartProsthesisCalibrationUseCaseV3
     private let releaseCalibrationButtonUseCase: ReleaseProsthesisCalibrationButtonUseCaseV3
+    private let sendDeviceSubcommandUseCase: SendDeviceSubcommandUseCaseV3
 }
 
 extension CommandListItemViewModelV3 {
     init(
         widget: Widget,
-        bleManager: BleManagerKmm,
         getDeviceSessionUseCase: GetDeviceSessionUseCaseV3,
         startMovementUseCase: StartProsthesisMovementUseCaseV3,
         stopMovementUseCase: StopProsthesisMovementUseCaseV3,
         startCalibrationUseCase: StartProsthesisCalibrationUseCaseV3,
-        releaseCalibrationButtonUseCase: ReleaseProsthesisCalibrationButtonUseCaseV3
+        releaseCalibrationButtonUseCase: ReleaseProsthesisCalibrationButtonUseCaseV3,
+        sendDeviceSubcommandUseCase: SendDeviceSubcommandUseCaseV3
     ) {
         self.title = widget.title ?? ""
         self.widget = widget
-        self.bleManager = bleManager
         self.getDeviceSessionUseCase = getDeviceSessionUseCase
         self.startMovementUseCase = startMovementUseCase
         self.stopMovementUseCase = stopMovementUseCase
         self.startCalibrationUseCase = startCalibrationUseCase
         self.releaseCalibrationButtonUseCase = releaseCalibrationButtonUseCase
+        self.sendDeviceSubcommandUseCase = sendDeviceSubcommandUseCase
 
         self.orderedButtonBindings = WidgetV3Support.bindings(from: widget)
             .sorted { $0.dataOffset < $1.dataOffset }
@@ -164,23 +164,7 @@ extension CommandListItemViewModelV3 {
         }
 
         // Preserve raw commands for existing non-generated bindings and cached widgets.
-        let data = WidgetCommandBridgeV3.shared.buildSendSubcommand(
-            subcommand: Int32(subcommand),
-            parameter: 0
-        )
-
-        sendBytes(data)
-    }
-
-    private func sendBytes(_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        print("[V3-BUTTON][VM] sendBytes command=\(gatt.SERIALPORTCHAR_UUID) type=\(gatt.WRITE) bytes=\(data.hex)")
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
+        sendDeviceSubcommandUseCase.invoke(subcommand: Int32(subcommand))
     }
 
     private static func parseButtonTitles(from rawTitle: String) -> [String] {

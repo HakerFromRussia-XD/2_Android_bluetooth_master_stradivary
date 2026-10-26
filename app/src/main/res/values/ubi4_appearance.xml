@@ -4,14 +4,21 @@
     <color name="ubi4_text_primary">@color/white</color>
     <color name="ubi4_text_muted">@android:color/darker_gray</color>
     <color name="ubi4_active_foreground">@color/ubi4_active</color>
+    <color name="ubi4_rotation_active_text">@color/ubi4_active_foreground</color>
     <color name="ubi4_on_active">#212121</color>
     <color name="ubi4_progress_track">#242424</color>
     <color name="ubi4_surface_raised">#3D3D3D</color>
     <color name="ubi4_text_40">#66FFFFFF</color>
     <color name="ubi4_battery_track">#4DFFFFFF</color>
     <color name="ubi4_control_disabled_text">@color/ubi4_gray_border</color>
+    <color name="ubi4_open_plot">@color/ubi4_white</color>
+    <color name="ubi4_open_threshold_text">@color/ubi4_deactivate_text</color>
     <color name="ubi4_close_threshold">@color/close_threshold</color>
     <bool name="ubi4_light_system_bars">false</bool>
+
+    <style name="Ubi4RotationActiveMarker">
+        <item name="android:visibility">gone</item>
+    </style>
 
     <style name="Theme.UBI4" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="buttonStyle">@style/Ubi4Button</item>

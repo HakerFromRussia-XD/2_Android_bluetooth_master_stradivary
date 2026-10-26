@@ -62,9 +62,8 @@ final class SwitcherViewCellV3: UITableViewCell {
         }
 
         job?.cancel(cause: nil)
-        job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
-            guard let self, self.viewModel?.matches(snapshot: snapshot) == true else { return }
-            guard let isOn = self.viewModel?.switchState(from: snapshot) else { return }
+        job = viewModel.observeStateResponses { [weak self] isOn in
+            guard let self, self.viewModel?.isMobileSmartConnectionSetting == false else { return }
 
             DispatchQueue.main.async {
                 guard self.provider?.isOn != isOn else { return }

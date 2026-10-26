@@ -37,7 +37,7 @@ class Ubi4ThemePaletteTest {
                     val surface = context.getColor(R.color.ubi4_gray)
                     assertEquals(Color.parseColor(if (light) "#F4F5F2" else "#2A2A2A"), background)
                     assertEquals(Color.parseColor(if (light) "#FFFFFF" else "#373737"), surface)
-                    assertEquals(Color.parseColor("#C6F158"), context.getColor(R.color.ubi4_active))
+                    assertEquals(Color.parseColor(if (light) "#06B87B" else "#C6F158"), context.getColor(R.color.ubi4_active))
                     assertEquals(light, context.resources.getBoolean(R.bool.ubi4_light_system_bars))
                     assertTrue(ColorUtils.calculateContrast(context.getColor(R.color.ubi4_text_primary), surface) >= 4.5)
                     assertTrue(ColorUtils.calculateContrast(context.getColor(R.color.ubi4_active_foreground), surface) >= 4.5)

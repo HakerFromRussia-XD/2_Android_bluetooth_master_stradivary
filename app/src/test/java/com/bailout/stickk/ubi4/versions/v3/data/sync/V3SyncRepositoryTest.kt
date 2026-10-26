@@ -6,6 +6,8 @@ import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncEvent
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.ObserveSyncUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.RequestSyncInitializationUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.sync.ResetWidgetsForSyncUseCaseV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
@@ -14,6 +16,52 @@ import org.junit.jupiter.api.Assertions.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3SyncRepositoryTest {
+    @Test fun `widget reset clears the existing containers and emits every reset without changing synchronization or device values`() = runTest {
+        val oldWidgets = UiState.listWidgets
+        val oldLabels = UiState.labelCodesByOffset.toMap()
+        val oldUpdates = UiState.updateFlow
+        val oldProgress = UiState.widgetsLoadingProgressFlow.value
+        val oldStartup = UiState.startupInProgress.value
+        val oldFull = UiState.fullInitInProgress.value
+        val oldReady = UiState.widgetsLoadingFlow
+        val oldValues = ParameterStoreV3.values.value
+        val oldMode = UiState.isInterfaceV3Activated
+        val widgets = mutableSetOf<Any>("first", "second")
+        val updates = MutableSharedFlow<Int>(replay = 1, extraBufferCapacity = 64)
+        val received = mutableListOf<Int>()
+        val reset = ResetWidgetsForSyncUseCaseV3(V3SyncRepositoryImpl())
+        UiState.listWidgets = widgets
+        UiState.updateFlow = updates
+        val job = backgroundScope.launch { updates.collect { received += it } }
+        try {
+            runCurrent()
+            for (isV3 in listOf(false, true)) {
+                UiState.isInterfaceV3Activated = isV3
+                widgets.add("widget")
+                UiState.labelCodesByOffset[7] = mutableMapOf(2 to 3)
+                reset()
+                assertSame(widgets, UiState.listWidgets)
+                assertTrue(widgets.isEmpty())
+                assertTrue(UiState.labelCodesByOffset.isEmpty())
+                runCurrent()
+                assertEquals(-1, received.last())
+                assertEquals(oldValues, ParameterStoreV3.values.value)
+                assertEquals(oldProgress, UiState.widgetsLoadingProgressFlow.value)
+                assertEquals(oldStartup, UiState.startupInProgress.value)
+                assertEquals(oldFull, UiState.fullInitInProgress.value)
+                assertSame(oldReady, UiState.widgetsLoadingFlow)
+            }
+            assertEquals(listOf(-1, -1), received)
+        } finally {
+            job.cancelAndJoin()
+            UiState.listWidgets = oldWidgets
+            UiState.labelCodesByOffset.clear()
+            UiState.labelCodesByOffset.putAll(oldLabels)
+            UiState.updateFlow = oldUpdates
+            UiState.isInterfaceV3Activated = oldMode
+        }
+    }
+
     @Test fun `initialization forwards each native request synchronously without resetting shared flags`() {
         val startup = UiState.startupInProgress.value
         val full = UiState.fullInitInProgress.value

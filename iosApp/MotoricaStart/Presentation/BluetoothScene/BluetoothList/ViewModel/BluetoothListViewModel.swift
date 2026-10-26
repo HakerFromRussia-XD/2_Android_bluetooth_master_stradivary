@@ -8,6 +8,11 @@ import Foundation
 import Combine
 import shared
 
+enum BluetoothListAction {
+    case connectionPreparationRequested
+    case connectionRequested(BLEDevice)
+}
+
 final class BluetoothListViewModel {
     private enum StubConstants {
         static let fakeDeviceName = "UBIv4_CPU_Roma"
@@ -24,6 +29,8 @@ final class BluetoothListViewModel {
     
     private let repository: BluetoothRepository
     private let keyValueStorage: KeyValueStorage
+    private let resetWidgetsForSync: ResetWidgetsForSyncUseCaseV3
+    private let connectDevice: ConnectDeviceUseCaseV3
     private let familyClassifier = ProsthesisFamilyClassifier()
     private let appearanceStore: MergedScanAppearanceStore
     private let autoConnectionTargetStore: SmartScanAutoConnectionTargetStore
@@ -36,13 +43,17 @@ final class BluetoothListViewModel {
     init(
         bleManager: BleManagerKmm,
         repository: BluetoothRepository = BluetoothRepositoryImpl(),
-        keyValueStorage: KeyValueStorage
+        keyValueStorage: KeyValueStorage,
+        resetWidgetsForSync: ResetWidgetsForSyncUseCaseV3,
+        connectDevice: ConnectDeviceUseCaseV3
     ) {
         self.bleManager = bleManager
         self.repository = repository
         // При инициализации читаем сохранённый фильтр
 //        selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
         self.keyValueStorage = keyValueStorage
+        self.resetWidgetsForSync = resetWidgetsForSync
+        self.connectDevice = connectDevice
         self.appearanceStore = MergedScanAppearanceStore(keyValueStorage: keyValueStorage)
         self.autoConnectionTargetStore = SmartScanAutoConnectionTargetStore(keyValueStorage: keyValueStorage)
         restorePersistedState()
@@ -155,12 +166,25 @@ final class BluetoothListViewModel {
             logConnect("[BLE-CONNECT] invalid connect index: \(index), devicesCount=\(devices.count)")
             return
         }
-        connect(to: device)
+        onAction(.connectionRequested(device))
     }
     
     func device(at index: Int) -> BLEDevice? {
         guard devices.indices.contains(index) else { return nil }
         return devices[index]
+    }
+
+    func onAction(_ action: BluetoothListAction) {
+        switch action {
+        case .connectionPreparationRequested:
+            resetWidgetsForSync.invoke()
+        case .connectionRequested(let device):
+            connect(to: device)
+        }
+    }
+
+    func isV3Device(_ device: BLEDevice) -> Bool {
+        UiInterfaceModeBridgeV3.shared.isV3DeviceName(deviceName: device.name)
     }
 
     func family(for device: BLEDevice) -> MergedProsthesisFamily {
@@ -171,21 +195,27 @@ final class BluetoothListViewModel {
         appearanceStore.markOldSelection(device: device)
     }
     
-    func connect(to device: BLEDevice) {
+    private func connect(to device: BLEDevice) {
         let indexDescription = devices.firstIndex(where: { $0.id == device.id }).map(String.init) ?? "snapshot"
         logConnect("[BLE-CONNECT] ViewModel.connectToDevice at index: \(indexDescription), device: \(device.name)")
         logConnect("[BLE-CONNECT] ViewModel.connectToDevice at index: \(indexDescription), device: \(device.uuid )")
         logConnect("[BLE-CONNECT] phase=prepare uuid=\(device.uuid.uuidString)")
+        if isV3Device(device) {
+            let isV3 = connectDevice.prepareConnection(deviceName: device.name, deviceAddress: device.uuid.uuidString)
+            if isV3 {
+                V3ModelResourceCache.shared().preload(completion: nil)
+            }
+            connectedDeviceID = nil
+            connectDevice.invoke(deviceAddress: device.uuid.uuidString)
+            return
+        }
         do {
             try keyValueStorage.save(device.name, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
         } catch {
             print("[Storage] failed to persist selected device name: \(error)")
         }
         appearanceStore.markNewConnection(device: device)
-        let isV3 = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
-        if isV3 {
-            V3ModelResourceCache.shared().preload(completion: nil)
-        }
+        _ = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
         connectedDeviceID = nil
         logConnect("[BLE-CONNECT] phase=stopScan")
         bleManager.stopScanKmm()

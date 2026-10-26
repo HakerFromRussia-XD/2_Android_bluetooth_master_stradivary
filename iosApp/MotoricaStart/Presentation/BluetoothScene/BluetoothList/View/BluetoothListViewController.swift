@@ -619,11 +619,15 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
                 "connectStart",
                 details: "\(sourceDetails) name=\(selectedDevice.name) uuid=\(selectedDevice.uuid.uuidString)"
             )
-            UiStateBridge.shared.resetWidgetsState()
+            if self.viewModel.isV3Device(selectedDevice) {
+                self.viewModel.onAction(.connectionPreparationRequested)
+            } else {
+                UiStateBridge.shared.resetWidgetsState()
+            }
             WidgetsListViewController.resetGlobalSynchronizationState()
             switch self.viewModel.family(for: selectedDevice) {
             case .newKmm:
-                self.viewModel.connect(to: selectedDevice)
+                self.viewModel.onAction(.connectionRequested(selectedDevice))
                 guard self.openMainTabBar() else { return }
             case .oldLegacy:
                 self.openLegacyBranch(for: selectedDevice)

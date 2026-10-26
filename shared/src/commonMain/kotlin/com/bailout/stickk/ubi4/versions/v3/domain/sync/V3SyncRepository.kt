@@ -13,6 +13,10 @@ interface V3SyncInitializationRepository {
     fun requestInitialization()
 }
 
+interface V3SyncWidgetsRepository {
+    fun resetWidgets()
+}
+
 data class V3SyncInitializationInfo(val parametersNum: Int, val subDeviceNum: Int)
 data class V3SyncLoadingProgress(val current: Int, val total: Int)
 

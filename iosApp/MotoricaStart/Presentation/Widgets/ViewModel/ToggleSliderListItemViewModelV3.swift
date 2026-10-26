@@ -9,11 +9,14 @@ enum ToggleSliderListItemActionV3 {
 struct ToggleSliderListItemViewModelV3: Equatable, Hashable {
     private let identifier: String
     private let getToggleSliderSettingsUseCase: GetToggleSliderSettingsUseCaseV3
+    private let observeToggleSliderResponsesUseCase: ObserveToggleSliderResponsesUseCaseV3
     private let requestToggleSliderValueUseCase: RequestToggleSliderValueUseCaseV3
     private let sendToggleSliderValueUseCase: SendToggleSliderValueUseCaseV3
+    private let getSettingsParameterUseCase: GetSettingsParameterUseCaseV3
+    private let requestSettingsParameterUseCase: RequestSettingsParameterUseCaseV3
+    private let sendSettingsParameterUseCase: SendSettingsParameterUseCaseV3
     let title: String
     let widget: Widget
-    let bleManager: BleManagerKmm
     let binding: WidgetV3BindingInfo?
     let minProgress: Int
     let maxProgress: Int
@@ -24,17 +27,23 @@ struct ToggleSliderListItemViewModelV3: Equatable, Hashable {
 extension ToggleSliderListItemViewModelV3 {
     init(
         widget: Widget,
-        bleManager: BleManagerKmm,
         getToggleSliderSettingsUseCase: GetToggleSliderSettingsUseCaseV3,
+        observeToggleSliderResponsesUseCase: ObserveToggleSliderResponsesUseCaseV3,
         requestToggleSliderValueUseCase: RequestToggleSliderValueUseCaseV3,
-        sendToggleSliderValueUseCase: SendToggleSliderValueUseCaseV3
+        sendToggleSliderValueUseCase: SendToggleSliderValueUseCaseV3,
+        getSettingsParameterUseCase: GetSettingsParameterUseCaseV3,
+        requestSettingsParameterUseCase: RequestSettingsParameterUseCaseV3,
+        sendSettingsParameterUseCase: SendSettingsParameterUseCaseV3
     ) {
         self.title = widget.title ?? ""
         self.widget = widget
-        self.bleManager = bleManager
         self.getToggleSliderSettingsUseCase = getToggleSliderSettingsUseCase
+        self.observeToggleSliderResponsesUseCase = observeToggleSliderResponsesUseCase
         self.requestToggleSliderValueUseCase = requestToggleSliderValueUseCase
         self.sendToggleSliderValueUseCase = sendToggleSliderValueUseCase
+        self.getSettingsParameterUseCase = getSettingsParameterUseCase
+        self.requestSettingsParameterUseCase = requestSettingsParameterUseCase
+        self.sendSettingsParameterUseCase = sendSettingsParameterUseCase
         self.binding = WidgetV3Support.primaryBinding(from: widget)
         let widgetPosition = WidgetMetadataExtractor
             .extractBaseStruct(from: widget.widget?.value)?
@@ -83,11 +92,10 @@ extension ToggleSliderListItemViewModelV3 {
             return
         }
         guard let binding else { return }
-        guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
+        requestSettingsParameterUseCase.invoke(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode)
-        ) else { return }
-        sendBytes(data)
+        )
     }
 
     private func sendValue(enabled: Bool, progress: Int) {
@@ -101,28 +109,29 @@ extension ToggleSliderListItemViewModelV3 {
         }
         guard let binding else { return }
         let packed = pack(enabled: enabled, progress: progress)
-        guard let data = WidgetCommandBridgeV3.shared.buildSetInt(
+        sendSettingsParameterUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
-            deviceAddress: Int32(binding.deviceAddress),
             dataOffset: Int32(binding.dataOffset),
             value: Int32(packed)
-        ) else { return }
-        sendBytes(data)
+        )
     }
 
-    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding else { return false }
-        return snapshot.addressDevice == Int32(binding.deviceAddress)
-            && snapshot.parameterID == Int32(binding.parameterID)
-            && snapshot.dataCode == Int32(binding.dataCode)
-    }
-
-    func unpack(snapshot: ParameterSnapshotV3Bridge) -> (enabled: Bool, progress: Int)? {
-        if toggleSliderParameterKey != nil { return currentValue() }
-        guard let packed = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "toggleValue") else {
-            return nil
+    func observeValueResponses(onResponse: @escaping (Int?) -> Void) -> Kotlinx_coroutines_coreJob? {
+        guard let binding else { return nil }
+        return observeToggleSliderResponsesUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode)
+        ) { value in
+            onResponse(value?.intValue)
         }
+    }
+
+    func value(fromResponse packed: Int?) -> (enabled: Bool, progress: Int)? {
+        if toggleSliderParameterKey != nil { return currentValue() }
+        guard let packed else { return nil }
         return unpack(packed: packed)
     }
 
@@ -135,16 +144,16 @@ extension ToggleSliderListItemViewModelV3 {
             return (value.isEnabled, min(max(Int(value.timeTenths), minProgress), maxProgress))
         }
         guard let binding else { return nil }
-        guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-            addressDevice: Int32(binding.deviceAddress),
+        let packed = getSettingsParameterUseCase.toggleSliderValue(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode)
-        ) else { return nil }
-        return unpack(snapshot: snapshot)
+        )?.intValue
+        return value(fromResponse: packed)
     }
 
     private var toggleSliderParameterKey: String? {
-        // The same row also displays legacy UBI4 widgets; keep their existing bridge path.
+        // The same row also displays UBI4 widgets; retain their binding-based operations.
         guard WidgetV3Support.widgetCode(from: widget) == WidgetV3Support.WidgetCode.toggleSliderV3 else {
             return nil
         }
@@ -168,16 +177,6 @@ extension ToggleSliderListItemViewModelV3 {
         let lowerBits = normalized & 0x7F
         let enabledBit = enabled ? 0x80 : 0x00
         return enabledBit | lowerBits
-    }
-
-    private func sendBytes(_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
     }
 
     func hash(into hasher: inout Hasher) {

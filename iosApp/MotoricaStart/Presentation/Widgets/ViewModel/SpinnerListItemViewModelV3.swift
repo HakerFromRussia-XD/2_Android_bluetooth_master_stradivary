@@ -21,14 +21,18 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
 
     private let identifier: String
     private let getSpinnerSettingsUseCase: GetSpinnerSettingsUseCaseV3
+    private let observeSpinnerResponsesUseCase: ObserveSpinnerResponsesUseCaseV3
     private let requestSpinnerValueUseCase: RequestSpinnerValueUseCaseV3
     private let setSpinnerValueUseCase: SetSpinnerValueUseCaseV3
     private let getDeviceRoleUseCase: GetDeviceRoleUseCaseV3
     private let changeDeviceRoleUseCase: ChangeDeviceRoleUseCaseV3
+    private let getSettingsParameterUseCase: GetSettingsParameterUseCaseV3
+    private let requestSettingsParameterUseCase: RequestSettingsParameterUseCaseV3
+    private let sendSpinnerSelectionUseCase: SendSpinnerSelectionUseCaseV3
+    private let applyHandSideDeviceValueUseCase: ApplyHandSideDeviceValueUseCaseV3
     private(set) var uiState = SpinnerListItemUiStateV3(isPinRequired: false, isPinValid: nil)
     let title: String
     let widget: Widget
-    let bleManager: BleManagerKmm
     let binding: WidgetV3BindingInfo?
     let items: [String]
     let initialSelectedIndex: Int
@@ -39,21 +43,29 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
 
     init(
         widget: Widget,
-        bleManager: BleManagerKmm,
         getSpinnerSettingsUseCase: GetSpinnerSettingsUseCaseV3,
+        observeSpinnerResponsesUseCase: ObserveSpinnerResponsesUseCaseV3,
         requestSpinnerValueUseCase: RequestSpinnerValueUseCaseV3,
         setSpinnerValueUseCase: SetSpinnerValueUseCaseV3,
         getDeviceRoleUseCase: GetDeviceRoleUseCaseV3,
-        changeDeviceRoleUseCase: ChangeDeviceRoleUseCaseV3
+        changeDeviceRoleUseCase: ChangeDeviceRoleUseCaseV3,
+        getSettingsParameterUseCase: GetSettingsParameterUseCaseV3,
+        requestSettingsParameterUseCase: RequestSettingsParameterUseCaseV3,
+        sendSpinnerSelectionUseCase: SendSpinnerSelectionUseCaseV3,
+        applyHandSideDeviceValueUseCase: ApplyHandSideDeviceValueUseCaseV3
     ) {
         self.title = widget.title ?? ""
         self.widget = widget
-        self.bleManager = bleManager
         self.getSpinnerSettingsUseCase = getSpinnerSettingsUseCase
+        self.observeSpinnerResponsesUseCase = observeSpinnerResponsesUseCase
         self.requestSpinnerValueUseCase = requestSpinnerValueUseCase
         self.setSpinnerValueUseCase = setSpinnerValueUseCase
         self.getDeviceRoleUseCase = getDeviceRoleUseCase
         self.changeDeviceRoleUseCase = changeDeviceRoleUseCase
+        self.getSettingsParameterUseCase = getSettingsParameterUseCase
+        self.requestSettingsParameterUseCase = requestSettingsParameterUseCase
+        self.sendSpinnerSelectionUseCase = sendSpinnerSelectionUseCase
+        self.applyHandSideDeviceValueUseCase = applyHandSideDeviceValueUseCase
         self.binding = WidgetV3Support.primaryBinding(from: widget)
         let widgetPosition = WidgetMetadataExtractor
             .extractBaseStruct(from: widget.widget?.value)?
@@ -64,10 +76,8 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
             self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-spinner-v3"
         }
 
-        let initialBinding = binding
         let storedRole: () -> Int = {
-            Self.roleParameterKey(widget: widget, binding: initialBinding) != nil
-                ? Int(getDeviceRoleUseCase.invoke().wireValue) : UserFirmwareRoleAccess.selectedRole
+            Int(getDeviceRoleUseCase.invoke().wireValue)
         }
         if let spinnerS = widget.widget?.value as? SpinnerParameterWidgetSStruct {
             self.items = spinnerS.dataSpinnerParameterWidgetStruct.spinnerItems.map { "\($0)" }
@@ -89,14 +99,14 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
             requestCurrent()
         case .selectionRequested(let index):
             let required: Bool
-            if roleParameterKey != nil, let role = Self.role(for: index) {
+            if let role = Self.role(for: index), roleParameterKey != nil || isDeviceRoleSelector {
                 required = changeDeviceRoleUseCase.requiresPin(role: role)
             } else {
-                required = (index == 0 || index == 1) && isDeviceRoleSelector
+                required = false
             }
             uiState = SpinnerListItemUiStateV3(isPinRequired: required, isPinValid: nil)
         case .rolePinChecked(let pin):
-            let valid = roleParameterKey != nil ? changeDeviceRoleUseCase.isPinValid(pin: pin) : pin == "1234"
+            let valid = changeDeviceRoleUseCase.isPinValid(pin: pin)
             uiState = SpinnerListItemUiStateV3(isPinRequired: uiState.isPinRequired, isPinValid: valid)
         case .selectedIndexChanged(let index, let pin):
             sendSelectedIndex(index, pin: pin)
@@ -113,11 +123,10 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
             return
         }
         guard let binding else { return }
-        guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
+        requestSettingsParameterUseCase.invoke(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode)
-        ) else { return }
-        sendBytes(data)
+        )
     }
 
     private func sendSelectedIndex(_ index: Int, pin: String?) {
@@ -130,51 +139,43 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
             return
         }
         guard let binding else { return }
-        if UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) {
-            UserDefaults.standard.set(index, forKey: UserFirmwareRoleAccess.key)
-        }
-        if isHandSideSelector {
-            NSLog("[V3HandSide] source=widget selectedIndex=%d address=%d parameter=0x%02X dataCode=0x%02X",
-                  index,
-                  binding.deviceAddress,
-                  binding.parameterID,
-                  binding.dataCode)
-            V3HandSideProvider.shared.applyWidgetValue(index)
-        }
-        guard let data = WidgetCommandBridgeV3.shared.buildSetInt(
+        sendSpinnerSelectionUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
-            deviceAddress: Int32(binding.deviceAddress),
             dataOffset: Int32(binding.dataOffset),
-            value: Int32(index)
-        ) else { return }
-        sendBytes(data)
+            index: Int32(index)
+        )
     }
 
     func applyHandSideDeviceSnapshot(_ index: Int) {
         guard isHandSideSelector else { return }
-        V3HandSideProvider.shared.applyDeviceValue(index)
+        applyHandSideDeviceValueUseCase.invoke(index: Int32(index))
     }
 
-    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding else { return false }
-        return snapshot.addressDevice == Int32(binding.deviceAddress)
-            && snapshot.parameterID == Int32(binding.parameterID)
-            && snapshot.dataCode == Int32(binding.dataCode)
+    func observeValueResponses(onResponse: @escaping (Int?) -> Void) -> Kotlinx_coroutines_coreJob? {
+        guard let binding else { return nil }
+        return observeSpinnerResponsesUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode)
+        ) { value in
+            onResponse(value?.intValue)
+        }
     }
 
-    func selectedIndex(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
+    func selectedIndex(fromResponse value: Int?) -> Int? {
         if roleParameterKey != nil { return Int(getDeviceRoleUseCase.invoke().wireValue) }
         if spinnerParameterKey == V3ParameterKeys.shared.P_KEY_SETTINGS_PROFILE {
-            return V3SnapshotParser.intField(from: snapshot.serializedValue, field: "spinnerValue")
+            return value
         }
         if let parameterKey = spinnerParameterKey {
             // RX JSON omitted default zero; unlike configure, it did not replace the UI selection.
             guard let value = spinnerValue(for: parameterKey), value != 0 else { return nil }
             return value
         }
-        if binding.map { UserFirmwareRoleAccess.isRoleSelector(parameterID: $0.parameterID, dataCode: $0.dataCode) } == true { return UserFirmwareRoleAccess.selectedRole }
-        return V3SnapshotParser.intField(from: snapshot.serializedValue, field: "spinnerValue")
+        if binding.map { UserFirmwareRoleAccess.isRoleSelector(parameterID: $0.parameterID, dataCode: $0.dataCode) } == true { return Int(getDeviceRoleUseCase.invoke().wireValue) }
+        return value
     }
 
     func currentSelectedIndex() -> Int? {
@@ -184,14 +185,12 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
             return value
         }
         guard let binding else { return nil }
-        if UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) { return UserFirmwareRoleAccess.selectedRole }
-        let value = Int(WidgetStateBridgeV3.shared.getSpinnerValueOrDefault(
-            addressDevice: Int32(binding.deviceAddress),
+        if UserFirmwareRoleAccess.isRoleSelector(parameterID: binding.parameterID, dataCode: binding.dataCode) { return Int(getDeviceRoleUseCase.invoke().wireValue) }
+        return getSettingsParameterUseCase.spinnerValue(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode),
-            defaultValue: -1
-        ))
-        return value >= 0 ? value : nil
+            dataCode: Int32(binding.dataCode)
+        )?.intValue
     }
 
     private func spinnerValue(for parameterKey: String) -> Int? {
@@ -242,16 +241,6 @@ final class SpinnerListItemViewModelV3: Equatable, Hashable {
         let prosthetistNames = [SharedLocalizedText.text(SharedRes.strings().prosthetist), "Prosthetist", "Протезист"].map(normalized)
         let engineerNames = [SharedLocalizedText.text(SharedRes.strings().service_engineer), "Service engineer", "Сервисный инженер"].map(normalized)
         return prosthetistNames.contains(normalized(items[0])) && engineerNames.contains(normalized(items[1]))
-    }
-
-    private func sendBytes(_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
     }
 
     func hash(into hasher: inout Hasher) {

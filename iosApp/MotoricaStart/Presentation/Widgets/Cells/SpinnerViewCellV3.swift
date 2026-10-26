@@ -77,9 +77,9 @@ final class SpinnerViewCellV3: UITableViewCell {
         contentConfiguration = configuration
 
         job?.cancel(cause: nil)
-        job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
-            guard let self, self.viewModel?.matches(snapshot: snapshot) == true else { return }
-            guard let index = self.viewModel?.selectedIndex(from: snapshot) else { return }
+        job = viewModel.observeValueResponses { [weak self] value in
+            guard let self else { return }
+            guard let index = self.viewModel?.selectedIndex(fromResponse: value) else { return }
             DispatchQueue.main.async {
                 self.provider?.selectedIndex = index
                 self.viewModel?.applyHandSideDeviceSnapshot(index)

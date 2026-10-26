@@ -39,6 +39,7 @@ final class V3GesturesViewModel {
     private let getGesturesPreferencesUseCase: GetGesturesPreferencesUseCaseV3
     private let setGesturesSectionUseCase: SetGesturesSectionUseCaseV3
     private let setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3
+    private let getCustomGestureNamesUseCase: GetCustomGestureNamesUseCaseV3
     private(set) var uiState = V3GesturesUiState(activeGestureId: nil, rotationGestureIds: nil, preferences: nil)
 
     init(
@@ -50,7 +51,8 @@ final class V3GesturesViewModel {
         setRotationGroupUseCase: SetRotationGroupUseCaseV3,
         getGesturesPreferencesUseCase: GetGesturesPreferencesUseCaseV3,
         setGesturesSectionUseCase: SetGesturesSectionUseCaseV3,
-        setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3
+        setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3,
+        getCustomGestureNamesUseCase: GetCustomGestureNamesUseCaseV3
     ) {
         self.getActiveGestureUseCase = getActiveGestureUseCase
         self.observeGesturesChangesUseCase = observeGesturesChangesUseCase
@@ -61,6 +63,11 @@ final class V3GesturesViewModel {
         self.getGesturesPreferencesUseCase = getGesturesPreferencesUseCase
         self.setGesturesSectionUseCase = setGesturesSectionUseCase
         self.setFactoryGestureCollectionExpandedUseCase = setFactoryGestureCollectionExpandedUseCase
+        self.getCustomGestureNamesUseCase = getCustomGestureNamesUseCase
+    }
+
+    func customGestureNames() -> [String] {
+        getCustomGestureNamesUseCase.invoke().names
     }
 
     func readGesturesPreferences() -> V3GesturesPreferences {
@@ -159,7 +166,12 @@ struct GestureListItemViewModel: Equatable, Hashable {
     let widget: Widget
     let bleManager: BleManagerKmm
     private var gestureNameList: [String] {
-        GestureListItemViewModel.makeGestureNames()
+        if isV3Widget {
+            // Keep the existing 3D bridge/observer initialization at the first names read.
+            _ = GestureService.shared
+            return gesturesViewModel.customGestureNames()
+        }
+        return GestureListItemViewModel.makeGestureNames()
     }
     private let parameterInfoSet: Set<ParameterInfoData>
     private let isV3Widget: Bool

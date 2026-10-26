@@ -3,13 +3,34 @@ import UIKit
 import shared
 
 final class AppDIContainer {
+    static func makeHandSideProviderV3() -> V3HandSideProvider {
+        let repository = V3HandSideRepositoryImpl()
+        return V3HandSideProvider(
+            getHandSide: GetHandSideUseCaseV3(repository: repository),
+            observeHandSide: ObserveHandSideResponsesUseCaseV3(repository: repository),
+            storeHandSide: StoreHandSideUseCaseV3(repository: repository)
+        )
+    }
+
     static func makeInitialStatusBarViewModel() -> StatusBarViewModel {
+        let isConnected: Bool
         if UiInterfaceModeBridgeV3.shared.isEnabled() {
             let observeStatus = ObserveMainStatusUseCaseV3(repository: V3MainStatusRepositoryImpl())
-            return StatusBarViewModel(isConnected: observeStatus.currentConnectionReady())
+            isConnected = observeStatus.currentConnectionReady()
+        } else {
+            let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
+            isConnected = initialState == 2
         }
-        let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
-        return StatusBarViewModel(isConnected: initialState == 2)
+        return StatusBarViewModel(
+            isConnected: isConnected,
+            disconnectDevice: DisconnectDeviceUseCaseV3(
+                repository: V3DeviceConnectionRepositoryImpl(
+                    keyValueStorage: UserDefaultsKeyValueStorage(),
+                    bleManager: { BLEComponents.shared.bleManager }
+                )
+            ),
+            resetWidgets: ResetWidgetsForSyncUseCaseV3(repository: V3SyncRepositoryImpl())
+        )
     }
 
     
@@ -63,7 +84,10 @@ final class AppDIContainer {
     }
 
     func makeMainTabsViewModelV3() -> V3MainTabsViewModel {
-        V3MainTabsViewModel(getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3(repository: V3MainDisplaysRepositoryImpl()))
+        V3MainTabsViewModel(
+            getVisibleDisplays: GetMainVisibleDisplaysUseCaseV3(repository: V3MainDisplaysRepositoryImpl()),
+            observeWidgetUpdatesUseCase: ObserveWidgetUpdatesUseCaseV3(repository: V3WidgetUpdatesRepositoryImpl())
+        )
     }
 
     func makeUserFirmwareViewModelV3(updates: UserFirmwareUpdates) -> V3UserFirmwareViewModel {

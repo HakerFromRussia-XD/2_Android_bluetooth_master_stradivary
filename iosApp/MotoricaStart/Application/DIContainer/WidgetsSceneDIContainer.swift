@@ -39,8 +39,12 @@ final class WidgetsSceneDIContainer {
     private lazy var getAutoLoginEnabledUseCaseV3 = GetAutoLoginEnabledUseCaseV3(repository: autoLoginRepositoryV3)
     private lazy var setAutoLoginEnabledUseCaseV3 = SetAutoLoginEnabledUseCaseV3(repository: autoLoginRepositoryV3, skipUnchanged: false)
     private lazy var enqueueV3Packet: (KotlinByteArray) -> Void = { [bleManager = dependencies.bleManager] packet in
+        Self.sendV3Packet(packet, using: { bleManager })
+    }
+
+    private static func sendV3Packet(_ packet: KotlinByteArray, using manager: () -> BleManagerKmm) {
         let gatt = SampleGattAttributes()
-        bleManager.sendBytesKmm(
+        manager().sendBytesKmm(
             data: packet,
             command: gatt.SERIALPORTCHAR_UUID,
             typeCommand: gatt.WRITE,
@@ -76,6 +80,14 @@ final class WidgetsSceneDIContainer {
         repository: deviceSettingsRepositoryV3
     )
 
+    private lazy var getSettingsParameterUseCaseV3 = GetSettingsParameterUseCaseV3(repository: deviceSettingsRepositoryV3)
+    private lazy var requestSettingsParameterUseCaseV3 = RequestSettingsParameterUseCaseV3(repository: deviceSettingsRepositoryV3)
+    private lazy var sendSettingsParameterUseCaseV3 = SendSettingsParameterUseCaseV3(repository: deviceSettingsRepositoryV3)
+
+    private lazy var spinnerSelectionRepositoryV3 = V3SpinnerSelectionRepositoryImpl(parameters: deviceSettingsRepositoryV3)
+    private lazy var sendSpinnerSelectionUseCaseV3 = SendSpinnerSelectionUseCaseV3(repository: spinnerSelectionRepositoryV3)
+    private lazy var applyHandSideDeviceValueUseCaseV3 = ApplyHandSideDeviceValueUseCaseV3(repository: spinnerSelectionRepositoryV3)
+
     private lazy var observeSliderResponsesUseCaseV3 = ObserveSliderResponsesUseCaseV3(
         repository: deviceSettingsRepositoryV3
     )
@@ -94,6 +106,10 @@ final class WidgetsSceneDIContainer {
         repository: deviceSettingsRepositoryV3
     )
 
+    private lazy var observeToggleSliderResponsesUseCaseV3 = ObserveToggleSliderResponsesUseCaseV3(
+        repository: deviceSettingsRepositoryV3
+    )
+
     private lazy var requestToggleSliderValueUseCaseV3 = RequestToggleSliderValueUseCaseV3(
         repository: deviceSettingsRepositoryV3
     )
@@ -106,6 +122,25 @@ final class WidgetsSceneDIContainer {
     private lazy var getSpinnerSettingsUseCaseV3 = GetSpinnerSettingsUseCaseV3(
         repository: deviceSettingsRepositoryV3
     )
+
+    private lazy var observeSpinnerResponsesUseCaseV3 = ObserveSpinnerResponsesUseCaseV3(
+        repository: deviceSettingsRepositoryV3
+    )
+
+    private lazy var observeSwitcherResponsesUseCaseV3 = ObserveSwitcherResponsesUseCaseV3(
+        repository: deviceSettingsRepositoryV3
+    )
+
+    private lazy var switcherSettingsRepositoryV3 = V3SwitcherSettingsRepositoryImpl(
+        enqueuePacket: { [bleManager = dependencies.bleManager] packet in
+            let gatt = SampleGattAttributes()
+            bleManager.sendBytesKmm(data: packet, command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+                                    typeCommand: gatt.WRITE, onChunkSent: {})
+        }
+    )
+    private lazy var getSwitcherValueUseCaseV3 = GetSwitcherValueUseCaseV3(repository: switcherSettingsRepositoryV3)
+    private lazy var requestSwitcherValueUseCaseV3 = RequestSwitcherValueUseCaseV3(repository: switcherSettingsRepositoryV3)
+    private lazy var setSwitcherValueUseCaseV3 = SetSwitcherValueUseCaseV3(repository: switcherSettingsRepositoryV3)
 
     private lazy var requestSpinnerValueUseCaseV3 = RequestSpinnerValueUseCaseV3(
         repository: deviceSettingsRepositoryV3
@@ -142,6 +177,14 @@ final class WidgetsSceneDIContainer {
             bleManager.restartV3Synchronization()
         },
         validateCommandDeviceContext: false
+    )
+
+    private lazy var sendDeviceSubcommandUseCaseV3 = SendDeviceSubcommandUseCaseV3(
+        repository: V3DeviceCommandsRepositoryImpl(enqueuePacket: { [enqueue = enqueueV3Packet] packet in
+            let gatt = SampleGattAttributes()
+            print("[V3-BUTTON][VM] sendBytes command=\(gatt.SERIALPORTCHAR_UUID) type=\(gatt.WRITE) bytes=\(packet.hex)")
+            enqueue(packet)
+        })
     )
 
     private lazy var startProsthesisMovementUseCaseV3 = StartProsthesisMovementUseCaseV3(
@@ -201,6 +244,11 @@ final class WidgetsSceneDIContainer {
         requireInteractionEnabled: false
     )
 
+    private static let gestureEditorBleManager: BleManagerKmm = {
+        _ = BLEComponents.shared
+        return BleEnvironment.shared.getBleManager()
+    }()
+
     static func makeGestureSettingsViewModelV3() -> GestureSettingsViewModelV3 {
         let repository = V3GestureEditorRepositoryImpl(
             readSavedHandSide: { KotlinInt(int: Int32(V3HandSideProvider.shared.currentSide)) },
@@ -226,7 +274,9 @@ final class WidgetsSceneDIContainer {
                     return KotlinUnit()
                 }
             },
-            enqueuePacket: { packet in GestureService.shared.sendDataToFestV3(dataForWrite: packet) },
+            enqueuePacket: { packet in
+                Self.sendV3Packet(packet, using: { Self.gestureEditorBleManager })
+            },
             saveProfile: { info, value in
                 SettingsProfileManager.shared.saveBleValue(parameterInfo: info, typedValue: value)
             },
@@ -288,7 +338,8 @@ final class WidgetsSceneDIContainer {
                 setRotationGroupUseCase: SetRotationGroupUseCaseV3(repository: repository, requireInteractionEnabled: false),
                 getGesturesPreferencesUseCase: GetGesturesPreferencesUseCaseV3(repository: preferencesRepository),
                 setGesturesSectionUseCase: SetGesturesSectionUseCaseV3(repository: preferencesRepository),
-                setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3(repository: preferencesRepository)
+                setFactoryGestureCollectionExpandedUseCase: SetFactoryGestureCollectionExpandedUseCaseV3(repository: preferencesRepository),
+                getCustomGestureNamesUseCase: GetCustomGestureNamesUseCaseV3(repository: V3CustomGestureNamesRepositoryImpl.shared)
             ),
             openCustomGestureSettings: openSettings
         )
@@ -425,7 +476,8 @@ final class WidgetsSceneDIContainer {
     }
     
     func makeWidgetsListViewModel(actions: WidgetsListViewModelActions) -> WidgetsListViewModel {
-        DefaultWidgetsListViewModel(
+        let syncRepository = V3SyncRepositoryImpl()
+        return DefaultWidgetsListViewModel(
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),
             bleManager: dependencies.bleManager,
             makeSliderViewModel: { [
@@ -443,53 +495,67 @@ final class WidgetsSceneDIContainer {
                 )
             },
             makeToggleSliderViewModel: { [
-                bleManager = dependencies.bleManager,
                 get = getToggleSliderSettingsUseCaseV3,
+                observe = observeToggleSliderResponsesUseCaseV3,
                 request = requestToggleSliderValueUseCaseV3,
-                send = sendToggleSliderValueUseCaseV3
+                send = sendToggleSliderValueUseCaseV3,
+                getParameter = getSettingsParameterUseCaseV3,
+                requestParameter = requestSettingsParameterUseCaseV3,
+                sendParameter = sendSettingsParameterUseCaseV3
             ] widget in
                 ToggleSliderListItemViewModelV3(
                     widget: widget,
-                    bleManager: bleManager,
                     getToggleSliderSettingsUseCase: get,
+                    observeToggleSliderResponsesUseCase: observe,
                     requestToggleSliderValueUseCase: request,
-                    sendToggleSliderValueUseCase: send
+                    sendToggleSliderValueUseCase: send,
+                    getSettingsParameterUseCase: getParameter,
+                    requestSettingsParameterUseCase: requestParameter,
+                    sendSettingsParameterUseCase: sendParameter
                 )
             },
             makeSpinnerViewModel: { [
-                bleManager = dependencies.bleManager,
                 get = getSpinnerSettingsUseCaseV3,
+                observe = observeSpinnerResponsesUseCaseV3,
                 request = requestSpinnerValueUseCaseV3,
                 set = setSpinnerValueUseCaseV3,
                 getRole = getDeviceRoleUseCaseV3,
-                changeRole = changeDeviceRoleUseCaseV3
+                changeRole = changeDeviceRoleUseCaseV3,
+                getParameter = getSettingsParameterUseCaseV3,
+                requestParameter = requestSettingsParameterUseCaseV3,
+                sendSelection = sendSpinnerSelectionUseCaseV3,
+                applyHandSide = applyHandSideDeviceValueUseCaseV3
             ] widget in
                 SpinnerListItemViewModelV3(
                     widget: widget,
-                    bleManager: bleManager,
                     getSpinnerSettingsUseCase: get,
+                    observeSpinnerResponsesUseCase: observe,
                     requestSpinnerValueUseCase: request,
                     setSpinnerValueUseCase: set,
                     getDeviceRoleUseCase: getRole,
-                    changeDeviceRoleUseCase: changeRole
+                    changeDeviceRoleUseCase: changeRole,
+                    getSettingsParameterUseCase: getParameter,
+                    requestSettingsParameterUseCase: requestParameter,
+                    sendSpinnerSelectionUseCase: sendSelection,
+                    applyHandSideDeviceValueUseCase: applyHandSide
                 )
             },
             makeCommandViewModel: { [
-                bleManager = dependencies.bleManager,
                 session = getDeviceSessionUseCaseV3,
                 start = startProsthesisMovementUseCaseV3,
                 stop = stopProsthesisMovementUseCaseV3,
                 calibrate = startProsthesisCalibrationUseCaseV3,
-                release = releaseProsthesisCalibrationButtonUseCaseV3
+                release = releaseProsthesisCalibrationButtonUseCaseV3,
+                sendSubcommand = sendDeviceSubcommandUseCaseV3
             ] widget in
                 CommandListItemViewModelV3(
                     widget: widget,
-                    bleManager: bleManager,
                     getDeviceSessionUseCase: session,
                     startMovementUseCase: start,
                     stopMovementUseCase: stop,
                     startCalibrationUseCase: calibrate,
-                    releaseCalibrationButtonUseCase: release
+                    releaseCalibrationButtonUseCase: release,
+                    sendDeviceSubcommandUseCase: sendSubcommand
                 )
             },
             makePlotViewModel: { [enqueue = enqueueV3Packet] widget in
@@ -523,16 +589,25 @@ final class WidgetsSceneDIContainer {
             requestAccountStatisticsUseCaseV3: requestAccountStatisticsUseCaseV3,
             observeAccountStatisticsUseCaseV3: observeAccountStatisticsUseCaseV3,
             getCustomGestureNamesUseCaseV3: getCustomGestureNamesUseCaseV3,
-            observeSyncUseCaseV3: ObserveSyncUseCaseV3(repository: V3SyncRepositoryImpl()),
+            observeWidgetUpdatesUseCaseV3: ObserveWidgetUpdatesUseCaseV3(repository: V3WidgetUpdatesRepositoryImpl()),
+            observeSyncUseCaseV3: ObserveSyncUseCaseV3(repository: syncRepository),
             requestSyncInitializationUseCaseV3: RequestSyncInitializationUseCaseV3(
                 repository: V3SyncInitializationRepositoryImpl(initialize: { [bleManager = dependencies.bleManager] in
                     bleManager.restartV3Synchronization()
                 })
             ),
-            makeSwitcherViewModel: { [bleManager = dependencies.bleManager,
+            resetWidgetsForSyncUseCaseV3: ResetWidgetsForSyncUseCaseV3(repository: syncRepository),
+            makeSwitcherViewModel: { [observe = observeSwitcherResponsesUseCaseV3,
+                                     getValue = getSwitcherValueUseCaseV3,
+                                     requestValue = requestSwitcherValueUseCaseV3,
+                                     setValue = setSwitcherValueUseCaseV3,
                                      get = getAutoLoginEnabledUseCaseV3,
                                      set = setAutoLoginEnabledUseCaseV3] widget in
-                SwitcherListItemViewModelV3(widget: widget, bleManager: bleManager,
+                SwitcherListItemViewModelV3(widget: widget,
+                                          observeSwitcherResponsesUseCase: observe,
+                                          getSwitcherValueUseCase: getValue,
+                                          requestSwitcherValueUseCase: requestValue,
+                                          setSwitcherValueUseCase: setValue,
                                           getAutoLoginEnabledUseCase: get,
                                           setAutoLoginEnabledUseCase: set)
             },

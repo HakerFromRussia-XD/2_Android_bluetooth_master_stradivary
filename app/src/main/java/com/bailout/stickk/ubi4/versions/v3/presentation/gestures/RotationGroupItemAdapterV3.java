@@ -84,10 +84,9 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).getFirst());
 
-        // По умолчанию текст белый, как раньше
         int inactiveColor = holder.itemView.getContext().getColor(R.color.ubi4_text_primary);
-        // Активный жест подсвечиваем таким же цветом, как в биндингах
-        int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_active_foreground);
+        int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_rotation_active_text);
+        holder.itemView.setActivated(interactionEnabled && gestureId == activeGestureId);
 
         if (interactionEnabled && gestureId == activeGestureId) {
             holder.gestureInRotationGroupTv.setTextColor(activeColor);

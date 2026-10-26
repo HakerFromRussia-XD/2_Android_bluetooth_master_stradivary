@@ -3,6 +3,8 @@ package com.bailout.stickk.ubi4.versions.v3.data.transport
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
+import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceCommandsRepository
 
 /** Forwards commands to the existing queue; completion keeps the executor's semantics. */
 class V3CommandTransport(
@@ -10,5 +12,12 @@ class V3CommandTransport(
 ) {
     fun enqueue(packet: ByteArray, onSent: () -> Unit = {}) {
         executorProvider().bleCommandWithQueue(packet, SERIALPORTCHAR_UUID, WRITE, onSent)
+    }
+}
+
+/** Keeps the existing addressless button command and queueing policy. */
+class V3DeviceCommandsRepositoryImpl(private val enqueuePacket: (ByteArray) -> Unit) : V3DeviceCommandsRepository {
+    override fun sendSubcommand(subcommand: Int) {
+        enqueuePacket(WidgetCommandBridgeV3.buildSendSubcommand(subcommand, 0))
     }
 }

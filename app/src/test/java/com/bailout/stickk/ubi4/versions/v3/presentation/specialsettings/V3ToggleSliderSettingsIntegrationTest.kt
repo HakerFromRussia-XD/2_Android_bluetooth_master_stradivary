@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsReposit
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.EditToggleSliderUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetToggleSliderSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveToggleSliderResponsesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.RequestToggleSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SendToggleSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
@@ -153,6 +154,101 @@ class V3ToggleSliderSettingsIntegrationTest {
     private fun showAllToggleSliders() {
         source.parameterKeys = setOf(P_KEY_EMG_CHANGE_GESTURE, key, P_KEY_SCREEN_TIMEOUT)
         attach()
+    }
+
+    @Test
+    fun `native ToggleSlider response observers preserve repeated replies and omitted zero without writes`() = runTest(dispatcher) {
+        val native = uncachedRepository()
+        val getSettings = GetToggleSliderSettingsUseCaseV3(native)
+        val observeResponses = ObserveToggleSliderResponsesUseCaseV3(native)
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        UiState.v3WidgetsInteractionEnabled.value = false
+        cachedValues.keys.forEach { parameterKey ->
+            ParameterStoreV3.put(ParameterInfoRegistry.require(parameterKey), ParameterTypedValueV3.Toggle(ToggleV3(0xA5)))
+        }
+        val initialStore = ParameterStoreV3.values.value
+        val replies = cachedValues.keys.associateWith { mutableListOf<Int?>() }
+        val jobs = replies.keys.map { parameterKey ->
+            val parameter = ParameterInfoRegistry.require(parameterKey)
+            observeResponses(parameter.deviceAddress, parameter.parameterID, parameter.dataCode) {
+                replies.getValue(parameterKey).add(it)
+            }
+        }
+        fun receive(parameter: ParameterInfo<Int, Int, Int, Int>, value: ParameterTypedValueV3) {
+            ParameterStoreV3.put(parameter, value)
+            val receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertUnchanged(receivedStore, cache)
+        }
+        try {
+            runCurrent()
+            assertTrue(replies.values.all { it.isEmpty() })
+            assertUnchanged(initialStore, cache)
+            cachedValues.keys.forEach { parameterKey ->
+                val parameter = ParameterInfoRegistry.require(parameterKey)
+                listOf(0, 0, 0x80, 0x80, 0xFF, 0xFF).forEach { packed ->
+                    receive(parameter, ParameterTypedValueV3.Toggle(ToggleV3(packed)))
+                    assertEquals(
+                        V3ToggleSliderValue(packed and 0x7F, packed and 0x80 != 0),
+                        getSettings(setOf(parameterKey)).values.getValue(parameterKey),
+                    )
+                }
+                assertEquals(listOf(null, null, 0x80, 0x80, 0xFF, 0xFF), replies.getValue(parameterKey))
+            }
+
+            val beforeOtherParameters = replies.mapValues { it.value.toList() }
+            listOf(info.copy(deviceAddress = 999), info.copy(parameterID = 999), info.copy(dataCode = 999))
+                .forEach { receive(it, ParameterTypedValueV3.Toggle(ToggleV3(42))) }
+            assertEquals(beforeOtherParameters, replies)
+            receive(info.copy(dataOffsets = 999), ParameterTypedValueV3.Toggle(ToggleV3(42)))
+            receive(info, ParameterTypedValueV3.Text("wrong typed value"))
+            assertEquals(listOf(null, null, 0x80, 0x80, 0xFF, 0xFF, 42, null), replies.getValue(key))
+            assertTrue(packets.isEmpty())
+            assertEquals(bleState, BLEState.state.value)
+            assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+        } finally {
+            jobs.forEach { it.cancel() }
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun `native ToggleSlider response delivery reads latest state skips removed values and stops on cancellation`() = runTest(dispatcher) {
+        val cache = cachedData()
+        val replies = mutableListOf<Int?>()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        val job = ObserveToggleSliderResponsesUseCaseV3(uncachedRepository())(
+            info.deviceAddress, info.parameterID, info.dataCode,
+        ) { replies.add(it) }
+        try {
+            runCurrent()
+            assertTrue(replies.isEmpty())
+            incoming(42)
+            incoming(43)
+            var receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertEquals(listOf(43, 43), replies)
+            assertUnchanged(receivedStore, cache)
+
+            incoming(51)
+            ParameterStoreV3.clear()
+            runCurrent()
+            assertEquals(listOf(43, 43), replies)
+            assertUnchanged(emptyMap(), cache)
+            job.cancel()
+            runCurrent()
+            incoming(63)
+            receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertEquals(listOf(43, 43), replies)
+            assertUnchanged(receivedStore, cache)
+            assertTrue(packets.isEmpty())
+        } finally {
+            job.cancel()
+            runCurrent()
+        }
     }
 
     @Test

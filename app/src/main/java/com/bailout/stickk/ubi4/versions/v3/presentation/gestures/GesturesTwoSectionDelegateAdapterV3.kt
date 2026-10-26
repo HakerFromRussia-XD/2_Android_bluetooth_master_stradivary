@@ -597,10 +597,12 @@ class GesturesTwoSectionDelegateAdapterV3(
     class MyDragItem internal constructor(context: Context?, layoutId: Int) :
         DragItem(context, layoutId) {
         override fun onBindDragView(clickedView: View, dragView: View) {
-            val text =
-                (clickedView.findViewById<View>(R.id.gestureInRotationGroupTv) as TextView).text
-            (dragView.findViewById<View>(R.id.gestureInRotationGroupTv) as TextView).text =
-                text
+            val source = clickedView.findViewById<TextView>(R.id.gestureInRotationGroupTv)
+            dragView.findViewById<TextView>(R.id.gestureInRotationGroupTv).apply {
+                text = source.text
+                setTextColor(source.currentTextColor)
+            }
+            dragView.isActivated = clickedView.isActivated
         }
     }
 

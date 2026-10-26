@@ -9,15 +9,39 @@ import Foundation
 import SwiftUI
 import shared
 
+enum StatusBarAction {
+    case disconnectConfirmed
+}
+
 final class StatusBarViewModel: ObservableObject {
     @Published var serialNumber: String
     @Published var batteryLevel: Double
     @Published var isConnected: Bool
 
-    init(serialNumber: String = "—", batteryLevel: Double = 0.0, isConnected: Bool = false) {
+    private let disconnectDevice: DisconnectDeviceUseCaseV3
+    private let resetWidgets: ResetWidgetsForSyncUseCaseV3
+
+    init(
+        serialNumber: String = "—",
+        batteryLevel: Double = 0.0,
+        isConnected: Bool = false,
+        disconnectDevice: DisconnectDeviceUseCaseV3,
+        resetWidgets: ResetWidgetsForSyncUseCaseV3
+    ) {
         self.serialNumber = serialNumber
         self.batteryLevel = batteryLevel
         self.isConnected = isConnected
+        self.disconnectDevice = disconnectDevice
+        self.resetWidgets = resetWidgets
+    }
+
+    func onAction(_ action: StatusBarAction) {
+        switch action {
+        case .disconnectConfirmed:
+            disconnectDevice.invoke()
+            update(serialNumber: "—", batteryLevel: 0, isConnected: false)
+            resetWidgets.invoke()
+        }
     }
 
     func update(serialNumber: String? = nil, batteryLevel: Double? = nil, isConnected: Bool? = nil) {

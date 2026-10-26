@@ -80,10 +80,9 @@ class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).getFirst());
 
-        // По умолчанию текст белый, как раньше
         int inactiveColor = holder.itemView.getContext().getColor(R.color.ubi4_text_primary);
-        // Активный жест подсвечиваем таким же цветом, как в биндингах
-        int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_active_foreground);
+        int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_rotation_active_text);
+        holder.itemView.setActivated(gestureId == activeGestureId);
 
         if (gestureId == activeGestureId) {
             holder.gestureInRotationGroupTv.setTextColor(activeColor);

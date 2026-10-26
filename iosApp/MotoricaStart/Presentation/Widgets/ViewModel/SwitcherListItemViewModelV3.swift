@@ -34,22 +34,31 @@ final class V3AutoLoginViewModel {
 struct SwitcherListItemViewModelV3: Equatable, Hashable {
     private let identifier: String
     private let autoLoginViewModel: V3AutoLoginViewModel
+    private let observeSwitcherResponsesUseCase: ObserveSwitcherResponsesUseCaseV3
+    private let getSwitcherValueUseCase: GetSwitcherValueUseCaseV3
+    private let requestSwitcherValueUseCase: RequestSwitcherValueUseCaseV3
+    private let setSwitcherValueUseCase: SetSwitcherValueUseCaseV3
     let title: String
     let widget: Widget
-    let bleManager: BleManagerKmm
     let binding: WidgetV3BindingInfo?
 }
 
 extension SwitcherListItemViewModelV3 {
     init(
         widget: Widget,
-        bleManager: BleManagerKmm,
+        observeSwitcherResponsesUseCase: ObserveSwitcherResponsesUseCaseV3,
+        getSwitcherValueUseCase: GetSwitcherValueUseCaseV3,
+        requestSwitcherValueUseCase: RequestSwitcherValueUseCaseV3,
+        setSwitcherValueUseCase: SetSwitcherValueUseCaseV3,
         getAutoLoginEnabledUseCase: GetAutoLoginEnabledUseCaseV3,
         setAutoLoginEnabledUseCase: SetAutoLoginEnabledUseCaseV3
     ) {
         self.title = widget.title ?? ""
         self.widget = widget
-        self.bleManager = bleManager
+        self.observeSwitcherResponsesUseCase = observeSwitcherResponsesUseCase
+        self.getSwitcherValueUseCase = getSwitcherValueUseCase
+        self.requestSwitcherValueUseCase = requestSwitcherValueUseCase
+        self.setSwitcherValueUseCase = setSwitcherValueUseCase
         self.autoLoginViewModel = V3AutoLoginViewModel(
             get: getAutoLoginEnabledUseCase,
             set: setAutoLoginEnabledUseCase
@@ -75,11 +84,10 @@ extension SwitcherListItemViewModelV3 {
     func requestCurrent() {
         guard !isMobileSmartConnectionSetting else { return }
         guard let binding else { return }
-        guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
+        requestSwitcherValueUseCase.invoke(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode)
-        ) else { return }
-        sendBytes(data)
+        )
     }
 
     func sendState(_ isOn: Bool) {
@@ -89,25 +97,23 @@ extension SwitcherListItemViewModelV3 {
             return
         }
         guard let binding else { return }
-        guard let data = WidgetCommandBridgeV3.shared.buildSetBoolean(
+        setSwitcherValueUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
+            value: isOn
+        )
+    }
+
+    func observeStateResponses(onResponse: @escaping (Bool) -> Void) -> Kotlinx_coroutines_coreJob? {
+        guard !isMobileSmartConnectionSetting, let binding else { return nil }
+        return observeSwitcherResponsesUseCase.invoke(
             deviceAddress: Int32(binding.deviceAddress),
-            checked: isOn
-        ) else { return }
-        sendBytes(data)
-    }
-
-    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard !isMobileSmartConnectionSetting else { return false }
-        guard let binding else { return false }
-        return snapshot.addressDevice == Int32(binding.deviceAddress)
-            && snapshot.parameterID == Int32(binding.parameterID)
-            && snapshot.dataCode == Int32(binding.dataCode)
-    }
-
-    func switchState(from snapshot: ParameterSnapshotV3Bridge) -> Bool? {
-        V3SnapshotParser.boolField(from: snapshot.serializedValue, field: "checked")
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode)
+        ) { value in
+            if let isOn = value?.boolValue { onResponse(isOn) }
+        }
     }
 
     func currentState() -> Bool? {
@@ -116,22 +122,11 @@ extension SwitcherListItemViewModelV3 {
             return autoLoginViewModel.uiState.isEnabled
         }
         guard let binding else { return nil }
-        guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-            addressDevice: Int32(binding.deviceAddress),
+        return getSwitcherValueUseCase.invoke(
+            deviceAddress: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode)
-        ) else { return nil }
-        return switchState(from: snapshot)
-    }
-
-    private func sendBytes(_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
+        )?.boolValue
     }
 
     func hash(into hasher: inout Hasher) {

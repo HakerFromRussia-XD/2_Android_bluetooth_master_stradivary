@@ -190,10 +190,13 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func startObservingWidgetUpdates() {
         print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
-        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
-            guard let self = self, self.display == Int32(truncating: updatedDisplay) else { return }
+        let onUpdate: (Int32) -> Void = { [weak self] updatedDisplay in
+            guard let self = self, self.display == updatedDisplay else { return }
             self.reloadWidgetsFromShared()
         }
+        widgetsUpdateJob = UiInterfaceModeBridgeV3.shared.isEnabled()
+            ? viewModel.observeWidgetUpdates(onUpdate)
+            : UiStateBridge.shared.observeUpdates { onUpdate(Int32(truncating: $0)) }
         
         widgetsLoadingCompletionJob?.cancel(cause: nil)
         let onCompletion: () -> Void = { [weak self] in
@@ -392,7 +395,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     
     
     private func resetWidgetsStateForResynchronization() {
-        UiStateBridge.shared.resetWidgetsState()
+        viewModel.onSynchronizationAction(.widgetsResetRequested)
         PlotListItemViewModel.resetRequestCache()
         PlotListItemViewModelV3.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()

@@ -9,6 +9,10 @@ class RequestSyncInitializationUseCaseV3(private val repository: V3SyncInitializ
     operator fun invoke() = repository.requestInitialization()
 }
 
+class ResetWidgetsForSyncUseCaseV3(private val repository: V3SyncWidgetsRepository) {
+    operator fun invoke() = repository.resetWidgets()
+}
+
 class ObserveSyncUseCaseV3(private val repository: V3SyncRepository) {
     private val callbackScope by lazy { MainScope() }
     operator fun invoke() = repository.observe()

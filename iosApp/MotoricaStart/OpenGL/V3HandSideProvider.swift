@@ -7,7 +7,7 @@ extension Notification.Name {
 
 @objcMembers
 final class V3HandSideProvider: NSObject {
-    static let shared = V3HandSideProvider()
+    static let shared = AppDIContainer.makeHandSideProviderV3()
 
     static let deviceAddress: Int32 = 1
     static let parameterID: Int32 = 0x10
@@ -16,6 +16,9 @@ final class V3HandSideProvider: NSObject {
     private var updatesJob: Kotlinx_coroutines_coreJob?
     private var started = false
     private var lastPublishedSide: Int?
+    private let getHandSide: GetHandSideUseCaseV3
+    private let observeHandSide: ObserveHandSideResponsesUseCaseV3
+    private let storeHandSide: StoreHandSideUseCaseV3
 
     var currentSide: Int {
         if V3ModelTestSceneConfiguration.isActive {
@@ -24,7 +27,12 @@ final class V3HandSideProvider: NSObject {
         return currentStoreSide() ?? -1
     }
 
-    override init() {
+    @nonobjc init(getHandSide: GetHandSideUseCaseV3,
+                  observeHandSide: ObserveHandSideResponsesUseCaseV3,
+                  storeHandSide: StoreHandSideUseCaseV3) {
+        self.getHandSide = getHandSide
+        self.observeHandSide = observeHandSide
+        self.storeHandSide = storeHandSide
         super.init()
     }
 
@@ -41,8 +49,8 @@ final class V3HandSideProvider: NSObject {
             return
         }
         started = true
-        updatesJob = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
-            self?.consume(snapshot)
+        updatesJob = observeHandSide.invoke { [weak self] value in
+            self?.consume(Int(truncating: value))
         }
         publishCurrentStoreSide()
     }
@@ -58,16 +66,13 @@ final class V3HandSideProvider: NSObject {
         guard side == 0 || side == 1 else { return }
         NSLog("[V3HandSide] source=widgetStore side=%@",
               side == 0 ? "left" : "right")
-        WidgetStateBridgeV3.shared.setSpinnerValue(
-            addressDevice: Self.deviceAddress,
-            parameterID: Self.parameterID,
-            dataCode: Self.dataCode,
-            value: Int32(side)
-        )
+        storeHandSide.invoke(side: Int32(side))
         publish(side)
     }
 
-    static func side(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
+#if DEBUG
+    // Retain the existing native snapshot-test selector; production responses are mapped in shared data.
+    private static func side(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
         guard snapshot.addressDevice == deviceAddress,
               snapshot.parameterID == parameterID,
               snapshot.dataCode == dataCode,
@@ -80,15 +85,13 @@ final class V3HandSideProvider: NSObject {
         return raw == 0 || raw == 1 ? raw : nil
     }
 
-#if DEBUG
     @objc(sideValueForTestingFromSnapshot:)
     static func sideValueForTesting(from snapshot: ParameterSnapshotV3Bridge) -> NSNumber? {
         side(from: snapshot).map(NSNumber.init(value:))
     }
 #endif
 
-    private func consume(_ snapshot: ParameterSnapshotV3Bridge) {
-        guard let side = Self.side(from: snapshot) else { return }
+    private func consume(_ side: Int) {
         DispatchQueue.main.async { [weak self] in
             self?.publish(side)
         }
@@ -122,13 +125,7 @@ final class V3HandSideProvider: NSObject {
     }
 
     private func currentStoreSide() -> Int? {
-        let value = Int(WidgetStateBridgeV3.shared.getSpinnerValueOrDefault(
-            addressDevice: Self.deviceAddress,
-            parameterID: Self.parameterID,
-            dataCode: Self.dataCode,
-            defaultValue: -1
-        ))
-        return value == 0 || value == 1 ? value : nil
+        getHandSide.invoke()?.intValue
     }
 
 }

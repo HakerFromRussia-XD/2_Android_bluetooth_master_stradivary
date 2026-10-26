@@ -17,6 +17,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.main.V3MainUpdate
 import com.bailout.stickk.ubi4.versions.v3.domain.main.V3MainDisplaysRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.main.GetMainVisibleDisplaysUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.main.ObserveMainStatusUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.main.ObserveWidgetUpdatesUseCaseV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiStateBridge
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -308,6 +310,95 @@ class V3MainRepositoryTest {
             BLEState.State.CONNECTING -> BLEState.publishConnecting()
             BLEState.State.READY -> BLEState.publishReady()
             BLEState.State.ERROR -> BLEState.publishError()
+        }
+    }
+
+    @Test fun `widget update use case preserves bridge replay signed displays repeats and independent cancellation`() = runTest {
+        val previous = UiState.updateFlow
+        val source = MutableSharedFlow<Int>(replay = 1, extraBufferCapacity = 64)
+        val jobs = mutableListOf<Job>()
+        val bridgeEvents = mutableListOf<Int>()
+        val useCaseEvents = mutableListOf<Int>()
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        UiState.updateFlow = source
+        try {
+            source.emit(-1)
+            val observe = ObserveWidgetUpdatesUseCaseV3(V3WidgetUpdatesRepositoryImpl())
+            jobs += UiStateBridge.observeUpdates { bridgeEvents += it }
+            jobs += observe.observeUpdates { useCaseEvents += it }
+            runCurrent()
+            assertEquals(listOf(-1), useCaseEvents)
+            assertEquals(bridgeEvents, useCaseEvents)
+            for (display in listOf(0, 0, 4, 9, -1, Int.MIN_VALUE, Int.MAX_VALUE)) {
+                source.emit(display)
+                runCurrent()
+                assertEquals(bridgeEvents, useCaseEvents)
+            }
+            assertEquals(listOf(-1, 0, 0, 4, 9, -1, Int.MIN_VALUE, Int.MAX_VALUE), useCaseEvents)
+
+            val secondEvents = mutableListOf<Int>()
+            val second = observe.observeUpdates { secondEvents += it }
+            jobs += second
+            runCurrent()
+            assertEquals(listOf(Int.MAX_VALUE), secondEvents)
+            jobs[1].cancelAndJoin()
+            source.emit(2)
+            runCurrent()
+            assertEquals(8, useCaseEvents.size)
+            assertEquals(listOf(Int.MAX_VALUE, 2), secondEvents)
+            assertEquals(2, bridgeEvents.last())
+            second.cancelAndJoin()
+            jobs[0].cancelAndJoin()
+            assertEquals(0, source.subscriptionCount.value)
+            verify { preferences wasNot Called; context wasNot Called; appContext wasNot Called }
+        } finally {
+            jobs.forEach { it.cancelAndJoin() }
+            UiState.updateFlow = previous
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test fun `widget update source is sampled at subscription and reopening does not replay an obsolete source`() = runTest {
+        val previous = UiState.updateFlow
+        val jobs = mutableListOf<Job>()
+        val received = mutableListOf<Int>()
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            val observe = ObserveWidgetUpdatesUseCaseV3(V3WidgetUpdatesRepositoryImpl())
+            val firstSource = MutableSharedFlow<Int>(replay = 1, extraBufferCapacity = 64)
+            UiState.updateFlow = firstSource
+            val first = observe.observeUpdates { received += it }
+            jobs += first
+            runCurrent()
+            assertTrue(received.isEmpty())
+            firstSource.emit(1)
+            firstSource.emit(1)
+            firstSource.emit(3)
+            runCurrent()
+            assertEquals(listOf(1, 1, 3), received)
+
+            val nextSource = MutableSharedFlow<Int>(replay = 1, extraBufferCapacity = 64)
+            UiState.updateFlow = nextSource
+            nextSource.emit(4)
+            runCurrent()
+            assertEquals(listOf(1, 1, 3), received)
+            firstSource.emit(-1)
+            runCurrent()
+            assertEquals(-1, received.last())
+            first.cancelAndJoin()
+            jobs += observe.observeUpdates { received += it }
+            runCurrent()
+            assertEquals(listOf(1, 1, 3, -1, 4), received)
+            assertEquals(0, firstSource.subscriptionCount.value)
+            jobs.last().cancelAndJoin()
+            nextSource.emit(0)
+            runCurrent()
+            assertEquals(5, received.size)
+            assertEquals(0, nextSource.subscriptionCount.value)
+        } finally {
+            jobs.forEach { it.cancelAndJoin() }
+            UiState.updateFlow = previous
+            Dispatchers.resetMain()
         }
     }
 

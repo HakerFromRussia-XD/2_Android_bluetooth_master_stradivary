@@ -10,6 +10,14 @@ class ObserveMainUpdatesUseCaseV3(private val repository: V3MainRepository) {
     fun deviceIdentity() = repository.observeDeviceIdentity()
 }
 
+class ObserveWidgetUpdatesUseCaseV3(private val repository: V3WidgetUpdatesRepository) {
+    private val callbackScope by lazy { MainScope() }
+
+    fun observeUpdates(callback: (Int) -> Unit): Job = callbackScope.launch {
+        repository.observeWidgetUpdates().collect(callback)
+    }
+}
+
 class ObserveMainStatusUseCaseV3(private val repository: V3MainStatusReader) {
     private val callbackScope by lazy { MainScope() }
 

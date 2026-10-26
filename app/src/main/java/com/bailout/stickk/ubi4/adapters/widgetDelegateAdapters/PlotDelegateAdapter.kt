@@ -420,7 +420,7 @@ class PlotDelegateAdapter (
         set1.setDrawValues(false)
         set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
-        set1.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_white)
+        set1.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_open_plot)
         set1.mode = LineDataSet.Mode.LINEAR
         set1.setCircleColor(Color.TRANSPARENT)
         set1.circleHoleColor = Color.TRANSPARENT

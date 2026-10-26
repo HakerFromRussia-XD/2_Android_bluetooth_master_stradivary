@@ -28,7 +28,14 @@ final class BluetoothSceneDIContainer {
         let vm = BluetoothListViewModel(
             bleManager: dependencies.bleManager,
             repository: dependencies.bluetoothRepository,
-            keyValueStorage: dependencies.keyValueStorage
+            keyValueStorage: dependencies.keyValueStorage,
+            resetWidgetsForSync: ResetWidgetsForSyncUseCaseV3(repository: V3SyncRepositoryImpl()),
+            connectDevice: ConnectDeviceUseCaseV3(
+                repository: V3DeviceConnectionRepositoryImpl(
+                    keyValueStorage: dependencies.keyValueStorage,
+                    bleManager: { [bleManager = dependencies.bleManager] in bleManager }
+                )
+            )
         )
         // Будем грузить из сториборда
         let storyboard = UIStoryboard(name: "BluetoothList", bundle: nil)

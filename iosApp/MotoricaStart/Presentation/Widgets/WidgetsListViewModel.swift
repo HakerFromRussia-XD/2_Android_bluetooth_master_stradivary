@@ -14,6 +14,7 @@ enum WidgetsSynchronizationAction {
     case completed(isV3: Bool, isMobile: Bool)
     case begin(reset: Bool, state: LoadingView.State?, isMobile: Bool)
     case sourceChanged(isMobile: Bool)
+    case widgetsResetRequested
 }
 
 enum WidgetsSynchronizationEffect {
@@ -65,6 +66,7 @@ final class WidgetsSynchronizationState {
 
     func onAction(_ action: WidgetsSynchronizationAction, effect: (WidgetsSynchronizationEffect) -> Void) {
         switch action {
+        case .widgetsResetRequested: effect(.resetWidgets)
         case .visibilityChanged(let visible): isViewVisible = visible
         case .viewLoaded(let skip):
             if skip {
@@ -241,6 +243,7 @@ protocol WidgetsListViewModelInput {
     func requestTelemetryData()
     func observeTelemetryCounters(_ callback: @escaping ([V3GestureUsage]) -> Void) -> Kotlinx_coroutines_coreJob
     func customGestureNames() -> [String]
+    func observeWidgetUpdates(_ callback: @escaping (Int32) -> Void) -> Kotlinx_coroutines_coreJob
     func observeWidgetsLoadCompletion(_ callback: @escaping () -> Void) -> Kotlinx_coroutines_coreJob
     func observeInitializationInfo(_ callback: @escaping (V3SyncInitializationInfo) -> Void) -> Kotlinx_coroutines_coreJob
     func observeWidgetsLoadingProgress(_ callback: @escaping (V3SyncLoadingProgress) -> Void) -> Kotlinx_coroutines_coreJob
@@ -281,8 +284,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private let requestAccountStatisticsUseCaseV3: RequestAccountStatisticsUseCaseV3
     private let observeAccountStatisticsUseCaseV3: ObserveAccountStatisticsUseCaseV3
     private let getCustomGestureNamesUseCaseV3: GetCustomGestureNamesUseCaseV3
+    private let observeWidgetUpdatesUseCaseV3: ObserveWidgetUpdatesUseCaseV3
     private let observeSyncUseCaseV3: ObserveSyncUseCaseV3
     private let requestSyncInitializationUseCaseV3: RequestSyncInitializationUseCaseV3
+    private let resetWidgetsForSyncUseCaseV3: ResetWidgetsForSyncUseCaseV3
     private let makeSwitcherViewModel: (Widget) -> SwitcherListItemViewModelV3
     private var customGestureSettingsOpener: ((Int, Bool) -> Void)?
     private var synchronizationEffectHandler: ((WidgetsSynchronizationEffect) -> Void)?
@@ -326,8 +331,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         requestAccountStatisticsUseCaseV3: RequestAccountStatisticsUseCaseV3,
         observeAccountStatisticsUseCaseV3: ObserveAccountStatisticsUseCaseV3,
         getCustomGestureNamesUseCaseV3: GetCustomGestureNamesUseCaseV3,
+        observeWidgetUpdatesUseCaseV3: ObserveWidgetUpdatesUseCaseV3,
         observeSyncUseCaseV3: ObserveSyncUseCaseV3,
         requestSyncInitializationUseCaseV3: RequestSyncInitializationUseCaseV3,
+        resetWidgetsForSyncUseCaseV3: ResetWidgetsForSyncUseCaseV3,
         makeSwitcherViewModel: @escaping (Widget) -> SwitcherListItemViewModelV3,
         actions: WidgetsListViewModelActions? = nil,
         mainQueue: DispatchQueueType = DispatchQueue.main
@@ -344,8 +351,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         self.requestAccountStatisticsUseCaseV3 = requestAccountStatisticsUseCaseV3
         self.observeAccountStatisticsUseCaseV3 = observeAccountStatisticsUseCaseV3
         self.getCustomGestureNamesUseCaseV3 = getCustomGestureNamesUseCaseV3
+        self.observeWidgetUpdatesUseCaseV3 = observeWidgetUpdatesUseCaseV3
         self.observeSyncUseCaseV3 = observeSyncUseCaseV3
         self.requestSyncInitializationUseCaseV3 = requestSyncInitializationUseCaseV3
+        self.resetWidgetsForSyncUseCaseV3 = resetWidgetsForSyncUseCaseV3
         self.makeSwitcherViewModel = makeSwitcherViewModel
         self.actions = actions
         self.mainQueue = mainQueue
@@ -539,6 +548,9 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 let state = synchronization.uiState
                 synchronizationPresentation.value = .loading(state.isLoadingVisible ? state.loading : nil)
             case .requestInitialization: requestInicializeInformation()
+            case .resetWidgets:
+                if UiInterfaceModeBridgeV3.shared.isEnabled() { resetWidgetsForSyncUseCaseV3.invoke() }
+                else { synchronizationEffectHandler?(effect) }
             default: synchronizationEffectHandler?(effect)
             }
         }
@@ -550,6 +562,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
     func customGestureNames() -> [String] {
         getCustomGestureNamesUseCaseV3.invoke().names
+    }
+
+    func observeWidgetUpdates(_ callback: @escaping (Int32) -> Void) -> Kotlinx_coroutines_coreJob {
+        observeWidgetUpdatesUseCaseV3.observeUpdates { callback(Int32(truncating: $0)) }
     }
 
     func observeWidgetsLoadCompletion(_ callback: @escaping () -> Void) -> Kotlinx_coroutines_coreJob {

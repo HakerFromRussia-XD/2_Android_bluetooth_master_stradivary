@@ -6,6 +6,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncInitializationInfo
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncLoadingProgress
 import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncInitializationRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.sync.V3SyncWidgetsRepository
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.UiStateBridge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -14,7 +16,9 @@ class V3SyncInitializationRepositoryImpl(private val initialize: () -> Unit) : V
     override fun requestInitialization() = initialize()
 }
 
-class V3SyncRepositoryImpl : V3SyncRepository {
+class V3SyncRepositoryImpl : V3SyncRepository, V3SyncWidgetsRepository {
+    override fun resetWidgets() = UiStateBridge.resetWidgetsState()
+
     override fun observeWidgetsLoadCompletion() = flow {
         UiState.widgetsLoadingFlow.collect { emit(it) }
     }

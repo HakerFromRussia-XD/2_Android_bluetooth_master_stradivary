@@ -292,16 +292,6 @@ final class GestureService: NSObject {
             onChunkSent: {}
         )
     }
-    @objc(sendDataToFestV3WithDataForWrite:)
-    public func sendDataToFestV3(dataForWrite: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        bleManager.sendBytesKmm(
-            data: dataForWrite,
-            command: gatt.SERIALPORTCHAR_UUID,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {}
-        )
-    }
     @objc(requestGestureSettingsV3WithGestureId:)
     public func requestGestureSettingsV3(gestureId: Int) {
         GestureSettingsViewModelV3.shared.onAction(.settingsRequested(Int32(gestureId)))

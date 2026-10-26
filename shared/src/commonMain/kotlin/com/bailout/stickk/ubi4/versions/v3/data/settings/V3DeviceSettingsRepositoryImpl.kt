@@ -26,17 +26,45 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_PINCH_THUMB_POSITION
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetStateBridgeV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.ParameterSnapshotV3Bridge
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SliderResponsesRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SettingsResponsesRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SettingsParameterRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SwitcherSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.booleanOrNull
+
+private fun ParameterSnapshotV3Bridge.switcherValue(): Boolean? = runCatching {
+    Json.parseToJsonElement(serializedValue).jsonObject["checked"]?.jsonPrimitive?.booleanOrNull
+}.getOrNull()
+
+/** Switcher retains its existing transport; reads and sending do not save a profile or received value. */
+class V3SwitcherSettingsRepositoryImpl(private val enqueuePacket: (ByteArray) -> Unit) : V3SwitcherSettingsRepository {
+    override fun getSwitcherValue(deviceAddress: Int, parameterID: Int, dataCode: Int): Boolean? =
+        WidgetStateBridgeV3.getCurrent(deviceAddress, parameterID, dataCode)?.switcherValue()
+
+    override fun requestSwitcherValue(parameterID: Int, dataCode: Int) {
+        WidgetCommandBridgeV3.buildReadRequest(parameterID, dataCode)?.let(enqueuePacket)
+    }
+
+    override fun setSwitcherValue(deviceAddress: Int, parameterID: Int, dataCode: Int, value: Boolean) {
+        WidgetCommandBridgeV3.buildSetBoolean(parameterID, dataCode, deviceAddress, value)?.let(enqueuePacket)
+    }
+}
 
 /** Uses the existing V3 stores, profile persistence and command queue. */
 class V3DeviceSettingsRepositoryImpl(
@@ -47,7 +75,8 @@ class V3DeviceSettingsRepositoryImpl(
     private val saveValueBeforeSending: Boolean = true,
     private val retainEmgGainDrafts: Boolean = false,
     private val beforeSpinnerValueSent: (ParameterInfo<Int, Int, Int, Int>, Int) -> Unit = { _, _ -> },
-) : V3DeviceSettingsRepository, V3SliderResponsesRepository, V3ToggleSliderSettingsRepository, V3SpinnerSettingsRepository {
+) : V3DeviceSettingsRepository, V3SliderResponsesRepository, V3ToggleSliderSettingsRepository,
+    V3SpinnerSettingsRepository, V3SettingsResponsesRepository, V3SettingsParameterRepository {
     private companion object {
         // Preserve the iOS pair cache lifetime across screen/repository recreation and reconnects.
         val emgGainDrafts = MutableStateFlow<Map<ParameterStoreKeyV3, ParameterTypedValueV3.EmgGains>>(emptyMap())
@@ -55,6 +84,20 @@ class V3DeviceSettingsRepositoryImpl(
     override val sliderInteractionEnabled = deviceInteractionEnabledState
     override val toggleSliderInteractionEnabled = deviceInteractionEnabledState
     override val spinnerInteractionEnabled = deviceInteractionEnabledState
+
+    override fun getToggleSliderParameterValue(deviceAddress: Int, parameterID: Int, dataCode: Int): Int? =
+        WidgetStateBridgeV3.getCurrent(deviceAddress, parameterID, dataCode)?.intValue("toggleValue")
+
+    override fun getSpinnerParameterValue(deviceAddress: Int, parameterID: Int, dataCode: Int): Int? =
+        WidgetStateBridgeV3.getSpinnerValueOrDefault(deviceAddress, parameterID, dataCode, -1).takeIf { it >= 0 }
+
+    override fun requestParameterValue(parameterID: Int, dataCode: Int) {
+        WidgetCommandBridgeV3.buildReadRequest(parameterID, dataCode)?.let(enqueuePacket)
+    }
+
+    override fun sendParameterValue(deviceAddress: Int, parameterID: Int, dataCode: Int, dataOffset: Int, value: Int) {
+        WidgetCommandBridgeV3.buildSetInt(parameterID, dataCode, deviceAddress, dataOffset, value)?.let(enqueuePacket)
+    }
 
     override fun getSpinnerValue(parameterKey: String): Int? =
         (readTypedValue(spinnerMeta(parameterKey)) as? ParameterTypedValueV3.Spinner)?.value?.spinnerValue
@@ -114,13 +157,35 @@ class V3DeviceSettingsRepositoryImpl(
     override fun observeSliderValue(parameterKey: String) =
         ParameterStoreV3.values.map { getSliderValue(parameterKey) }.distinctUntilChanged()
 
-    override fun observeSliderResponses(parameterKey: String, onResponse: () -> Unit) =
+    override fun observeSliderResponses(parameterKey: String, onResponse: () -> Unit): Job {
+        val info = sliderMeta(parameterKey).parameterInfo
+        return observeSettingsResponses(info.deviceAddress, info.parameterID, info.dataCode) { onResponse() }
+    }
+
+    override fun observeToggleSliderResponses(
+        deviceAddress: Int, parameterID: Int, dataCode: Int, onResponse: (Int?) -> Unit,
+    ) = observeSettingsResponses(deviceAddress, parameterID, dataCode) { onResponse(it.intValue("toggleValue")) }
+
+    override fun observeSpinnerResponses(
+        deviceAddress: Int, parameterID: Int, dataCode: Int, onResponse: (Int?) -> Unit,
+    ) = observeSettingsResponses(deviceAddress, parameterID, dataCode) { onResponse(it.intValue("spinnerValue")) }
+
+    override fun observeSwitcherResponses(
+        deviceAddress: Int, parameterID: Int, dataCode: Int, onResponse: (Boolean?) -> Unit,
+    ) = observeSettingsResponses(deviceAddress, parameterID, dataCode) { onResponse(it.switcherValue()) }
+
+    private fun observeSettingsResponses(
+        deviceAddress: Int, parameterID: Int, dataCode: Int, onResponse: (ParameterSnapshotV3Bridge) -> Unit,
+    ) =
         WidgetStateBridgeV3.observeUpdates { snapshot ->
-            val info = sliderMeta(parameterKey).parameterInfo
-            if (snapshot.addressDevice == info.deviceAddress &&
-                snapshot.parameterID == info.parameterID && snapshot.dataCode == info.dataCode
-            ) onResponse()
+            if (snapshot.addressDevice == deviceAddress &&
+                snapshot.parameterID == parameterID && snapshot.dataCode == dataCode
+            ) onResponse(snapshot)
         }
+
+    private fun ParameterSnapshotV3Bridge.intValue(field: String): Int? = runCatching {
+        Json.parseToJsonElement(serializedValue).jsonObject[field]?.jsonPrimitive?.intOrNull
+    }.getOrNull()
 
     override fun getSliderValue(parameterKey: String): Int? {
         val meta = sliderMeta(parameterKey)

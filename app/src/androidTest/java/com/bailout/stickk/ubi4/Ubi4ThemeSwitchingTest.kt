@@ -188,7 +188,7 @@ class Ubi4ThemeSwitchingTest {
                 it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK,
             )
             assertEquals(Color.parseColor(if (light) "#F4F5F2" else "#2A2A2A"), it.getColor(R.color.ubi4_back))
-            assertEquals(Color.parseColor("#C6F158"), it.getColor(R.color.ubi4_active))
+            assertEquals(Color.parseColor(if (light) "#06B87B" else "#C6F158"), it.getColor(R.color.ubi4_active))
             val bars = WindowCompat.getInsetsController(it.window, it.window.decorView)
             assertEquals(light, bars.isAppearanceLightStatusBars)
             assertEquals(light, bars.isAppearanceLightNavigationBars)

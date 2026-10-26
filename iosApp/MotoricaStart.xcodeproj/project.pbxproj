@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		A6100910D320405081AABD02 /* V3GesturesPreferencesRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */; };
+		A6102018D320405081AABE02 /* V3SpinnerSelectionRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6102018D320405081AABE01 /* V3SpinnerSelectionRepositoryImpl.swift */; };
+		A6102118D320405081AABF02 /* V3DeviceConnectionRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6102118D320405081AABF01 /* V3DeviceConnectionRepositoryImpl.swift */; };
 		A6100910D320405081AABC02 /* V3AccountDetailsSnapshotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */; };
 		A6100910D320405081AABB02 /* CustomGestureNamesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100910D320405081AABB01 /* CustomGestureNamesStorage.swift */; };
 		A6100710D320405081AABB04 /* V3DeviceInteractionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6100710D320405081AABB03 /* V3DeviceInteractionViewModelTests.swift */; };
@@ -325,6 +327,8 @@
 
 /* Begin PBXFileReference section */
 		A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3GesturesPreferencesRepositoryImpl.swift; sourceTree = "<group>"; };
+		A6102018D320405081AABE01 /* V3SpinnerSelectionRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3SpinnerSelectionRepositoryImpl.swift; sourceTree = "<group>"; };
+		A6102118D320405081AABF01 /* V3DeviceConnectionRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3DeviceConnectionRepositoryImpl.swift; sourceTree = "<group>"; };
 		A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3AccountDetailsSnapshotRepository.swift; sourceTree = "<group>"; };
 		A6100910D320405081AABB01 /* CustomGestureNamesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomGestureNamesStorage.swift; sourceTree = "<group>"; };
 		A6100710D320405081AABB03 /* V3DeviceInteractionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3DeviceInteractionViewModelTests.swift; sourceTree = "<group>"; };
@@ -1083,6 +1087,8 @@
 			isa = PBXGroup;
 			children = (
 				A6100910D320405081AABD01 /* V3GesturesPreferencesRepositoryImpl.swift */,
+				A6102018D320405081AABE01 /* V3SpinnerSelectionRepositoryImpl.swift */,
+				A6102118D320405081AABF01 /* V3DeviceConnectionRepositoryImpl.swift */,
 				A6100910D320405081AABC01 /* V3AccountDetailsSnapshotRepository.swift */,
 				1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */,
 				1FFFC827221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift */,
@@ -2061,6 +2067,8 @@
 				659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
 				651DDBB62F14F3DB00199FD8 /* GestureService.swift in Sources */,
 				A6100910D320405081AABD02 /* V3GesturesPreferencesRepositoryImpl.swift in Sources */,
+				A6102018D320405081AABE02 /* V3SpinnerSelectionRepositoryImpl.swift in Sources */,
+				A6102118D320405081AABF02 /* V3DeviceConnectionRepositoryImpl.swift in Sources */,
 				A6100910D320405081AABC02 /* V3AccountDetailsSnapshotRepository.swift in Sources */,
 				A6100910D320405081AABB02 /* CustomGestureNamesStorage.swift in Sources */,
 				651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */,

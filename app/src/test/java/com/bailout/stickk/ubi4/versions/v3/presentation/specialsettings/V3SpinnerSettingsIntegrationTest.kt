@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.device.V3DeviceProfile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
@@ -29,6 +30,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVIC
 import com.bailout.stickk.ubi4.versions.v3.data.settings.V3DeviceSettingsRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRules
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.GetSpinnerSettingsUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.ObserveSpinnerResponsesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.RequestSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
@@ -158,6 +160,128 @@ class V3SpinnerSettingsIntegrationTest {
         assertTrue(savedValues.isEmpty())
         assertTrue(savedKeys.isEmpty())
         assertFalse(UiState.v3WidgetsInteractionEnabled.value)
+    }
+
+    @Test
+    fun `native Spinner response observers preserve every route and repeated omitted zero without writes`() = runTest(dispatcher) {
+        val native = queuedRepository()
+        val getSettings = GetSpinnerSettingsUseCaseV3(native)
+        val observeResponses = ObserveSpinnerResponsesUseCaseV3(native)
+        val cache = cachedData()
+        val bleState = BLEState.state.value
+        val interfaceActivated = UiState.isInterfaceV3Activated
+        val keys = spinnerRanges.keys + setOf(P_KEY_SETTINGS_PROFILE, P_KEY_DEVICE_ROLE)
+        UiState.v3WidgetsInteractionEnabled.value = false
+        keys.forEach { incoming(2, it) }
+        val initialStore = ParameterStoreV3.values.value
+        val replies = keys.associateWith { mutableListOf<Int?>() }
+        val jobs = keys.map { parameterKey ->
+            val parameter = ParameterInfoRegistry.require(parameterKey)
+            observeResponses(parameter.deviceAddress, parameter.parameterID, parameter.dataCode) {
+                replies.getValue(parameterKey).add(it)
+            }
+        }
+        fun receive(parameter: ParameterInfo<Int, Int, Int, Int>, value: ParameterTypedValueV3) {
+            ParameterStoreV3.put(parameter, value)
+            val receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertUnchanged(receivedStore, cache)
+        }
+        try {
+            runCurrent()
+            assertTrue(replies.values.all { it.isEmpty() })
+            assertUnchanged(initialStore, cache)
+            keys.forEach { parameterKey ->
+                val parameter = ParameterInfoRegistry.require(parameterKey)
+                listOf(0, 0, -3, -3, 255, 255).forEach { value ->
+                    receive(parameter, ParameterTypedValueV3.Spinner(SpinnerV3(value)))
+                    // Configure can still read zero, while its omitted snapshot field remains nil for RX.
+                    assertEquals(value, getSettings(setOf(parameterKey)).values.getValue(parameterKey))
+                }
+                assertEquals(listOf(null, null, -3, -3, 255, 255), replies.getValue(parameterKey))
+            }
+
+            val beforeOtherParameters = replies.mapValues { it.value.toList() }
+            listOf(info.copy(deviceAddress = 999), info.copy(parameterID = 999), info.copy(dataCode = 999))
+                .forEach { receive(it, ParameterTypedValueV3.Spinner(SpinnerV3(99))) }
+            assertEquals(beforeOtherParameters, replies)
+            receive(info.copy(dataOffsets = 999), ParameterTypedValueV3.Spinner(SpinnerV3(99)))
+            receive(info, ParameterTypedValueV3.Text("wrong typed value"))
+            assertEquals(listOf(null, null, -3, -3, 255, 255, 99, null), replies.getValue(key))
+            assertTrue(packets.isEmpty())
+            assertEquals(bleState, BLEState.state.value)
+            assertEquals(interfaceActivated, UiState.isInterfaceV3Activated)
+        } finally {
+            jobs.forEach { it.cancel() }
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun `native Spinner response delivery keeps queued latest snapshot semantics and cancellation`() = runTest(dispatcher) {
+        val cache = cachedData()
+        val replies = mutableListOf<Int?>()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        val job = ObserveSpinnerResponsesUseCaseV3(queuedRepository())(
+            info.deviceAddress, info.parameterID, info.dataCode,
+        ) { replies.add(it) }
+        try {
+            runCurrent()
+            assertTrue(replies.isEmpty())
+            incoming(2)
+            incoming(3)
+            var receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertEquals(listOf(3, 3), replies)
+            assertUnchanged(receivedStore, cache)
+
+            incoming(4)
+            ParameterStoreV3.clear()
+            runCurrent()
+            assertEquals(listOf(3, 3), replies)
+            assertUnchanged(emptyMap(), cache)
+            job.cancel()
+            runCurrent()
+            incoming(1)
+            receivedStore = ParameterStoreV3.values.value
+            runCurrent()
+            assertEquals(listOf(3, 3), replies)
+            assertUnchanged(receivedStore, cache)
+            assertTrue(packets.isEmpty())
+        } finally {
+            job.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun `profile Spinner callback keeps its snapshot value when live state changes during delivery`() = runTest(dispatcher) {
+        val parameterKey = P_KEY_SETTINGS_PROFILE
+        val parameter = ParameterInfoRegistry.require(parameterKey)
+        val native = queuedRepository()
+        val getSettings = GetSpinnerSettingsUseCaseV3(native)
+        val cache = cachedData()
+        val replies = mutableListOf<Pair<Int?, Int?>>()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        val job = ObserveSpinnerResponsesUseCaseV3(native)(
+            parameter.deviceAddress, parameter.parameterID, parameter.dataCode,
+        ) { snapshotValue ->
+            if (snapshotValue == 2) incoming(99, parameterKey)
+            replies.add(snapshotValue to getSettings(setOf(parameterKey)).values.getValue(parameterKey))
+        }
+        try {
+            runCurrent()
+            incoming(2, parameterKey)
+            runCurrent()
+            assertEquals(listOf(2 to 99, 99 to 99), replies)
+            assertUnchanged(
+                mapOf(ParameterStoreV3.toKey(parameter) to ParameterTypedValueV3.Spinner(SpinnerV3(99))), cache,
+            )
+            assertTrue(packets.isEmpty())
+        } finally {
+            job.cancel()
+            runCurrent()
+        }
     }
 
     @Test

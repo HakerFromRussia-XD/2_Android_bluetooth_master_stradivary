@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.utility
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import com.bailout.stickk.ubi4.data.network.SharedFile
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
@@ -19,6 +18,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.bailout.stickk.ubi4.domain.notifications.UserMessageDuration
+import com.bailout.stickk.ubi4.domain.notifications.UserMessageNotifier
 
 object TrainingUploadManager {
 
@@ -37,7 +38,8 @@ object TrainingUploadManager {
         repo: Ubi4TrainingRepository,
         token: String,
         serial: String,
-        selectedEmg8Files: List<File>
+        selectedEmg8Files: List<File>,
+        userMessages: UserMessageNotifier
     ): Job {
         val appContext = context.applicationContext
         val dir = appContext.getExternalFilesDir(null)
@@ -117,21 +119,19 @@ object TrainingUploadManager {
                 stateFlow.value = State.DONE
                 progressFlow.tryEmit(100)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        appContext,
+                    userMessages.show(
                         "Модель обучена (checkpoint=$checkpoint)",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        UserMessageDuration.SHORT
+                    )
                 }
             } catch (e: Throwable) {
                 Log.e("TrainingUploadManager", "pipeline error", e)
                 stateFlow.value = State.ERROR
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        appContext,
+                    userMessages.show(
                         "Ошибка обучения: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                        UserMessageDuration.LONG
+                    )
                 }
             }
         }

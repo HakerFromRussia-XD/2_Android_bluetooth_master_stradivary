@@ -15,6 +15,7 @@ import androidx.core.view.WindowCompat
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -34,6 +35,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
+import org.hamcrest.Matchers.allOf
 import java.io.File
 
 /** Exercises a real theme-triggered Activity recreation, using the existing emulator BLE fixture. */
@@ -47,11 +49,11 @@ class Ubi4ThemeSwitchingTest {
         withEmulatedActivity("DARK") { scenario ->
             openMobileSettings(scenario)
             selectTheme(R.string.ubi4_theme_light)
-            waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_light))) }
+            waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_light))) }
             assertTheme(scenario, light = true)
             screenshot("light")
             selectTheme(R.string.ubi4_theme_dark)
-            waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_dark))) }
+            waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_dark))) }
             assertTheme(scenario, light = false)
             screenshot("dark")
         }
@@ -82,7 +84,7 @@ class Ubi4ThemeSwitchingTest {
             waitUntil { onView(withId(R.id.appearanceSettingsRow)).check(matches(isDisplayed())) }
             scenario.onActivity { UiState.isInterfaceV3Activated = false }
             selectTheme(R.string.ubi4_theme_light)
-            waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_light))) }
+            waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_light))) }
             assertTheme(scenario, light = true)
             scenario.onActivity { activity ->
                 val fragments = activity.supportFragmentManager
@@ -109,20 +111,20 @@ class Ubi4ThemeSwitchingTest {
             setSystemNightMode(uiModeManager, UiModeManager.MODE_NIGHT_NO)
             withEmulatedActivity(initialMode = null) { scenario ->
                 openMobileSettings(scenario)
-                waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_system))) }
+                waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_system))) }
                 waitUntil { assertTheme(scenario, light = true) }
                 setSystemNightMode(uiModeManager, UiModeManager.MODE_NIGHT_YES)
                 waitUntil { assertTheme(scenario, light = false) }
                 selectTheme(R.string.ubi4_theme_light)
-                waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_light))) }
+                waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_light))) }
                 waitUntil { assertTheme(scenario, light = true) }
                 setSystemNightMode(uiModeManager, UiModeManager.MODE_NIGHT_NO)
                 waitUntil { assertTheme(scenario, light = true) }
                 selectTheme(R.string.ubi4_theme_dark)
-                waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_dark))) }
+                waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_dark))) }
                 waitUntil { assertTheme(scenario, light = false) }
                 selectTheme(R.string.ubi4_theme_system)
-                waitUntil { onView(withId(R.id.appearanceSelectedTheme)).check(matches(withText(R.string.ubi4_theme_system))) }
+                waitUntil { themeSpinner().check(matches(withText(R.string.ubi4_theme_system))) }
                 waitUntil { assertTheme(scenario, light = true) }
             }
         } finally {
@@ -211,9 +213,15 @@ class Ubi4ThemeSwitchingTest {
     }
 
     private fun selectTheme(label: Int) {
-        onView(withId(R.id.appearanceSettingsRow)).perform(click())
-        onView(withText(label)).perform(click())
+        themeSpinner().perform(click())
+        screenshot("dropdown-${InstrumentationRegistry.getInstrumentation().targetContext.resources.getResourceEntryName(label)}")
+        onView(withText(label)).inRoot(isPlatformPopup()).perform(click())
     }
+
+    private fun themeSpinner() = onView(allOf(
+        withId(R.id.spinnerPsv),
+        isDescendantOfA(withId(R.id.appearanceSettingsRow)),
+    ))
 
     private fun screenshot(name: String) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()

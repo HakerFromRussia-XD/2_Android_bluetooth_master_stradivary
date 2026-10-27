@@ -43,6 +43,7 @@ class WDApplication : MultiDexApplication() {
       .build()
     bluetoothModule = BluetoothModule(this)
     AndroidContextProvider.init(applicationContext)
+    com.bailout.stickk.ubi4.ui.notifications.AppToast.initialize(this)
     AndroidCtx.appContext = applicationContext
     DbProvider.setInstance(RoomInit.init())
 

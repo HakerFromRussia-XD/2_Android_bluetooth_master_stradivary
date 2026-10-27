@@ -79,6 +79,7 @@
             android:padding="4dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_baseline_settings_24"
+            android:tint="@color/ubi4_text_primary"
             android:visibility="gone" />
     </LinearLayout>
 

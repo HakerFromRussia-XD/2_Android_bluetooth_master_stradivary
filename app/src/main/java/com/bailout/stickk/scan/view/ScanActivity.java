@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import com.bailout.stickk.ubi4.ui.notifications.AppToast;
 
 
 @SuppressWarnings("ALL")
@@ -278,7 +279,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "BLE не завёлся", Toast.LENGTH_SHORT);
             finish();
         }
         final BluetoothManager bluetoothManager =
@@ -288,11 +289,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //        mBluetoothAdapter = bluetoothManager.getAdapter().getBluetoothLeAdvertiser().startAdvertising();
 
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "bluetooth нет на телефоне", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "bluetooth нет на телефоне", Toast.LENGTH_SHORT);
 
             try {
                 if(!mBluetoothAdapter.isMultipleAdvertisementSupported()){
-                    Toast.makeText(this, "bluetooth low energy нет на телефоне", Toast.LENGTH_SHORT).show();
+                    AppToast.show(this, "bluetooth low energy нет на телефоне", Toast.LENGTH_SHORT);
                 }
                 finish();
             } catch (IllegalStateException e) {
@@ -518,7 +519,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     @Override
     public void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        AppToast.show(this, message, Toast.LENGTH_SHORT);
     }
     @Override
     public void navigateToChart(String extraName, BluetoothDevice extraDevice) {

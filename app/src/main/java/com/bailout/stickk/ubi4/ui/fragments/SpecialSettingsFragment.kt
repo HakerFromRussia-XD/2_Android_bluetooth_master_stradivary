@@ -3,11 +3,12 @@ package com.bailout.stickk.ubi4.ui.fragments
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnNextLayout
-import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +44,7 @@ import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetMapper
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import com.skydoves.powerspinner.DefaultSpinnerAdapter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -51,7 +53,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val themeSettingsViewModel by lazy {
         ViewModelProvider(this, ThemeDependencies.viewModelFactory(requireContext()))[ThemeSettingsViewModel::class.java]
     }
-    private var themeDialog: AlertDialog? = null
     private val v3SpinnerParameterKeys = V3SpecialSettingsViewModel.spinnerParameterKeys
     private val v3ToggleSliderParameterKeys = V3SpecialSettingsViewModel.toggleSliderParameterKeys
     private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
@@ -168,22 +169,43 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     private fun bindAppearanceSettings() {
-        binding.appearanceSettingsRow.setOnClickListener {
-            val modes = AppThemeMode.entries
-            val selectedMode = themeSettingsViewModel.uiState.value.selectedMode
-            themeDialog?.dismiss()
-            themeDialog = AlertDialog.Builder(requireContext())
-                .setTitle(R.string.ubi4_theme_title)
-                .setSingleChoiceItems(modes.map { getString(themeLabel(it)) }.toTypedArray(), modes.indexOf(selectedMode)) { dialog, index ->
-                    dialog.dismiss()
-                    themeSettingsViewModel.onAction(ThemeSettingsAction.ThemeSelected(modes[index]))
-                }
-                .show()
+        val themeRow = binding.appearanceSettingsRow
+        val spinner = themeRow.spinnerPsv
+        val modes = listOf(AppThemeMode.LIGHT, AppThemeMode.DARK, AppThemeMode.SYSTEM)
+        val adapter = DefaultSpinnerAdapter(spinner)
+        themeRow.spinnerTv.setText(R.string.ubi4_theme_title)
+        spinner.setSpinnerAdapter(adapter)
+        spinner.setItems(modes.map { getString(themeLabel(it)) })
+        spinner.apply {
+            setTextColor(context.getColor(R.color.ubi4_text_primary))
+            textSize = 12f
+            typeface = ResourcesCompat.getFont(context, R.font.sf_pro_display_light)
+            gravity = Gravity.CENTER
+            lifecycleOwner = viewLifecycleOwner
+            setIsFocusable(true)
+            setOnSpinnerOutsideTouchListener { _, _ -> dismiss() }
+        }
+        themeRow.root.setOnClickListener { spinner.showOrDismiss() }
+        spinner.setOnSpinnerItemSelectedListener<CharSequence> { _, _, index, _ ->
+            spinner.dismiss()
+            modes.getOrNull(index)?.let { mode ->
+                themeSettingsViewModel.onAction(ThemeSettingsAction.ThemeSelected(mode))
+            }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 themeSettingsViewModel.uiState.collect { state ->
-                    binding.appearanceSelectedTheme.setText(themeLabel(state.selectedMode))
+                    val index = modes.indexOf(state.selectedMode)
+                    if (spinner.selectedIndex != index) {
+                        // Rendering the saved choice must not dispatch another theme change.
+                        val listener = adapter.onSpinnerItemSelectedListener
+                        adapter.onSpinnerItemSelectedListener = null
+                        try {
+                            spinner.selectItemByIndex(index)
+                        } finally {
+                            adapter.onSpinnerItemSelectedListener = listener
+                        }
+                    }
                     AppThemeModeApplier.apply(state.selectedMode)
                 }
             }
@@ -326,7 +348,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
 
     private fun updateSelectorUI(animate: Boolean = true) {
-        binding.appearanceSettingsRow.visibility = if (isMobileSettings) View.VISIBLE else View.GONE
+        if (!isMobileSettings) binding.appearanceSettingsRow.spinnerPsv.dismiss()
+        binding.appearanceSettingsRow.root.visibility = if (isMobileSettings) View.VISIBLE else View.GONE
         val duration = 200L
         val context = context ?: return
         val selectedColor = context.getColor(R.color.ubi4_text_primary)
@@ -399,9 +422,16 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
     }
 
+    override fun onStop() {
+        _binding?.appearanceSettingsRow?.spinnerPsv?.dismiss()
+        super.onStop()
+    }
+
     override fun onDestroyView() {
-        themeDialog?.dismiss()
-        themeDialog = null
+        _binding?.appearanceSettingsRow?.spinnerPsv?.apply {
+            getSpinnerAdapter<CharSequence>().onSpinnerItemSelectedListener = null
+            dismiss()
+        }
         dismissSettingsProfileNameDialog()
         pendingV3Render?.let { _binding?.settingsRecyclerView?.removeCallbacks(it) }
         pendingV3Render = null

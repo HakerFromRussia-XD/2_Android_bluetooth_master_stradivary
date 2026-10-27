@@ -28,6 +28,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 
 @SuppressLint("CustomSplashScreen")
@@ -110,8 +111,8 @@ class SplashScreen : AppCompatActivity() {
                             finish()
                         } else {
 //                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked false")
-                            Toast.makeText(this@SplashScreen, R.string.we_need_these_permissions, Toast.LENGTH_SHORT
-                            ).show()
+                            AppToast.show(this@SplashScreen, R.string.we_need_these_permissions, Toast.LENGTH_SHORT
+                            )
                             askPermissions()
                         }
                     }

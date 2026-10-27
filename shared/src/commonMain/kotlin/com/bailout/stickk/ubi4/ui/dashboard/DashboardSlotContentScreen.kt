@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,14 +29,6 @@ import androidx.compose.ui.unit.sp
 import com.bailout.stickk.ubi4.data.state.DashboardSlotContentInput
 import com.bailout.stickk.ubi4.data.state.DashboardSlotContentSchemas
 import com.bailout.stickk.ubi4.data.state.DashboardSlotContentUiState
-
-private object DashboardSlotContentColors {
-    val Back = Color(0xFF2A2A2A)
-    val Card = Color(0xFF3A3A3A)
-    val Border = Color(0xFF444444)
-    val White = Color(0xFFFCFCFC)
-    val Muted = Color(0xFFBDBDBD)
-}
 
 sealed interface DashboardSlotContentAction {
     data object Refresh : DashboardSlotContentAction
@@ -54,10 +45,11 @@ fun DashboardSlotContentScreen(
     onActionClick: (DashboardSlotContentAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalDashboardPalette.current
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(DashboardSlotContentColors.Back)
+            .background(colors.background)
     ) {
         Column(
             modifier = Modifier
@@ -71,7 +63,7 @@ fun DashboardSlotContentScreen(
             Text(
                 text = "Содержимое Слота",
                 modifier = Modifier.fillMaxWidth(),
-                color = DashboardSlotContentColors.White,
+                color = colors.text,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -99,17 +91,18 @@ fun DashboardSlotContentScreen(
 
 @Composable
 private fun InfoCard(state: DashboardSlotContentUiState) {
+    val colors = LocalDashboardPalette.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DashboardSlotContentColors.Card)
+            .background(colors.surface)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = "0x${state.dataCode.toHexByte()} - ${state.title} (v${state.version}.${state.subVersion})",
-            color = DashboardSlotContentColors.White,
+            color = colors.text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             maxLines = 1,
@@ -117,7 +110,7 @@ private fun InfoCard(state: DashboardSlotContentUiState) {
         )
         Text(
             text = "Размер: ${state.declaredSize} байт",
-            color = DashboardSlotContentColors.Muted,
+            color = colors.mutedText,
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -125,14 +118,14 @@ private fun InfoCard(state: DashboardSlotContentUiState) {
         state.statusMessage?.let { message ->
             Text(
                 text = message,
-                color = DashboardSlotContentColors.Muted,
+                color = colors.mutedText,
                 fontSize = 12.sp
             )
         }
         state.errorMessage?.let { message ->
             Text(
                 text = message,
-                color = DashboardSlotContentColors.Muted,
+                color = colors.mutedText,
                 fontSize = 12.sp
             )
         }
@@ -161,10 +154,11 @@ private fun ContentCard(
 
 @Composable
 private fun ContentMessage(text: String) {
+    val colors = LocalDashboardPalette.current
     Text(
         text = text,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        color = DashboardSlotContentColors.White,
+        color = colors.text,
         fontSize = 12.sp,
         fontWeight = FontWeight.Normal
     )
@@ -218,10 +212,11 @@ private fun BottomActionBar(
     modifier: Modifier,
     onActionClick: (DashboardSlotContentAction) -> Unit
 ) {
+    val colors = LocalDashboardPalette.current
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(DashboardSlotContentColors.Back)
+            .background(colors.background)
             .padding(horizontal = 10.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -249,13 +244,14 @@ private fun ActionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val colors = LocalDashboardPalette.current
     Box(
         modifier = modifier
             .height(48.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(DashboardSlotContentColors.Card)
+            .background(colors.surface)
             .border(
-                BorderStroke(1.dp, DashboardSlotContentColors.Border),
+                BorderStroke(1.dp, colors.border),
                 RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick),
@@ -263,7 +259,7 @@ private fun ActionButton(
     ) {
         Text(
             text = text,
-            color = DashboardSlotContentColors.White,
+            color = colors.text,
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
             maxLines = 1,

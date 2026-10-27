@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.awaitCancellation
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class AccountFragmentMainV3 : Fragment() {
     private var mContext: Context? = null
@@ -259,8 +260,8 @@ class AccountFragmentMainV3 : Fragment() {
             profileViewModel.onAction(V3AccountProfileAction.FirmwareMessageShown(message.id))
             when (message) {
                 is V3ServiceFirmwareMessage.CatalogUnavailable -> showFirmwareCatalogUnavailableToast()
-                is V3ServiceFirmwareMessage.NotFound -> Toast.makeText(requireContext(), R.string.firmware_not_found_for_board, Toast.LENGTH_SHORT).show()
-                is V3ServiceFirmwareMessage.DownloadStarted -> Toast.makeText(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT).show()
+                is V3ServiceFirmwareMessage.NotFound -> AppToast.show(requireContext(), R.string.firmware_not_found_for_board, Toast.LENGTH_SHORT)
+                is V3ServiceFirmwareMessage.DownloadStarted -> AppToast.show(requireContext(), R.string.firmware_downloading, Toast.LENGTH_SHORT)
                 is V3ServiceFirmwareMessage.FilesDownloaded -> {
                     val boardItem = pendingFirmwareBoards.remove(message.requestId)
                     if (boardItem != null) {
@@ -301,7 +302,7 @@ class AccountFragmentMainV3 : Fragment() {
     }
 
     private fun showFirmwareCatalogUnavailableToast() {
-        Toast.makeText(requireContext(), R.string.firmware_catalog_unavailable, Toast.LENGTH_SHORT).show()
+        AppToast.show(requireContext(), R.string.firmware_catalog_unavailable, Toast.LENGTH_SHORT)
     }
 
     private fun renderAccountProfile(state: V3AccountProfileUiState) {
@@ -325,9 +326,9 @@ class AccountFragmentMainV3 : Fragment() {
         }
         state.messages.forEach { message ->
             if (message.serverMessage == null) {
-                Toast.makeText(context, getString(SharedRes.strings.no_user_data_on_server.resourceId), Toast.LENGTH_LONG).show()
+                AppToast.show(context, getString(SharedRes.strings.no_user_data_on_server.resourceId), Toast.LENGTH_LONG)
             } else {
-                Toast.makeText(context, message.serverMessage, Toast.LENGTH_SHORT).show()
+                AppToast.show(context, message.serverMessage, Toast.LENGTH_SHORT)
             }
             profileViewModel.onAction(V3AccountProfileAction.MessageShown(message.id))
         }

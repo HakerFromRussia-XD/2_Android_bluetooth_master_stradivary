@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.properties.Delegates
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 
 //TODO изменить импорты из UBI3 для фрагмента "help"
@@ -277,7 +278,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         if (err.code == 500) retryOrShowNoData()
         else {
             showInfoWithoutConnection()
-            Toast.makeText(mContext, err.message, Toast.LENGTH_SHORT).show()
+            AppToast.show(mContext, err.message, Toast.LENGTH_SHORT)
         }
     }
 
@@ -285,11 +286,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         if (attemptedRequest++ < 4) requestToken()
         else {
             showInfoWithoutConnection()
-            Toast.makeText(
+            AppToast.show(
                 mContext,
                 getString(SharedRes.strings.no_user_data_on_server.resourceId),
                 Toast.LENGTH_LONG
-            ).show()
+            )
         }
     }
     private fun requestUserData() {
@@ -307,7 +308,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
                     if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                    AppToast.show(mContext, res.message, Toast.LENGTH_SHORT)
                 }
             }
         }
@@ -330,7 +331,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
                     if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                    AppToast.show(mContext, res.message, Toast.LENGTH_SHORT)
                 }
             }
         }
@@ -361,7 +362,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
                     if (res.isCancelledByLifecycle()) return@launch
-                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                    AppToast.show(mContext, res.message, Toast.LENGTH_SHORT)
                 }
             }
         }
@@ -451,11 +452,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) {
                 showFirmwareFilesDialog(item)
-                Toast.makeText(
+                AppToast.show(
                     requireContext(),
                     getString(SharedRes.strings.update_board.resourceId, item.boardName),
                     Toast.LENGTH_SHORT
-                ).show()
+                )
             }
 
             override fun onSettingsClick(item: BootloaderBoardItemUBI4) {

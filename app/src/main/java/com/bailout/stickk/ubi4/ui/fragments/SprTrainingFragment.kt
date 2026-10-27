@@ -29,6 +29,7 @@ import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.di.NotificationDependencies
 import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 import com.bailout.stickk.ubi4.models.widgets.PlatformFile
@@ -53,6 +54,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 
 class SprTrainingFragment: BaseWidgetsFragment() {
@@ -259,7 +261,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         dialogBinding.findViewById<View>(R.id.dialogModelEmg8SendBtn).setOnClickListener {
             val selected = items.filter { it.isChecked }.map { it.file }
             if (selected.isEmpty()) {
-                Toast.makeText(requireContext(), getString(SharedRes.strings.select_at_least_one_file.resourceId), Toast.LENGTH_SHORT).show()
+                AppToast.show(requireContext(), getString(SharedRes.strings.select_at_least_one_file.resourceId), Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             dlg.dismiss()
@@ -297,8 +299,10 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
 
         suspend fun doUpload(bearer: String) {
+            val context = requireContext()
             TrainingUploadManager.launch(
-                requireContext(), repo, bearer, serial, selectedEmg8
+                context, repo, bearer, serial, selectedEmg8,
+                userMessages = NotificationDependencies.userMessages(context)
             )
         }
 
@@ -340,8 +344,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         } ?: emptyList()
 
         if (files.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
-                .show()
+            AppToast.show(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
             myDialog.dismiss()
             return
         }
@@ -363,65 +366,64 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             FileCheckpointAdapter.OnFileActionListener {
             override fun onDelete(position: Int, fileItem: FileItem) {
                 if (fileItem.file.delete()) {
-                    Toast.makeText(
+                    AppToast.show(
                         requireContext(),
                         getString(SharedRes.strings.file_deleted.resourceId, fileItem.name),
                         Toast.LENGTH_SHORT
-                    ).show()
+                    )
                     fileItems.remove(fileItem)
                     filesRecyclerView.adapter?.notifyDataSetChanged()
                     if (fileItems.isEmpty()) {
-                        Toast.makeText(
+                        AppToast.show(
                             requireContext(),
                             getString(SharedRes.strings.no_saved_files.resourceId),
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                         myDialog.dismiss()
                     }
                 } else {
-                    Toast.makeText(requireContext(), getString(SharedRes.strings.file_delete_error.resourceId), Toast.LENGTH_SHORT)
-                        .show()
+                    AppToast.show(requireContext(), getString(SharedRes.strings.file_delete_error.resourceId), Toast.LENGTH_SHORT)
                 }
             }
 
             override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
                 if (!bleController.getStatusConnected()) {
-                    Toast.makeText(
+                    AppToast.show(
                         requireContext(),
                         getString(R.string.there_is_no_bluetooth_connection_check_the_connection),
                         Toast.LENGTH_SHORT
-                    ).show()
+                    )
                     return
                 }
 
                 val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})")
                 val match = dateTimeRegex.find(fileItem.file.name)
                 val dateTimeStr = match?.groupValues?.get(1) ?: run {
-                    Toast.makeText(
+                    AppToast.show(
                         requireContext(),
                         getString(SharedRes.strings.failed_extract_datetime_from_file_name.resourceId),
                         Toast.LENGTH_SHORT
-                    ).show()
+                    )
                     return
                 }
                 val paramFileName = "params_$dateTimeStr.bin"
                 val paramFile = File(requireContext().getExternalFilesDir(null), paramFileName)
                 if (!paramFile.exists()) {
-                    Toast.makeText(
+                    AppToast.show(
                         requireContext(),
                         getString(SharedRes.strings.matching_params_file_not_found.resourceId),
                         Toast.LENGTH_SHORT
-                    ).show()
+                    )
                     return
                 }
 
                 showConfirmLoadingDialog {
                     if (bleController.isCurrentlyUploading()) {
-                        Toast.makeText(
+                        AppToast.show(
                             requireContext(),
                             getString(SharedRes.strings.upload_already_in_progress.resourceId),
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                         return@showConfirmLoadingDialog
                     }
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
@@ -637,7 +639,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
                 // Закрытие диалога с прогрессом после успешной передачи
                 closeCurrentDialog()
-                Toast.makeText(requireContext(), getString(SharedRes.strings.file_sent.resourceId), Toast.LENGTH_SHORT).show()
+                AppToast.show(requireContext(), getString(SharedRes.strings.file_sent.resourceId), Toast.LENGTH_SHORT)
                 Log.d("ChunkProcessing", "Всего чанков отправлено: $totalChunks")
             } catch (e: Exception) {
                 // Обработка непредвиденных исключений
@@ -720,7 +722,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
             } catch (e: IOException) {
                 withContext(Main) {
-                    Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+                    AppToast.show(requireContext(), e.message, Toast.LENGTH_LONG)
                     closeCurrentDialog()
                 }
             }

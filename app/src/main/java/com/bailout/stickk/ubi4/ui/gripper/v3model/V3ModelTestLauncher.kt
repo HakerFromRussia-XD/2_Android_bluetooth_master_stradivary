@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.widget.Toast
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperV3ModelTestActivity
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 object V3ModelTestLauncher {
     const val TEMP_OPEN_V3_3D_FIRST_SCREEN = false
@@ -23,7 +24,7 @@ object V3ModelTestLauncher {
             )
             if (!activity.isAlive()) return@preloadAsync
             if (!Load3DModelFesth3.isReady()) {
-                Toast.makeText(activity, "Не удалось загрузить V3 3D модель", Toast.LENGTH_LONG).show()
+                AppToast.show(activity, "Не удалось загрузить V3 3D модель", Toast.LENGTH_LONG)
                 activity.finish()
                 return@preloadAsync
             }

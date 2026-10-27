@@ -40,6 +40,7 @@ import com.bailout.stickk.ubi4.contract.navigator
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class ServiceFragment : BaseWidgetsFragment() {
     private val v3SpinnerParameterKeys = V3ServiceViewModel.spinnerParameterKeys + P_KEY_DEVICE_ROLE
@@ -196,7 +197,7 @@ class ServiceFragment : BaseWidgetsFragment() {
             onCancel = { id -> v3ServiceViewModel?.onAction(V3ServiceAction.RolePinCancelled(id)) })
         role?.pinFeedback?.let {
             val message = if (it.accessGranted) SharedRes.strings.ubi4_v3_pin_access_granted else SharedRes.strings.ubi4_v3_pin_invalid
-            Toast.makeText(requireContext(), getString(message.resourceId), Toast.LENGTH_SHORT).show()
+            AppToast.show(requireContext(), getString(message.resourceId), Toast.LENGTH_SHORT)
             v3ServiceViewModel?.onAction(V3ServiceAction.RolePinFeedbackShown(it.requestId))
         }
         state.textInputFeedback?.let {
@@ -206,7 +207,7 @@ class ServiceFragment : BaseWidgetsFragment() {
                 V3TextInputMessage.SENT -> if (it.field == V3DeviceInfoField.DEVICE_NAME) SharedRes.strings.name_set else SharedRes.strings.serial_number_set
                 V3TextInputMessage.PREPARATION_FAILED -> if (it.field == V3DeviceInfoField.SERIAL_NUMBER) SharedRes.strings.failed_prepare_serial_number else SharedRes.strings.failed_prepare_command
             }
-            Toast.makeText(requireContext(), getString(message.resourceId), Toast.LENGTH_SHORT).show()
+            AppToast.show(requireContext(), getString(message.resourceId), Toast.LENGTH_SHORT)
             v3ServiceViewModel?.onAction(V3ServiceAction.TextInputFeedbackShown(it.id))
         }
     }

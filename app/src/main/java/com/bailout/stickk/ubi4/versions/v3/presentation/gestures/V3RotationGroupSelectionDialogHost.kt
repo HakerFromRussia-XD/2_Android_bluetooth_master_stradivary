@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.shared.SharedRes
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 /** Renders the existing dialog and checkmarks; selection rules belong to domain. */
 class V3RotationGroupSelectionDialogHost {
@@ -66,7 +67,7 @@ class V3RotationGroupSelectionDialogHost {
         state.limitMessageId?.let { messageId ->
             if (shownLimitMessageId != messageId) {
                 shownLimitMessageId = messageId
-                Toast.makeText(context, context.getString(SharedRes.strings.rotation_dialog_limit_message.resourceId), Toast.LENGTH_SHORT).show()
+                AppToast.show(context, context.getString(SharedRes.strings.rotation_dialog_limit_message.resourceId), Toast.LENGTH_SHORT)
                 onAction(V3GesturesAction.RotationGroupLimitMessageShown(state.requestId, messageId))
             }
         }

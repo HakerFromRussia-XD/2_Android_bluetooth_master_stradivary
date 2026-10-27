@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotUiItem
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotsScreen
+import com.bailout.stickk.ubi4.ui.dashboard.DashboardTheme
 import com.bailout.stickk.ubi4.ui.dashboard.toDashboardSlotUiItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -61,21 +62,23 @@ class DashboardSlotsFragment : Fragment() {
                     isLoading = state.isLoading
                     errorMessage = state.errorMessage
                 }
-                DashboardSlotsScreen(
-                    slots = slots,
-                    isLoading = isLoading,
-                    errorMessage = errorMessage,
-                    onSlotClick = { slot ->
-                        navigator().showDashboardSlotContentScreen(
-                            deviceAddress = slot.deviceAddress,
-                            dataCode = slot.dataCode,
-                            title = slot.title,
-                            version = slot.version,
-                            subVersion = slot.subVersion,
-                            declaredSize = slot.dataSize
-                        )
-                    }
-                )
+                DashboardTheme {
+                    DashboardSlotsScreen(
+                        slots = slots,
+                        isLoading = isLoading,
+                        errorMessage = errorMessage,
+                        onSlotClick = { slot ->
+                            navigator().showDashboardSlotContentScreen(
+                                deviceAddress = slot.deviceAddress,
+                                dataCode = slot.dataCode,
+                                title = slot.title,
+                                version = slot.version,
+                                subVersion = slot.subVersion,
+                                declaredSize = slot.dataSize
+                            )
+                        }
+                    )
+                }
             }
         }
     }

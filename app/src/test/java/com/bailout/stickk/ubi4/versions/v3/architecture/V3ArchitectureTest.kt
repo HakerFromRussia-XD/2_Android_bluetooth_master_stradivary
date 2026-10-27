@@ -37,6 +37,34 @@ class V3ArchitectureTest {
         }
     }
 
+    @Test fun `controller and training uploads request notifications without depending on toast rendering`() {
+        val ubi4 = root.parentFile.parentFile
+        val contract = "com.bailout.stickk.ubi4.domain.notifications.UserMessageNotifier"
+        listOf("ble/BLEController.kt", "utility/TrainingUploadManager.kt").forEach { path ->
+            val file = File(ubi4, path)
+            val dependencies = imports(file)
+            reject(file, dependencies.filter {
+                it == "android.widget.Toast" || it.startsWith("android.widget.Toast.") ||
+                    it == "android.widget.*" ||
+                    it.substringAfterLast('.') in setOf("AppToast", "AndroidToastPresenter")
+            })
+            assertTrue(contract in dependencies, "$path must request notifications through the domain contract")
+            val code = file.readLines().joinToString("\n") { it.substringBefore("//") }
+            assertFalse(Regex("\\b(?:AppToast|AndroidToastPresenter)\\s*\\.").containsMatchIn(code),
+                "$path still calls a concrete toast renderer")
+            assertFalse(Regex("\\bToast\\s*\\.\\s*makeText\\s*\\(|\\bshowToast\\s*\\(").containsMatchIn(code),
+                "$path must not display Android or Activity toasts directly")
+        }
+    }
+
+    @Test fun `notification contract is independent of Android and outer layers`() {
+        val contract = File(root.parentFile.parentFile, "domain/notifications/UserMessageNotifier.kt")
+        assertTrue(contract.isFile, "Missing pure notification contract")
+        reject(contract, imports(contract).filterNot {
+            it.startsWith("kotlin.") || it.startsWith("com.bailout.stickk.ubi4.domain.")
+        })
+    }
+
     @Test fun `service firmware catalog loading selection and downloads stay outside the account fragment`() {
         val source = File(root.parentFile.parentFile,
             "ui/fragments/account/mainFragmentV3/AccountFragmentMainV3.kt")

@@ -19,20 +19,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-
-private object DashboardSlotsColors {
-    val Back = Color(0xFF2A2A2A)
-    val Card = Color(0xFF3A3A3A)
-    val Border = Color(0xFF444444)
-    val White = Color(0xFFFCFCFC)
-}
 
 @Immutable
 data class DashboardSlotUiItem(
@@ -72,10 +64,11 @@ fun DashboardSlotsScreen(
     isLoading: Boolean = false,
     errorMessage: String? = null
 ) {
+    val colors = LocalDashboardPalette.current
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(DashboardSlotsColors.Back)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
@@ -84,7 +77,7 @@ fun DashboardSlotsScreen(
         Text(
             text = "Список слотов",
             modifier = Modifier.fillMaxWidth(),
-            color = DashboardSlotsColors.White,
+            color = colors.text,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
@@ -97,7 +90,7 @@ fun DashboardSlotsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(DashboardSlotsColors.Card)
+                .background(colors.surface)
         ) {
             when {
                 isLoading -> StatusRow(text = "Загрузка слотов...")
@@ -125,6 +118,7 @@ private fun SlotRow(
     showDivider: Boolean,
     onClick: () -> Unit
 ) {
+    val colors = LocalDashboardPalette.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,7 +134,7 @@ private fun SlotRow(
             Text(
                 text = "0x${slot.hexCode} - ${slot.title} (${slot.versionLabel})",
                 modifier = Modifier.weight(1f),
-                color = DashboardSlotsColors.White,
+                color = colors.text,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 maxLines = 1,
@@ -149,7 +143,7 @@ private fun SlotRow(
 
             Text(
                 text = "›",
-                color = DashboardSlotsColors.White,
+                color = colors.text,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Light
             )
@@ -161,7 +155,7 @@ private fun SlotRow(
                     .fillMaxWidth()
                     .height(1.dp)
                     .padding(horizontal = 8.dp)
-                    .background(DashboardSlotsColors.Border)
+                    .background(colors.border)
             )
         }
     }
@@ -169,6 +163,7 @@ private fun SlotRow(
 
 @Composable
 private fun StatusRow(text: String) {
+    val colors = LocalDashboardPalette.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -179,7 +174,7 @@ private fun StatusRow(text: String) {
         Text(
             text = text,
             modifier = Modifier.weight(1f),
-            color = DashboardSlotsColors.White,
+            color = colors.text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             maxLines = 1,

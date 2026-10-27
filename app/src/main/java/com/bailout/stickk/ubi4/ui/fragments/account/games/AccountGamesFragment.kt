@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class AccountGamesFragment : Fragment() {
     private var _binding: Ubi4FragmentGamesBinding? = null
@@ -111,8 +112,8 @@ class AccountGamesFragment : Fragment() {
                 is V3GamesCommand.LaunchGame -> launchGame(command.game.packageName, command.game.launcherActivity)
                 V3GamesCommand.OpenStore -> openGameInRuStore()
                 V3GamesCommand.UninstallGame -> requestGameUninstall()
-                is V3GamesCommand.ShowMessage -> Toast.makeText(requireContext(),
-                    command.detail ?: getString(command.message.messageRes()), Toast.LENGTH_LONG).show()
+                is V3GamesCommand.ShowMessage -> AppToast.show(requireContext(),
+                    command.detail ?: getString(command.message.messageRes()), Toast.LENGTH_LONG)
             }
         }
     }
@@ -196,11 +197,11 @@ class AccountGamesFragment : Fragment() {
                 remoteGame = null
                 renderIdleState()
                 if (showErrors || getInstalledGameInfo(BuildConfig.MOTORICA_STK_PACKAGE) == null) {
-                    Toast.makeText(
+                    AppToast.show(
                         requireContext(),
                         error.message ?: getString(R.string.game_manifest_load_failed),
                         Toast.LENGTH_LONG
-                    ).show()
+                    )
                 }
             }
         }
@@ -299,7 +300,7 @@ class AccountGamesFragment : Fragment() {
         requireContext().installedGameVersionCode(packageName)?.let(::InstalledGameInfo)
 
     private fun showToast(messageRes: Int) {
-        Toast.makeText(requireContext(), messageRes, Toast.LENGTH_LONG).show()
+        AppToast.show(requireContext(), messageRes, Toast.LENGTH_LONG)
     }
 
     private data class InstalledGameInfo(val versionCode: Long)

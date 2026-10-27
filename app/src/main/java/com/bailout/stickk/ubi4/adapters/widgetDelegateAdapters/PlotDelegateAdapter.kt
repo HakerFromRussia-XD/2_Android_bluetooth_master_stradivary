@@ -63,6 +63,7 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class PlotDelegateAdapter (
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
@@ -592,11 +593,11 @@ class PlotDelegateAdapter (
             Log.w("Plot view", "Concurrent modification while rendering chart", e)
             emgChart.post {
                 if (emgChart.isAttachedToWindow) {
-                    Toast.makeText(
+                    AppToast.show(
                         emgChart.context,
                         "Ошибка: изменение данных во время отрисовки!",
                         Toast.LENGTH_SHORT
-                    ).show()
+                    )
                 }
             }
         }

@@ -15,6 +15,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3
 import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
     private var glSurfaceView: UBI4GripperSettingsWithEncodersGLSurfaceViewV3? = null
@@ -51,7 +52,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
             Load3DModelFesth3.preloadAsync(applicationContext) {
                 V3ModelLoadMetrics.log("modelActivity preloadCallback ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs} ready=${Load3DModelFesth3.isReady()}")
                 if (!Load3DModelFesth3.isReady()) {
-                    Toast.makeText(this, "Не удалось загрузить V3 3D модель", Toast.LENGTH_LONG).show()
+                    AppToast.show(this, "Не удалось загрузить V3 3D модель", Toast.LENGTH_LONG)
                     finish()
                     return@preloadAsync
                 }
@@ -96,7 +97,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val reqGlEsVersion = activityManager.deviceConfigurationInfo.reqGlEsVersion
         if (reqGlEsVersion < 0x00020000) {
-            Toast.makeText(this, R.string.lesson_eight_error_unknown, Toast.LENGTH_LONG).show()
+            AppToast.show(this, R.string.lesson_eight_error_unknown, Toast.LENGTH_LONG)
             finish()
             return
         }

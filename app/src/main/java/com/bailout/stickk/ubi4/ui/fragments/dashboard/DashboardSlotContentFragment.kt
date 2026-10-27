@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.data.state.DashboardSlotContentUiState
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotContentAction
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotContentScreen
+import com.bailout.stickk.ubi4.ui.dashboard.DashboardTheme
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.versions.v3.di.V3DashboardSlotContentViewModelFactory
@@ -78,10 +79,12 @@ class DashboardSlotContentFragment : Fragment() {
                     val state by DashboardSlotContentState.stateFlow.collectAsState()
                     content = state
                 }
-                DashboardSlotContentScreen(
-                    state = content,
-                    onActionClick = { handleActionClick(it, viewModel) }
-                )
+                DashboardTheme {
+                    DashboardSlotContentScreen(
+                        state = content,
+                        onActionClick = { handleActionClick(it, viewModel) }
+                    )
+                }
             }
         }
     }

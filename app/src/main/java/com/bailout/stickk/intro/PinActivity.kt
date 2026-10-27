@@ -22,6 +22,7 @@ import com.bailout.stickk.databinding.ActivityPinBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.scan.view.ScanActivity
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class PinActivity : AppCompatActivity() {
     private var main: MainActivity? = null
@@ -57,11 +58,11 @@ class PinActivity : AppCompatActivity() {
                 launchScanActivity()
                 hideKeyboard(binding.pincodeView)
             } else {
-                Toast.makeText(
+                AppToast.show(
                     this,
                     getString(R.string.app_pin_entering_varning),
                     Toast.LENGTH_SHORT
-                ).show()
+                )
             }
         }
     }

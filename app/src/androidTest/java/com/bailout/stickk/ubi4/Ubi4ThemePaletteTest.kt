@@ -48,7 +48,7 @@ class Ubi4ThemePaletteTest {
                     val inflater = LayoutInflater.from(context)
                     val settings = Ubi4FragmentSpecialSettingsBinding.inflate(inflater)
                     assertEquals(context.getColor(R.color.ubi4_text_primary), settings.mobileSettingsBtn.currentTextColor)
-                    assertEquals(context.getColor(R.color.ubi4_active_foreground), settings.appearanceSelectedTheme.currentTextColor)
+                    assertEquals(context.getColor(R.color.ubi4_text_primary), settings.appearanceSettingsRow.spinnerTv.currentTextColor)
                     // Exercise Android's selected layout variant, including layout-v31.
                     assertReadableSliderText(Ubi4WidgetSliderBinding.inflate(inflater).root, surface)
                     assertReadableSliderText(Ubi4WidgetToggleSliderBinding.inflate(inflater).root, surface)

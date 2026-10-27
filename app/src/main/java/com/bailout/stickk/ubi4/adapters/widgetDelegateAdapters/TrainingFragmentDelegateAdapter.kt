@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
@@ -50,7 +51,7 @@ class TrainingFragmentDelegateAdapter(
                         trainingBtn.isEnabled = true
                         percentLearningTv.text = ""
                         trainingBtn.setOnClickListener {
-                            Toast.makeText(main, main.getString(R.string.wait_until_the_model_file_is_created), Toast.LENGTH_SHORT).show()
+                            AppToast.show(main, main.getString(R.string.wait_until_the_model_file_is_created), Toast.LENGTH_SHORT)
                         }
                     }
                     TrainingUploadManager.State.EXPORTING -> {

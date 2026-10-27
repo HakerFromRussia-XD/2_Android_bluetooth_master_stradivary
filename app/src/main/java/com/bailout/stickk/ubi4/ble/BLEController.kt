@@ -19,7 +19,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
@@ -85,8 +84,13 @@ import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
+import com.bailout.stickk.ubi4.domain.notifications.UserMessageDuration
+import com.bailout.stickk.ubi4.domain.notifications.UserMessageNotifier
 
-class BLEController(private val bleManager: BleManagerKmm) {
+class BLEController(
+    private val bleManager: BleManagerKmm,
+    private val userMessages: UserMessageNotifier
+) {
     private data class V3InitRequest(
         val packet: ByteArray,
         val expectedResponseCommand: Int,
@@ -185,13 +189,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(mContext, mContext.getString(SharedRes.strings.ble_le_not_supported.resourceId), Toast.LENGTH_SHORT).show()
+            userMessages.show(mContext.getString(SharedRes.strings.ble_le_not_supported.resourceId), UserMessageDuration.SHORT)
             main.finish()
         }
         val bluetoothManager = main.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         mBluetoothAdapter = bluetoothManager.adapter
         if (mBluetoothAdapter == null) {
-            Toast.makeText(mContext, mContext.getString(SharedRes.strings.bluetooth_adapter_unavailable.resourceId), Toast.LENGTH_SHORT).show()
+            userMessages.show(mContext.getString(SharedRes.strings.bluetooth_adapter_unavailable.resourceId), UserMessageDuration.SHORT)
             main.finish()
         } else {
 //            Toast.makeText(mContext, "mBluetoothAdapter != null", Toast.LENGTH_SHORT).show()
@@ -247,8 +251,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     WidgetState.dbSnapshotAppliedWithCrc = false
 
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(mContext,
-                            context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
+                        userMessages.show(
+                            context.getString(R.string.bluetooth_connection_is_disabled), UserMessageDuration.SHORT)
                     }
 
                     mBluetoothLeService?.close()
@@ -270,11 +274,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     AchievementEventManager.recordSuccessfulBleConnection()
-                    Toast.makeText(
-                        context,
+                    userMessages.show(
                         context.getString(SharedRes.strings.connected_device.resourceId, connectedDeviceAddress),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        UserMessageDuration.SHORT
+                    )
 
                     WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
                     if (mBluetoothLeService != null) {
@@ -301,7 +304,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 if (programType != 1) {
                                     UiState.startupInProgress.value = false
                                     if (programType !in setOf(2, 3)) {
-                                        main.showToast("Не удалось определить режим устройства. Подключитесь повторно")
+                                        userMessages.show("Не удалось определить режим устройства. Подключитесь повторно", UserMessageDuration.SHORT)
                                     }
                                     return@launch
                                 }
@@ -362,7 +365,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private suspend fun requestProductInfoTypeOnceForUbiV4() {
         val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC)
         if (!mainChannelNotifyEnabled) {
-            main.showToast(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "MAIN_CHANNEL_CHARACTERISTIC"))
+            userMessages.show(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "MAIN_CHANNEL_CHARACTERISTIC"), UserMessageDuration.SHORT)
             platformLog("parseProductCRCInfo", "НЕ УСПЕШНО")
             requestProductInfoTypeOnceForUbiV4()
         } else {
@@ -577,7 +580,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         runCatching {
             mBLEParser?.parseReceivedData(data)
         }.onFailure { t ->
-            main.showToast(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParser"))
+            userMessages.show(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParser"), UserMessageDuration.SHORT)
         }
     }
     private fun parseReceivedDataV3(data: ByteArray?) {
@@ -587,7 +590,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             handleV3InitResponseProgress(data)
         }.onFailure { t ->
             Log.e(DFU_TRACE_TAG, "serial_parse failed bytes=${data.size} generation=$gattServicesGeneration firmware_session=$firmwareUpdateSessionActive", t)
-            main.showToast(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"))
+            userMessages.show(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"), UserMessageDuration.SHORT)
         }
     }
     private fun parseReceivedSensorsDataV3(data: ByteArray?) {
@@ -595,7 +598,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         runCatching {
             mBLEParserV3?.parseReceivedSensorsData(data)
         }.onFailure { t ->
-            main.showToast(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"))
+            userMessages.show(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"), UserMessageDuration.SHORT)
         }
     }
 
@@ -915,7 +918,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
             if (!serialNotifyEnabled) {
                 Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
-                main.showToast(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "SERIALPORTCHAR_UUID"))
+                userMessages.show(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "SERIALPORTCHAR_UUID"), UserMessageDuration.SHORT)
                 continue
             }
 
@@ -924,19 +927,19 @@ class BLEController(private val bleManager: BleManagerKmm) {
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
-                main.showToast(main.getString(SharedRes.strings.no_device_data_response_retry.resourceId))
+                userMessages.show(main.getString(SharedRes.strings.no_device_data_response_retry.resourceId), UserMessageDuration.SHORT)
                 continue
             }
 
             sendPhoneDateTimeV3()
 
             val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
-                main.showToast(main.getString(SharedRes.strings.main_channel_notify_attempt.resourceId, attempt, max))
+                userMessages.show(main.getString(SharedRes.strings.main_channel_notify_attempt.resourceId, attempt, max), UserMessageDuration.SHORT)
                 Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
             }
             if (!mainChannelNotifyEnabled) {
                 Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-                main.showToast(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "MAIN_CHANNEL_CHARACTERISTIC"))
+                userMessages.show(main.getString(SharedRes.strings.notify_enable_failed.resourceId, "MAIN_CHANNEL_CHARACTERISTIC"), UserMessageDuration.SHORT)
                 continue
             }
 

@@ -40,6 +40,7 @@ import kotlinx.serialization.json.Json
 import online.devliving.passcodeview.PasscodeView
 import java.lang.ref.WeakReference
 import java.util.Collections
+import com.bailout.stickk.ubi4.ui.notifications.AppToast
 
 class SpinnerDelegateAdapter(
     private val onSpinnerItemSelected: (addressDevice: Int, parameterID: Int, newIndex: Int) -> Unit,
@@ -303,10 +304,10 @@ class SpinnerDelegateAdapter(
             dismissPinCodeDialog()
 
             if (ok) {
-                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
+                AppToast.show(context, "Доступ разрешён", Toast.LENGTH_SHORT)
                 onSuccess()
             } else {
-                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
+                AppToast.show(context, "Неверный пинкод", Toast.LENGTH_SHORT)
                 onCancelOrFail()
             }
         }

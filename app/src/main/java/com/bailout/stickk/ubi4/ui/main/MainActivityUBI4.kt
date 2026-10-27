@@ -18,7 +18,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -58,6 +57,7 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
+import com.bailout.stickk.ubi4.di.NotificationDependencies
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
@@ -231,7 +231,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         // инициализация блютуз
 
         //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
-        mBLEController = BLEController(bleManager).also { controller ->
+        mBLEController = BLEController(
+            bleManager, NotificationDependencies.userMessages(this)
+        ).also { controller ->
             controller.setOnNeedFullInitListener {
                 // этот колбэк всегда будет на main-потоке (мы так сделали в smartInitWithCrc)
                 ensureSyncDialogShown()
@@ -609,7 +611,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
     override fun showToast(massage: String) {
-        Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
+        com.bailout.stickk.ubi4.ui.notifications.AppToast.show(this, massage)
     }
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBackUbi4() { onBackPressed()}

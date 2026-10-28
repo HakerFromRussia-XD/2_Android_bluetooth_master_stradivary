@@ -298,7 +298,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
             }
             gesturesRv.adapter?.notifyItemChanged(position)
         }
-    })
+    }, useActiveCheckColor = true)
     gesturesRv.adapter = adapter
 
     val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupCancelBtn)

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="v3_init_commands_header">Initialization commands · Phone → Prosthesis</string>
+    <string name="v3_init_command_step">%1$02d. %2$s</string>
+    <string name="v3_init_command_send">Send command</string>
+    <string name="v3_init_command_queued">Added to the send queue</string>
+    <string name="v3_init_device_data">Request device data</string>
+    <string name="v3_init_phone_date_time">Set current phone date and time</string>
+    <string name="v3_init_threshold">Read EMG thresholds</string>
+    <string name="v3_init_emg_gain">Read EMG gain</string>
+    <string name="v3_init_emg_mode">Read EMG mode</string>
+    <string name="v3_init_emg_max_gain">Read maximum EMG gain</string>
+    <string name="v3_init_emg_change_gesture">Read EMG gesture switching</string>
+    <string name="v3_init_screen_timeout">Read screen timeout</string>
+    <string name="v3_init_movement_lock">Read EMG movement lock</string>
+    <string name="v3_init_hand_side">Read hand side</string>
+    <string name="v3_init_battery">Read battery status</string>
+    <string name="v3_init_hand_control_mode">Read hand control mode</string>
+    <string name="v3_init_gesture_change_mode">Read gesture switching mode</string>
+    <string name="v3_init_speed">Read speed settings</string>
+    <string name="v3_init_force">Read force settings</string>
+    <string name="v3_init_serial_number">Read serial number</string>
+    <string name="v3_init_thumb_position">Read thumb closed position</string>
+    <string name="v3_init_fingers_position">Read index/middle finger closed position</string>
+</resources>

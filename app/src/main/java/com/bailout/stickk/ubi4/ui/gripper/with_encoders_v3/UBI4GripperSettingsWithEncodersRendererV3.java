@@ -14,6 +14,7 @@ import static android.opengl.GLES20.glUseProgram;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -66,6 +67,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	/** References to other main objects. */
 	private final Context fragmentGripperSettings;
+	private final int plasticColor;
 	private final UBI4ErrorHandlerV3 errorHandler;
 	private final Handler mainHandler = new Handler(Looper.getMainLooper());
 	private final Map<String, int[]> modelPartGroups = new HashMap<>();
@@ -250,7 +252,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float RUBBER_SPECULAR_FACTOR = 1.5f;
 	private static final float RUBBER_LIGHT_POWER = 650.0f;
 	private static final float RUBBER_AMBIENT_FACTOR = 0.92f;
-	private static final float WHITE_PLASTIC_COLOR = 1.0f;
 	private static final float WHITE_PLASTIC_SPECULAR_FACTOR = 8.0f;
 	private static final float WHITE_PLASTIC_LIGHT_POWER = 650.0f;
 	private static final float WHITE_PLASTIC_AMBIENT_FACTOR = 0.78f;
@@ -432,6 +433,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			FingerPoseSource fingerPoseSource
 	) {
 			this.fragmentGripperSettings = fragmentGripperSettings;
+			this.plasticColor = fragmentGripperSettings.getColor(R.color.ubi4_gripper_plastic);
 			this.errorHandler = errorHandlerV3;
 			this.emitFingerAngleUpdates = emitFingerAngleUpdates;
 			this.fingerPoseSource = fingerPoseSource == null ? ACTIVITY_FINGER_POSE_SOURCE : fingerPoseSource;
@@ -606,6 +608,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		} catch (Throwable error) {
 			V3ModelLoadMetrics.logError("collectionObjectLoadFailed asset=" + collectionObjectAssetName, error);
 		}
+	}
+
+	/** Called with this card's context current before it returns to the pool. */
+	public void releaseCollectionObject() {
+		if (collectionObjectVertexBuffer == 0) return;
+		GLES20.glDeleteBuffers(1, new int[]{collectionObjectVertexBuffer}, 0);
+		collectionObjectVertexBuffer = 0;
+		collectionObjectVertexCount = 0;
 	}
 
 	private int[] modelParts(String groupName) {
@@ -1578,7 +1588,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		setChromeMaterial(program, key);
 		setCollectionMaterialUniforms(program, materialMode, 1.0f, true);
 		int useVertexColorUniform = glGetUniformLocation(program, USE_VERTEX_COLOR_UNIFORM);
-		setSolidWhiteColorOverride(program, false);
+		setSolidPlasticColorOverride(program, false);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, key ? 40.0f : (materialMode == MATERIAL_MODE_WOOD ? 5.0f : 1.0f));
 		GLES20.glUniform1f(lightPowerUniform, key ? 3888.0f : (materialMode == MATERIAL_MODE_WOOD ? 972.0f : 820.8f));
@@ -1662,7 +1672,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		private void renderPlasticPart(int shaderProgram, int textureUnit, int normalMapUnit, int[] indexesOfBuffer) {
-			setSolidWhiteColorOverride(shaderProgram, false);
+			setSolidPlasticColorOverride(shaderProgram, false);
 			setV3PlasticMaterial(shaderProgram);
 			glUniform1i(textureUniform, textureUnit);
 			if (normalMapUnit >= 0) {
@@ -1677,12 +1687,12 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			GLES20.glUniform1f(specularFactorUniform, WHITE_PLASTIC_SPECULAR_FACTOR);
 			GLES20.glUniform1f(lightPowerUniform, collectionPreviewMode ? 1180.0f : WHITE_PLASTIC_LIGHT_POWER);
 			GLES20.glUniform1f(ambientFactorUniform, collectionPreviewMode ? 0.66f : WHITE_PLASTIC_AMBIENT_FACTOR);
-			setSolidWhiteColorOverride(shaderProgram, true);
+			setSolidPlasticColorOverride(shaderProgram, true);
 			heightMap.render(indexesOfBuffer);
-			setSolidWhiteColorOverride(shaderProgram, false);
+			setSolidPlasticColorOverride(shaderProgram, false);
 		}
 
-		private void setSolidWhiteColorOverride(int shaderProgram, boolean enabled) {
+		private void setSolidPlasticColorOverride(int shaderProgram, boolean enabled) {
 			int enabledUniform = glGetUniformLocation(shaderProgram, USE_SOLID_COLOR_UNIFORM);
 			if (enabledUniform >= 0) {
 				glUniform1i(enabledUniform, enabled ? 1 : 0);
@@ -1693,9 +1703,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			int colorUniform = glGetUniformLocation(shaderProgram, SOLID_COLOR_UNIFORM);
 			if (colorUniform >= 0) {
 				GLES20.glUniform4f(colorUniform,
-						WHITE_PLASTIC_COLOR,
-						WHITE_PLASTIC_COLOR,
-						WHITE_PLASTIC_COLOR,
+						Color.red(plasticColor) / 255.0f,
+						Color.green(plasticColor) / 255.0f,
+						Color.blue(plasticColor) / 255.0f,
 						1.0f);
 			}
 		}

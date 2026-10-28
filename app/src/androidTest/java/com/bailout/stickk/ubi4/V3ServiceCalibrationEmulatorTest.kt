@@ -60,7 +60,7 @@ class V3ServiceCalibrationEmulatorTest {
             waitUntil { runCatching { onView(withId(R.id.serviceFragmentRv)).check(matches(isDisplayed())) }.isSuccess }
             onView(withId(R.id.serviceFragmentRv)).check { view, error ->
                 if (error != null) throw error
-                assertEquals(expectedRows, (view as RecyclerView).adapter?.itemCount)
+                assertEquals(expectedRows + 18, (view as RecyclerView).adapter?.itemCount)
             }
             onView(withId(R.id.serviceFragmentRv)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withId(R.id.widget1Button))))

@@ -47,7 +47,7 @@ class V3RotationGroupSelectionDialogHost {
                 override fun onGestureClicked(position: Int, gesture: DialogCollectionGestureItem) {
                     onAction(V3GesturesAction.RotationGroupGestureToggled(state.requestId, gesture.gesture.gestureId))
                 }
-            })
+            }, useActiveCheckColor = true)
             recycler.adapter = adapter
             content.findViewById<View>(R.id.dialogAddGesturesToGroupCancelBtn).setOnClickListener {
                 onAction(V3GesturesAction.RotationGroupSelectionCancelled(state.requestId))

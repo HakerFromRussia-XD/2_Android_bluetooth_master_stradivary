@@ -52,12 +52,14 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	private final Handler mainHandler = new Handler(Looper.getMainLooper());
 	private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
 	private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
+	private V3CollectionGlResourceCache.SharedContext sharedContext;
 	private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
 	private volatile boolean eglReady;
 	private volatile SurfaceTexture activeSurfaceTexture;
 	// Owned by the GL worker, unlike activeSurfaceTexture which follows UI callbacks.
 	private SurfaceTexture eglSurfaceTexture;
 	private volatile boolean waitingForSharedResources;
+	private volatile boolean waitingForCardContext;
 
 	public CollectionGestureCardGLSurfaceViewV3(Context context, int gestureId) {
 		this(context, null);
@@ -204,8 +206,25 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 			surfaceTexture.setDefaultBufferSize(width, height);
 			V3CollectionGlResourceCache.SharedContext shared =
 					V3CollectionGlResourceCache.createSharedContext();
+			if (shared == null && V3CollectionGlResourceCache.isReady()) {
+				if (!waitingForCardContext) {
+					waitingForCardContext = true;
+					boolean queued = V3CollectionGlResourceCache.whenCardContextAvailable(() -> {
+						waitingForCardContext = false;
+						SurfaceTexture currentSurface = activeSurfaceTexture;
+						if (currentSurface != null && isAvailable()) {
+							startEgl(currentSurface, getWidth(), getHeight());
+						}
+					});
+					if (!queued) waitingForCardContext = false;
+					if (queued) return;
+				} else {
+					return;
+				}
+			}
 			final EGLConfig selectedConfig;
 			if (shared != null) {
+				sharedContext = shared;
 				eglDisplay = shared.display;
 				eglContext = shared.context;
 				selectedConfig = shared.config;
@@ -345,13 +364,19 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 					// Swapping submits work asynchronously. Finish this card's last
 					// frame before releasing the surface and its shared context.
 					GLES20.glFinish();
+					if (sharedContext != null && cardRenderer != null) {
+						cardRenderer.releaseCollectionObject();
+					}
 				}
 				EGL14.eglMakeCurrent(
 						eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
 				if (eglSurface != EGL14.EGL_NO_SURFACE) {
 					EGL14.eglDestroySurface(eglDisplay, eglSurface);
 				}
-				if (eglContext != EGL14.EGL_NO_CONTEXT) {
+				if (sharedContext != null) {
+					V3CollectionGlResourceCache.releaseSharedContext(sharedContext);
+					sharedContext = null;
+				} else if (eglContext != EGL14.EGL_NO_CONTEXT) {
 					EGL14.eglDestroyContext(eglDisplay, eglContext);
 				}
 				// The default display also belongs to the process-wide collection cache

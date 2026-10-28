@@ -104,6 +104,7 @@ object AppToast {
             background = GradientDrawable().apply {
                 cornerRadius = dp(if (samsung) 22 else 28).toFloat()
                 setColor(Color.WHITE)
+                setStroke(dp(1), lightContext.getColor(R.color.ubi4_gray_border))
             }
             elevation = if (samsung) 0f else dp(2).toFloat()
             addView(ImageView(lightContext).apply {

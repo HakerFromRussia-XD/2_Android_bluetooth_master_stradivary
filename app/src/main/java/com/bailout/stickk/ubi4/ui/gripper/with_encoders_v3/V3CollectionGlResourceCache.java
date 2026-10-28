@@ -15,13 +15,14 @@ import android.util.Log;
 import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
 
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.List;
 
 /**
  * Process-wide collection-only OpenGL cache, equivalent to the iOS
  * V3ModelResourceCache/EAGLSharegroup path. The full hand buffers, textures
  * and shader programs are created once while the app is starting. Every card
- * then creates a tiny shared context and renders its own pose without another
+ * then uses a pooled shared context and renders its own pose without another
  * multi-megabyte upload.
  */
 public final class V3CollectionGlResourceCache {
@@ -32,6 +33,12 @@ public final class V3CollectionGlResourceCache {
 	private static final Object RENDER_LOCK = new Object();
 	private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 	private static final List<Runnable> READY_CALLBACKS = new ArrayList<>();
+	// A collection has at most fourteen cards. Keep their shared contexts alive
+	// for the process: a Mali driver crash was observed while destroying them.
+	private static final int MAX_CARD_CONTEXTS = 14;
+	private static final ArrayDeque<EGLContext> AVAILABLE_CONTEXTS = new ArrayDeque<>();
+	private static final List<Runnable> CONTEXT_CALLBACKS = new ArrayList<>();
+	private static int cardContextCount;
 
 	private static HandlerThread preloadThread;
 	private static Handler preloadHandler;
@@ -94,6 +101,9 @@ public final class V3CollectionGlResourceCache {
 		synchronized (STATE_LOCK) {
 			if (resources == null || display == EGL14.EGL_NO_DISPLAY
 					|| preloadContext == EGL14.EGL_NO_CONTEXT || config == null) return null;
+			EGLContext available = AVAILABLE_CONTEXTS.pollFirst();
+			if (available != null) return new SharedContext(display, config, available, clientVersion, resources);
+			if (cardContextCount >= MAX_CARD_CONTEXTS) return null;
 			int[] attributes = {
 					EGL14.EGL_CONTEXT_CLIENT_VERSION, clientVersion,
 					EGL14.EGL_NONE
@@ -101,8 +111,31 @@ public final class V3CollectionGlResourceCache {
 			EGLContext context = EGL14.eglCreateContext(
 					display, config, preloadContext, attributes, 0);
 			if (context == null || context == EGL14.EGL_NO_CONTEXT) return null;
+			cardContextCount++;
 			return new SharedContext(display, config, context, clientVersion, resources);
 		}
+	}
+
+	/** Retries on the UI thread when a card releases a pooled context. */
+	public static boolean whenCardContextAvailable(Runnable callback) {
+		synchronized (STATE_LOCK) {
+			if (resources == null || cardContextCount < MAX_CARD_CONTEXTS || !AVAILABLE_CONTEXTS.isEmpty()) {
+				return false;
+			}
+			CONTEXT_CALLBACKS.add(callback);
+			return true;
+		}
+	}
+
+	/** The caller must unbind the context before returning it to the pool. */
+	public static void releaseSharedContext(SharedContext shared) {
+		List<Runnable> callbacks;
+		synchronized (STATE_LOCK) {
+			AVAILABLE_CONTEXTS.addLast(shared.context);
+			callbacks = new ArrayList<>(CONTEXT_CALLBACKS);
+			CONTEXT_CALLBACKS.clear();
+		}
+		for (Runnable callback : callbacks) MAIN_HANDLER.post(callback);
 	}
 
 	public static void runSerialized(Runnable action) {

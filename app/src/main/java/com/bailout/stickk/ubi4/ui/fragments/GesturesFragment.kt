@@ -193,7 +193,7 @@ class GesturesFragment : BaseWidgetsFragment() {
                 }
                 gesturesRv.adapter?.notifyItemChanged(position)
             }
-        })
+        }, useActiveCheckColor = true)
         gesturesRv.adapter = adapter
 
 

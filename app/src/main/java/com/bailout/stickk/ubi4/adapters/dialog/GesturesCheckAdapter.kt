@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.dialog
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 class GesturesCheckAdapter(
     private val gesturesList: ArrayList<DialogCollectionGestureItem>,
     private val onCheckGestureListener: OnCheckGestureListener,
+    private val useActiveCheckColor: Boolean = false,
 ) : RecyclerView.Adapter<GesturesCheckAdapter.ScanViewHolder>() {
 
     inner class ScanViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -24,7 +26,13 @@ class GesturesCheckAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScanViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.ubi4_item_dialog_gesture, parent, false)
-        return ScanViewHolder(itemView)
+        return ScanViewHolder(itemView).also { holder ->
+            if (useActiveCheckColor) {
+                holder.gestureCheckImage.imageTintList = ColorStateList.valueOf(
+                    parent.context.getColor(R.color.ubi4_active)
+                )
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")

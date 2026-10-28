@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="v3_init_commands_header">Команды инициализации · Телефон → Протез</string>
+    <string name="v3_init_command_send">Отправить команду</string>
+    <string name="v3_init_command_queued">Добавлено в очередь отправки</string>
+    <string name="v3_init_device_data">Запросить данные платы</string>
+    <string name="v3_init_phone_date_time">Установить текущую дату и время телефона</string>
+    <string name="v3_init_threshold">Прочитать пороги ЕМГ</string>
+    <string name="v3_init_emg_gain">Прочитать усиление ЕМГ</string>
+    <string name="v3_init_emg_mode">Прочитать режим ЕМГ</string>
+    <string name="v3_init_emg_max_gain">Прочитать максимальное усиление ЕМГ</string>
+    <string name="v3_init_emg_change_gesture">Прочитать переключение жестов по ЕМГ</string>
+    <string name="v3_init_screen_timeout">Прочитать таймаут экрана</string>
+    <string name="v3_init_movement_lock">Прочитать блокировку движения по ЕМГ</string>
+    <string name="v3_init_hand_side">Прочитать сторону руки</string>
+    <string name="v3_init_battery">Прочитать состояние батареи</string>
+    <string name="v3_init_hand_control_mode">Прочитать режим управления кистью</string>
+    <string name="v3_init_gesture_change_mode">Прочитать режим переключения жестов</string>
+    <string name="v3_init_speed">Прочитать настройки скорости</string>
+    <string name="v3_init_force">Прочитать настройки усилия</string>
+    <string name="v3_init_serial_number">Прочитать серийный номер</string>
+    <string name="v3_init_thumb_position">Прочитать закрытое положение большого пальца</string>
+    <string name="v3_init_fingers_position">Прочитать закрытое положение указательного и среднего пальцев</string>
+</resources>

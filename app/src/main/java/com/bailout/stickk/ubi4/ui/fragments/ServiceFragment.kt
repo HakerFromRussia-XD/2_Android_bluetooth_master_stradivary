@@ -26,6 +26,11 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.V3ServiceViewModel
 import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3InitializationCommandsViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.initialization.InitializationCommandDelegateAdapterV3
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.initialization.V3InitializationCommandsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.initialization.V3InitializationCommandsViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.initialization.V3InitializationCommandUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.service.widgets.V3ServiceWidgetMapper
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.SliderUiStateV3
@@ -50,6 +55,9 @@ class ServiceFragment : BaseWidgetsFragment() {
     private val dataFactory = DataFactory()
     private val v3WidgetMapper = V3ServiceWidgetMapper()
     private var v3ServiceViewModel: V3ServiceViewModel? = null
+    private var v3InitializationViewModel: V3InitializationCommandsViewModel? = null
+    private var initializationCommands: List<V3InitializationCommandUiState> = emptyList()
+    private var renderedInitializationCommands: List<V3InitializationCommandUiState>? = null
     private val v3CalibrationAdapter by lazy {
         ProsthesisCalibrationDelegateAdapterV3(
             onDestroyParent = ::registerDelegateCleanup,
@@ -87,6 +95,9 @@ class ServiceFragment : BaseWidgetsFragment() {
                 v3SpinnerAdapter,
                 v3TextInputAdapter,
                 v3SliderAdapter,
+                InitializationCommandDelegateAdapterV3 { command ->
+                    v3InitializationViewModel?.onAction(V3InitializationCommandsAction.CommandClicked(command))
+                },
             )
         } else {
             super.adapterWidgets
@@ -129,14 +140,26 @@ class ServiceFragment : BaseWidgetsFragment() {
             owner = requireActivity(),
         ))[V3ServiceViewModel::class.java]
         v3ServiceViewModel = viewModel
+        val initializationViewModel = ViewModelProvider(this, V3InitializationCommandsViewModelFactory())[
+            V3InitializationCommandsViewModel::class.java]
+        v3InitializationViewModel = initializationViewModel
+        initializationCommands = initializationViewModel.uiState.value.commands
         renderV3Service(viewModel.uiState.value)
         val owner = viewLifecycleOwner
         widgetsStateJob = owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.onAction(V3ServiceAction.ViewAttached)
+                initializationViewModel.onAction(V3InitializationCommandsAction.ViewAttached)
                 try {
+                    launch {
+                        initializationViewModel.uiState.collect {
+                            initializationCommands = it.commands
+                            renderV3Service(viewModel.uiState.value)
+                        }
+                    }
                     viewModel.uiState.collect(::renderV3Service)
                 } finally {
+                    initializationViewModel.onAction(V3InitializationCommandsAction.ViewDetached)
                     viewModel.onAction(V3ServiceAction.ViewDetached)
                     rolePinDialog.dismiss()
                 }
@@ -187,10 +210,12 @@ class ServiceFragment : BaseWidgetsFragment() {
             renderedSliders = state.sliders
         }
         val roleOptions = role?.roles?.map { roleName(it) }
-        if (renderedV3Widgets != state.widgets || renderedRoleOptions != roleOptions) {
-            adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets, roleOptions))
+        if (renderedV3Widgets != state.widgets || renderedRoleOptions != roleOptions ||
+            renderedInitializationCommands != initializationCommands) {
+            adapterWidgets.swapData(v3WidgetMapper.toItems(state.widgets, roleOptions) + initializationCommands)
             renderedV3Widgets = state.widgets
             renderedRoleOptions = roleOptions
+            renderedInitializationCommands = initializationCommands
         }
         rolePinDialog.render(requireContext(), role?.pinRequest,
             onSubmit = { id, pin -> v3ServiceViewModel?.onAction(V3ServiceAction.RolePinSubmitted(id, pin)) },
@@ -239,6 +264,7 @@ class ServiceFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        v3InitializationViewModel?.onAction(V3InitializationCommandsAction.ViewDetached)
         v3ServiceViewModel?.onAction(V3ServiceAction.ViewDestroyed)
         widgetsStateJob?.cancel()
         widgetsStateJob = null
@@ -252,6 +278,9 @@ class ServiceFragment : BaseWidgetsFragment() {
         renderedTextInputs = null
         renderedRoleOptions = null
         v3ServiceViewModel = null
+        v3InitializationViewModel = null
+        initializationCommands = emptyList()
+        renderedInitializationCommands = null
         _binding = null
         super.onDestroyView()
     }

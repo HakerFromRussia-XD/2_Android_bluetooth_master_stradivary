@@ -16,6 +16,7 @@
     <color name="ubi4_surface_raised">#ECEEE8</color>
     <color name="ubi4_text_40">#66242722</color>
     <color name="ubi4_battery_track">#DDE1D7</color>
+    <color name="ubi4_gripper_plastic">#000000</color>
     <color name="ubi4_control_disabled_text">@color/ubi4_deactivate_text</color>
     <color name="ubi4_switch_track_off">#E5E8E3</color>
     <color name="ubi4_switch_track_border">#BFC7B9</color>

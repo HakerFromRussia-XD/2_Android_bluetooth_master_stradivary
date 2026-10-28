@@ -10,6 +10,7 @@
     <color name="ubi4_surface_raised">#3D3D3D</color>
     <color name="ubi4_text_40">#66FFFFFF</color>
     <color name="ubi4_battery_track">#4DFFFFFF</color>
+    <color name="ubi4_battery_critical">#7F170E</color>
     <color name="ubi4_control_disabled_text">@color/ubi4_gray_border</color>
     <color name="ubi4_open_plot">@color/ubi4_white</color>
     <color name="ubi4_open_threshold_text">@color/ubi4_deactivate_text</color>

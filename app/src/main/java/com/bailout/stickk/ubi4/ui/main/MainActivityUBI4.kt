@@ -904,7 +904,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val shapeDrawable = rotate.drawable as GradientDrawable
         binding.batteryProgressBar.progress = percent
         val colorRes = when {
-            percent < 20 -> R.color.ubi4_no_system_red
+            percent < 20 -> R.color.ubi4_battery_critical
             percent <= 40 -> R.color.ubi4_no_system_yellow
             else -> R.color.ubi4_active
         }

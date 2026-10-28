@@ -26,7 +26,7 @@
     <color name="ubi4_close_threshold">#242722</color>
     <color name="ubi4_yes_system_blue">#0066CC</color>
     <color name="ubi4_no_system_red">#C62D26</color>
-    <color name="ubi4_no_system_yellow">#9B5800</color>
+    <color name="ubi4_no_system_yellow">#E59A16</color>
     <bool name="ubi4_light_system_bars">true</bool>
 
     <style name="Ubi4RotationActiveMarker">

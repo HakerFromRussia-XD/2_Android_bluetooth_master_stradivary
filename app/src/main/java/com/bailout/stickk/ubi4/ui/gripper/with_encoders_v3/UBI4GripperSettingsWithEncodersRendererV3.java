@@ -279,6 +279,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	/** This is a handle to our cube shading program. */
 	private int program;
 	private int programWithColor;
+	private boolean ownsCollectionProgram;
 	private int programSelect;
 	private int programTestMetal;
 	private int programMetal;
@@ -518,9 +519,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	/**
-	 * Fast card path matching iOS: reuse the process-wide GPU resource cache
-	 * instead of compiling shaders and uploading the complete hand fourteen
-	 * times whenever the gestures screen is opened.
+	 * Reuse the process-wide hand buffers and textures, while each card
+	 * keeps its own material program to avoid cross-context driver failures.
 	 */
 	public void onSurfaceCreatedWithSharedCollectionResources(CollectionSharedResources shared) {
 		if (!collectionPreviewMode || shared == null) {
@@ -532,7 +532,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			heightMap = new HeightMap();
 			heightMap.attachShared(shared);
 		}
-		program = shared.program;
+		// Mali can crash in glDrawElements when the general material program is
+		// reused across card contexts, even with serialized draws and glFinish.
+		// Keep the large buffers/textures shared, but give each card its own program.
+		program = createCollectionProgram(
+				RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_vertex_shader_tex_and_light),
+				collectionFragmentPrecision(RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_general)));
+		ownsCollectionProgram = true;
+		setDefaultGeneralMaterialUniforms(program);
 		programWithColor = shared.programWithColor;
 		programSelect = shared.programSelect;
 		programReference[0] = program;
@@ -549,6 +556,29 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		loadCollectionObjectIfNeeded();
 		initializeCollectionSurfaceState();
 		V3ModelLoadMetrics.log("surfaceCreated shared totalMs=" + elapsedSince(surfaceCreatedStartedAtMs));
+	}
+
+	/** Transfers the linked program to the card; shader handles never escape this call. */
+	static int createCollectionProgram(String vertexSource, String fragmentSource) {
+		// RawResourceReader returns null on I/O failure. Reject it before the
+		// legacy helper allocates a shader whose handle it cannot return on error.
+		if (vertexSource == null || fragmentSource == null) {
+			throw new IllegalArgumentException("Collection shader sources must not be null");
+		}
+		int vertexShader = 0;
+		int fragmentShader = 0;
+		try {
+			vertexShader = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexSource);
+			fragmentShader = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource);
+			return ShaderHelper.createAndLinkProgram(vertexShader, fragmentShader, new String[]{
+					POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE, TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+		} finally {
+			// ShaderHelper deletes the shader/program whose compilation/link failed.
+			// Also release shaders that succeeded before a later step failed: the
+			// collection share group outlives individual card surfaces and contexts.
+			if (vertexShader != 0) GLES20.glDeleteShader(vertexShader);
+			if (fragmentShader != 0) GLES20.glDeleteShader(fragmentShader);
+		}
 	}
 
 	private void initializeCollectionSurfaceState() {
@@ -606,6 +636,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		} catch (Throwable error) {
 			V3ModelLoadMetrics.logError("collectionObjectLoadFailed asset=" + collectionObjectAssetName, error);
 		}
+	}
+
+	/** Called with this card's context current before its surface is released. */
+	public void releaseCollectionProgram() {
+		if (!ownsCollectionProgram) return;
+		GLES20.glUseProgram(0);
+		GLES20.glDeleteProgram(program);
+		program = 0;
+		programReference[0] = 0;
+		ownsCollectionProgram = false;
 	}
 
 	private int[] modelParts(String groupName) {
@@ -757,6 +797,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	@SuppressLint("InlinedApi")
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+	ownsCollectionProgram = false;
 	surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
 	deformationBindMatricesCaptured = false;
 	V3ModelLoadMetrics.init(fragmentGripperSettings);

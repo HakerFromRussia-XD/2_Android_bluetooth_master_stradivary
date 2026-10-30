@@ -315,14 +315,20 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 	private void drawFrameOnGlThread() {
 		if (!eglReady || cardRenderer == null || eglSurfaceTexture != activeSurfaceTexture) return;
 		Runnable draw = () -> {
-			cardRenderer.onDrawFrame(null);
-			if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
-				Log.e(TAG, "eglSwapBuffers failed: 0x" + Integer.toHexString(EGL14.eglGetError()));
-				return;
-			}
-			if (!firstFramePresented) {
-				firstFramePresented = true;
-				post(this::notifyFirstFrameReady);
+			try {
+				cardRenderer.onDrawFrame(null);
+				if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
+					Log.e(TAG, "eglSwapBuffers failed: 0x" + Integer.toHexString(EGL14.eglGetError()));
+					return;
+				}
+				if (!firstFramePresented) {
+					firstFramePresented = true;
+					post(this::notifyFirstFrameReady);
+				}
+			} finally {
+				// Cards update the same shared VBOs. The Java lock only orders command
+				// submission; complete GPU use before another card draws or destroys a context.
+				GLES20.glFinish();
 			}
 		};
 		V3CollectionGlResourceCache.runSerialized(draw);
@@ -339,6 +345,7 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 					// Swapping submits work asynchronously. Finish this card's last
 					// frame before releasing the surface and its shared context.
 					GLES20.glFinish();
+					if (cardRenderer != null) cardRenderer.releaseCollectionProgram();
 				}
 				EGL14.eglMakeCurrent(
 						eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);

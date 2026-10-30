@@ -136,8 +136,8 @@ android {
         applicationId = "com.bailout.stickk"
         minSdk = 28
         targetSdk = 33
-        versionCode = 20
-        versionName = "3.3.1877"
+        versionCode = 21
+        versionName = "3.3.1879"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"

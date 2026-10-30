@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.di.ThemeDependencies
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
@@ -44,6 +45,37 @@ class Ubi4ThemeSwitchingTest {
         Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.POST_NOTIFICATIONS,
     )
+
+    @Test fun hidingSelectedServiceTabSelectsSensorsInBothThemes() {
+        for (theme in listOf("LIGHT", "DARK")) {
+            withEmulatedActivity(theme) { scenario ->
+                scenario.onActivity { activity ->
+                    val prefs = activity.getSharedPreferences(PreferenceKeysUbi4.NAME, Context.MODE_PRIVATE)
+                    val key = PreferenceKeysUbi4.KEY_SECRET_ITEM_VISIBLE
+                    val previous = if (prefs.contains(key)) prefs.getBoolean(key, false) else null
+                    try {
+                        prefs.edit().putBoolean(key, true).commit()
+                        val controller = activity.getBottomNavigationController()
+                        controller.applyVisibility(setOf(1, 4))
+                        val navigation = activity.findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                        navigation.selectedItemId = R.id.page_secret
+                        assertEquals(R.id.page_secret, navigation.selectedItemId)
+
+                        controller.toggleSecretItem()
+                        activity.supportFragmentManager.executePendingTransactions()
+
+                        assertEquals(R.id.page_2, navigation.selectedItemId)
+                        assertTrue(navigation.menu.findItem(R.id.page_2).isChecked)
+                        assertTrue(activity.supportFragmentManager.findFragmentById(R.id.fragmentContainer) is SensorsFragment)
+                    } finally {
+                        prefs.edit().apply {
+                            if (previous == null) remove(key) else putBoolean(key, previous)
+                        }.commit()
+                    }
+                }
+            }
+        }
+    }
 
     @Test fun themeSelectionRestoresSettingsAndNavigationAfterRecreation() {
         withEmulatedActivity("DARK") { scenario ->

@@ -280,6 +280,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	/** This is a handle to our cube shading program. */
 	private int program;
 	private int programWithColor;
+	private boolean ownsCollectionProgram;
 	private int programSelect;
 	private int programTestMetal;
 	private int programMetal;
@@ -534,7 +535,19 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			heightMap = new HeightMap();
 			heightMap.attachShared(shared);
 		}
-		program = shared.program;
+		// Mali can crash in glDrawElements when the general material program is
+		// reused across card contexts, even with serialized draws and glFinish.
+		// Keep the large buffers/textures shared, but give each card its own program.
+		int vertexShader = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER,
+				RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_vertex_shader_tex_and_light));
+		int fragmentShader = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER,
+				collectionFragmentPrecision(RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.v3_per_pixel_fragment_shader_general)));
+		program = ShaderHelper.createAndLinkProgram(vertexShader, fragmentShader, new String[]{
+				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE, TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+		GLES20.glDeleteShader(vertexShader);
+		GLES20.glDeleteShader(fragmentShader);
+		setDefaultGeneralMaterialUniforms(program);
+		ownsCollectionProgram = true;
 		programWithColor = shared.programWithColor;
 		programSelect = shared.programSelect;
 		programReference[0] = program;
@@ -611,7 +624,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	/** Called with this card's context current before it returns to the pool. */
-	public void releaseCollectionObject() {
+	public void releaseCollectionResources() {
+		if (ownsCollectionProgram) {
+			GLES20.glUseProgram(0);
+			GLES20.glDeleteProgram(program);
+			program = 0;
+			ownsCollectionProgram = false;
+		}
 		if (collectionObjectVertexBuffer == 0) return;
 		GLES20.glDeleteBuffers(1, new int[]{collectionObjectVertexBuffer}, 0);
 		collectionObjectVertexBuffer = 0;

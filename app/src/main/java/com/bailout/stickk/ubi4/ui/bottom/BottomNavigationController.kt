@@ -45,9 +45,7 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
     }
 
     private fun selectAndRoute(@IdRes id: Int) {
-        isNavigationEnabled = false
-        bottomNavigation.selectedItemId = id
-        isNavigationEnabled = true
+        bottomNavigation.menu.findItem(id)?.isChecked = true
         routeTo(id)
     }
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="v3_init_commands_entry_title">Команды инициализации</string>
+    <string name="v3_init_commands_back">Назад к служебным настройкам</string>
     <string name="v3_init_commands_header">Команды инициализации · Телефон → Протез</string>
     <string name="v3_init_command_send">Отправить команду</string>
     <string name="v3_init_command_queued">Добавлено в очередь отправки</string>

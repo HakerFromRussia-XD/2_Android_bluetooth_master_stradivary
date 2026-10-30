@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="v3_init_commands_entry_title">Initialization commands</string>
+    <string name="v3_init_commands_back">Back to service settings</string>
     <string name="v3_init_commands_header">Initialization commands · Phone → Prosthesis</string>
     <string name="v3_init_command_step">%1$02d. %2$s</string>
     <string name="v3_init_command_send">Send command</string>

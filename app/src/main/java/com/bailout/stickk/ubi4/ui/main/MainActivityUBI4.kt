@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3ServiceFirmwa
 import com.bailout.stickk.ubi4.versions.v3.di.V3ServiceFirmwareViewModelFactory
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.BleLogFragment
+import com.bailout.stickk.ubi4.ui.fragments.InitializationCommandsFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -480,6 +481,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showBleLogScreen() { launchFragmentWithoutStack(BleLogFragment()) }
+    override fun showInitializationCommandsScreen() {
+        if (activeFragment is InitializationCommandsFragment) return
+        launchFragmentWithStack(InitializationCommandsFragment())
+    }
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3)
             return

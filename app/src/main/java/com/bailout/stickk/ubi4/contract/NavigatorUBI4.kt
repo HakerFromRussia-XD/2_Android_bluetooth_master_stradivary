@@ -38,6 +38,7 @@ interface NavigatorUBI4 {
 
     fun showHelpScreen()
     fun showBleLogScreen()
+    fun showInitializationCommandsScreen()
 
 
     fun showToast(massage: String)

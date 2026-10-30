@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
+
+    <ImageButton
+        android:id="@+id/initializationCommandsBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/v3_init_commands_back"
+        android:padding="12dp"
+        android:src="@drawable/ubi4_ic_initialization_back"
+        android:tint="@color/ubi4_text_primary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/initializationCommandsTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/font_inter_semi_bold"
+        android:text="@string/v3_init_commands_header"
+        android:textColor="@color/ubi4_text_primary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/initializationCommandsBack"
+        app:layout_constraintStart_toEndOf="@id/initializationCommandsBack"
+        app:layout_constraintTop_toTopOf="@id/initializationCommandsBack" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/initializationCommandsRv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/initializationCommandsBack" />
+</androidx.constraintlayout.widget.ConstraintLayout>

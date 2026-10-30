@@ -10,7 +10,6 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 class InitializationCommandDelegateAdapterV3(private val onClick: (V3InitializationCommand) -> Unit) :
     ViewBindingDelegateAdapter<V3InitializationCommandUiState, Ubi4ItemInitializationCommandBinding>(Ubi4ItemInitializationCommandBinding::inflate) {
     override fun Ubi4ItemInitializationCommandBinding.onBind(item: V3InitializationCommandUiState) {
-        commandsHeader.visibility = if (item.step == 1) View.VISIBLE else View.GONE
         commandTitle.text = root.context.getString(R.string.v3_init_command_step, item.step, root.context.getString(title(item.packet.command)))
         commandHex.text = item.packet.hex
         sendCommand.isEnabled = item.isEnabled

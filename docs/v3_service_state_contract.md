@@ -3,13 +3,12 @@
 Актуальные границы слоёв после проверки 2026-09-16: [аудит MVVM + MVI](v3_clean_architecture_audit.md).
 Описания отдельных этапов ниже отражают историю переноса.
 
-Дополнение от 2026-10-28: внизу V3-экрана добавлен блок из 18 ручных
-[команд инициализации](v3_initialization_commands.md) из журнала BLE пользователя.
-Его состоянием и действиями владеет V3InitializationCommandsViewModel;
-Fragment объединяет строки блока с прежним составом Service. Отправка проходит
-через UseCase, Repository и существующий V3CommandTransport. Поэтому полный
-экран теперь содержит 27 строк для STANDARD_V3 и 24 для INDY3; перечисленные
-ниже 9/6 строк относятся к прежнему составу из DataFactory.
+Дополнение от 2026-10-30: экран служебных настроек содержит пункт перехода к
+18 ручным [командам инициализации](v3_initialization_commands.md). Отдельный
+InitializationCommandsFragment отображает состояние V3InitializationCommandsViewModel;
+отправка проходит через UseCase, Repository и существующий V3CommandTransport.
+Вместе с пунктом перехода экран Service содержит 10 строк для STANDARD_V3 и 7
+для INDY3; перечисленные ниже 9/6 строк относятся к составу из DataFactory.
 
 
 Статус: B2.5, 2026-09-15. Основной порядок — [план архитектуры](ubi4_v3_clean_architecture_plan.md).

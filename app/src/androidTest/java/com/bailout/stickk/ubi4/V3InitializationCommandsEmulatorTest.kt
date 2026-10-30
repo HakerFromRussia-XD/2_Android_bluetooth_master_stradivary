@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -43,16 +44,25 @@ class V3InitializationCommandsEmulatorTest {
         }
         ActivityScenario.launch<MainActivityUBI4>(intent).use { scenario ->
             waitUntil { runCatching { onView(withId(R.id.homeRv)).check(matches(isDisplayed())) }.isSuccess }
-            scenario.onActivity { it.showSecretScreen() }
+            scenario.onActivity { BLEState.publishReady(); it.showSecretScreen() }
             waitUntil { runCatching { onView(withId(R.id.serviceFragmentRv)).check(matches(isDisplayed())) }.isSuccess }
             onView(withId(R.id.serviceFragmentRv)).check { view, error ->
                 if (error != null) throw error
-                assertEquals(27, (view as RecyclerView).adapter?.itemCount)
+                assertEquals(10, (view as RecyclerView).adapter?.itemCount)
             }
             val before = V3BleEmulatorTestHooks.outgoingPacketsSnapshot().size
+            onView(withId(R.id.serviceFragmentRv)).perform(
+                RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withId(R.id.initializationCommandsEntryClick))))
+            onView(withId(R.id.initializationCommandsEntryClick)).perform(click())
+            waitUntil { runCatching { onView(withId(R.id.initializationCommandsRv)).check(matches(isDisplayed())) }.isSuccess }
+            onView(withId(R.id.initializationCommandsRv)).check { view, error ->
+                if (error != null) throw error
+                assertEquals(18, (view as RecyclerView).adapter?.itemCount)
+            }
+            assertEquals(before, V3BleEmulatorTestHooks.outgoingPacketsSnapshot().size)
             for (index in 0 until 18) {
-                onView(withId(R.id.serviceFragmentRv)).perform(
-                    RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(9 + index))
+                onView(withId(R.id.initializationCommandsRv)).perform(
+                    RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
                 val rowTitle = String.format("%02d. ", index + 1) + title(index)
                 onView(withText(rowTitle)).check(matches(isDisplayed()))
                 if (index == 0 || index == 17) capturePreview(index)
@@ -67,7 +77,25 @@ class V3InitializationCommandsEmulatorTest {
                 15 to 64, 1 to 10, 15 to 69, 15 to 71,
             ), packets.map { (it[1].toInt() and 255) to (it[if (it.size > 5) 4 else 2].toInt() and 255) })
             scenario.onActivity { BLEState.publishDisconnect() }
-            onView(allOf(withId(R.id.sendCommand), withParent(hasDescendant(withText("18. " + title(17)))))).check(matches(isNotEnabled()))
+            waitUntil {
+                runCatching {
+                    onView(allOf(withId(R.id.sendCommand), withParent(hasDescendant(withText("18. " + title(17))))))
+                        .check(matches(isNotEnabled()))
+                }.isSuccess
+            }
+            assertEquals(before + 18, V3BleEmulatorTestHooks.outgoingPacketsSnapshot().size)
+            pressBack()
+            waitUntil { runCatching { onView(withId(R.id.serviceFragmentRv)).check(matches(isDisplayed())) }.isSuccess }
+            onView(withId(R.id.serviceFragmentRv)).perform(
+                RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withId(R.id.initializationCommandsEntryClick))))
+            onView(withId(R.id.initializationCommandsEntryClick)).perform(click())
+            onView(withId(R.id.initializationCommandsBack)).perform(click())
+            waitUntil { runCatching { onView(withId(R.id.serviceFragmentRv)).check(matches(isDisplayed())) }.isSuccess }
+            assertEquals(before + 18, V3BleEmulatorTestHooks.outgoingPacketsSnapshot().size)
+            onView(withId(R.id.serviceFragmentRv)).perform(
+                RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withId(R.id.bleLogClick))))
+            onView(withId(R.id.bleLogClick)).perform(click())
+            onView(withId(R.id.bleLogRv)).check(matches(isDisplayed()))
             assertEquals(before + 18, V3BleEmulatorTestHooks.outgoingPacketsSnapshot().size)
         }
     }

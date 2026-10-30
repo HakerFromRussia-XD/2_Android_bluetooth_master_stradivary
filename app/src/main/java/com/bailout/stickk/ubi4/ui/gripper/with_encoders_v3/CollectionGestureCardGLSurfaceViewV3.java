@@ -365,7 +365,7 @@ public final class CollectionGestureCardGLSurfaceViewV3 extends TextureView
 					// frame before releasing the surface and its shared context.
 					GLES20.glFinish();
 					if (sharedContext != null && cardRenderer != null) {
-						cardRenderer.releaseCollectionObject();
+						cardRenderer.releaseCollectionResources();
 					}
 				}
 				EGL14.eglMakeCurrent(

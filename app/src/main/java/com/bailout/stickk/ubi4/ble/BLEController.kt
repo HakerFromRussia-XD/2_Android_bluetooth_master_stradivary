@@ -100,7 +100,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var mBluetoothLeService: BluetoothLeService? = null
-    private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
+    @Volatile private var mGattCharacteristics: List<List<BluetoothGattCharacteristic>> = emptyList()
     private var mCharacteristic: BluetoothGattCharacteristic? = null
     private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
     private var progressDialog: Dialog? = null
@@ -607,7 +607,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         val unknownCharaString =("unknown_characteristic")
         val gattServiceData = ArrayList<HashMap<String, String?>>()
         val gattCharacteristicData = ArrayList<ArrayList<HashMap<String, String?>>>()
-        mGattCharacteristics = java.util.ArrayList()
+        val discoveredCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
 
 
         // Loops through available GATT Services.
@@ -631,9 +631,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 gattCharacteristicGroupData.add(currentCharaData)
                 System.err.println("------->   ХАРАКТЕРИСТИКА: $uuid")
             }
-            mGattCharacteristics.add(characteristicsList)
+            discoveredCharacteristics.add(characteristicsList)
             gattCharacteristicData.add(gattCharacteristicGroupData)
         }
+        mGattCharacteristics = discoveredCharacteristics
         if (mScanning) { scanLeDevice(false) }
     }
     fun connectToSavedDeviceNow() {
@@ -832,12 +833,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String): Boolean  {
         Log.d("bleCommand", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         var commandDispatched = false
-        for (i in mGattCharacteristics.indices) {
-            for (j in mGattCharacteristics[i].indices) {
-                Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid} ищем: UUID = $uuid")
-                if(mGattCharacteristics[i][j].uuid.toString().equals(uuid, ignoreCase = true)){
+        val characteristicsSnapshot = mGattCharacteristics
+        for (i in characteristicsSnapshot.indices) {
+            for (j in characteristicsSnapshot[i].indices) {
+                Log.d("bleCommand", "Характеристика $i-$j UUID: ${characteristicsSnapshot[i][j].uuid} ищем: UUID = $uuid")
+                if(characteristicsSnapshot[i][j].uuid.toString().equals(uuid, ignoreCase = true)){
                     Log.d("bleCommand", "НАШЛИ!!! UUID = $uuid")
-                    mCharacteristic = mGattCharacteristics[i][j]
+                    mCharacteristic = characteristicsSnapshot[i][j]
                     if (typeCommand == WRITE){
                         val properties = mCharacteristic?.properties ?: 0
                         val supportsWrite = properties and BluetoothGattCharacteristic.PROPERTY_WRITE > 0

@@ -44,21 +44,31 @@ val missingMotoricaReleaseSigning = buildList {
 
 // MS and its games must share the existing RuStore certificate for CONTROL_GAME.
 val motoricaCertificateSha256 = "d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8"
-val injectedSigningProperties = properties.keys.filter { it.startsWith("android.injected.signing.") }
+val injectedSigning = listOf("store.file", "store.password", "key.alias", "key.password")
+    .associateWith { providers.gradleProperty("android.injected.signing.$it").orNull }
+val hasInjectedSigning = injectedSigning.values.any { it != null }
+// Validate the wizard's actual key instead of rejecting all Android Studio signing overrides.
+val signingStoreFile = if (hasInjectedSigning) injectedSigning["store.file"] else motoricaReleaseStoreFile
+val signingStorePassword = if (hasInjectedSigning) injectedSigning["store.password"] else motoricaReleaseStorePassword
+val signingKeyAlias = if (hasInjectedSigning) injectedSigning["key.alias"] else motoricaReleaseKeyAlias
+val signingStoreType = if (hasInjectedSigning) {
+    providers.gradleProperty("android.injected.signing.store.type").orElse(KeyStore.getDefaultType()).get()
+} else "JKS"
+val missingSigning = if (hasInjectedSigning) {
+    injectedSigning.filterValues { it.isNullOrBlank() }.keys.map { "android.injected.signing.$it" }
+} else missingMotoricaReleaseSigning
 val motoricaSigningError = when {
-    injectedSigningProperties.isNotEmpty() ->
-        "Android injected signing overrides are disabled; use the configured Motorica signing key."
-    missingMotoricaReleaseSigning.isNotEmpty() ->
-        "Motorica signing is not configured. Missing: " + missingMotoricaReleaseSigning.joinToString()
+    missingSigning.isNotEmpty() ->
+        "Motorica signing is not configured. Missing: " + missingSigning.joinToString()
     else -> runCatching {
         // Provider reads participate in configuration-cache invalidation; no credentials enter logs.
-        val keyStoreFile = layout.file(providers.provider { file(motoricaReleaseStoreFile!!) })
+        val keyStoreFile = layout.file(providers.provider { file(signingStoreFile!!) })
         val keyStoreBytes = providers.fileContents(keyStoreFile).asBytes.get()
-        val keyStore = KeyStore.getInstance("JKS")
+        val keyStore = KeyStore.getInstance(signingStoreType)
         ByteArrayInputStream(keyStoreBytes).use {
-            keyStore.load(it, motoricaReleaseStorePassword!!.toCharArray())
+            keyStore.load(it, signingStorePassword!!.toCharArray())
         }
-        val certificate = keyStore.getCertificate(motoricaReleaseKeyAlias)
+        val certificate = keyStore.getCertificate(signingKeyAlias)
             ?: throw GradleException("Configured signing certificate is missing.")
         val actualSha256 = MessageDigest.getInstance("SHA-256")
             .digest(certificate.encoded).joinToString("") { "%02x".format(it) }
@@ -126,8 +136,8 @@ android {
         applicationId = "com.bailout.stickk"
         minSdk = 28
         targetSdk = 33
-        versionCode = 19
-        versionName = "3.3.1876"
+        versionCode = 20
+        versionName = "3.3.1877"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"

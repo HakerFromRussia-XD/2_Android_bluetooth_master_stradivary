@@ -91,10 +91,7 @@ class V3ServiceCalibrationEmulatorTest {
 
     private fun calibrationCommands() = V3BleEmulatorTestHooks.outgoingPacketsSnapshot().mapNotNull {
         when {
-            it.contentEquals(byteArrayOf(
-                0x62, 0x27, 0x5C, 0x78, 0x30, 0x30, 0x5C, 0x78, 0x30,
-                0x65, 0x5C, 0x74, 0x5C, 0x78, 0x66, 0x66, 0x73, 0x27
-            )) -> 3
+            it.contentEquals(byteArrayOf(0x00, 0x0E, 0x09, 0xFF.toByte(), 0x73)) -> 3
             it.size == 5 && it[1].toInt() == 15 && it[2].toInt() == 0 -> 0
             else -> null
         }

@@ -40,10 +40,7 @@ class V3ProsthesisCalibrationRepositoryTest {
         assertTrue(start("first-device"))
         release("first-device")
         assertEquals(1, packets.size)
-        assertArrayEquals(byteArrayOf(
-            0x62, 0x27, 0x5C, 0x78, 0x30, 0x30, 0x5C, 0x78, 0x30,
-            0x65, 0x5C, 0x74, 0x5C, 0x78, 0x66, 0x66, 0x73, 0x27
-        ), packets[0])
+        assertArrayEquals(byteArrayOf(0x00, 0x0E, 0x09, 0xFF.toByte(), 0x73), packets[0])
     }
 
     @ParameterizedTest

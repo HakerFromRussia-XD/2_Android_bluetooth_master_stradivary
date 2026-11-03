@@ -17,4 +17,6 @@ data class V3SensorsUiState(
     val isRefreshIndicatorVisible: Boolean = false,
     val plot: V3PlotUiState? = null,
     val buttons: V3SensorsButtonsUiState = V3SensorsButtonsUiState(),
+    /** Incremented when the screen should open a VTOS copy; Fragment consumes the id once. */
+    val vtoscOpenRequestId: Long = 0L,
 )

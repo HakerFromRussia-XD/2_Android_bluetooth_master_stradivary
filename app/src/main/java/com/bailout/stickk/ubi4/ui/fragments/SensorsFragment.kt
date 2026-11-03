@@ -30,12 +30,14 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class SensorsFragment : BaseWidgetsFragment() {
+open class SensorsFragment : BaseWidgetsFragment() {
+    protected open val showVtoscNavigation: Boolean = true
     private var _binding: Ubi4FragmentHomeBinding? = null
     private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
     private val dataFactory = DataFactory()
     private var v3SensorsViewModel: V3SensorsViewModel? = null
+    private var handledVtoscOpenRequestId = 0L
     private val v3PlotAdapter by lazy {
         PlotDelegateAdapterV3(
             onDestroyParent = ::registerDelegateCleanup,
@@ -109,7 +111,7 @@ class SensorsFragment : BaseWidgetsFragment() {
 
     private fun bindV3Sensors() {
         val viewModel = ViewModelProvider(
-            this, V3SensorsViewModelFactory.create(),
+            this, V3SensorsViewModelFactory.create(showVtoscNavigation = showVtoscNavigation),
         )[V3SensorsViewModel::class.java]
         v3SensorsViewModel = viewModel
         renderV3Sensors(viewModel.uiState.value)
@@ -156,6 +158,14 @@ class SensorsFragment : BaseWidgetsFragment() {
             main?.refreshBottomNavVisibility()
         }
         renderRefreshIndicator(state.isRefreshIndicatorVisible)
+        if (showVtoscNavigation && state.vtoscOpenRequestId != handledVtoscOpenRequestId) {
+            handledVtoscOpenRequestId = state.vtoscOpenRequestId
+            if (handledVtoscOpenRequestId > 0L) {
+                // Free BLE before VTOS slot request; Sensors stays hidden, not destroyed.
+                v3SensorsViewModel?.onAction(V3SensorsAction.ViewDetached)
+                main?.showVtoscSensorsScreen()
+            }
+        }
     }
 
     private fun renderRefreshIndicator(visible: Boolean, force: Boolean = false) {
@@ -192,6 +202,16 @@ class SensorsFragment : BaseWidgetsFragment() {
         }
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val viewModel = v3SensorsViewModel ?: return
+        if (hidden) {
+            viewModel.onAction(V3SensorsAction.ViewDetached)
+        } else if (isResumed) {
+            viewModel.onAction(V3SensorsAction.ViewAttached)
+        }
+    }
+
     override fun onDestroyView() {
         v3SensorsViewModel?.onAction(V3SensorsAction.ViewDetached)
         widgetsStateJob?.cancel()
@@ -203,6 +223,7 @@ class SensorsFragment : BaseWidgetsFragment() {
         renderedSliders = null
         renderedButtons = null
         renderedRefreshIndicator = null
+        handledVtoscOpenRequestId = 0L
         v3SensorsViewModel = null
         main = null
         _binding = null

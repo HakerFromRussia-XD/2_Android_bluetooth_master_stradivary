@@ -270,7 +270,7 @@ class V3ArchitectureTest {
 
     @Test fun `V3 screen dependency assembly belongs to di instead of fragments`() {
         val ui = File(root.parentFile.parentFile, "ui/fragments")
-        listOf("SensorsFragment.kt", "SpecialSettingsFragment.kt", "ServiceFragment.kt", "SprGestureFragment.kt").forEach { name ->
+        listOf("SensorsFragment.kt", "VtoscSensorsFragment.kt", "SpecialSettingsFragment.kt", "ServiceFragment.kt", "SprGestureFragment.kt").forEach { name ->
             val fragment = File(ui, name)
             reject(fragment, imports(fragment).filter {
                 it.startsWith(prefix + "data.") || it.contains("Repository") || it.contains("UseCase") ||
@@ -299,7 +299,7 @@ class V3ArchitectureTest {
     }
 
     @Test fun `special settings sensors and service fragments do not assemble the V3 BLE transport`() {
-        listOf("SpecialSettingsFragment.kt", "SensorsFragment.kt", "ServiceFragment.kt").forEach { name ->
+        listOf("SpecialSettingsFragment.kt", "SensorsFragment.kt", "VtoscSensorsFragment.kt", "ServiceFragment.kt").forEach { name ->
             val fragment = File(root.parentFile.parentFile, "ui/fragments/$name")
             reject(fragment, imports(fragment).filter { it.contains(".ble.") })
             assertTrue(!fragment.readText().contains("bleCommandWithQueue"), name)

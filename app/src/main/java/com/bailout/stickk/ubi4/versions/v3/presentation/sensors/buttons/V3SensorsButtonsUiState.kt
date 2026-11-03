@@ -6,4 +6,5 @@ data class V3SensorsButtonsUiState(
     val availableMovements: Set<V3ProsthesisMovement> = emptySet(),
     val pressedMovements: Set<V3ProsthesisMovement> = emptySet(),
     val isEnabled: Boolean = false,
+    val showVtoscButton: Boolean = false,
 )

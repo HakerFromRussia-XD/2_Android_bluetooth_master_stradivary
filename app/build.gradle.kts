@@ -41,6 +41,7 @@ val missingMotoricaReleaseSigning = buildList {
     if (motoricaReleaseKeyAlias.isNullOrBlank()) add("motoricaReleaseKeyAlias")
     if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
 }
+val hasMotoricaReleaseSigning = missingMotoricaReleaseSigning.isEmpty()
 
 // MS and its games must share the existing RuStore certificate for CONTROL_GAME.
 val motoricaCertificateSha256 = "d84450b7734071976b89bfb6f0c79a2765934bf4c6f7e5eecc74ecb5700f76d8"
@@ -87,11 +88,21 @@ val requireMotoricaSigning = tasks.register("requireMotoricaSigning") {
     }
 }
 
-// Guard output-producing task types, including test APKs and every build variant.
+// Guard release packaging always; debug/metrics may use the default debug keystore
+// when Motorica credentials are absent (local.properties / env).
 // Keep sync, compilation and unit tests available without signing credentials.
-tasks.withType<PackageAndroidArtifact>().configureEach { dependsOn(requireMotoricaSigning) }
-tasks.withType<PackageBundleTask>().configureEach { dependsOn(requireMotoricaSigning) }
-tasks.withType<FinalizeBundleTask>().configureEach { dependsOn(requireMotoricaSigning) }
+fun Task.requiresMotoricaSigningGuard(): Boolean =
+    hasMotoricaReleaseSigning || name.contains("Release", ignoreCase = true)
+
+tasks.withType<PackageAndroidArtifact>().configureEach {
+    if (requiresMotoricaSigningGuard()) dependsOn(requireMotoricaSigning)
+}
+tasks.withType<PackageBundleTask>().configureEach {
+    if (requiresMotoricaSigningGuard()) dependsOn(requireMotoricaSigning)
+}
+tasks.withType<FinalizeBundleTask>().configureEach {
+    if (requiresMotoricaSigningGuard()) dependsOn(requireMotoricaSigning)
+}
 
 val v3ManifestFile = file("src/main/assets/STR2_V3/festh3_test3_manifest.json")
 val packagedV3AssetNames = mutableSetOf(v3ManifestFile.name)
@@ -161,14 +172,22 @@ android {
     }
 
     signingConfigs {
-        create("motoricaRelease")
-        // Also replace AGP's default debug configuration: it must never select another key.
-        configureEach {
+        create("motoricaRelease") {
             storeFile = motoricaReleaseStoreFile?.let { file(it) }
             storePassword = motoricaReleaseStorePassword
             keyAlias = motoricaReleaseKeyAlias
             keyPassword = motoricaReleaseKeyPassword
             storeType = "JKS"
+        }
+        if (hasMotoricaReleaseSigning) {
+            // Same RuStore cert for debug installs / CONTROL_GAME when credentials exist.
+            named("debug") {
+                storeFile = motoricaReleaseStoreFile?.let { file(it) }
+                storePassword = motoricaReleaseStorePassword
+                keyAlias = motoricaReleaseKeyAlias
+                keyPassword = motoricaReleaseKeyPassword
+                storeType = "JKS"
+            }
         }
     }
 
@@ -193,10 +212,13 @@ android {
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("motoricaRelease")
         }
     }
-    buildTypes.configureEach {
-        signingConfig = signingConfigs.getByName("motoricaRelease")
+    if (hasMotoricaReleaseSigning) {
+        buildTypes.configureEach {
+            signingConfig = signingConfigs.getByName("motoricaRelease")
+        }
     }
     lint {
         checkReleaseBuilds = false

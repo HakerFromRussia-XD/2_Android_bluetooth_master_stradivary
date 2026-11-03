@@ -36,6 +36,7 @@ class SensorsButtonsDelegateAdapterV3(
         widget1ButtonTv.text = item.title
         widget2ButtonTv.text = item.title2
         widget3ButtonTv.text = item.title3
+        vtoscButtonTv.text = VTOSC_LABEL
         val count = (item.widget as CommandParameterWidgetSStruct)
             .baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.size
         btn1Container.visibility = View.VISIBLE
@@ -48,6 +49,7 @@ class SensorsButtonsDelegateAdapterV3(
         widget3Button.setOnTouchListener(null)
         widget3Button.isEnabled = false
         widget3Button.isClickable = false
+        bindVtosc(row)
         render(row)
     }
 
@@ -76,6 +78,14 @@ class SensorsButtonsDelegateAdapterV3(
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun bindVtosc(row: Row) {
+        row.binding.vtoscButton.setOnClickListener {
+            if (rows[row.binding.root] !== row || !row.isAttached || !state.showVtoscButton) return@setOnClickListener
+            onAction(V3SensorsButtonsAction.VtoscClicked)
+        }
+    }
+
     fun render(state: V3SensorsButtonsUiState) {
         this.state = state
         rows.values.forEach(::render)
@@ -84,6 +94,10 @@ class SensorsButtonsDelegateAdapterV3(
     private fun render(row: Row) {
         renderButton(row, row.binding.widget1Button, V3ProsthesisMovement.OPEN)
         renderButton(row, row.binding.widget2Button, V3ProsthesisMovement.CLOSE)
+        val showVtosc = state.showVtoscButton
+        row.binding.vtoscBtnContainer.visibility = if (showVtosc) View.VISIBLE else View.GONE
+        row.binding.vtoscButton.isEnabled = showVtosc && row.isAttached
+        row.binding.vtoscButton.isClickable = showVtosc && row.isAttached
     }
 
     private fun renderButton(row: Row, button: View, movement: V3ProsthesisMovement) {
@@ -122,6 +136,7 @@ class SensorsButtonsDelegateAdapterV3(
                 it.setOnTouchListener(null)
                 it.isPressed = false
             }
+            vtoscButton.setOnClickListener(null)
         }
     }
 
@@ -145,5 +160,6 @@ class SensorsButtonsDelegateAdapterV3(
 
     private companion object {
         val nextPressId = AtomicLong()
+        const val VTOSC_LABEL = "ВТОС"
     }
 }

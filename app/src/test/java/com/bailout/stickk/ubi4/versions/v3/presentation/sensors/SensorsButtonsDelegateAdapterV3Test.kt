@@ -24,6 +24,7 @@ class SensorsButtonsDelegateAdapterV3Test {
     private lateinit var binding: Ubi4Widget1ButtonBinding
     private var openListener: View.OnTouchListener? = null
     private var closeListener: View.OnTouchListener? = null
+    private var vtoscListener: View.OnClickListener? = null
     private val enabled = V3SensorsButtonsUiState(setOf(V3ProsthesisMovement.OPEN, V3ProsthesisMovement.CLOSE), isEnabled = true)
     private fun item(display: Int = 1) = ButtonsItemV3("Открыть", "Закрыть", "", "", widget = CommandParameterWidgetSStruct(
         BaseParameterWidgetSStruct(BaseParameterWidgetStruct(display = display,
@@ -38,6 +39,7 @@ class SensorsButtonsDelegateAdapterV3Test {
         every { binding.root.isAttachedToWindow } returns true
         every { binding.widget1Button.setOnTouchListener(any()) } answers { openListener = firstArg() }
         every { binding.widget2Button.setOnTouchListener(any()) } answers { closeListener = firstArg() }
+        every { binding.vtoscButton.setOnClickListener(any()) } answers { vtoscListener = firstArg() }
         delegate.render(enabled)
         bind()
     }
@@ -65,14 +67,26 @@ class SensorsButtonsDelegateAdapterV3Test {
         verify {
             binding.widget1ButtonTv.text = "Открыть"
             binding.widget2ButtonTv.text = "Закрыть"
+            binding.vtoscButtonTv.text = "ВТОС"
             binding.btn1Container.visibility = View.VISIBLE
             binding.btn2Container.visibility = View.VISIBLE
             binding.btn3Container.visibility = View.GONE
+            binding.vtoscBtnContainer.visibility = View.GONE
         }
         delegate.render(enabled)
         delegate.render(enabled.copy(isEnabled = false))
         delegate.render(enabled)
         assertTrue(actions.isEmpty())
+    }
+
+    @Test
+    fun `vtosc becomes visible and emits click without open close gestures`() {
+        delegate.render(enabled.copy(showVtoscButton = true))
+        verify { binding.vtoscBtnContainer.visibility = View.VISIBLE }
+        requireNotNull(vtoscListener).onClick(binding.vtoscButton)
+        assertEquals(listOf(V3SensorsButtonsAction.VtoscClicked), actions)
+        assertTrue(pressed().isEmpty())
+        assertTrue(released().isEmpty())
     }
 
     @Test

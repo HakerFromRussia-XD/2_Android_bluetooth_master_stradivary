@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.ServiceFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.VtoscSensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
@@ -461,6 +462,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
+    override fun showVtoscSensorsScreen() {
+        if (activeFragment is VtoscSensorsFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+        pausePlotPointsForTransition()
+        launchFragmentWithStack(
+            fragment = VtoscSensorsFragment(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = activeFragment is SensorsFragment,
+        )
+    }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showBleLogScreen() { launchFragmentWithoutStack(BleLogFragment()) }

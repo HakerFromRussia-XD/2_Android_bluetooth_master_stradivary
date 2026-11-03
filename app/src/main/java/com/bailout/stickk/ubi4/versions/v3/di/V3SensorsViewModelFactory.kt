@@ -37,27 +37,32 @@ class V3SensorsViewModelFactory(
     private val plotRepository: V3SensorsPlotRepository,
     private val commandsRepository: V3SensorsCommandsRepository,
     private val sessionRepository: V3DeviceSessionRepository,
+    private val showVtoscNavigation: Boolean = true,
 ) : ViewModelProvider.Factory {
     companion object {
         fun create(
             refreshWidgets: () -> Unit = BleDependencies::refreshSensors,
+            showVtoscNavigation: Boolean = true,
         ): V3SensorsViewModelFactory = V3SensorsViewModelFactory(
             enqueuePacket = { packet ->
                  BleDependencies.v3CommandTransport.enqueue(packet)
             },
             refreshWidgets = refreshWidgets,
+            showVtoscNavigation = showVtoscNavigation,
         )
     }
 
     constructor(
         enqueuePacket: (ByteArray) -> Unit,
         refreshWidgets: () -> Unit,
+        showVtoscNavigation: Boolean = true,
     ) : this(
         repository = V3DeviceSettingsRepositoryImpl(enqueuePacket),
         widgetsSource = DataFactoryV3SensorsWidgetsSource(),
         plotRepository = V3SensorsPlotRepositoryImpl(enqueuePacket),
         commandsRepository = V3SensorsCommandsRepositoryImpl(enqueuePacket, refreshWidgets),
         sessionRepository = V3DeviceSessionRepositoryImpl(),
+        showVtoscNavigation = showVtoscNavigation,
     )
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -81,6 +86,7 @@ class V3SensorsViewModelFactory(
             startMovement = StartProsthesisMovementUseCaseV3(commandsRepository),
             stopMovement = StopProsthesisMovementUseCaseV3(commandsRepository),
             refreshSensors = RefreshSensorsUseCaseV3(commandsRepository),
+            showVtoscNavigation = showVtoscNavigation,
         ) as T
     }
 }

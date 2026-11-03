@@ -863,6 +863,19 @@ object DashboardSlotContentSchemas {
                 f("speed.dt", "float", 56, 4),
                 f("speed.deadzone", "float", 60, 4)
             )
+        ),
+        // UBI41_VTFB DTCE_VTFB_SETTINGS (device address 0x30), packed device_config_struct
+        SlotSchema(
+            dataCode = 35,
+            version = 1,
+            subVersion = 0,
+            fields = listOf(
+                f("FSR_threshold", "uint16", 0, 2),
+                f("FSR_hysteresis", "uint16", 2, 2),
+                f("MOTORS_pwm_percent", "uint8", 4, 1),
+                f("MOTORS_pulse_duration_ms", "uint16", 5, 2),
+                f("MOTORS_post_pulse_pause_duration_ms", "uint16", 7, 2),
+            )
         )
     )
 

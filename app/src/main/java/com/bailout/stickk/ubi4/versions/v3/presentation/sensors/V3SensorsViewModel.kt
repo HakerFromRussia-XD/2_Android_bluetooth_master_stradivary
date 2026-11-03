@@ -62,6 +62,7 @@ class V3SensorsViewModel(
     private val startMovement: StartProsthesisMovementUseCaseV3,
     private val stopMovement: StopProsthesisMovementUseCaseV3,
     private val refreshSensors: RefreshSensorsUseCaseV3,
+    private val showVtoscNavigation: Boolean = true,
 ) : ViewModel() {
     private val sliderKeys = setOf(P_KEY_EMG_GAIN_OPEN_VALUE, P_KEY_EMG_GAIN_CLOSE_VALUE)
     private val sliderSettings = V3SliderSettingsStateHolder(
@@ -222,6 +223,11 @@ class V3SensorsViewModel(
             is V3SensorsButtonsAction.ButtonReleased -> {
                 buttonPresses.remove(action.pressId)?.let { stopMovement(it.deviceAddress) }
             }
+            V3SensorsButtonsAction.VtoscClicked -> {
+                if (showVtoscNavigation && isViewAttached) {
+                    _uiState.update { it.copy(vtoscOpenRequestId = it.vtoscOpenRequestId + 1) }
+                }
+            }
         }
         updateButtonsState()
     }
@@ -240,6 +246,7 @@ class V3SensorsViewModel(
             pressedMovements = buttonPresses.values.map { press -> press.movement }.toSet(),
             isEnabled = isViewAttached && screen.deviceProfile != V3DeviceProfile.NOT_V3 &&
                 movements.isNotEmpty() && observeCommandsAvailability().value,
+            showVtoscButton = showVtoscNavigation,
         )) }
     }
 

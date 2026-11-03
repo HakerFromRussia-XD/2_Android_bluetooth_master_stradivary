@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
@@ -21,6 +22,8 @@ class OneButtonDelegateAdapter(
     override fun Ubi4Widget1ButtonBinding.onBind(item: OneButtonItem) {
         onDestroyParent{ onDestroy() }
         widget1ButtonTv.text = item.title
+        vtoscBtnContainer.visibility = View.GONE
+        vtoscButton.setOnClickListener(null)
         var addressDevice = 0
         var parameterID = 0
         var clickCommand = 0

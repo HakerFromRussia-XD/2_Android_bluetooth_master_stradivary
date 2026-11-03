@@ -1,72 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/buttonsContainer"
+    android:id="@+id/buttonsRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/ubi4_back"
-    android:orientation="horizontal"
-    android:paddingHorizontal="10dp"
-    android:paddingVertical="4dp">
+    android:orientation="vertical">
 
-    <!-- Кнопка 1 (полностью совместима со старой логикой по id) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/btn1Container"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="6dp"
-        android:layout_weight="1">
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp">
 
-        <View
-            android:id="@+id/backgroundBtn"
+        <!-- Кнопка 1 (полностью совместима со старой логикой по id) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn1Container"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/widget1ButtonTv"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:elevation="4dp"
-            android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
+            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1">
 
-        <View
-            android:id="@+id/widget1Button"
+            <View
+                android:id="@+id/backgroundBtn"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                android:elevation="3dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/widget1ButtonTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
+
+            <View
+                android:id="@+id/widget1Button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/ubi4_ripple_corners"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipToOutline="true"
+                android:elevation="4dp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Кнопка 2 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn2Container"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/ubi4_ripple_corners"
-            android:clickable="true"
-            android:focusable="true"
-            android:clipToOutline="true"
-            android:elevation="4dp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1"
+            android:visibility="gone">
 
-    <!-- Кнопка 2 -->
+            <View
+                android:id="@+id/backgroundBtn2"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                android:elevation="3dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/widget2ButtonTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
+
+            <View
+                android:id="@+id/widget2Button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/ubi4_ripple_corners"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipToOutline="true"
+                android:elevation="4dp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Кнопка 3 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn3Container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1"
+            android:visibility="gone">
+
+            <View
+                android:id="@+id/backgroundBtn3"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                android:elevation="3dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/widget3ButtonTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
+
+            <View
+                android:id="@+id/widget3Button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/ubi4_ripple_corners"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipToOutline="true"
+                android:elevation="4dp"
+                app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
+                app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+    <!-- V3: ВТОС under Open/Close; GONE for UBI4 / copy screen -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/btn2Container"
-        android:layout_width="0dp"
+        android:id="@+id/vtoscBtnContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="6dp"
-        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:paddingBottom="4dp"
         android:visibility="gone">
 
         <View
-            android:id="@+id/backgroundBtn2"
+            android:id="@+id/backgroundVtoscBtn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
@@ -77,20 +181,20 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
-            android:id="@+id/widget2ButtonTv"
+            android:id="@+id/vtoscButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
             android:textColor="@color/white"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
+            app:layout_constraintStart_toStartOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintTop_toTopOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundVtoscBtn" />
 
         <View
-            android:id="@+id/widget2Button"
+            android:id="@+id/vtoscButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/ubi4_ripple_corners"
@@ -98,58 +202,10 @@
             android:focusable="true"
             android:clipToOutline="true"
             android:elevation="4dp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Кнопка 3 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/btn3Container"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="6dp"
-        android:layout_weight="1"
-        android:visibility="gone">
-
-        <View
-            android:id="@+id/backgroundBtn3"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:elevation="3dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/widget3ButtonTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="4dp"
-            android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
-
-        <View
-            android:id="@+id/widget3Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/ubi4_ripple_corners"
-            android:clickable="true"
-            android:focusable="true"
-            android:clipToOutline="true"
-            android:elevation="4dp"
-            app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
-            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
-            app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
-            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
+            app:layout_constraintStart_toStartOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintTop_toTopOf="@+id/backgroundVtoscBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundVtoscBtn" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -180,6 +180,7 @@ class DashboardSlotContentSchemasTest {
     fun dataSlotEnumContainsCurrentSchemaCodes() {
         assertEquals(30, PreferenceKeysUbi4.DataTableSlotsCode.DTCE_TELEMETRY_DATA.number.toInt())
         assertEquals(31, PreferenceKeysUbi4.DataTableSlotsCode.DTCE_MOTOR_PID_SETTINGS.number.toInt())
+        assertEquals(35, PreferenceKeysUbi4.DataTableSlotsCode.DTCE_VTFB_SETTINGS.number.toInt())
         assertEquals(20, PreferenceKeysUbi4.DataTableSlotsCode.DTCE_GESTURES_KEY_DESCRIPTION.number.toInt())
     }
 

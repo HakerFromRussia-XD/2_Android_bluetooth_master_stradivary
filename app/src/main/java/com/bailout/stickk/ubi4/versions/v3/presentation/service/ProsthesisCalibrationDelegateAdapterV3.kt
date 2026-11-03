@@ -38,6 +38,8 @@ class ProsthesisCalibrationDelegateAdapterV3(
         btn1Container.visibility = View.VISIBLE
         btn2Container.visibility = View.GONE
         btn3Container.visibility = View.GONE
+        vtoscBtnContainer.visibility = View.GONE
+        vtoscButton.setOnClickListener(null)
         val row = Row(this)
         rows[root] = row
         widget1Button.setOnTouchListener { view, event ->

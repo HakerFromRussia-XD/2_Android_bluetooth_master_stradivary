@@ -10,6 +10,7 @@ interface NavigatorUBI4 {
 
     fun showGesturesScreen()
     fun showSensorsScreen()
+    fun showVtoscSensorsScreen()
     fun showAdvancedScreen()
     //optic
     fun showOpticGesturesScreen()

@@ -480,6 +480,7 @@ object PreferenceKeysUbi4 {
         DTCE_EMG_MASTER_SETTINGS            (29  ) ,
         DTCE_TELEMETRY_DATA                 (30  ) ,
         DTCE_MOTOR_PID_SETTINGS             (31  ) ,
+        DTCE_VTFB_SETTINGS                  (35  ) ,
         DTCE_FREE_SLOT                      ((0xFF).toByte())
     }
 

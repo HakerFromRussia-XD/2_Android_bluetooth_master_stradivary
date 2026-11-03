@@ -91,6 +91,37 @@ class V3SensorsCommandsStateTest {
     }
 
     @Test
+    fun `vtosc click requests a screen copy without movement commands`() = runTest(dispatcher) {
+        attach()
+        runCurrent()
+        assertTrue(viewModel.uiState.value.buttons.showVtoscButton)
+        assertEquals(0L, viewModel.uiState.value.vtoscOpenRequestId)
+        viewModel.onAction(V3SensorsAction.ButtonsAction(V3SensorsButtonsAction.VtoscClicked))
+        assertEquals(1L, viewModel.uiState.value.vtoscOpenRequestId)
+        assertTrue(commands.events.isEmpty())
+        assertTrue(viewModel.uiState.value.buttons.pressedMovements.isEmpty())
+    }
+
+    @Test
+    fun `vtosc copy screen hides the button and ignores navigation clicks`() = runTest(dispatcher) {
+        store.clear()
+        val sliders = mockk<V3DeviceSettingsRepository>(relaxed = true)
+        every { sliders.sliderInteractionEnabled } returns MutableStateFlow(true)
+        every { sliders.getSliderValue(any()) } returns 20
+        every { sliders.observeSliderValue(any()) } returns MutableStateFlow(20)
+        viewModel = V3SensorsViewModelFactory(
+            sliders, source, FakeV3SensorsPlotRepository(), commands,
+            sessionRepository = source, showVtoscNavigation = false,
+        ).create(V3SensorsViewModel::class.java)
+        store.put("sensors-copy", viewModel)
+        attach()
+        runCurrent()
+        assertFalse(viewModel.uiState.value.buttons.showVtoscButton)
+        viewModel.onAction(V3SensorsAction.ButtonsAction(V3SensorsButtonsAction.VtoscClicked))
+        assertEquals(0L, viewModel.uiState.value.vtoscOpenRequestId)
+    }
+
+    @Test
     fun `duplicate events and an old release cannot affect a later accepted press`() = runTest(dispatcher) {
         attach()
         runCurrent()

@@ -152,3 +152,5 @@
 "update_game" = "Обновить";
 "game_app_store_url_missing" = "Ссылка на игру в App Store не настроена";
 "game_launch_failed" = "Не удалось открыть игру";
+
+"sushi_status_not_installed" = "Игра не установлена";

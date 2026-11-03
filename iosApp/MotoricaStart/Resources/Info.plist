@@ -29,6 +29,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
         <string>fluxara-drive</string>
+        <string>sushi-dash</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

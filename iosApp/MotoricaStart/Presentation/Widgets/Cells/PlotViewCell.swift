@@ -148,11 +148,20 @@ final class PlotViewCell: UITableViewCell {
         let thresholds = SerializationObjects.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
         self.openThreshold = Int(thresholds.threshold1)
         self.closeThreshold = Int(thresholds.threshold2)
+        publishGameThresholds(.seed)
         self.needsThresholdLayout = true
         applyThresholdLayout(animated: true)
     }
     
     
+    private func publishGameThresholds(_ source: MotoricaGameThresholdSource) {
+        guard let model = viewModel else { return }
+        let target = MotoricaGameThresholdTarget(isV3: false, address: Int32(model.widget.deviceAddress),
+            parameter: Int32(model.widget.parameterID), code: 26)
+        MotoricaGameThresholdState.shared.update(open: openThreshold, close: closeThreshold,
+            target: target, source: source)
+    }
+
     // MARK: - работа с графиком
     func addEntry (sens1: Int, sens2: Int) {
         print("initChart 2    addEntry")
@@ -327,6 +336,7 @@ final class PlotViewCell: UITableViewCell {
             let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
             openThreshold = value
             widgetPlotInfo?.openThreshold = value
+            publishGameThresholds(.edited)
         case .ended:
             viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
             break
@@ -340,6 +350,7 @@ final class PlotViewCell: UITableViewCell {
             let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
             closeThreshold = value
             widgetPlotInfo?.closeThreshold = value
+            publishGameThresholds(.edited)
         case .ended:
             viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
             break
@@ -352,6 +363,7 @@ final class PlotViewCell: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
         openThreshold = value
         widgetPlotInfo?.openThreshold = value
+        publishGameThresholds(.edited)
         viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
     }
     @objc private func handleCloseTap(_ gesture: UITapGestureRecognizer) {
@@ -360,6 +372,7 @@ final class PlotViewCell: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
         closeThreshold = value
         widgetPlotInfo?.closeThreshold = value
+        publishGameThresholds(.edited)
         viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
     }
 
@@ -501,6 +514,7 @@ final class PlotViewCell: UITableViewCell {
             guard let self else { return }
             self.openThreshold = Int(thresholds.threshold1)
             self.closeThreshold = Int(thresholds.threshold2)
+            self.publishGameThresholds(.confirmed)
             self.needsThresholdLayout = true
             self.applyThresholdLayout(animated: true)
         }

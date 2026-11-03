@@ -122,7 +122,7 @@ final class PlotViewCellV3: UITableViewCell {
         configureWidgetPlotInfo(parameterInfoSet: viewModel.parameterInfoSet)
 
         if let cached = viewModel.cachedThresholds() {
-            applyThresholds(open: cached.open, close: cached.close, animated: false)
+            applyThresholds(open: cached.open, close: cached.close, animated: false, source: .seed)
         }
         
         plotDateEntryJob?.cancel(cause: nil)
@@ -217,6 +217,7 @@ final class PlotViewCellV3: UITableViewCell {
                 let thresholds = SerializationObjects.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
                 openThreshold = Int(thresholds.threshold1)
                 closeThreshold = Int(thresholds.threshold2)
+                publishGameThresholds(.seed)
                 needsThresholdLayout = true
             }
         }
@@ -398,6 +399,7 @@ final class PlotViewCellV3: UITableViewCell {
             let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
             openThreshold = value
             widgetPlotInfo?.openThreshold = value
+            publishGameThresholds(.edited)
         case .ended:
             sendThresholdsFromUI()
             break
@@ -411,6 +413,7 @@ final class PlotViewCellV3: UITableViewCell {
             let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
             closeThreshold = value
             widgetPlotInfo?.closeThreshold = value
+            publishGameThresholds(.edited)
         case .ended:
             sendThresholdsFromUI()
             break
@@ -423,6 +426,7 @@ final class PlotViewCellV3: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
         openThreshold = value
         widgetPlotInfo?.openThreshold = value
+        publishGameThresholds(.edited)
         sendThresholdsFromUI()
     }
     @objc private func handleCloseTap(_ gesture: UITapGestureRecognizer) {
@@ -431,6 +435,7 @@ final class PlotViewCellV3: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
         closeThreshold = value
         widgetPlotInfo?.closeThreshold = value
+        publishGameThresholds(.edited)
         sendThresholdsFromUI()
     }
 
@@ -573,14 +578,47 @@ final class PlotViewCellV3: UITableViewCell {
             guard let self else { return }
             self.openThreshold = Int(thresholds.threshold1)
             self.closeThreshold = Int(thresholds.threshold2)
+            self.publishGameThresholds(.confirmed)
             self.needsThresholdLayout = true
             self.applyThresholdLayout(animated: true)
         }
     }
 
-    private func applyThresholds(open: Int, close: Int, animated: Bool) {
+    private func gameThresholdTarget() -> MotoricaGameThresholdTarget? {
+        if let model = viewModelV3 {
+            let candidates = WidgetV3Support.bindings(from: model.widget)
+            let codes: [Int] = [0x2F, 0x30, 0x1A]
+            if let binding = candidates.first(where: { $0.parameterID == 0x0F && codes.contains($0.dataCode) })
+                ?? candidates.first(where: { codes.contains($0.dataCode) }) {
+                return MotoricaGameThresholdTarget(isV3: true, address: Int32(binding.deviceAddress),
+                    parameter: Int32(binding.parameterID), code: MotoricaGameThresholdTarget.canonicalCode(Int32(binding.dataCode)))
+            }
+            if let binding = model.parameterInfoSet.first(where: { $0.parameterID == 0x0F && codes.contains(Int($0.dataCode)) }) {
+                return MotoricaGameThresholdTarget(isV3: true, address: Int32(binding.deviceAddress),
+                    parameter: Int32(binding.parameterID), code: MotoricaGameThresholdTarget.canonicalCode(Int32(binding.dataCode)))
+            }
+            if model.widget.deviceAddress > 0 {
+                return MotoricaGameThresholdTarget(isV3: true, address: Int32(model.widget.deviceAddress), parameter: 0x0F, code: 0x2F)
+            }
+        }
+        if let model = viewModelLegacy {
+            return MotoricaGameThresholdTarget(isV3: false, address: Int32(model.widget.deviceAddress),
+                parameter: Int32(model.widget.parameterID), code: 26)
+        }
+        return nil
+    }
+
+    private func publishGameThresholds(_ source: MotoricaGameThresholdSource) {
+        guard let target = gameThresholdTarget() else { return }
+        MotoricaGameThresholdState.shared.update(open: openThreshold, close: closeThreshold,
+            target: target, source: source)
+    }
+
+    private func applyThresholds(open: Int, close: Int, animated: Bool,
+                                 source: MotoricaGameThresholdSource = .confirmed) {
         openThreshold = open
         closeThreshold = close
+        publishGameThresholds(source)
         needsThresholdLayout = true
         applyThresholdLayout(animated: animated)
     }
@@ -591,6 +629,7 @@ final class PlotViewCellV3: UITableViewCell {
     }
 
     private func sendThresholdsFromUI() {
+        publishGameThresholds(.edited)
         if viewModelV3 != nil {
             registerPendingThresholds(open: openThreshold, close: closeThreshold)
         }

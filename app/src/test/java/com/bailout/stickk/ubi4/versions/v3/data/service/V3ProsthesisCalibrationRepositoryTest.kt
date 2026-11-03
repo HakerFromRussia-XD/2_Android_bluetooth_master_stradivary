@@ -35,13 +35,15 @@ class V3ProsthesisCalibrationRepositoryTest {
 
     @ParameterizedTest
     @EnumSource(value = V3DeviceProfile::class, names = ["STANDARD_V3", "INDY3"])
-    fun `both profiles preserve calibration and zero release packets including CRC`(profile: V3DeviceProfile) {
+    fun `both profiles send only the temporary calibration packet`(profile: V3DeviceProfile) {
         UiState.activeV3DeviceProfile = profile
         assertTrue(start("first-device"))
         release("first-device")
-        assertEquals(2, packets.size)
-        assertPacket(packets[0], 3)
-        assertPacket(packets[1], 0)
+        assertEquals(1, packets.size)
+        assertArrayEquals(byteArrayOf(
+            0x62, 0x27, 0x5C, 0x78, 0x30, 0x30, 0x5C, 0x78, 0x30,
+            0x65, 0x5C, 0x74, 0x5C, 0x78, 0x66, 0x66, 0x73, 0x27
+        ), packets[0])
     }
 
     @ParameterizedTest
@@ -51,14 +53,13 @@ class V3ProsthesisCalibrationRepositoryTest {
         assertTrue(packets.isEmpty())
     }
 
-    @Test fun `lock rejects start but permits the release of an already accepted button press`() {
+    @Test fun `lock rejects start and release sends no additional packet during the test`() {
         assertTrue(start("first-device"))
         UiState.v3WidgetsInteractionEnabled.value = false
         assertFalse(start("first-device"))
         assertFalse(repository.startCalibration("first-device"))
         release("first-device")
-        assertEquals(2, packets.size)
-        assertPacket(packets.last(), 0)
+        assertEquals(1, packets.size)
     }
 
     @Test fun `UBI4 cannot start V3 calibration and device switch blocks a late release`() {
@@ -71,13 +72,4 @@ class V3ProsthesisCalibrationRepositoryTest {
         assertEquals(1, packets.size)
     }
 
-    private fun assertPacket(packet: ByteArray, subcommand: Int) {
-        val header = byteArrayOf(0, 15, subcommand.toByte(), 0)
-        var crc = 0
-        header.forEach { byte ->
-            crc = crc xor (byte.toInt() and 255)
-            repeat(8) { crc = if (crc and 1 != 0) (crc ushr 1) xor 0x8C else crc ushr 1 }
-        }
-        assertArrayEquals(header + crc.toByte(), packet)
-    }
 }

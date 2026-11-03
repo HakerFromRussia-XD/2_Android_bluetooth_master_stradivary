@@ -226,6 +226,13 @@ object BLECommandsV3 {
         return header
     }
     fun sendSubcommand(subcommand: Int, parameter: Int): ByteArray {
+        if (subcommand == PMCE_START_CALIBRATE_COMMAND.number.toInt() && parameter == 0) {
+            // Temporary calibration override: send these literal bytes without CRC framing.
+            return byteArrayOf(
+                0x62, 0x27, 0x5C, 0x78, 0x30, 0x30, 0x5C, 0x78, 0x30,
+                0x65, 0x5C, 0x74, 0x5C, 0x78, 0x66, 0x66, 0x73, 0x27
+            )
+        }
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,

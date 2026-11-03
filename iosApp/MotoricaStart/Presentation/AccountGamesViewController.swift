@@ -31,6 +31,9 @@ final class AccountGamesViewController: UIViewController {
     private let statusLabel = UILabel()
     private let actionButton = UIButton(type: .system)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let sushiCardView = UIView()
+    private let sushiStatusLabel = UILabel()
+    private let sushiActionButton = UIButton(type: .system)
     private var statusBarHostingController: UIHostingController<StatusBarView>?
 
     private var remoteGame: RemoteIosGame?
@@ -68,6 +71,7 @@ final class AccountGamesViewController: UIViewController {
         setupTopBar()
         setupScrollView()
         setupGameCard()
+        setupSushiCard()
     }
 
     private func setupTopBar() {
@@ -187,7 +191,6 @@ final class AccountGamesViewController: UIViewController {
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: AccountGamesMetrics.sideInset),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AccountGamesMetrics.sideInset),
             cardView.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.cardHeight),
-            cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
             backgroundImageView.topAnchor.constraint(equalTo: cardView.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
@@ -215,6 +218,68 @@ final class AccountGamesViewController: UIViewController {
             activityIndicator.centerXAnchor.constraint(equalTo: actionButton.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: actionButton.centerYAnchor)
         ])
+    }
+
+    private func setupSushiCard() {
+        sushiCardView.backgroundColor = cardColor
+        sushiCardView.layer.cornerRadius = AccountGamesMetrics.cardRadius
+        sushiCardView.layer.borderWidth = 1
+        sushiCardView.layer.borderColor = borderColor.cgColor
+        sushiCardView.translatesAutoresizingMaskIntoConstraints = false
+        sushiCardView.accessibilityIdentifier = "account.games.sushi.card"
+        contentView.addSubview(sushiCardView)
+
+        let title = UILabel()
+        title.text = "Sushi Dash"
+        title.font = .accountGamesOpenSansSemibold(size: 16)
+        title.textColor = textColor
+        title.translatesAutoresizingMaskIntoConstraints = false
+        sushiCardView.addSubview(title)
+        sushiStatusLabel.font = .accountGamesOpenSansRegular(size: 13)
+        sushiStatusLabel.textColor = inactiveTextColor
+        sushiStatusLabel.numberOfLines = 2
+        sushiStatusLabel.translatesAutoresizingMaskIntoConstraints = false
+        sushiCardView.addSubview(sushiStatusLabel)
+        sushiActionButton.titleLabel?.font = .accountGamesOpenSansSemibold(size: 13)
+        sushiActionButton.setTitleColor(textColor, for: .normal)
+        sushiActionButton.setTitleColor(inactiveTextColor, for: .disabled)
+        sushiActionButton.backgroundColor = cardColor
+        sushiActionButton.layer.cornerRadius = 10
+        sushiActionButton.layer.borderWidth = 1
+        sushiActionButton.layer.borderColor = borderColor.cgColor
+        sushiActionButton.setTitle(localized("play_game"), for: .normal)
+        sushiActionButton.translatesAutoresizingMaskIntoConstraints = false
+        sushiActionButton.accessibilityIdentifier = "account.games.sushi.play"
+        sushiActionButton.addTarget(self, action: #selector(handleSushiTap), for: .touchUpInside)
+        sushiCardView.addSubview(sushiActionButton)
+        NSLayoutConstraint.activate([
+            sushiCardView.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
+            sushiCardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            sushiCardView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
+            sushiCardView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
+            sushiCardView.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.cardHeight),
+            title.leadingAnchor.constraint(equalTo: sushiCardView.leadingAnchor, constant: 20),
+            title.topAnchor.constraint(equalTo: sushiCardView.topAnchor, constant: 28),
+            title.trailingAnchor.constraint(lessThanOrEqualTo: sushiActionButton.leadingAnchor, constant: -16),
+            sushiStatusLabel.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            sushiStatusLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
+            sushiStatusLabel.trailingAnchor.constraint(lessThanOrEqualTo: sushiActionButton.leadingAnchor, constant: -16),
+            sushiActionButton.trailingAnchor.constraint(equalTo: sushiCardView.trailingAnchor, constant: -20),
+            sushiActionButton.centerYAnchor.constraint(equalTo: sushiCardView.centerYAnchor),
+            sushiActionButton.widthAnchor.constraint(equalToConstant: 156),
+            sushiActionButton.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.actionHeight)
+        ])
+    }
+
+    private func renderSushiState() {
+        let installed = URL(string: "sushi-dash://launch").map(UIApplication.shared.canOpenURL) ?? false
+        sushiActionButton.isEnabled = installed
+        sushiStatusLabel.text = localized(installed ? "game_status_installed" : "sushi_status_not_installed")
+    }
+
+    @objc private func handleSushiTap() {
+        guard sushiActionButton.isEnabled else { return }
+        openGame(scheme: "sushi-dash")
     }
 
     private func loadManifest() {
@@ -289,6 +354,7 @@ final class AccountGamesViewController: UIViewController {
     }
 
     private func renderState() {
+        renderSushiState()
         let installed = isGameInstalled()
         let installedGame = installedGameInfo()
 
@@ -375,7 +441,14 @@ final class AccountGamesViewController: UIViewController {
             return
         }
         let launchToken = MotoricaGameLaunchRequest.create(scheme: scheme)
-        UIApplication.shared.open(url) { [weak self] opened in
+        if scheme == "sushi-dash" && launchToken == nil {
+            showToast(localized("game_launch_failed"))
+            return
+        }
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        if let launchToken { components?.queryItems = [URLQueryItem(name: "token", value: launchToken)] }
+        guard let launchURL = components?.url else { return }
+        UIApplication.shared.open(launchURL) { [weak self] opened in
             if !opened {
                 MotoricaGameLaunchRequest.clear(token: launchToken)
                 self?.showToast(self?.localized("game_launch_failed") ?? "")

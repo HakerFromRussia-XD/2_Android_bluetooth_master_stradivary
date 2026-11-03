@@ -42,6 +42,8 @@ class AccountGamesFragment : Fragment() {
     private companion object {
         const val SUBWAY_PACKAGE = "com.motorica.games.subway"
         const val SUBWAY_ACTIVITY = "com.unity3d.player.UnityPlayerActivity"
+        const val SUSHI_PACKAGE = "com.unity.trashdash"
+        const val SUSHI_ACTIVITY = "com.unity3d.player.UnityPlayerGameActivity"
     }
 
     override fun onCreateView(
@@ -71,6 +73,16 @@ class AccountGamesFragment : Fragment() {
                 postTranslate(dx, dy)
             }
         }
+        binding.sushiGameActionBtn.setOnClickListener {
+            if (getInstalledGameInfo(SUSHI_PACKAGE) != null) {
+                launchGame(SUSHI_PACKAGE, SUSHI_ACTIVITY) {
+                    renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
+                    showToast(R.string.game_launch_failed)
+                }
+            } else renderSushiCard(false)
+        }
+        binding.sushiGameDeleteBtn.setOnClickListener { requestGameUninstall(SUSHI_PACKAGE) }
+        renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
         binding.subwayGameActionBtn.setOnClickListener {
             if (useV3) {
                 v3ViewModel?.onAction(V3GamesAction.SubwayClicked)
@@ -107,6 +119,7 @@ class AccountGamesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
         val viewModel = v3ViewModel
         if (viewModel != null) viewModel.onAction(V3GamesAction.ViewResumed) else {
             renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
@@ -183,6 +196,18 @@ class AccountGamesFragment : Fragment() {
         binding.subwayGameActionBackground.isEnabled = installed
         binding.subwayGameDeleteBtn.visibility = if (installed) View.VISIBLE else View.GONE
         binding.subwayGameDeleteIv.visibility = if (installed) View.VISIBLE else View.GONE
+    }
+
+    private fun renderSushiCard(installed: Boolean) {
+        binding.sushiGameTitleTv.setText(R.string.motorica_sushi_title)
+        binding.sushiGameDescriptionTv.setText(
+            if (installed) R.string.game_status_installed else R.string.game_status_not_installed
+        )
+        binding.sushiGameActionTv.setText(R.string.play)
+        binding.sushiGameActionBtn.isEnabled = installed
+        binding.sushiGameActionBackground.isEnabled = installed
+        binding.sushiGameDeleteBtn.visibility = if (installed) View.VISIBLE else View.GONE
+        binding.sushiGameDeleteIv.visibility = if (installed) View.VISIBLE else View.GONE
     }
 
     private fun renderIdleState() {
@@ -323,7 +348,7 @@ class AccountGamesFragment : Fragment() {
         try {
             startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:$packageName")))
         } catch (_: ActivityNotFoundException) {
-            if (packageName == SUBWAY_PACKAGE) showToast(R.string.game_uninstall_failed)
+            if (packageName == SUBWAY_PACKAGE || packageName == SUSHI_PACKAGE) showToast(R.string.game_uninstall_failed)
             else reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
         }
     }
@@ -342,7 +367,11 @@ class AccountGamesFragment : Fragment() {
         val intent = Intent()
             .setClassName(packageName, launcherActivity)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .apply { if (packageName == SUBWAY_PACKAGE) putExtra("motorica_ms_control", true) }
+            .apply {
+                if (packageName == SUBWAY_PACKAGE || packageName == SUSHI_PACKAGE) {
+                    putExtra("motorica_ms_control", true)
+                }
+            }
         try {
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {

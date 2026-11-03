@@ -36,6 +36,7 @@
     <queries>
         <package android:name="com.motorica.games.stk" />
         <package android:name="com.motorica.games.subway" />
+        <package android:name="com.unity.trashdash" />
         <intent>
             <action android:name="android.intent.action.DIAL" />
             <data android:scheme="tel" />

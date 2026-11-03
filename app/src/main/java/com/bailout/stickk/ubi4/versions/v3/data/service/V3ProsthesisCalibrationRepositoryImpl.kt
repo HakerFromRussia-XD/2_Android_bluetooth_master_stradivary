@@ -18,8 +18,8 @@ class V3ProsthesisCalibrationRepositoryImpl(
     }
 
     override fun releaseCalibrationButton(deviceAddress: String) {
-        // Preserve the former UP/CANCEL packet. This is not a calibration completion/ACK.
-        if (isCurrentDevice(deviceAddress)) enqueuePacket(BLECommandsV3.sendSubcommand(0, 0))
+        // Temporarily disabled for the calibration command test: send only the press packet.
+        // if (isCurrentDevice(deviceAddress)) enqueuePacket(BLECommandsV3.sendSubcommand(0, 0))
     }
 
     private fun isCurrentDevice(address: String) = address.isNotBlank() && address != "null" && address == WidgetRepoProvider.mac()

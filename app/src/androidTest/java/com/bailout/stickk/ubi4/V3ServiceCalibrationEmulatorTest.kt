@@ -40,8 +40,8 @@ class V3ServiceCalibrationEmulatorTest {
         Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.POST_NOTIFICATIONS)
 
     @After fun tearDown() = V3BleEmulatorTestHooks.disable()
-    @Test fun standardV3CalibrationUsesScreenStateAndExistingPackets() = checkCalibration("FTHS3-EMU", 9)
-    @Test fun indy3CalibrationUsesScreenStateAndExistingPackets() = checkCalibration("INDY3-EMU", 6)
+    @Test fun standardV3CalibrationUsesScreenStateAndTemporaryPacket() = checkCalibration("FTHS3-EMU", 9)
+    @Test fun indy3CalibrationUsesScreenStateAndTemporaryPacket() = checkCalibration("INDY3-EMU", 6)
 
     private fun checkCalibration(name: String, expectedRows: Int) {
         V3BleEmulatorTestHooks.reset(); V3BleEmulatorTestHooks.enable()
@@ -69,29 +69,36 @@ class V3ServiceCalibrationEmulatorTest {
             onView(withId(R.id.widget1Button)).perform(touch(MotionEvent.ACTION_DOWN))
             waitUntil { calibrationCommands() == listOf(3) }
             onView(withId(R.id.widget1Button)).perform(touch(MotionEvent.ACTION_UP))
-            waitUntil { calibrationCommands() == listOf(3, 0) }
+            assertEquals(listOf(3), calibrationCommands())
 
             onView(withId(R.id.widget1Button)).perform(touch(MotionEvent.ACTION_DOWN))
-            waitUntil { calibrationCommands() == listOf(3, 0, 3) }
+            waitUntil { calibrationCommands() == listOf(3, 3) }
             scenario.onActivity { UiState.v3WidgetsInteractionEnabled.value = false }
-            waitUntil { calibrationCommands() == listOf(3, 0, 3, 0) }
+            assertEquals(listOf(3, 3), calibrationCommands())
             onView(withId(R.id.widget1Button)).perform(touch(MotionEvent.ACTION_CANCEL))
             onView(withId(R.id.widget1Button)).check(matches(isNotEnabled()))
             scenario.onActivity { UiState.v3WidgetsInteractionEnabled.value = true }
             onView(withId(R.id.widget1Button)).check(matches(isEnabled()))
-            assertEquals(listOf(3, 0, 3, 0), calibrationCommands())
+            assertEquals(listOf(3, 3), calibrationCommands())
 
             // The existing log entry remains a navigation action without a device command.
             onView(withId(R.id.serviceFragmentRv)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(hasDescendant(withId(R.id.bleLogClick))))
             onView(withId(R.id.bleLogClick)).perform(click())
-            assertEquals(listOf(3, 0, 3, 0), calibrationCommands())
+            assertEquals(listOf(3, 3), calibrationCommands())
         }
     }
 
-    private fun calibrationCommands() = V3BleEmulatorTestHooks.outgoingPacketsSnapshot().filter {
-        it.size == 5 && it[1].toInt() == 15 && it[2].toInt() in setOf(0, 3)
-    }.map { it[2].toInt() }
+    private fun calibrationCommands() = V3BleEmulatorTestHooks.outgoingPacketsSnapshot().mapNotNull {
+        when {
+            it.contentEquals(byteArrayOf(
+                0x62, 0x27, 0x5C, 0x78, 0x30, 0x30, 0x5C, 0x78, 0x30,
+                0x65, 0x5C, 0x74, 0x5C, 0x78, 0x66, 0x66, 0x73, 0x27
+            )) -> 3
+            it.size == 5 && it[1].toInt() == 15 && it[2].toInt() == 0 -> 0
+            else -> null
+        }
+    }
 
     private fun touch(action: Int) = object : ViewAction {
         override fun getConstraints(): Matcher<View> = isDisplayed()

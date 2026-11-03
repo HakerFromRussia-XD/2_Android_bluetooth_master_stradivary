@@ -14,6 +14,7 @@ interface V3AccountProfileLocalRepository : V3AccountDetailsReader {
 data class V3AccountProfileDeviceContext(
     val name: String?, val language: String?, val address: String?,
     val type: String?, val driverVersion: String?,
+    val serialNumber: String? = null,
 ) {
     val isMultigrip: Boolean get() = type?.contains("FEST-X") == true
 }
@@ -23,7 +24,7 @@ data class V3AccountProfileEnvironment(
     val storedDriverVersion: Int, val storedBmsVersion: Int, val storedSensorsVersion: Int,
 )
 
-data class V3AccountProfileContext(val serialNumber: String = "FEST-F-06879", val language: String = "en")
+data class V3AccountProfileContext(val serialNumber: String = "", val language: String = "en")
 data class V3AccountProfileVersions(val driver: String = "0.01", val bms: String = "0.01", val sensors: String = "0.01")
 data class V3AccountProfileHeader(
     val firstName: String = "", val lastName: String = "", val versions: V3AccountProfileVersions = V3AccountProfileVersions(),

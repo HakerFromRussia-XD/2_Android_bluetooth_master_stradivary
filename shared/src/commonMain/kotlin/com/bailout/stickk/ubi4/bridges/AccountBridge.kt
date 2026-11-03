@@ -79,6 +79,9 @@ object AccountBridge {
             return@launch
         }
 
+        com.bailout.stickk.ubi4.utility.logging.platformLog(
+            "AuthSerial", "source=account_bridge serial=\"$normalizedSerial\" length=${normalizedSerial.length}"
+        )
         val token = requestTokenWithRetry(api, encrypted)
         if (token == null) {
             callback(AccountBridgeResult(false, offlineProfile(), "No user data on server"))

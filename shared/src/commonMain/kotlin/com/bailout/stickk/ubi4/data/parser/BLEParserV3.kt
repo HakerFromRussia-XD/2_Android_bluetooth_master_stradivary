@@ -101,7 +101,7 @@ class BLEParserV3(
     private var gameControlPacketSeq = 0L
 
     private companion object {
-        const val SETTINGS_PROFILE_WIDGET_ENABLED = false
+        const val SETTINGS_PROFILE_WIDGET_ENABLED = true
         const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val FINGER_POSITION_LOG_TAG = "V3_FINGER_POSITION"
         const val TELEMETRY_EXPECTED_SIZE = 158

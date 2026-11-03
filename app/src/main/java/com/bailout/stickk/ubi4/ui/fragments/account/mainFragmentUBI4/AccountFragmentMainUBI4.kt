@@ -259,6 +259,9 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             encryptionResult = withContext(Dispatchers.Default) {
                 encryptionManager?.encrypt(serialNumber)
             }
+            com.bailout.stickk.ubi4.utility.logging.platformLog(
+                "AuthSerial", "source=ubi4_account serial=\"$serialNumber\" length=${serialNumber.length}"
+            )
             when (val res = api.getToken("Aesserial $encryptionResult")) {
                 is NetworkResult.Success -> {
                     token = res.value.token

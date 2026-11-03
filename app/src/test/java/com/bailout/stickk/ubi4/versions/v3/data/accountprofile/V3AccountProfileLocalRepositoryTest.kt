@@ -1,6 +1,10 @@
 package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 
 import android.content.SharedPreferences
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
 import io.mockk.*
@@ -13,6 +17,21 @@ class V3AccountProfileLocalRepositoryTest {
     private val cache = V3AccountProfileMemoryCache()
     private var device = V3AccountProfileDeviceContext("00001", "ru", "MAC", "FEST-H", null)
     private val repository = V3AccountProfileLocalRepositoryImpl(preferences, { device }, cache)
+
+    @Test fun `account takes serial from protocol parameter instead of display identity or profile manager`() {
+        val info = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
+        val previous = ParameterStoreV3.get(info)
+        try {
+            val identity = V3DeviceIdentityStore()
+            identity.update("FEST-display-name", "FEST-display-name")
+            ParameterStoreV3.put(info, ParameterTypedValueV3.Text("00001"))
+            assertEquals("00001", identity.toAccountProfileDeviceContext().serialNumber)
+            val absent: V3DeviceIdentityStore? = null
+            assertNull(absent.toAccountProfileDeviceContext().serialNumber)
+        } finally {
+            if (previous != null) ParameterStoreV3.put(info, previous) else ParameterStoreV3.clear()
+        }
+    }
 
     @Test fun `account detail screens read the same shared keys without writing or normalizing values`() {
         val details = mapOf(V3AccountDetail.TRANSFER_DATE to PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,

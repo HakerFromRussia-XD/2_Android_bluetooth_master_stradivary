@@ -1,6 +1,9 @@
 package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 
 import android.content.SharedPreferences
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.device.V3DeviceIdentityStore
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.*
@@ -9,6 +12,9 @@ internal fun V3DeviceIdentityStore?.toAccountProfileDeviceContext() = V3AccountP
     name = this?.identity?.value?.deviceName,
     // These Activity fields were never populated. Preserve defaults and "null" preference prefixes.
     language = if (this == null) null else "", address = null, type = null, driverVersion = null,
+    serialNumber = if (this == null) null else (ParameterStoreV3.get(
+        PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
+    ) as? ParameterTypedValueV3.Text)?.value,
 )
 
 class V3AccountProfileMemoryCache {

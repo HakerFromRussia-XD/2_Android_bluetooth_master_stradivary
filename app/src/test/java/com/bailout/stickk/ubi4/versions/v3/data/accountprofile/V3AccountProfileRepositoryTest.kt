@@ -33,6 +33,14 @@ class V3AccountProfileRepositoryTest {
         "encrypted:$it"
     }, dispatcher)
 
+    @ParameterizedTest
+    @ValueSource(strings = ["", " "])
+    fun `missing serial never sends an authorization request`(serial: String) = runTest(dispatcher) {
+        assertEquals(V3AccountProfileResult.Error(400, "Device serial is unavailable"), repository.getToken(serial))
+        assertTrue(encryptedInputs.isEmpty())
+        coVerify(exactly = 0) { api.getToken(any()) }
+    }
+
     @Test fun `token keeps serial and auth header unchanged and encrypts on the supplied dispatcher`() = runTest(dispatcher) {
         coEvery { api.getToken("Aesserial encrypted:00001") } returns NetworkResult.Success(Token("token-one"))
         val result = async { repository.getToken("00001") }

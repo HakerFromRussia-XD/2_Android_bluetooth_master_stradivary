@@ -27,7 +27,7 @@ class FakeAccountProfileRemote(val trace: MutableList<String> = mutableListOf())
 }
 
 class FakeAccountProfileLocal(val trace: MutableList<String> = mutableListOf()) : V3AccountProfileLocalRepository {
-    var currentEnvironment = V3AccountProfileEnvironment(V3AccountProfileDeviceContext("FEST-test", "ru", "MAC", "FEST-H", null), 123, 234, 345)
+    var currentEnvironment = V3AccountProfileEnvironment(V3AccountProfileDeviceContext("FEST-test", "ru", "MAC", "FEST-H", null, serialNumber = "FEST-test"), 123, 234, 345)
     var storedHeader: V3AccountProfileHeader? = null
     var cacheWrites = 0
     val values = mutableMapOf<V3AccountDetail, String>()

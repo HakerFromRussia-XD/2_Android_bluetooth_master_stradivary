@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.data.local.repository
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.ble.SliderV3
@@ -12,6 +13,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.testing.InMemorySettingsProfileDao
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GLOBAL_INDEX_MIDDLE_CLOSED_POSITION
@@ -287,6 +289,50 @@ class SettingsProfileRepositoryTest {
     }
 
     @Test
+    fun `restart with stale server profiles preserves independently edited gains and active selection`() = runBlocking {
+        val info = ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE)
+        repository.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(1, 1)))
+        repository.createProfileFromActive("SERIAL-A")
+        repository.switchToProfile("SERIAL-A", 1)
+        val stalePayload = repository.buildServerSettingsPayload("SERIAL-A")
+        repository.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(40, 47)))
+        repository.switchToProfile("SERIAL-A", 2)
+        repository.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(60, 53)))
+        // Make the unsent edits newer than the exported server snapshot without sleeping.
+        for (id in 1..2) {
+            dao.getValues("SERIAL-A", id).forEach { dao.upsertValue(it.copy(updated_ts_ms = Long.MAX_VALUE)) }
+        }
+
+        val restarted = SettingsProfileRepository(dao)
+        val imported = restarted.importServerSettingsPayload("SERIAL-A", stalePayload)
+        assertEquals(2, imported.first.activeProfileId)
+        assertEquals(EMGGainsV3(60, 53), imported.second.emgGains())
+        assertEquals(EMGGainsV3(40, 47), restarted.switchToProfile("SERIAL-A", 1).second.emgGains())
+        assertEquals(EMGGainsV3(60, 53), restarted.switchToProfile("SERIAL-A", 2).second.emgGains())
+    }
+
+    @Test
+    fun `import accepts newer server values and keeps local-only profiles and settings`() = runBlocking {
+        val info = ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE)
+        repository.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(40, 47)))
+        val remoteDao = InMemorySettingsProfileDao()
+        val remote = SettingsProfileRepository(remoteDao)
+        remote.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(60, 53)))
+        remoteDao.getValues("SERIAL-A", 1).forEach { remoteDao.upsertValue(it.copy(updated_ts_ms = Long.MAX_VALUE)) }
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue("SERIAL-A", info, ParameterTypedValueV3.EmgGains(EMGGainsV3(70, 80)))
+        val speed = ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS)
+        repository.saveBleValue("SERIAL-A", speed, ParameterTypedValueV3.Slider(SliderV3(42)))
+
+        repository.importServerSettingsPayload("SERIAL-A", remote.buildServerSettingsPayload("SERIAL-A"))
+        assertEquals(2, repository.getProfiles("SERIAL-A").size)
+        assertEquals(EMGGainsV3(60, 53), repository.switchToProfile("SERIAL-A", 1).second.emgGains())
+        val profile2 = repository.switchToProfile("SERIAL-A", 2).second
+        assertEquals(EMGGainsV3(70, 80), profile2.emgGains())
+        assertEquals(42, profile2.sliderValue(speed))
+    }
+
+    @Test
     fun `system profile spinner and text inputs are not saved as profile BLE settings`() = runBlocking {
         repository.saveBleValue(
             serial = "SERIAL-A",
@@ -405,6 +451,9 @@ class SettingsProfileRepositoryTest {
         )
     }
 }
+
+private fun List<SettingsProfileApplyValue>.emgGains(): EMGGainsV3? =
+    mapNotNull { (it.typedValue as? ParameterTypedValueV3.EmgGains)?.value }.singleOrNull()
 
 private fun List<SettingsProfileApplyValue>.sliderValue(): Int? =
     filter { it.target == "BLE" }

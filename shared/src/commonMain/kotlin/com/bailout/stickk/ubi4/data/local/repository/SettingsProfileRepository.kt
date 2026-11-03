@@ -26,6 +26,8 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -72,19 +74,25 @@ data class SettingsProfileApplyValue(
 class SettingsProfileRepository(
     private val dao: SettingsProfileDao
 ) {
+    private val storageMutex = Mutex()
+
+    private suspend fun <T> withStorageLock(block: suspend () -> T): T = withContext(Dispatchers.IO) {
+        storageMutex.withLock { block() }
+    }
+
     suspend fun migrateSerial(
         oldSerial: String,
         newSerial: String
-    ): SettingsProfileState = withContext(Dispatchers.IO) {
+    ): SettingsProfileState = withStorageLock {
         val normalizedOld = normalizeSerial(oldSerial)
-        val normalizedNew = normalizeSerial(newSerial) ?: return@withContext SettingsProfileState(1, 1)
+        val normalizedNew = normalizeSerial(newSerial) ?: return@withStorageLock SettingsProfileState(1, 1)
         if (normalizedOld == null || normalizedOld == normalizedNew) {
-            return@withContext ensureState(normalizedNew)
+            return@withStorageLock ensureState(normalizedNew)
         }
 
         val oldProfiles = dao.getProfiles(normalizedOld)
         if (oldProfiles.isEmpty()) {
-            return@withContext ensureState(normalizedNew)
+            return@withStorageLock ensureState(normalizedNew)
         }
 
         val ts = getTimeMillis()
@@ -133,18 +141,18 @@ class SettingsProfileRepository(
         serial: String,
         profileId: Int,
         name: String
-    ): SettingsProfileInfo? = withContext(Dispatchers.IO) {
-        val normalizedSerial = normalizeSerial(serial) ?: return@withContext null
+    ): SettingsProfileInfo? = withStorageLock {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock null
         val normalizedName = name.trim()
         if (normalizedName.isEmpty() || normalizedName.length > SETTINGS_PROFILE_NAME_MAX_LENGTH) {
-            return@withContext null
+            return@withStorageLock null
         }
-        if (profileId !in 1..MAX_SETTINGS_PROFILE_COUNT) return@withContext null
+        if (profileId !in 1..MAX_SETTINGS_PROFILE_COUNT) return@withStorageLock null
 
         ensureDefaultProfile(normalizedSerial)
-        val profile = dao.getProfile(normalizedSerial, profileId) ?: return@withContext null
+        val profile = dao.getProfile(normalizedSerial, profileId) ?: return@withStorageLock null
         if (profile.name == normalizedName) {
-            return@withContext profile.toProfileInfo()
+            return@withStorageLock profile.toProfileInfo()
         }
 
         profile.copy(
@@ -154,16 +162,16 @@ class SettingsProfileRepository(
     }
 
     suspend fun createProfileFromActive(serial: String): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
-        withContext(Dispatchers.IO) {
+        withStorageLock {
             val normalizedSerial = normalizeSerial(serial)
-                ?: return@withContext SettingsProfileState(1, 1) to emptyList()
+                ?: return@withStorageLock SettingsProfileState(1, 1) to emptyList()
             ensureDefaultProfile(normalizedSerial)
             val profiles = dao.getProfiles(normalizedSerial)
             val active = profiles.firstOrNull { it.is_active } ?: profiles.first()
 
             if (profiles.size >= MAX_SETTINGS_PROFILE_COUNT) {
                 val values = loadApplyValues(normalizedSerial, active.profile_id)
-                return@withContext SettingsProfileState(profiles.size, active.profile_id) to values
+                return@withStorageLock SettingsProfileState(profiles.size, active.profile_id) to values
             }
 
             snapshotCurrentBleValues(normalizedSerial, active.profile_id)
@@ -190,13 +198,13 @@ class SettingsProfileRepository(
         }
 
     suspend fun switchToProfile(serial: String, profileId: Int): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
-        withContext(Dispatchers.IO) {
+        withStorageLock {
             val normalizedSerial = normalizeSerial(serial)
-                ?: return@withContext SettingsProfileState(1, 1) to emptyList()
+                ?: return@withStorageLock SettingsProfileState(1, 1) to emptyList()
             ensureDefaultProfile(normalizedSerial)
             val safeProfileId = profileId.coerceIn(1, MAX_SETTINGS_PROFILE_COUNT)
             val profile = dao.getProfile(normalizedSerial, safeProfileId)
-                ?: return@withContext ensureState(normalizedSerial) to emptyList()
+                ?: return@withStorageLock ensureState(normalizedSerial) to emptyList()
 
             val active = dao.getActiveProfile(normalizedSerial)
             if (active?.profile_id != profile.profile_id) {
@@ -206,8 +214,8 @@ class SettingsProfileRepository(
             ensureState(normalizedSerial) to loadApplyValues(normalizedSerial, profile.profile_id)
         }
 
-    suspend fun buildServerSettingsPayload(serial: String): String = withContext(Dispatchers.IO) {
-        val normalizedSerial = normalizeSerial(serial) ?: return@withContext settingsProfileServerJson.encodeToString(
+    suspend fun buildServerSettingsPayload(serial: String): String = withStorageLock {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock settingsProfileServerJson.encodeToString(
             defaultServerProfiles()
         )
         ensureDefaultProfile(normalizedSerial)
@@ -223,22 +231,29 @@ class SettingsProfileRepository(
     suspend fun importServerSettingsPayload(
         serial: String,
         payload: String
-    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withContext(Dispatchers.IO) {
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withStorageLock {
         val normalizedSerial = normalizeSerial(serial)
-            ?: return@withContext SettingsProfileState(1, 1) to emptyList()
+            ?: return@withStorageLock SettingsProfileState(1, 1) to emptyList()
         val profiles = parseServerProfiles(payload)
         if (profiles.isEmpty()) {
-            return@withContext ensureState(normalizedSerial) to emptyList()
+            return@withStorageLock ensureState(normalizedSerial) to emptyList()
         }
 
-        dao.deleteValues(normalizedSerial)
-        dao.deleteProfiles(normalizedSerial)
-
-        val activeProfileId = profiles.firstOrNull { it.isActive }?.profileId
-            ?: profiles.first().profileId
+        // A previous upload may have been cancelled on restart. Merge by each setting's
+        // timestamp so a stale server copy cannot erase edits saved on this phone.
+        val localProfiles = dao.getProfiles(normalizedSerial).associateBy { it.profile_id }
+        val localValues = localProfiles.keys.associateWith { dao.getValues(normalizedSerial, it) }
+        val localActive = localProfiles.values.firstOrNull { it.is_active }
+        val keepLocalSelection = localValues.values.any { it.isNotEmpty() } &&
+            localActive != null && localProfiles.values.maxOf { it.updated_ts_ms } >= profiles.maxOf { it.updatedTsMs }
+        val activeProfileId = if (keepLocalSelection) requireNotNull(localActive).profile_id else
+            profiles.firstOrNull { it.isActive }?.profileId ?: profiles.first().profileId
         profiles.forEach { profile ->
+            val local = localProfiles[profile.profileId]
             dao.upsertProfile(
-                SettingsProfileEntity(
+                if (local != null && local.updated_ts_ms >= profile.updatedTsMs) local.copy(
+                    is_active = profile.profileId == activeProfileId,
+                ) else SettingsProfileEntity(
                     serial_number = normalizedSerial,
                     profile_id = profile.profileId,
                     name = profile.name.ifBlank { profileName(profile.profileId) },
@@ -247,10 +262,16 @@ class SettingsProfileRepository(
                     updated_ts_ms = profile.updatedTsMs
                 )
             )
+            val storedValues = localValues[profile.profileId].orEmpty().associateBy { it.setting_key }
             profile.values.forEach { value ->
-                dao.upsertValue(value.copy(serial_number = normalizedSerial))
+                val stored = storedValues[value.setting_key]
+                if (stored == null || value.updated_ts_ms > stored.updated_ts_ms) {
+                    dao.upsertValue(value.copy(serial_number = normalizedSerial))
+                }
             }
         }
+        localProfiles.values.filter { local -> profiles.none { it.profileId == local.profile_id } }
+            .forEach { local -> dao.upsertProfile(local.copy(is_active = local.profile_id == activeProfileId)) }
 
         val state = ensureState(normalizedSerial)
         state to loadApplyValues(normalizedSerial, state.activeProfileId)
@@ -260,10 +281,10 @@ class SettingsProfileRepository(
         serial: String,
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         typedValue: ParameterTypedValueV3
-    ) = withContext(Dispatchers.IO) {
-        val normalizedSerial = normalizeSerial(serial) ?: return@withContext
-        val meta = metaFor(parameterInfo) ?: return@withContext
-        if (!isBleProfileSetting(meta)) return@withContext
+    ) = withStorageLock {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock
+        val meta = metaFor(parameterInfo) ?: return@withStorageLock
+        if (!isBleProfileSetting(meta)) return@withStorageLock
         ensureDefaultProfile(normalizedSerial)
         val activeProfileId = dao.getActiveProfile(normalizedSerial)?.profile_id ?: 1
         upsertBleValue(normalizedSerial, activeProfileId, parameterInfo, meta, typedValue)
@@ -273,9 +294,9 @@ class SettingsProfileRepository(
         serial: String,
         mobileKey: String,
         value: Boolean
-    ) = withContext(Dispatchers.IO) {
-        val normalizedSerial = normalizeSerial(serial) ?: return@withContext
-        if (mobileKey.isBlank()) return@withContext
+    ) = withStorageLock {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock
+        if (mobileKey.isBlank()) return@withStorageLock
         ensureDefaultProfile(normalizedSerial)
         val activeProfileId = dao.getActiveProfile(normalizedSerial)?.profile_id ?: 1
         val ts = getTimeMillis()

@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.network
 
 import android.content.Context
 import androidx.work.Constraints
+import androidx.work.BackoffPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -91,6 +92,7 @@ object SettingsProfileUploadWorkScheduler {
         uploadEnqueuedForCurrentConnection = true
 
         val request = OneTimeWorkRequestBuilder<SettingsProfileUploadWorker>()
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)

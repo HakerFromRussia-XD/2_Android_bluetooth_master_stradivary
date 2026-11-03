@@ -24,10 +24,10 @@ class SettingsProfileUploadWorker(
             return Result.success()
         }
 
-        ensureSharedStorageInitialized()
         platformLog(TAG, "start: reason=$reason serial=$serial lang=$lang attempt=$runAttemptCount")
 
         return runCatching {
+            ensureSharedStorageInitialized()
             Ubi4SettingsProfileSender().sendProfile1SettingsForSerial(
                 serial = serial,
                 lang = lang
@@ -43,8 +43,13 @@ class SettingsProfileUploadWorker(
                     platformLog(TAG, "cancelled: reason=$reason")
                     throw error
                 }
-                platformLog(TAG, "failed: reason=$reason error=${error.message ?: error::class.simpleName}")
-                Result.failure()
+                if (error is SettingsProfileRequestException && error.isRetryable && runAttemptCount < MAX_ATTEMPTS - 1) {
+                    platformLog(TAG, "retry: reason=$reason attempt=${runAttemptCount + 1}/$MAX_ATTEMPTS error=${error.message}")
+                    Result.retry()
+                } else {
+                    platformLog(TAG, "failed: reason=$reason attempt=${runAttemptCount + 1}/$MAX_ATTEMPTS error=${error.message ?: error::class.simpleName}")
+                    Result.failure()
+                }
             }
         )
     }
@@ -63,5 +68,6 @@ class SettingsProfileUploadWorker(
 
         private const val TAG = "SettingsProfileUploadWorker"
         private const val DEFAULT_LANG = "en"
+        private const val MAX_ATTEMPTS = 5
     }
 }

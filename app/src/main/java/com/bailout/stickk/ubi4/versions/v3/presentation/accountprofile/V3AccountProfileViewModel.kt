@@ -94,7 +94,10 @@ class V3AccountProfileViewModel(
             }
             V3AccountProfileAction.ViewDetached -> detachView()
             V3AccountProfileAction.LoadRequested -> {
-                val activeSession = session ?: return
+                if (session == null) return
+                context = getViewData(context).context
+                val activeSession = session?.takeIf { it.context == context }
+                    ?: V3AccountProfileLoadSession(context).also { session = it }
                 viewScope?.launch {
                     loadProfile(activeSession).collect { event ->
                         if (session === activeSession) handleResult(event)

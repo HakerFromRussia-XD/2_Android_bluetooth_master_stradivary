@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.versions.v3.data.accountprofile
 import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridge
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.AccountBridgeResult
 import com.bailout.stickk.ubi4.versions.v3.domain.accountprofile.V3AccountDevice
@@ -25,7 +26,9 @@ class V3AccountProfileRepositoryImpl(
     private val encryptionDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : V3AccountProfileRepository {
     override suspend fun getToken(serialNumber: String): V3AccountProfileResult<String> {
+        if (serialNumber.isBlank()) return V3AccountProfileResult.Error(400, "Device serial is unavailable")
         val encrypted = withContext(encryptionDispatcher) { encryptSerialNumber(serialNumber) }
+        platformLog("AuthSerial", "source=v3_account serial=\"$serialNumber\" length=${serialNumber.length}")
         // Preserve the existing header, including its "null" value if encryption fails.
         return api.getToken("Aesserial $encrypted").toProfileResult { it.token }
     }

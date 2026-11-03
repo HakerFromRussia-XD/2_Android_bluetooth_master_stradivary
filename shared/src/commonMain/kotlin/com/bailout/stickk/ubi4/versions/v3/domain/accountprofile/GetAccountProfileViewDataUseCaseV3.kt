@@ -5,7 +5,7 @@ class GetAccountProfileViewDataUseCaseV3(private val repository: V3AccountProfil
         val env = repository.getEnvironment()
         return V3AccountProfileViewData(
             context = V3AccountProfileContext(
-                env.device.name?.takeIf { it.startsWith("FEST-") } ?: previous.serialNumber,
+                env.device.serialNumber?.replace("\u0000", "")?.trim().orEmpty(),
                 if (env.device.language?.contains("ru") == true) "ru" else previous.language,
             ),
             versions = V3AccountProfileVersions(

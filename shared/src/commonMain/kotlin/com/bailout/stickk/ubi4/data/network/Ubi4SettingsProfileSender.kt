@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileState
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
 import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.utils.io.errors.IOException
 
 data class SettingsProfileUploadResult(
@@ -22,29 +23,31 @@ data class SettingsProfileDownloadResult(
 )
 
 class Ubi4SettingsProfileSender(
-    private val api: Ubi4RequestsApi = Ubi4RequestsApi()
+    private val api: Ubi4RequestsApi = Ubi4RequestsApi(),
+    private val encryptSerial: (String) -> String? = { EncryptionManagerUtilsUbi4.instance.encrypt(it) },
 ) {
     suspend fun sendProfile1SettingsForSerial(
         serial: String,
         lang: String
-    ): SettingsProfileUploadResult {
+    ): SettingsProfileUploadResult = withFreshAuthorization {
         val access = resolveDeviceAccess(serial, lang)
-        return sendProfile1Settings(access.deviceId, access.token, access.serial)
+        sendProfile1Settings(access.deviceId, access.token, access.serial)
     }
 
     suspend fun downloadProfileSettingsForSerial(
         serial: String,
         lang: String
-    ): SettingsProfileDownloadResult {
+    ): SettingsProfileDownloadResult = withFreshAuthorization {
         val access = resolveDeviceAccess(serial, lang)
         val repository = SettingsProfileRepositoryProvider.getOrNull()
             ?: throw Ubi4SettingsProfileSendException.RepositoryUnavailable()
         val settingsPayload = when (val result = api.getProthesisSettingsRaw(access.deviceId, access.token)) {
             is NetworkResult.Success -> result.value
-            is NetworkResult.Error -> throw IOException("Settings profile download failed ${result.code}: ${result.message}")
+            is NetworkResult.Error -> throw SettingsProfileRequestException("download", result)
         }
+        SettingsProfileManager.awaitPendingWrites(access.serial)
         val (state, applyValues) = repository.importServerSettingsPayload(access.serial, settingsPayload)
-        return SettingsProfileDownloadResult(
+        SettingsProfileDownloadResult(
             deviceId = access.deviceId,
             settingsPayload = settingsPayload,
             state = state,
@@ -73,7 +76,7 @@ class Ubi4SettingsProfileSender(
                 serverResponse = result.value
             )
             is NetworkResult.Error -> {
-                throw IOException("Settings profile upload failed ${result.code}: ${result.message}")
+                throw SettingsProfileRequestException("upload", result)
             }
         }
     }
@@ -84,19 +87,20 @@ class Ubi4SettingsProfileSender(
             throw Ubi4SettingsProfileSendException.SerialMissing()
         }
 
-        val encryptedSerial = EncryptionManagerUtilsUbi4.instance.encrypt(normalizedSerial)
+        val encryptedSerial = encryptSerial(normalizedSerial)
             ?: throw Ubi4SettingsProfileSendException.EncryptionFailed()
+        platformLog("AuthSerial", "source=settings_profiles serial=\"$normalizedSerial\" length=${normalizedSerial.length}")
         val token = when (val result = api.getToken("Aesserial $encryptedSerial")) {
             is NetworkResult.Success -> result.value.token
-            is NetworkResult.Error -> throw IOException("Settings profile token failed ${result.code}: ${result.message}")
+            is NetworkResult.Error -> throw SettingsProfileRequestException("token", result)
         }
         val clientId = when (val result = api.getUserInfoV2(token, lang)) {
             is NetworkResult.Success -> result.value.userInfo?.clientId
-            is NetworkResult.Error -> throw IOException("Settings profile user info failed ${result.code}: ${result.message}")
+            is NetworkResult.Error -> throw SettingsProfileRequestException("user info", result)
         } ?: throw Ubi4SettingsProfileSendException.ClientIdMissing()
         val deviceId = when (val result = api.getDevicesList(clientId, token, lang)) {
             is NetworkResult.Success -> result.value.firstOrNull { it.serialNumber == normalizedSerial }?.id?.toString()
-            is NetworkResult.Error -> throw IOException("Settings profile devices failed ${result.code}: ${result.message}")
+            is NetworkResult.Error -> throw SettingsProfileRequestException("devices", result)
         } ?: throw Ubi4SettingsProfileSendException.DeviceIdMissing()
 
         return DeviceAccess(
@@ -105,6 +109,24 @@ class Ubi4SettingsProfileSender(
             deviceId = deviceId
         )
     }
+
+    private suspend fun <T> withFreshAuthorization(request: suspend () -> T): T {
+        try {
+            return request()
+        } catch (error: SettingsProfileRequestException) {
+            if (error.code != 401) throw error
+            platformLog("SettingsProfileAuth", "HTTP 401 at ${error.stage}: requesting a fresh token once")
+        }
+        return request()
+    }
+}
+
+class SettingsProfileRequestException(
+    val stage: String,
+    error: NetworkResult.Error,
+) : IOException("Settings profile $stage failed ${error.code}: ${error.message}") {
+    val code: Int? = error.code
+    val isRetryable: Boolean get() = code == null || code == 401 || code == 408 || code == 429 || code in 500..599
 }
 
 private data class DeviceAccess(

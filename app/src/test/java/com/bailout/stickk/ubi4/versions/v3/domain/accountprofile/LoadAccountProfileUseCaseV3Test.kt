@@ -125,21 +125,21 @@ class LoadAccountProfileUseCaseV3Test {
         assertEquals(2, remote.tokenCalls)
     }
 
-    @Test fun `context versions and cache preserve original fallbacks across view recreation`() {
+    @Test fun `context uses protocol serial independently of device name and clears missing serial`() {
         val get = GetAccountProfileViewDataUseCaseV3(local)
         val cached = V3AccountProfileHeader("Cached", "Name")
         local.storedHeader = cached
-        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = "00001", language = "en"))
+        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = "FEST-display", language = "en", serialNumber = null))
         val initial = get(V3AccountProfileContext())
         assertEquals(V3AccountProfileContext(), initial.context)
         assertEquals(V3AccountProfileVersions("1.23", "2.34", "3.45"), initial.versions)
         assertEquals(cached, initial.cachedHeader)
-        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = "FEST-new", language = "ru-RU", type = "FEST-X", driverVersion = "custom"))
+        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = "FEST-display", serialNumber = " \u000000001\u0000 ", language = "ru-RU", type = "FEST-X", driverVersion = "custom"))
         val changed = get(initial.context)
-        assertEquals(V3AccountProfileContext("FEST-new", "ru"), changed.context)
+        assertEquals(V3AccountProfileContext("00001", "ru"), changed.context)
         assertEquals("custom", changed.versions.driver)
-        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = null, language = "en", driverVersion = null))
-        assertEquals(changed.context, get(changed.context).context)
+        local.currentEnvironment = local.currentEnvironment.copy(device = local.currentEnvironment.device.copy(name = null, serialNumber = null, language = "en", driverVersion = null))
+        assertEquals(V3AccountProfileContext("", "ru"), get(changed.context).context)
         assertEquals("0.01", get(changed.context).versions.driver)
     }
 

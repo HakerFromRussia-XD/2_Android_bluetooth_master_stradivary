@@ -15,12 +15,15 @@ tar -C / -czf "$archive" \
   srv/ms-firmware/releases \
   srv/ms-firmware/current \
   srv/ms-firmware/publication-log \
+  srv/ms-firmware/games \
   etc/ms-firmware \
   usr/local/lib/ms-firmware \
+  usr/local/lib/ms-games \
   usr/local/sbin/ms-firmware-backup \
   etc/nginx/ms-firmware-publisher.htpasswd \
   etc/systemd/system/ms-firmware-files.service \
   etc/systemd/system/ms-firmware-catalog.service \
+  etc/systemd/system/ms-games-catalog.service \
   etc/systemd/system/ms-firmware-publisher.service \
   etc/systemd/system/ms-firmware-backup.service \
   etc/systemd/system/ms-firmware-backup.timer \

@@ -1,0 +1,47 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/motorica-ios-final-app-info.json",
+      "device",
+      "info",
+      "apps",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--bundle-id",
+      "com.motorica.startttt"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.motorica.startttt",
+        "bundleVersion" : "15",
+        "containerAccessible" : true,
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "Motorica Start",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/391EA860-FFAC-4184-B7FE-A200503F9D68/MotoricaStart.app/",
+        "version" : "3.1.14"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "matchingBundleIdentifier" : "com.motorica.startttt",
+    "removableAppsIncluded" : true
+  }
+}

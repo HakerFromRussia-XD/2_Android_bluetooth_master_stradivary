@@ -1,0 +1,18 @@
+{
+  "device_serial": "dcbf845e",
+  "device_model": "23124RA7EO",
+  "package": "com.bailout.stickk",
+  "version_name": "3.3.1882",
+  "install_result": "Success",
+  "install_mode": "--no-incremental -r",
+  "data_preserved": true,
+  "first_install_time": "2026-10-20 18:02:28",
+  "last_update_time": "2026-11-05 15:25:50",
+  "apk_sha256": "afb190be879190993ca6fbabb611057b31eddedbf823215bae003f87b12a4c15",
+  "installed_apk_sha256": "2425e4d79771f3065a68c5438bb7dc3fd7c4570f373cff99aa61779dfa2da2c8",
+  "installed_apk_matches_build": true,
+  "selected_asset": "assets/02-dash-v3.png",
+  "packaged_asset": "res/O5.png",
+  "packaged_pixels_match_selected": true,
+  "android_build_log": "/private/tmp/ms-sushi-card-android-build.log"
+}

@@ -1,0 +1,57 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/sushidash-catalog-writer43/device-launch.json",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--terminate-existing",
+      "com.hakerfromrussia.trashdash"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "dumb"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        19455,
+        0,
+        56378
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/55BF2B47-36BF-4FA2-AC56-32A708D4C624/SushiDash.app/SushiDash",
+      "processIdentifier" : 19455
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "app": "/private/tmp/sushidash-catalog-writer43/FreshDerivedData/Build/Products/Debug-iphoneos/SushiDash.app",
+  "buildSucceeded": true,
+  "bundleId": "com.hakerfromrussia.trashdash",
+  "versionName": "1.1",
+  "versionCode": "43",
+  "minimumOSVersion": "15.0",
+  "supportedPlatforms": [
+    "iPhoneOS"
+  ],
+  "deviceFamilies": [
+    1,
+    2
+  ],
+  "architecture": "arm64",
+  "scheme": "sushi-dash",
+  "appGroup": "group.io.fluxara.drift.inputbridge",
+  "codesignDeepStrictVerified": true,
+  "signedAppIdentifier": "R7M384QD5A.com.hakerfromrussia.trashdash",
+  "signedGroup": [
+    "group.io.fluxara.drift.inputbridge"
+  ],
+  "getTaskAllow": true,
+  "profileName": "iOS Team Provisioning Profile: com.hakerfromrussia.trashdash",
+  "profileUUID": "2ae5794a-52b2-47fb-9fc8-eb32eed3bd7f",
+  "profileExpires": "2027-11-02 14:18:10",
+  "profileDeviceCount": 5,
+  "profileContainsIPhone13HardwareUDID": true,
+  "compiledVersionMarker": true,
+  "compiledWriterFunction": true,
+  "bridgeCompileLine": "CompileC /tmp/sushidash-catalog-writer43/FreshDerivedData/Build/Intermediates.noindex/Unity-iPhone.build/Debug-iphoneos/UnityFramework.build/Objects-normal/arm64/SushiMSControlBridge.o /tmp/sushidash-catalog-writer43/UnityExport/Libraries/SushiDash/Plugins/iOS/SushiMSControlBridge.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'UnityFramework' from project 'Unity-iPhone')",
+  "writerSymbolLines": [
+    "0000000000005054 - 01 0000   FUN __ZL28SushiPublishInstalledVersionv",
+    "0000000000005054 t __ZL28SushiPublishInstalledVersionv"
+  ],
+  "frameworkSha256": "c9484c52b470c3f4f9cebd848d9230deb74d1be663bf31fb397e8d84ab8a671b",
+  "freshExportVerification": {
+    "sourceChangedSinceOwnRun": [],
+    "sourceAddedSinceOwnRun": [],
+    "projectSettingsUnchanged": true,
+    "helperRemoved": true,
+    "export": "/private/tmp/sushidash-catalog-writer43/UnityExport",
+    "versionName": "1.0",
+    "versionCode": "30",
+    "group": "group.io.fluxara.drift.inputbridge",
+    "schemes": [
+      {
+        "CFBundleTypeRole": "Editor",
+        "CFBundleURLName": "SushiDash.MotoricaStart",
+        "CFBundleURLSchemes": [
+          "sushi-dash"
+        ]
+      }
+    ],
+    "entitlementGroup": [
+      "group.io.fluxara.drift.inputbridge"
+    ],
+    "writerMatchesSource": true,
+    "generatedReferenceCount": 353,
+    "missingGeneratedReferences": []
+  },
+  "nativeChecks": 89,
+  "diagnosticPrivacyChecks": 13,
+  "deviceInstalled": false,
+  "storeUpload": false
+}

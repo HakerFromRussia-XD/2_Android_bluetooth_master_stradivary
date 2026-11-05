@@ -1,0 +1,37 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/sushidash-catalog-writer43/device-install.json",
+      "device",
+      "install",
+      "app",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "/private/tmp/sushidash-catalog-writer43/FreshDerivedData/Build/Products/Debug-iphoneos/SushiDash.app"
+    ],
+    "commandType" : "devicectl.device.install.app",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "installedApplications" : [
+      {
+        "bundleID" : "com.hakerfromrussia.trashdash",
+        "databaseSequenceNumber" : 30536,
+        "databaseUUID" : "7060EBB3-5665-4A4F-9719-0D0AC56104A9",
+        "installationURL" : "file:///private/var/containers/Bundle/Application/55BF2B47-36BF-4FA2-AC56-32A708D4C624/SushiDash.app/",
+        "launchServicesIdentifier" : "unknown",
+        "options" : {
+
+        }
+      }
+    ]
+  }
+}

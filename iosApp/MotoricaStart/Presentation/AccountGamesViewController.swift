@@ -21,6 +21,7 @@ final class AccountGamesViewController: UIViewController, UITableViewDataSource 
     private var games = AccountGame.defaults
     private var states: [String: AccountGameState] = [:]
     private var catalogUnavailable = false
+    private let catalogClient = AccountGamesCatalogClient()
     private var manifestTask: URLSessionDataTask?
     private var isLoadingManifest = false
     private let querySchemes = Set((Bundle.main.object(forInfoDictionaryKey: "LSApplicationQueriesSchemes") as? [String] ?? [])
@@ -169,29 +170,9 @@ final class AccountGamesViewController: UIViewController, UITableViewDataSource 
         }
         isLoadingManifest = true
         activityIndicator.startAnimating()
-        resolveManifestUrl(url) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                switch result {
-                case .success(let resolvedURL): self.downloadManifest(from: resolvedURL)
-                case .failure: self.finishManifestLoad(nil)
-                }
-            }
+        manifestTask = catalogClient.load(from: url) { [weak self] result in
+            DispatchQueue.main.async { self?.finishManifestLoad(try? result.get()) }
         }
-    }
-
-    private func downloadManifest(from url: URL) {
-        manifestTask = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            let manifest: AccountGamesManifest?
-            if error == nil, let response = response as? HTTPURLResponse,
-               (200..<300).contains(response.statusCode), let data {
-                manifest = try? JSONDecoder().decode(AccountGamesManifest.self, from: data)
-            } else {
-                manifest = nil
-            }
-            DispatchQueue.main.async { self?.finishManifestLoad(manifest) }
-        }
-        manifestTask?.resume()
     }
 
     private func finishManifestLoad(_ manifest: AccountGamesManifest?) {
@@ -208,7 +189,8 @@ final class AccountGamesViewController: UIViewController, UITableViewDataSource 
         guard let appGroup = MotoricaGameControlAppGroup.value,
               let defaults = UserDefaults(suiteName: appGroup),
               let marker = defaults.dictionary(forKey: game.installedVersionKey),
-              marker["bundleId"] as? String == game.bundleId else { return nil }
+              let bundleId = marker["bundleId"] as? String,
+              game.hasBundleId(bundleId) else { return nil }
         if let number = marker["versionCode"] as? NSNumber { return number.int64Value }
         return (marker["versionCode"] as? String).flatMap(Int64.init)
     }
@@ -252,56 +234,8 @@ final class AccountGamesViewController: UIViewController, UITableViewDataSource 
         return URL(string: value)
     }
 
-    private func resolveManifestUrl(_ url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        guard let host = url.host, host.contains("yandex") || host.contains("yadi.sk") else {
-            completion(.success(url))
-            return
-        }
-
-        var sourceComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        let path = sourceComponents?.queryItems?.first { $0.name == "path" }?.value
-        sourceComponents?.query = nil
-        sourceComponents?.fragment = nil
-        let publicKey = sourceComponents?.url?.absoluteString ?? url.absoluteString
-
-        var apiComponents = URLComponents(string: "https://cloud-api.yandex.net/v1/disk/public/resources/download")
-        var queryItems = [URLQueryItem(name: "public_key", value: publicKey)]
-        if let path, !path.isEmpty {
-            queryItems.append(URLQueryItem(name: "path", value: path))
-        }
-        apiComponents?.queryItems = queryItems
-
-        guard let apiUrl = apiComponents?.url else {
-            completion(.failure(URLError(.badURL)))
-            return
-        }
-
-        URLSession.shared.dataTask(with: apiUrl) { data, _, error in
-            if let error {
-                completion(.failure(error))
-                return
-            }
-            guard let data else {
-                completion(.failure(URLError(.badServerResponse)))
-                return
-            }
-            do {
-                let response = try JSONDecoder().decode(YandexDownloadResponse.self, from: data)
-                guard let href = URL(string: response.href) else {
-                    completion(.failure(URLError(.badURL)))
-                    return
-                }
-                completion(.success(href))
-            } catch {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-
     private func localized(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 }
-
-private struct YandexDownloadResponse: Decodable { let href: String }
 
 private final class AccountGameCardCell: UITableViewCell {
     static let reuseIdentifier = "AccountGameCardCell"

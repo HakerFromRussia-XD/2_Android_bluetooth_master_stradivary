@@ -38,7 +38,7 @@
 	<key>MotoricaGameControlAppGroup</key>
 	<string>$(MOTORICA_GAME_CONTROL_APP_GROUP)</string>
 	<key>MotoricaGamesManifestURL</key>
-	<string>https://disk.yandex.ru/d/mVraW6DZ_rDDtg?path=/manifest.json</string>
+	<string>https://firmware-ms.157.22.203.6.nip.io/games/manifest.json</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

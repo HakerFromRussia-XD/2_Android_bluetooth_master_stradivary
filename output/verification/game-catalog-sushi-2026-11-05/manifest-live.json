@@ -1,0 +1,36 @@
+{
+  "games": [
+    {
+      "id": "stk",
+      "title": "Super Tux Kart",
+      "packageName": "com.motorica.games.stk",
+      "launcherActivity": "com.motorica.games.stk.SuperTuxKartActivity",
+      "versionName": "1.0.16",
+      "versionCode": 1016,
+      "android": {
+        "packageName": "com.motorica.games.stk",
+        "launcherActivity": "com.motorica.games.stk.SuperTuxKartActivity",
+        "versionName": "1.0.16",
+        "versionCode": 1016
+      }
+    },
+    {
+      "id": "sushidash",
+      "title": "Sushi Dash",
+      "android": {
+        "packageName": "com.unity.trashdash",
+        "launcherActivity": "com.unity3d.player.UnityPlayerGameActivity",
+        "versionName": "1.0",
+        "versionCode": 350,
+        "usesMotoricaControl": true
+      },
+      "ios": {
+        "bundleId": "com.hakerfromrussia.trashdash",
+        "urlScheme": "sushi-dash",
+        "versionName": "1.1",
+        "versionCode": 42,
+        "appStoreUrl": ""
+      }
+    }
+  ]
+}

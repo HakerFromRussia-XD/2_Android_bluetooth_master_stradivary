@@ -1,0 +1,26 @@
+{
+  "url": "https://firmware-ms.157.22.203.6.nip.io/games/manifest.json",
+  "sha256": "4d5fcdda7452eac8b25c0ab0c6cebd8b066b5ce63dd12c55804c87c5b01e266b",
+  "games": [
+    "stk",
+    "sushidash"
+  ],
+  "headers": "HTTP/1.1 200 OK\nServer: nginx/1.24.0 (Ubuntu)\nDate: Thu, 05 Nov 2026 13:24:19 GMT\nContent-Type: application/json\nContent-Length: 978\nLast-Modified: Thu, 05 Nov 2026 13:23:44 GMT\nConnection: keep-alive\nETag: \"6aec8360-3d2\"\nCache-Control: no-store\nX-Content-Type-Options: nosniff\nAccept-Ranges: bytes\n\n",
+  "firmware_files_unchanged": 12,
+  "original_yandex_sha256": "9865393b863e5eec2fc0fbeaa0ed0be288694f25c295563fcc9f1277f872662f",
+  "migration_backup": "/var/backups/ms-games/migration-20261105T132152Z",
+  "canonical_update_backup": "/var/backups/ms-games/canonical-20261105T132343Z",
+  "publisher_tests_passed": 9,
+  "firmware_access_changed": false,
+  "webclient_auth_changed": false,
+  "version_code_max": 9223372036854775807,
+  "publisher_contract_guards": [
+    "Apple bundle character set",
+    "case-insensitive iOS bundle uniqueness",
+    "reserved stk Android package",
+    "UTF-8 without BOM",
+    "signed Int64 versionCode"
+  ],
+  "publisher_contract_backup": "/var/backups/ms-games/contracts-20261105T133713Z",
+  "publisher_sha256": "4805413bd5c8582f35690a9c544e7428cb2db8d7589f0c0b00aa87b3e8f557dd"
+}

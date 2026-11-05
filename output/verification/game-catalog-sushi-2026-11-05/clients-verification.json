@@ -1,0 +1,37 @@
+{
+  "catalogURL": "https://firmware-ms.157.22.203.6.nip.io/games/manifest.json",
+  "android": {
+    "unitTestsPassed": 53,
+    "releaseBuild": "succeeded",
+    "apkSHA256": "baa8b98ad4478c2cf8ff3c3966a1e515508fb08d371c669005e30b8e39d03ac6",
+    "device": "dcbf845e",
+    "install": "Success"
+  },
+  "ios": {
+    "unitTestsPassed": 16,
+    "build": "succeeded",
+    "device": "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "install": "success",
+    "nativeHTTPSClient": "passed; two iOS cards; Sushi42; update comparison passed; no storeURL",
+    "finalReviewBuild": "succeeded",
+    "finalReviewBuildInstall": "success",
+    "finalLaunch": "success",
+    "transport": "localNetwork/Wi-Fi"
+  },
+  "sushiNativeVersionReporter": {
+    "nativeChecksPassed": 89,
+    "diagnosticsChecksPassed": 13,
+    "arm64IphoneosSyntax": "passed",
+    "requiresNewGameBinary": false,
+    "gameBuild": "succeeded",
+    "gameAppPath": "/private/tmp/sushidash-catalog-writer43/FreshDerivedData/Build/Products/Debug-iphoneos/SushiDash.app",
+    "gameVersion": "1.1 (43)",
+    "gameSignatureVerified": true,
+    "gameInstalled": true,
+    "sourceAssetsChangedByExport": false,
+    "gameFirstLaunch": "success",
+    "installedVersion": "1.1 (43)"
+  },
+  "backendTestsPassed": 9,
+  "ruStoreURLAdded": false
+}

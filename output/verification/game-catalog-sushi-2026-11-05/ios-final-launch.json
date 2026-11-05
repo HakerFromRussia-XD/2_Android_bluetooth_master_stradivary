@@ -1,0 +1,57 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/motorica-games-http-ios-final-launch.json",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--terminate-existing",
+      "com.motorica.startttt"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "dumb"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        19467,
+        0,
+        56410
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/391EA860-FFAC-4184-B7FE-A200503F9D68/MotoricaStart.app/MotoricaStart",
+      "processIdentifier" : 19467
+    }
+  }
+}

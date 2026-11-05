@@ -275,6 +275,9 @@
 		C0DECA110000000000000001 /* AccountGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000002 /* AccountGame.swift */; };
 		C0DECA110000000000000003 /* AccountGameStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000004 /* AccountGameStateTests.swift */; };
 		C0DECA110000000000000005 /* AccountGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000002 /* AccountGame.swift */; };
+		C0DECA120000000000000001 /* AccountGamesCatalogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA120000000000000002 /* AccountGamesCatalogClient.swift */; };
+		C0DECA120000000000000003 /* AccountGamesCatalogClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA120000000000000004 /* AccountGamesCatalogClientTests.swift */; };
+		C0DECA120000000000000005 /* AccountGamesCatalogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA120000000000000002 /* AccountGamesCatalogClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -626,6 +629,8 @@
 		FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSelectScaleViewController.swift; path = ViewControllers/Dialogs/DialogSelectScaleViewController.swift; sourceTree = "<group>"; };
 		C0DECA110000000000000002 /* AccountGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGame.swift; sourceTree = "<group>"; };
 		C0DECA110000000000000004 /* AccountGameStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGameStateTests.swift; sourceTree = "<group>"; };
+		C0DECA120000000000000002 /* AccountGamesCatalogClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGamesCatalogClient.swift; sourceTree = "<group>"; };
+		C0DECA120000000000000004 /* AccountGamesCatalogClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGamesCatalogClientTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -847,6 +852,7 @@
 			isa = PBXGroup;
 			children = (
 				1FFFC83D221B02BA007D99D2 /* Info.plist */,
+				C0DECA120000000000000004 /* AccountGamesCatalogClientTests.swift */,
 				C0DECA110000000000000004 /* AccountGameStateTests.swift */,
 				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
 				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
@@ -921,6 +927,7 @@
 		1FA533E0201EF58F00747E55 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				C0DECA120000000000000002 /* AccountGamesCatalogClient.swift */,
 				1FA533E1201EF5F700747E55 /* APIEndpoints.swift */,
 				1F8D092D2301C2F20061FB6F /* DataMapping */,
 			);
@@ -1969,6 +1976,7 @@
 				1FFF12A72439FA9E00937EE4 /* CoreDataWidgetsResponseStorage.swift in Sources */,
 				1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */,
 				1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */,
+				C0DECA120000000000000001 /* AccountGamesCatalogClient.swift in Sources */,
 				1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */,
 				1F77930F222C0DF2004E034C /* StoryboardInstantiable.swift in Sources */,
 				65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */,
@@ -2094,6 +2102,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DECA120000000000000003 /* AccountGamesCatalogClientTests.swift in Sources */,
+				C0DECA120000000000000005 /* AccountGamesCatalogClient.swift in Sources */,
 				C0DECA110000000000000003 /* AccountGameStateTests.swift in Sources */,
 				C0DECA110000000000000005 /* AccountGame.swift in Sources */,
 				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,

@@ -1,0 +1,47 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/sushidash-catalog-writer43/device-app-info.json",
+      "device",
+      "info",
+      "apps",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--bundle-id",
+      "com.hakerfromrussia.trashdash"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.hakerfromrussia.trashdash",
+        "bundleVersion" : "43",
+        "containerAccessible" : true,
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "Sushi Dash",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/55BF2B47-36BF-4FA2-AC56-32A708D4C624/SushiDash.app/",
+        "version" : "1.1"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "matchingBundleIdentifier" : "com.hakerfromrussia.trashdash",
+    "removableAppsIncluded" : true
+  }
+}

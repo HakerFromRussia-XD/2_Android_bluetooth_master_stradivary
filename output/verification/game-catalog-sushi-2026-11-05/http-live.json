@@ -1,0 +1,11 @@
+{
+  "url": "https://firmware-ms.157.22.203.6.nip.io/games/manifest.json",
+  "status": 200,
+  "headers": {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+    "ETag": "\"6aec8360-3d2\"",
+    "Last-Modified": "Thu, 05 Nov 2026 13:23:44 GMT"
+  },
+  "sha256": "4d5fcdda7452eac8b25c0ab0c6cebd8b066b5ce63dd12c55804c87c5b01e266b"
+}

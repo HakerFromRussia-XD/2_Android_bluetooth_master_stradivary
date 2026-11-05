@@ -1,0 +1,25 @@
+{
+  "games": [
+    {
+      "id": "stk",
+      "title": "Super Tux Kart",
+      "packageName": "com.motorica.games.stk",
+      "launcherActivity": "com.motorica.games.stk.SuperTuxKartActivity",
+      "versionName": "1.0.16",
+      "versionCode": 1016,
+      "ios": {
+        "bundleId": "com.motorica.games.stkttt",
+        "urlScheme": "motorica-stk",
+        "appStoreUrl": "",
+        "versionName": "1.0.11",
+        "versionCode": 26
+      },
+      "android": {
+        "packageName": "com.motorica.games.stk",
+        "launcherActivity": "com.motorica.games.stk.SuperTuxKartActivity",
+        "versionName": "1.0.16",
+        "versionCode": 1016
+      }
+    }
+  ]
+}

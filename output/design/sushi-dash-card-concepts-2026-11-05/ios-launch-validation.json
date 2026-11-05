@@ -1,0 +1,57 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/tmp/motorica-sushi-ios-launch.json",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--terminate-existing",
+      "com.motorica.startttt"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "dumb"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        18446,
+        0,
+        53440
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/812BD1AD-08F6-453B-83FB-C04B5D40CE60/MotoricaStart.app/MotoricaStart",
+      "processIdentifier" : 18446
+    }
+  }
+}

@@ -104,6 +104,18 @@ final class AccountGameStateTests: XCTestCase {
         XCTAssertNil(games[0].storeURL)
     }
 
+    func testBundleIdentifierCaseChangesDoNotDuplicateGamesOrLoseVersionIdentity() throws {
+        let games = try catalog([
+            entry(id: "sushidash", bundle: "COM.HAKERFROMRUSSIA.TRASHDASH", version: 42),
+            entry(id: "renamed", bundle: "com.hakerfromrussia.trashdash", version: 43)
+        ])
+        XCTAssertEqual(games.count, 2)
+        XCTAssertEqual(games[1].id, "sushidash")
+        XCTAssertEqual(games[1].versionCode, 43)
+        XCTAssertTrue(games[1].hasBundleId("COM.HAKERFROMRUSSIA.TRASHDASH"))
+        XCTAssertFalse(games[1].hasBundleId("org.other.game"))
+    }
+
     func testInvalidPlatformMetadataDoesNotHideOtherGames() throws {
         var invalidScheme = entry(id: "invalid", bundle: "org.invalid", version: 1)
         invalidScheme["ios"] = ["bundleId": "org.invalid", "urlScheme": "not a scheme"]

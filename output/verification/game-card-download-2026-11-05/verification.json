@@ -1,0 +1,30 @@
+{
+  "device": "dcbf845e",
+  "application": {
+    "package": "com.bailout.stickk",
+    "versionName": "3.3.1882",
+    "versionCode": 21,
+    "releaseApkSha256": "afb190be879190993ca6fbabb611057b31eddedbf823215bae003f87b12a4c15",
+    "installResult": "Success"
+  },
+  "verification": {
+    "method": "Production games screen opened by user; ADB screenshot and UI hierarchy",
+    "gamePackage": "com.unity.trashdash",
+    "installedAtCapture": false,
+    "observedTitle": "Sushi Dash",
+    "observedStatus": "Game is not installed",
+    "observedAction": "Download",
+    "actionEnabled": true,
+    "deleteButtonVisible": false,
+    "screenshot": "sushi-download.png",
+    "uiHierarchy": "ui.xml"
+  },
+  "restoration": {
+    "installResult": "Success",
+    "gameVersionCode": 350,
+    "installed": true,
+    "appDataInodesPreserved": true,
+    "userConfirmedInstalledCardCorrect": true
+  },
+  "ruStoreLink": "Deferred at user request"
+}

@@ -1,0 +1,37 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/tmp/motorica-sushi-ios-install.json",
+      "device",
+      "install",
+      "app",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "/Users/motoricallc/Library/Developer/Xcode/DerivedData/MotoricaStart-cvhvjkkrlvejczgncazwwdobdqkj/Build/Products/Debug-iphoneos/MotoricaStart.app"
+    ],
+    "commandType" : "devicectl.device.install.app",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "installedApplications" : [
+      {
+        "bundleID" : "com.motorica.startttt",
+        "databaseSequenceNumber" : 30504,
+        "databaseUUID" : "7060EBB3-5665-4A4F-9719-0D0AC56104A9",
+        "installationURL" : "file:///private/var/containers/Bundle/Application/812BD1AD-08F6-453B-83FB-C04B5D40CE60/MotoricaStart.app/",
+        "launchServicesIdentifier" : "unknown",
+        "options" : {
+
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "/private/tmp/sushidash-catalog-writer43/device-process-check.json",
+      "device",
+      "info",
+      "processes",
+      "--device",
+      "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "--search",
+      "SushiDash"
+    ],
+    "commandType" : "devicectl.device.info.processes",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "642.0.1"
+  },
+  "result" : {
+    "deviceIdentifier" : "40219EA0-BBD0-5926-A926-835ECB975FE4",
+    "runningProcesses" : [
+      {
+        "executable" : "file:///private/var/containers/Bundle/Application/55BF2B47-36BF-4FA2-AC56-32A708D4C624/SushiDash.app/SushiDash",
+        "processIdentifier" : 19455
+      }
+    ]
+  }
+}

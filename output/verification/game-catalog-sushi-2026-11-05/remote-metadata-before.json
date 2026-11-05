@@ -1,0 +1,22 @@
+{
+  "path": "/manifest.json",
+  "type": "file",
+  "name": "manifest.json",
+  "created": "2026-08-10T12:32:03+00:00",
+  "modified": "2026-08-10T12:32:03+00:00",
+  "size": 671,
+  "mime_type": "application/json",
+  "md5": "22d5c09e8943eeb3130929ff76626aa5",
+  "sha256": "9865393b863e5eec2fc0fbeaa0ed0be288694f25c295563fcc9f1277f872662f",
+  "public_key": "+AvF/I3He7wSvYtGdEe+E9DeoGjRI0oIeIlde3ZUsig4kAJDHF3dmt00ney748Trq/J6bpmRyOJonT3VoXnDag==",
+  "media_type": "unknown",
+  "resource_id": "1520262274:a60447532681a8696fff3f091f344e48bf929414724242cb8dae4fc67c0a7614",
+  "revision": 1786368961982240,
+  "comment_ids": {
+    "public_resource": "1520262274:a60447532681a8696fff3f091f344e48bf929414724242cb8dae4fc67c0a7614",
+    "private_resource": "1520262274:a60447532681a8696fff3f091f344e48bf929414724242cb8dae4fc67c0a7614"
+  },
+  "exif": {},
+  "antivirus_status": "clean",
+  "file": "https://downloader.disk.yandex.ru/disk/a38c5585e257fc4a9f3773bca97175c14ec624df6097f331d35d0101859b1d5c/6aecb9ca/-vUvefDtWorn17wsUYbYY_4ZbWGbE6bAFbNcHmqCwHQpGPRVFh_WXuajqV7AKN4vqm9j8c3xcmHtITYpgPbJkA%3D%3D?uid=0&filename=manifest.json&disposition=attachment&hash=&limit=0&content_type=application%2Fjson&owner_uid=0&fsize=671&hid=5edfac1234e7881917e95b253aa0a7df&media_type=unknown&tknv=v3&is_direct_zip_experiment=1&etag=22d5c09e8943eeb3130929ff76626aa5"
+}

@@ -6,7 +6,7 @@ Open the WebClient:
 
 - `https://firmware-admin-ms.157.22.203.6.nip.io/web/client/`
 
-It contains one working folder:
+It contains the firmware folder and a separate games folder:
 
 ```text
 firmware/
@@ -16,10 +16,17 @@ firmware/
   EMG/
   BLDC_Driver/
   FINGER/
+games/
+  manifest.json
 ```
 
 Upload, replace, or delete `assembly.json` and firmware ZIP files directly in
 this folder. There is no staging workflow and no publish button.
+
+Upload game catalog changes in `games/manifest.json` using the same WebClient
+account. The separate games publisher validates JSON and publishes the last
+valid file atomically at `https://firmware-ms.157.22.203.6.nip.io/games/manifest.json`.
+See [the games catalog workflow](../ms-games/README.md).
 
 The mobile applications read the same directory through:
 

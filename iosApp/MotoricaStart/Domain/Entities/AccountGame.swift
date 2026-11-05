@@ -13,6 +13,10 @@ struct AccountGame: Equatable {
 
     var installedVersionKey: String { "installedGame.\(id)" }
 
+    func hasBundleId(_ value: String) -> Bool {
+        bundleId.caseInsensitiveCompare(value) == .orderedSame
+    }
+
     var launchURL: URL? {
         guard urlScheme.range(of: "^[A-Za-z][A-Za-z0-9+.-]*$", options: .regularExpression) != nil else {
             return nil
@@ -111,14 +115,15 @@ struct AccountGamesManifest: Decodable {
 
     func catalog(defaults: [AccountGame] = AccountGame.defaults) -> [AccountGame] {
         var result = defaults
-        var indices = Dictionary(uniqueKeysWithValues: result.enumerated().map { ($0.element.bundleId, $0.offset) })
+        var indices = Dictionary(uniqueKeysWithValues: result.enumerated().map { ($0.element.bundleId.lowercased(), $0.offset) })
         for entry in games {
             guard let ios = entry.ios, !ios.bundleId.isEmpty, !ios.urlScheme.isEmpty else { continue }
+            let bundleKey = ios.bundleId.lowercased()
             let storeURL = ios.appStoreUrl.flatMap(URL.init(string:)).flatMap { url -> URL? in
                 guard ["https", "itms-apps"].contains(url.scheme?.lowercased() ?? ""), url.host != nil else { return nil }
                 return url
             }
-            if let index = indices[ios.bundleId] {
+            if let index = indices[bundleKey] {
                 // Known identities keep their title, artwork and launch protocol even
                 // if an older catalog still calls Fluxara "STK".
                 result[index].storeURL = storeURL
@@ -130,7 +135,7 @@ struct AccountGamesManifest: Decodable {
                                        accessibilityPrefix: "account.games.\(entry.id).", requiresLaunchToken: false,
                                        storeURL: storeURL, versionCode: ios.versionCode)
                 guard game.launchURL != nil else { continue }
-                indices[ios.bundleId] = result.count
+                indices[bundleKey] = result.count
                 result.append(game)
             }
         }

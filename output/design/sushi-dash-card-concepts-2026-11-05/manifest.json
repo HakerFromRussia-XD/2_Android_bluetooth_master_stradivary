@@ -82,5 +82,18 @@
   "productionAssets": [
     "app/src/main/res/drawable-nodpi/motorica_sushi_card_background_v2.png",
     "iosApp/MotoricaStart/Resources/Assets.xcassets/motorica_sushi_card_background_v2.imageset/motorica_sushi_card_background_v2.png"
-  ]
+  ],
+  "deviceInstall": {
+    "android": {
+      "serial": "dcbf845e",
+      "result": "success",
+      "evidence": "android-install-validation.json"
+    },
+    "ios": {
+      "device": "40219EA0-BBD0-5926-A926-835ECB975FE4",
+      "result": "success",
+      "launch": "success",
+      "evidence": "ios-install-validation.json"
+    }
+  }
 }

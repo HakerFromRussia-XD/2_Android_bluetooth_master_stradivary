@@ -1,6 +1,38 @@
 import XCTest
 final class InstalledAppChecks: XCTestCase {
     override func setUp() { continueAfterFailure = false }
+    func testCaptureRealGamesCatalog() {
+        let app = XCUIApplication(bundleIdentifier: "com.motorica.startttt")
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        let root = app.otherElements["AccessibilityIdentifierAccountGamesRoot"]
+        if !root.exists {
+            let account = app.buttons["AccessibilityIdentifierStatusBarAccountButton"]
+            let devices = app.tables["AccessibilityIdentifierBLEDevicesTable"]
+            if devices.waitForExistence(timeout: 2) {
+                let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "count > 0"), object: devices.cells)
+                XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 20), .completed)
+                print("REAL_CAPTURE_AVAILABLE_DEVICES\n\(devices.debugDescription)")
+                XCTAssertEqual(devices.cells.count, 1, "Only select a single unambiguous physical prosthesis")
+                devices.cells.firstMatch.tap()
+            }
+            if account.waitForExistence(timeout: 40) { account.tap() }
+            let games = app.staticTexts.matching(NSPredicate(format: "label == 'Games' OR label == 'Игры' OR label == 'Juegos'")).firstMatch
+            XCTAssertTrue(games.waitForExistence(timeout: 15))
+            games.tap()
+        }
+        XCTAssertTrue(root.waitForExistence(timeout: 15))
+        func capture(_ name: String) {
+            print("REAL_GAMES_\(name)_BEGIN\n\(app.debugDescription)\nREAL_GAMES_\(name)_END")
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = name
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+        }
+        capture("iphone-games-before-remote")
+        Thread.sleep(forTimeInterval: 5)
+        capture("iphone-games-after-remote")
+    }
     func testReadScreen() {
         let app = XCUIApplication(bundleIdentifier: "com.motorica.startttt")
         app.activate()

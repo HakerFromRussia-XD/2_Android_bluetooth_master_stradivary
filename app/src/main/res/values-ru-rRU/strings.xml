@@ -712,4 +712,5 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+    <string name="download_game">Скачать</string>
 </resources>

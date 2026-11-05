@@ -1,0 +1,86 @@
+{
+  "created": "2026-11-05",
+  "product": "Motorica Start",
+  "game": "Sushi Dash",
+  "deliverable": "Three background concepts embedded in MS Android games screen",
+  "generation": {
+    "tool": "built-in image_gen",
+    "prompts": "prompts.json",
+    "references": {
+      "01-moti": [
+        "/Users/motoricallc/My project/Assets/SushiDash/Art/Loading/SushiLoading-v1.png",
+        "/Users/motoricallc/My project/Exports/AppStore/2026-10-21/originals/02-cats.png"
+      ],
+      "02-dash": [
+        "/Users/motoricallc/My project/Assets/SushiDash/Art/Loading/SushiLoading-v1.png",
+        "/Users/motoricallc/My project/Exports/SushiDash-Screenshots-2026-10-17/03-gameplay.png"
+      ],
+      "03-friends": [
+        "/Users/motoricallc/My project/Exports/AppStore/2026-10-21/originals/02-cats.png",
+        "/Users/motoricallc/My project/Assets/SushiDash/Art/Loading/SushiLoading-v1.png"
+      ]
+    }
+  },
+  "ui": {
+    "source": "app/src/main/res/layout/ubi4_fragment_games.xml",
+    "card": {
+      "heightDp": 124,
+      "radiusDp": 12,
+      "blackOverlay": "#B3000000",
+      "title": "Sushi Dash",
+      "status": "Установлена",
+      "action": "Играть",
+      "actionDp": [
+        112,
+        42
+      ],
+      "deleteDp": [
+        42,
+        42
+      ]
+    },
+    "fonts": {
+      "title": "Inter SemiBold 18sp",
+      "status": "Open Sans 14sp",
+      "action": "SF Pro Display Light 12sp"
+    }
+  },
+  "variants": [
+    {
+      "id": 1,
+      "key": "01-moti",
+      "asset": "assets/01-moti.png",
+      "screen": "screen-01.png",
+      "card": "card-01.png",
+      "sourceImage": "/Users/motoricallc/.codex/generated_images/01a1ab91-aa9a-7151-b4ce-3e2d1752061e/exec-85e78422-7ec4-4d7d-bed3-35a628acf641.png"
+    },
+    {
+      "id": 2,
+      "key": "02-dash",
+      "asset": "assets/02-dash.png",
+      "screen": "screen-02.png",
+      "card": "card-02.png",
+      "sourceImage": "/Users/motoricallc/.codex/generated_images/01a1ab91-aa9a-7151-b4ce-3e2d1752061e/exec-47a98864-f9f0-4b49-9cb8-e5118526e57c.png"
+    },
+    {
+      "id": 3,
+      "key": "03-friends",
+      "asset": "assets/03-friends.png",
+      "screen": "screen-03.png",
+      "card": "card-03.png",
+      "sourceImage": "/Users/motoricallc/.codex/generated_images/01a1ab91-aa9a-7151-b4ce-3e2d1752061e/exec-8fa257d3-5f4e-47ae-b52f-52d4cf056d25.png"
+    }
+  ],
+  "productionSourceEdited": true,
+  "selectedVariant": 2,
+  "selectedAsset": "assets/02-dash-v3.png",
+  "refinement": "Original second image shifted left by approximately half Moti face width, exposed right edge outpainted, original scale and height preserved.",
+  "selectedPreview": {
+    "screen": "selected-screen.png",
+    "card": "selected-card.png"
+  },
+  "productionAssets": [
+    "app/src/main/res/drawable-nodpi/motorica_sushi_card_background_v2.png",
+    "iosApp/MotoricaStart/Resources/Assets.xcassets/motorica_sushi_card_background_v2.imageset/motorica_sushi_card_background_v2.png"
+  ]
+}

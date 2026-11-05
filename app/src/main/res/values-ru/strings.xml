@@ -84,4 +84,5 @@
     <string name="gui_firmware_zip_invalid">Не удалось открыть файл. Выберите корректный ZIP основной программы GUI.</string>
     <string name="motorica_subway_title">Subway Surf</string>
     <string name="game_status_not_installed">Игра не установлена</string>
+    <string name="download_game">Скачать</string>
 </resources>

@@ -272,6 +272,9 @@
 		FC740818216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */; };
 		FC74081A2165574400FE52A5 /* WidgetQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7408192165574400FE52A5 /* WidgetQuery.swift */; };
 		FE702E9D62A85093FE82DEB9 /* SampleGattAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */; };
+		C0DECA110000000000000001 /* AccountGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000002 /* AccountGame.swift */; };
+		C0DECA110000000000000003 /* AccountGameStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000004 /* AccountGameStateTests.swift */; };
+		C0DECA110000000000000005 /* AccountGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DECA110000000000000002 /* AccountGame.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -621,6 +624,8 @@
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
 		FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSelectScaleViewController.swift; path = ViewControllers/Dialogs/DialogSelectScaleViewController.swift; sourceTree = "<group>"; };
+		C0DECA110000000000000002 /* AccountGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGame.swift; sourceTree = "<group>"; };
+		C0DECA110000000000000004 /* AccountGameStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGameStateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -842,6 +847,7 @@
 			isa = PBXGroup;
 			children = (
 				1FFFC83D221B02BA007D99D2 /* Info.plist */,
+				C0DECA110000000000000004 /* AccountGameStateTests.swift */,
 				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
 				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
 				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
@@ -882,6 +888,7 @@
 		1FA533D2201EF21000747E55 /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				C0DECA110000000000000002 /* AccountGame.swift */,
 				1FA533B1201EE2A500747E55 /* Widget.swift */,
 				FC7408192165574400FE52A5 /* WidgetQuery.swift */,
 			);
@@ -2052,6 +2059,7 @@
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
+				C0DECA110000000000000001 /* AccountGame.swift in Sources */,
 				65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */,
 				65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */,
 				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
@@ -2086,6 +2094,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0DECA110000000000000003 /* AccountGameStateTests.swift in Sources */,
+				C0DECA110000000000000005 /* AccountGame.swift in Sources */,
 				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
 				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
 				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,

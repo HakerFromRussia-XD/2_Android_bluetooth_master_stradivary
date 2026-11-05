@@ -13,122 +13,72 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.bailout.stickk.BuildConfig
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentGamesBinding
 import com.bailout.stickk.ubi4.game.GameControlBridgeService
-import com.bailout.stickk.ubi4.data.games.*
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.versions.v3.di.V3GamesViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.domain.games.V3Game
 import com.bailout.stickk.ubi4.versions.v3.presentation.games.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AccountGamesFragment : Fragment() {
     private var _binding: Ubi4FragmentGamesBinding? = null
     private val binding get() = requireNotNull(_binding)
-    private val catalogClient = GameCatalogClient(BuildConfig.MOTORICA_STK_PACKAGE,
-        { getString(R.string.game_manifest_load_failed) })
-    private var v3ViewModel: V3GamesViewModel? = null
-    private var manifestJob: Job? = null
-    private var storeCheckJob: Job? = null
-    private var remoteGame: RemoteGame? = null
-    private var currentAction: GameAction = GameAction.UNAVAILABLE
+    private var viewModel: V3GamesViewModel? = null
+    private var cardsAdapter: GameCardsAdapter? = null
 
-    private companion object {
-        const val SUBWAY_PACKAGE = "com.motorica.games.subway"
-        const val SUSHI_PACKAGE = "com.unity.trashdash"
-        const val SUSHI_ACTIVITY = "com.unity3d.player.UnityPlayerGameActivity"
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = Ubi4FragmentGamesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val useV3 = UiState.isInterfaceV3Activated
-        binding.sushiGameActionBtn.setOnClickListener {
-            if (getInstalledGameInfo(SUSHI_PACKAGE) != null) {
-                launchGame(SUSHI_PACKAGE, SUSHI_ACTIVITY) {
-                    renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
-                    showToast(R.string.game_launch_failed)
-                }
-            } else renderSushiCard(false)
-        }
-        binding.sushiGameDeleteBtn.setOnClickListener { requestGameUninstall(SUSHI_PACKAGE) }
-        renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
-        binding.gameActionBtn.setOnClickListener {
-            if (useV3) {
-                v3ViewModel?.onAction(V3GamesAction.PrimaryClicked)
-                return@setOnClickListener
-            }
-            when (currentAction) {
-                GameAction.PLAY -> launchGame()
-                GameAction.INSTALL -> checkAvailabilityAndOpenRuStore()
-                GameAction.UPDATE -> openGameInRuStore()
-                GameAction.UNAVAILABLE -> refreshGameManifest(showErrors = true)
-            }
-        }
-        binding.gameDeleteBtn.setOnClickListener {
-            if (useV3) v3ViewModel?.onAction(V3GamesAction.DeleteClicked) else uninstallGame()
-        }
-        if (useV3) bindV3Games() else {
-            renderIdleState()
-            refreshGameManifest(showErrors = false)
-        }
+        cardsAdapter = GameCardsAdapter(
+            onPrimaryClick = { viewModel?.onAction(V3GamesAction.PrimaryClicked(it)) },
+            onDeleteClick = { viewModel?.onAction(V3GamesAction.DeleteClicked(it)) },
+        )
+        binding.root.layoutManager = LinearLayoutManager(requireContext())
+        binding.root.adapter = cardsAdapter
+        // Both account interfaces use the same catalog, state rules and card actions.
+        bindV3Games()
     }
 
     override fun onResume() {
         super.onResume()
-        renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
-        val viewModel = v3ViewModel
-        if (viewModel != null) viewModel.onAction(V3GamesAction.ViewResumed) else {
-            renderIdleState()
-            refreshGameManifest(showErrors = false)
-        }
+        viewModel?.onAction(V3GamesAction.ViewResumed)
     }
 
     override fun onDestroyView() {
-        v3ViewModel?.onAction(V3GamesAction.ViewDetached)
-        v3ViewModel = null
-        manifestJob?.cancel()
-        storeCheckJob?.cancel()
+        viewModel?.onAction(V3GamesAction.ViewDetached)
+        viewModel = null
+        binding.root.adapter = null
+        cardsAdapter = null
         _binding = null
         super.onDestroyView()
     }
 
     private fun bindV3Games() {
-        val viewModel = ViewModelProvider(this, V3GamesViewModelFactory.from(requireContext()))[V3GamesViewModel::class.java]
-        v3ViewModel = viewModel
-        viewModel.onAction(V3GamesAction.ViewAttached)
-        renderV3Games(viewModel.uiState.value)
+        val model = ViewModelProvider(this, V3GamesViewModelFactory.from(requireContext()))[V3GamesViewModel::class.java]
+        viewModel = model
+        model.onAction(V3GamesAction.ViewAttached)
+        renderV3Games(model.uiState.value)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect(::renderV3Games)
+                model.uiState.collect(::renderV3Games)
             }
         }
     }
 
     private fun renderV3Games(state: V3GamesUiState) {
-        state.availability?.let { availability ->
-            renderGame(availability.game.title, GameAction.valueOf(availability.action.name),
-                availability.isInstalled, state.isActionEnabled)
-        }
+        cardsAdapter?.submitList(state.cards)
         state.effects.forEach { effect ->
-            v3ViewModel?.onAction(V3GamesAction.EffectHandled(effect.id))
+            viewModel?.onAction(V3GamesAction.EffectHandled(effect.id))
             when (val command = effect.command) {
-                is V3GamesCommand.LaunchGame -> launchGame(command.game.packageName, command.game.launcherActivity)
-                V3GamesCommand.OpenStore -> openGameInRuStore()
-                V3GamesCommand.UninstallGame -> requestGameUninstall()
-                V3GamesCommand.UninstallSubway -> requestGameUninstall(SUBWAY_PACKAGE)
+                is V3GamesCommand.LaunchGame -> launchGame(command.game)
+                is V3GamesCommand.OpenStore -> openGameInRuStore(command.packageName)
+                is V3GamesCommand.UninstallGame -> requestGameUninstall(command.packageName)
                 is V3GamesCommand.ShowMessage -> Toast.makeText(requireContext(),
                     command.detail ?: getString(command.message.messageRes()), Toast.LENGTH_LONG).show()
             }
@@ -146,200 +96,42 @@ class AccountGamesFragment : Fragment() {
     }
 
     private fun reportPlatformFailure(message: V3GamesMessage) {
-        val viewModel = v3ViewModel
-        if (viewModel != null) viewModel.onAction(V3GamesAction.PlatformActionFailed(message)) else {
-            if (message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
-            showToast(message.messageRes())
-        }
+        viewModel?.onAction(V3GamesAction.PlatformActionFailed(message))
     }
 
-    private fun renderSushiCard(installed: Boolean) {
-        binding.sushiGameTitleTv.setText(R.string.motorica_sushi_title)
-        binding.sushiGameDescriptionTv.setText(
-            if (installed) R.string.game_status_installed else R.string.game_status_not_installed
-        )
-        binding.sushiGameActionTv.setText(R.string.play)
-        binding.sushiGameActionBtn.isEnabled = installed
-        binding.sushiGameActionBackground.isEnabled = installed
-        binding.sushiGameDeleteBtn.visibility = if (installed) View.VISIBLE else View.GONE
-        binding.sushiGameDeleteIv.visibility = if (installed) View.VISIBLE else View.GONE
-    }
-
-    private fun renderIdleState() {
-        val expectedPackageName = BuildConfig.MOTORICA_STK_PACKAGE
-        val game = remoteGame ?: RemoteGame.localFallback(expectedPackageName)
-        val installedGame = getInstalledGameInfo(expectedPackageName)
-        currentAction = GameCatalog.action(remoteGame, installedGame?.versionCode)
-
-        renderGame(game.title, currentAction, installedGame != null, currentAction != GameAction.UNAVAILABLE)
-    }
-
-    private fun renderGame(title: String, action: GameAction, isInstalled: Boolean, isActionEnabled: Boolean) {
-        binding.gameActionBtn.isEnabled = isActionEnabled
-        binding.gameActionBackground.isEnabled = isActionEnabled
-        binding.gameTitleTv.text = title.ifBlank { getString(R.string.motorica_stk_title) }
-
-        when (action) {
-            GameAction.UPDATE -> {
-                binding.gameDescriptionTv.text = getString(R.string.game_status_update_available)
-                binding.gameActionTv.text = getString(R.string.update_game)
-            }
-            GameAction.PLAY -> {
-                binding.gameDescriptionTv.text = getString(R.string.game_status_installed)
-                binding.gameActionTv.text = getString(R.string.play)
-            }
-            GameAction.INSTALL -> {
-                binding.gameDescriptionTv.text = getString(R.string.game_status_available)
-                binding.gameActionTv.text = getString(R.string.install_game)
-            }
-            GameAction.UNAVAILABLE -> {
-                binding.gameDescriptionTv.text = getString(R.string.game_manifest_load_failed)
-                binding.gameActionTv.text = getString(R.string.install_game)
-            }
-        }
-
-        binding.gameDeleteBtn.visibility = if (isInstalled) View.VISIBLE else View.GONE
-        binding.gameDeleteIv.visibility = if (isInstalled) View.VISIBLE else View.GONE
-    }
-
-    private fun refreshGameManifest(showErrors: Boolean) {
-        if (manifestJob?.isActive == true) return
-        val manifestUrl = BuildConfig.MOTORICA_GAMES_MANIFEST_URL
-        if (manifestUrl.isBlank()) {
-            remoteGame = null
-            renderIdleState()
-            if (showErrors && getInstalledGameInfo(BuildConfig.MOTORICA_STK_PACKAGE) == null) {
-                showToast(R.string.game_manifest_url_missing)
-            }
-            return
-        }
-        manifestJob = viewLifecycleOwner.lifecycleScope.launch {
-            val result = runCatching {
-                withContext(Dispatchers.IO) {
-                    catalogClient.loadRemoteGame(manifestUrl)
-                }
-            }
-            result.onSuccess { game ->
-                remoteGame = game
-                renderIdleState()
-            }.onFailure { error ->
-                remoteGame = null
-                renderIdleState()
-                if (showErrors || getInstalledGameInfo(BuildConfig.MOTORICA_STK_PACKAGE) == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        error.message ?: getString(R.string.game_manifest_load_failed),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }
-
-    private fun checkAvailabilityAndOpenRuStore() {
-        val game = remoteGame ?: run {
-            refreshGameManifest(showErrors = true)
-            return
-        }
-        if (storeCheckJob?.isActive == true) return
-        binding.gameActionBtn.isEnabled = false
-        binding.gameActionBackground.isEnabled = false
-        storeCheckJob = viewLifecycleOwner.lifecycleScope.launch {
-            val result = runCatching {
-                withContext(Dispatchers.IO) {
-                    catalogClient.isPublishedInRuStore(game.packageName)
-                }
-            }
-            result.onSuccess { isPublished ->
-                if (isPublished) {
-                    openGameInRuStore()
-                } else {
-                    showToast(R.string.game_not_available_in_rustore)
-                }
-            }.onFailure {
-                showToast(R.string.game_store_check_failed)
-            }
-            renderIdleState()
-        }
-    }
-
-    private fun openGameInRuStore() {
-        val packageName = BuildConfig.MOTORICA_STK_PACKAGE
-        val primary = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("rustore://apps.rustore.ru/app/$packageName")
-        )
+    private fun openGameInRuStore(packageName: String) {
         try {
-            startActivity(primary)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("rustore://apps.rustore.ru/app/$packageName")))
             return
         } catch (_: ActivityNotFoundException) {
             // RuStore is not installed; open its official web storefront.
         }
-
-        val fallback = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(ruStoreWebUrl(packageName))
-        )
         try {
-            startActivity(fallback)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.rustore.ru/catalog/app/$packageName")))
         } catch (_: ActivityNotFoundException) {
             reportPlatformFailure(V3GamesMessage.STORE_OPEN_FAILED)
         }
     }
 
-    private fun uninstallGame() {
-        val packageName = BuildConfig.MOTORICA_STK_PACKAGE
-        if (getInstalledGameInfo(packageName) == null) {
-            renderIdleState()
-            return
-        }
-        requestGameUninstall()
-    }
-
-    private fun requestGameUninstall(packageName: String = BuildConfig.MOTORICA_STK_PACKAGE) {
-        requireContext().applicationContext.stopService(
-            Intent(requireContext(), GameControlBridgeService::class.java)
-        )
+    private fun requestGameUninstall(packageName: String) {
+        requireContext().applicationContext.stopService(Intent(requireContext(), GameControlBridgeService::class.java))
         try {
             startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:$packageName")))
         } catch (_: ActivityNotFoundException) {
-            if (packageName == SUBWAY_PACKAGE || packageName == SUSHI_PACKAGE) showToast(R.string.game_uninstall_failed)
-            else reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
+            reportPlatformFailure(V3GamesMessage.UNINSTALL_FAILED)
         }
     }
 
-    private fun launchGame() {
-        val game = remoteGame ?: RemoteGame.localFallback(BuildConfig.MOTORICA_STK_PACKAGE)
-        launchGame(game.packageName, game.launcherActivity)
-    }
-
-    private fun launchGame(
-        packageName: String,
-        launcherActivity: String,
-        onFailure: () -> Unit = { reportPlatformFailure(V3GamesMessage.LAUNCH_FAILED) }
-    ) {
+    private fun launchGame(game: V3Game) {
         GameControlBridgeService.start(requireContext().applicationContext)
-        val intent = Intent()
-            .setClassName(packageName, launcherActivity)
+        val intent = Intent().setClassName(game.packageName, game.launcherActivity)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .apply {
-                if (packageName == SUBWAY_PACKAGE || packageName == SUSHI_PACKAGE) {
-                    putExtra("motorica_ms_control", true)
-                }
-            }
+            .apply { if (game.usesMotoricaControl) putExtra("motorica_ms_control", true) }
         try {
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            onFailure()
+            requireContext().applicationContext.stopService(Intent(requireContext(), GameControlBridgeService::class.java))
+            reportPlatformFailure(V3GamesMessage.LAUNCH_FAILED)
         }
     }
-
-    private fun getInstalledGameInfo(packageName: String): InstalledGameInfo? =
-        requireContext().installedGameVersionCode(packageName)?.let(::InstalledGameInfo)
-
-    private fun showToast(messageRes: Int) {
-        Toast.makeText(requireContext(), messageRes, Toast.LENGTH_LONG).show()
-    }
-
-    private data class InstalledGameInfo(val versionCode: Long)
 }

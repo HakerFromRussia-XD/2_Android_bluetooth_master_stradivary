@@ -18,14 +18,13 @@ class V3GamesViewModel(
     private val getAvailability: GetGameAvailabilityUseCaseV3,
     private val loadManifest: LoadGameManifestUseCaseV3,
     private val checkStore: CheckGameInRuStoreUseCaseV3,
-    private val getSubwayAvailability: GetSubwayAvailabilityUseCaseV3,
 ) : ViewModel() {
     private val state = MutableStateFlow(V3GamesUiState())
     val uiState = state.asStateFlow()
-    private var remoteGame: V3Game? = null
+    private var games = loadManifest.localGames.associateBy { it.packageName }
     private var viewScope: CoroutineScope? = null
     private var manifestJob: Job? = null
-    private var storeJob: Job? = null
+    private val storeJobs = mutableMapOf<String, Job>()
     private var nextEffectId = 0L
     private var cleared = false
 
@@ -36,33 +35,33 @@ class V3GamesViewModel(
                 if (viewScope != null) return
                 viewScope = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob(viewModelScope.coroutineContext[Job]))
                 renderIdleState()
-                refreshManifest(false)
+                refreshManifest()
             }
             V3GamesAction.ViewDetached -> detachView()
             else -> {
                 if (viewScope == null) return
                 when (action) {
-                    V3GamesAction.ViewResumed -> { renderIdleState(); refreshManifest(false) }
-                    V3GamesAction.PrimaryClicked -> when (state.value.availability?.action) {
-                        V3GameAction.PLAY -> emit(V3GamesCommand.LaunchGame(state.value.availability!!.game))
-                        V3GameAction.UPDATE -> emit(V3GamesCommand.OpenStore)
-                        V3GameAction.INSTALL -> checkAvailabilityAndOpenStore()
-                        V3GameAction.UNAVAILABLE -> refreshManifest(true)
-                        null -> Unit
+                    V3GamesAction.ViewResumed -> { renderIdleState(); refreshManifest() }
+                    is V3GamesAction.PrimaryClicked -> {
+                        // Recheck the OS at tap time: installation can change while this screen is open.
+                        val game = games[action.packageName] ?: return
+                        if (storeJobs[game.packageName]?.isActive == true) return
+                        val availability = getAvailability(game)
+                        renderIdleState()
+                        when (availability.action) {
+                            V3GameAction.PLAY -> emit(V3GamesCommand.LaunchGame(game))
+                            V3GameAction.UPDATE -> emit(V3GamesCommand.OpenStore(game.packageName))
+                            V3GameAction.INSTALL -> checkAvailabilityAndOpenStore(game)
+                        }
                     }
-                    V3GamesAction.DeleteClicked -> {
-                        if (getAvailability(remoteGame).isInstalled) emit(V3GamesCommand.UninstallGame)
-                        else renderIdleState()
-                    }
-                    V3GamesAction.SubwayClicked -> {
-                        if (refreshSubwayAvailability()) emit(V3GamesCommand.LaunchGame(GetSubwayAvailabilityUseCaseV3.GAME))
-                    }
-                    V3GamesAction.SubwayDeleteClicked -> {
-                        if (refreshSubwayAvailability()) emit(V3GamesCommand.UninstallSubway)
+                    is V3GamesAction.DeleteClicked -> {
+                        val game = games[action.packageName] ?: return
+                        if (getAvailability(game).isInstalled) emit(V3GamesCommand.UninstallGame(game.packageName))
+                        renderIdleState()
                     }
                     is V3GamesAction.EffectHandled -> state.value = state.value.copy(effects = state.value.effects.filterNot { it.id == action.id })
                     is V3GamesAction.PlatformActionFailed -> {
-                        if (action.message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
+                        renderIdleState()
                         message(action.message)
                     }
                     else -> Unit
@@ -72,66 +71,57 @@ class V3GamesViewModel(
     }
 
     private fun renderIdleState() {
-        val availability = getAvailability(remoteGame)
-        state.value = state.value.copy(
-            availability = availability,
-            isActionEnabled = availability.action != V3GameAction.UNAVAILABLE,
-            subwayInstalled = getSubwayAvailability(),
-        )
+        state.value = state.value.copy(cards = games.values.map { game ->
+            V3GameCardState(getAvailability(game), storeJobs[game.packageName]?.isActive != true)
+        })
     }
 
-    private fun refreshSubwayAvailability(): Boolean = getSubwayAvailability().also { installed ->
-        state.value = state.value.copy(subwayInstalled = installed)
-    }
-
-    private fun refreshManifest(showErrors: Boolean) {
+    private fun refreshManifest() {
         val scope = viewScope ?: return
-        if (manifestJob?.isActive == true) return
-        if (state.value.availability?.hasManifestUrl != true) {
-            remoteGame = null
-            renderIdleState()
-            if (showErrors && !getAvailability(null).isInstalled) message(V3GamesMessage.MANIFEST_URL_MISSING)
-            return
-        }
+        if (!loadManifest.hasManifestUrl || manifestJob?.isActive == true) return
         manifestJob = scope.launch {
             try {
-                val game = loadManifest()
+                val remote = loadManifest()
                 coroutineContext.ensureActive()
                 if (viewScope !== scope) return@launch
-                remoteGame = game
+                games = (loadManifest.localGames + remote).associateBy { it.packageName }
                 renderIdleState()
             } catch (error: CancellationException) {
                 throw error
-            } catch (error: Exception) {
+            } catch (_: Exception) {
                 coroutineContext.ensureActive()
                 if (viewScope !== scope) return@launch
-                remoteGame = null
+                // Keep known catalog metadata; it never decides whether a game is installed.
                 renderIdleState()
-                if (showErrors || !getAvailability(null).isInstalled) message(V3GamesMessage.MANIFEST_LOAD_FAILED, error.message)
             }
         }
     }
 
-    private fun checkAvailabilityAndOpenStore() {
-        val game = remoteGame ?: run { refreshManifest(true); return }
+    private fun checkAvailabilityAndOpenStore(game: V3Game) {
         val scope = viewScope ?: return
-        if (storeJob?.isActive == true) return
-        state.value = state.value.copy(isActionEnabled = false)
-        storeJob = scope.launch {
+        if (storeJobs[game.packageName]?.isActive == true) return
+        val job = scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
             try {
                 val published = checkStore(game.packageName)
                 coroutineContext.ensureActive()
                 if (viewScope !== scope) return@launch
-                if (published) emit(V3GamesCommand.OpenStore) else message(V3GamesMessage.NOT_PUBLISHED)
+                if (published) emit(V3GamesCommand.OpenStore(game.packageName)) else message(V3GamesMessage.NOT_PUBLISHED)
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
                 coroutineContext.ensureActive()
                 if (viewScope !== scope) return@launch
                 message(V3GamesMessage.STORE_CHECK_FAILED)
+            } finally {
+                if (viewScope === scope) {
+                    storeJobs.remove(game.packageName)
+                    renderIdleState()
+                }
             }
-            renderIdleState()
         }
+        storeJobs[game.packageName] = job
+        job.start()
+        renderIdleState()
     }
 
     private fun emit(command: V3GamesCommand) {
@@ -142,7 +132,7 @@ class V3GamesViewModel(
         viewScope?.cancel()
         viewScope = null
         manifestJob = null
-        storeJob = null
+        storeJobs.clear()
         state.value = state.value.copy(effects = emptyList())
     }
     override fun onCleared() { cleared = true; detachView(); super.onCleared() }

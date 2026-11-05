@@ -35,7 +35,7 @@ class V3ProsthesisCalibrationRepositoryTest {
 
     @ParameterizedTest
     @EnumSource(value = V3DeviceProfile::class, names = ["STANDARD_V3", "INDY3"])
-    fun `both profiles send only the temporary calibration packet`(profile: V3DeviceProfile) {
+    fun `both profiles send one movement calibration packet with CRC and no release packet`(profile: V3DeviceProfile) {
         UiState.activeV3DeviceProfile = profile
         assertTrue(start("first-device"))
         release("first-device")
@@ -50,7 +50,7 @@ class V3ProsthesisCalibrationRepositoryTest {
         assertTrue(packets.isEmpty())
     }
 
-    @Test fun `lock rejects start and release sends no additional packet during the test`() {
+    @Test fun `lock rejects start and release sends no additional packet`() {
         assertTrue(start("first-device"))
         UiState.v3WidgetsInteractionEnabled.value = false
         assertFalse(start("first-device"))

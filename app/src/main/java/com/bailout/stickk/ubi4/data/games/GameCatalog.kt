@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.data.games
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -13,69 +15,43 @@ internal data class RemoteGame(
     val packageName: String,
     val launcherActivity: String,
     val versionName: String,
-    val versionCode: Long
-) {
-    companion object {
-        const val STK_ID = "stk"
-
-        fun localFallback(packageName: String): RemoteGame =
-            RemoteGame(
-                id = STK_ID,
-                title = "",
-                packageName = packageName,
-                launcherActivity = "$packageName.SuperTuxKartActivity",
-                versionName = "",
-                versionCode = 0L
-            )
-    }
-}
-
-internal enum class GameAction {
-    INSTALL,
-    UPDATE,
-    PLAY,
-    UNAVAILABLE
-}
+    val versionCode: Long,
+    val usesMotoricaControl: Boolean? = null,
+)
 
 internal object GameCatalog {
     private val json = Json { ignoreUnknownKeys = true }
 
-    fun parseStk(body: String, expectedPackageName: String): RemoteGame {
-        val root = json.parseToJsonElement(body).jsonObject
-        val game = root["games"]
-            ?.jsonArray
-            ?.firstOrNull { entry ->
-                entry.jsonObject["id"]?.jsonPrimitive?.contentOrNull == RemoteGame.STK_ID
+    fun parseGames(body: String, expectedStkPackageName: String): List<RemoteGame> {
+        val entries = json.parseToJsonElement(body).jsonObject["games"]?.jsonArray
+            ?: error("Games are missing from games catalog")
+        val games = entries.mapNotNull { entry ->
+            val game = entry.jsonObject
+            val android = game["android"]?.takeUnless { it is JsonNull }?.jsonObject
+                ?: game.takeIf { it["packageName"] != null }
+                ?: return@mapNotNull null // The catalog can also contain iOS-only games.
+            val id = game.requiredString("id")
+            val parsed = RemoteGame(
+                id = id,
+                title = game["title"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                packageName = android.requiredString("packageName"),
+                launcherActivity = android.requiredString("launcherActivity"),
+                versionName = android["versionName"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                versionCode = android["versionCode"]?.jsonPrimitive?.long
+                    ?: error("Game $id versionCode is missing"),
+                usesMotoricaControl = android["usesMotoricaControl"]?.jsonPrimitive?.booleanOrNull,
+            )
+            require(parsed.packageName.matches(Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+"))) {
+                "Invalid game package name"
             }
-            ?.jsonObject
-            ?: error("STK is missing from games catalog")
-        val android = game["android"]?.jsonObject ?: game
-        val parsed = RemoteGame(
-            id = RemoteGame.STK_ID,
-            title = game["title"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-            packageName = android.requiredString("packageName"),
-            launcherActivity = android.requiredString("launcherActivity"),
-            versionName = android["versionName"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-            versionCode = android["versionCode"]?.jsonPrimitive?.long
-                ?: error("STK versionCode is missing")
-        )
-        require(parsed.packageName == expectedPackageName) {
-            "Unexpected STK package name"
+            if (id == "stk") require(parsed.packageName == expectedStkPackageName) { "Unexpected STK package name" }
+            parsed
         }
-        return parsed
+        require(games.map { it.packageName }.distinct().size == games.size) { "Duplicate game package name" }
+        return games
     }
-
-    fun action(remoteGame: RemoteGame?, installedVersionCode: Long?): GameAction =
-        when {
-            installedVersionCode != null &&
-                (remoteGame == null || installedVersionCode >= remoteGame.versionCode) ->
-                GameAction.PLAY
-            remoteGame == null -> GameAction.UNAVAILABLE
-            installedVersionCode == null -> GameAction.INSTALL
-            else -> GameAction.UPDATE
-        }
 
     private fun kotlinx.serialization.json.JsonObject.requiredString(key: String): String =
         this[key]?.jsonPrimitive?.contentOrNull?.takeIf(String::isNotBlank)
-            ?: error("STK $key is missing")
+            ?: error("Game $key is missing")
 }

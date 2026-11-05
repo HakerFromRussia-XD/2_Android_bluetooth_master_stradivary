@@ -12,12 +12,12 @@ internal class GameCatalogClient(
     private val failureMessage: () -> String,
     private val httpClient: Call.Factory = OkHttpClient(),
 ) {
-    fun loadRemoteGame(manifestUrl: String): RemoteGame {
+    fun loadRemoteGames(manifestUrl: String): List<RemoteGame> {
         val request = Request.Builder().url(resolveManifestUrl(manifestUrl)).build()
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) error(failureMessage())
             val body = response.body?.string() ?: error(failureMessage())
-            return GameCatalog.parseStk(body, expectedPackageName)
+            return GameCatalog.parseGames(body, expectedPackageName)
         }
     }
 

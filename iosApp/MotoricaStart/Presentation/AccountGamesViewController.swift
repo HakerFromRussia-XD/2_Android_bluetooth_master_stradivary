@@ -8,39 +8,23 @@ private enum AccountGamesMetrics {
     static let actionHeight: CGFloat = 42
 }
 
-final class AccountGamesViewController: UIViewController {
+final class AccountGamesViewController: UIViewController, UITableViewDataSource {
     private enum Constants {
-        static let installedGameKey = "installedGame.fluxara_drift"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
-        static let gameId = "fluxara_drift"
-        static let fallbackTitle = "Fluxara Drift"
-        static let fallbackBundleId = "io.fluxara.drift"
-        static let fallbackScheme = "fluxara-drive"
     }
 
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
-    private let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
-    private let borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444)
     private let textColor = UIColor.accountColor("ubi4_white", fallback: 0xFCFCFC)
-    private let inactiveTextColor = UIColor.accountColor("ubi4_deactivate_text", fallback: 0x838383)
-
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
-    private let cardView = UIView()
-    private let titleLabel = UILabel()
-    private let statusLabel = UILabel()
-    private let actionButton = UIButton(type: .system)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
-    private let sushiCardView = UIView()
-    private let sushiStatusLabel = UILabel()
-    private let sushiActionButton = UIButton(type: .system)
     private var statusBarHostingController: UIHostingController<StatusBarView>?
-
-    private var remoteGame: RemoteIosGame?
-    private var manifestLoadFailed = false
-    private var manifestFailedBecauseOffline = false
-    private var currentAction: GameAction = .unavailable
-    private let gameDebugLogPrefix = "[BLE stk-game debug]"
+    private var games = AccountGame.defaults
+    private var states: [String: AccountGameState] = [:]
+    private var catalogUnavailable = false
+    private var manifestTask: URLSessionDataTask?
+    private var isLoadingManifest = false
+    private let querySchemes = Set((Bundle.main.object(forInfoDictionaryKey: "LSApplicationQueriesSchemes") as? [String] ?? [])
+        .map { $0.lowercased() })
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -52,36 +36,39 @@ final class AccountGamesViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        manifestTask?.cancel()
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        renderState()
-        loadManifest()
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationBecameActive),
+                                               name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
-        renderState()
+        refreshStates()
+        loadManifest()
+    }
+
+    @objc private func applicationBecameActive() {
+        guard isViewLoaded, view.window != nil else { return }
+        refreshStates()
+        loadManifest()
     }
 
     private func setupView() {
         view.backgroundColor = backgroundColor
         view.accessibilityIdentifier = AccessibilityIdentifier.accountGamesRoot
-        setupTopBar()
-        setupScrollView()
-        setupGameCard()
-        setupSushiCard()
-    }
-
-    private func setupTopBar() {
         let hostingController = UIHostingController(
             rootView: StatusBarView(
                 viewModel: WidgetsTabContainerViewController.sharedStatusBarViewModel,
                 leadingButton: .back,
-                onBackTap: { [weak self] in
-                    self?.navigationController?.popViewController(animated: true)
-                },
+                onBackTap: { [weak self] in self?.navigationController?.popViewController(animated: true) },
                 onDisconnectConfirmed: { [weak self] in
                     StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
                 }
@@ -92,421 +79,170 @@ final class AccountGamesViewController: UIViewController {
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         hostingController.view.backgroundColor = .clear
         view.addSubview(hostingController.view)
-
-        NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            hostingController.view.heightAnchor.constraint(equalToConstant: StatusBarView.Constants.height)
-        ])
         hostingController.didMove(toParent: self)
-    }
 
-    private func setupScrollView() {
-        guard let statusBarView = statusBarHostingController?.view else { return }
-
-        scrollView.backgroundColor = backgroundColor
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(scrollView)
-
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentView)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: statusBarView.bottomAnchor, constant: 8),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -16)
-        ])
-    }
-
-    private func setupGameCard() {
         let sectionTitle = UILabel()
         sectionTitle.text = localized("motorica_games")
         sectionTitle.font = .accountGamesInterSemibold(size: 14)
         sectionTitle.textColor = textColor
         sectionTitle.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(sectionTitle)
-
-        cardView.backgroundColor = cardColor
-        cardView.layer.cornerRadius = AccountGamesMetrics.cardRadius
-        cardView.layer.borderWidth = 1
-        cardView.layer.borderColor = borderColor.cgColor
-        cardView.layer.masksToBounds = true
-        cardView.accessibilityIdentifier = AccessibilityIdentifier.accountGamesCard
-        cardView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(cardView)
-
-        let backgroundImageView = UIImageView(image: UIImage(named: "motorica_stk_card_background"))
-        backgroundImageView.contentMode = .scaleAspectFill
-        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(backgroundImageView)
-
-        let dimView = UIView()
-        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        dimView.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(dimView)
-
-        titleLabel.text = Constants.fallbackTitle
-        titleLabel.font = .accountGamesOpenSansSemibold(size: 16)
-        titleLabel.textColor = textColor
-        titleLabel.numberOfLines = 1
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(titleLabel)
-
-        statusLabel.font = .accountGamesOpenSansRegular(size: 13)
-        statusLabel.textColor = inactiveTextColor
-        statusLabel.numberOfLines = 2
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(statusLabel)
-
-        actionButton.titleLabel?.font = .accountGamesOpenSansSemibold(size: 13)
-        actionButton.setTitleColor(textColor, for: .normal)
-        actionButton.setTitleColor(inactiveTextColor, for: .disabled)
-        actionButton.backgroundColor = cardColor
-        actionButton.layer.cornerRadius = 10
-        actionButton.layer.borderWidth = 1
-        actionButton.layer.borderColor = borderColor.cgColor
-        actionButton.accessibilityIdentifier = AccessibilityIdentifier.accountGamesActionButton
-        actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
-        actionButton.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(actionButton)
-
+        view.addSubview(sectionTitle)
         activityIndicator.color = textColor
         activityIndicator.hidesWhenStopped = true
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(activityIndicator)
+        view.addSubview(activityIndicator)
 
+        tableView.backgroundColor = backgroundColor
+        tableView.separatorStyle = .none
+        tableView.rowHeight = AccountGamesMetrics.cardHeight + 16
+        tableView.contentInset.bottom = 16
+        tableView.dataSource = self
+        tableView.register(AccountGameCardCell.self, forCellReuseIdentifier: AccountGameCardCell.reuseIdentifier)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            sectionTitle.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            sectionTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: AccountGamesMetrics.sideInset),
-            sectionTitle.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AccountGamesMetrics.sideInset),
-
-            cardView.topAnchor.constraint(equalTo: sectionTitle.bottomAnchor, constant: 16),
-            cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: AccountGamesMetrics.sideInset),
-            cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AccountGamesMetrics.sideInset),
-            cardView.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.cardHeight),
-
-            backgroundImageView.topAnchor.constraint(equalTo: cardView.topAnchor),
-            backgroundImageView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
-            backgroundImageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor),
-
-            dimView.topAnchor.constraint(equalTo: cardView.topAnchor),
-            dimView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
-            dimView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
-            dimView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor),
-
-            titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
-            titleLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 28),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: actionButton.leadingAnchor, constant: -16),
-
-            statusLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            statusLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: actionButton.leadingAnchor, constant: -16),
-
-            actionButton.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
-            actionButton.centerYAnchor.constraint(equalTo: cardView.centerYAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: 156),
-            actionButton.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.actionHeight),
-
-            activityIndicator.centerXAnchor.constraint(equalTo: actionButton.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: actionButton.centerYAnchor)
+            hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            hostingController.view.heightAnchor.constraint(equalToConstant: StatusBarView.Constants.height),
+            sectionTitle.topAnchor.constraint(equalTo: hostingController.view.bottomAnchor, constant: 24),
+            sectionTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: AccountGamesMetrics.sideInset),
+            activityIndicator.centerYAnchor.constraint(equalTo: sectionTitle.centerYAnchor),
+            activityIndicator.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -AccountGamesMetrics.sideInset),
+            tableView.topAnchor.constraint(equalTo: sectionTitle.bottomAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
-    private func setupSushiCard() {
-        sushiCardView.backgroundColor = cardColor
-        sushiCardView.layer.cornerRadius = AccountGamesMetrics.cardRadius
-        sushiCardView.layer.borderWidth = 1
-        sushiCardView.layer.borderColor = borderColor.cgColor
-        sushiCardView.translatesAutoresizingMaskIntoConstraints = false
-        sushiCardView.accessibilityIdentifier = "account.games.sushi.card"
-        contentView.addSubview(sushiCardView)
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { games.count }
 
-        let title = UILabel()
-        title.text = "Sushi Dash"
-        title.font = .accountGamesOpenSansSemibold(size: 16)
-        title.textColor = textColor
-        title.translatesAutoresizingMaskIntoConstraints = false
-        sushiCardView.addSubview(title)
-        sushiStatusLabel.font = .accountGamesOpenSansRegular(size: 13)
-        sushiStatusLabel.textColor = inactiveTextColor
-        sushiStatusLabel.numberOfLines = 2
-        sushiStatusLabel.translatesAutoresizingMaskIntoConstraints = false
-        sushiCardView.addSubview(sushiStatusLabel)
-        sushiActionButton.titleLabel?.font = .accountGamesOpenSansSemibold(size: 13)
-        sushiActionButton.setTitleColor(textColor, for: .normal)
-        sushiActionButton.setTitleColor(inactiveTextColor, for: .disabled)
-        sushiActionButton.backgroundColor = cardColor
-        sushiActionButton.layer.cornerRadius = 10
-        sushiActionButton.layer.borderWidth = 1
-        sushiActionButton.layer.borderColor = borderColor.cgColor
-        sushiActionButton.setTitle(localized("play_game"), for: .normal)
-        sushiActionButton.translatesAutoresizingMaskIntoConstraints = false
-        sushiActionButton.accessibilityIdentifier = "account.games.sushi.play"
-        sushiActionButton.addTarget(self, action: #selector(handleSushiTap), for: .touchUpInside)
-        sushiCardView.addSubview(sushiActionButton)
-        NSLayoutConstraint.activate([
-            sushiCardView.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
-            sushiCardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            sushiCardView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
-            sushiCardView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
-            sushiCardView.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.cardHeight),
-            title.leadingAnchor.constraint(equalTo: sushiCardView.leadingAnchor, constant: 20),
-            title.topAnchor.constraint(equalTo: sushiCardView.topAnchor, constant: 28),
-            title.trailingAnchor.constraint(lessThanOrEqualTo: sushiActionButton.leadingAnchor, constant: -16),
-            sushiStatusLabel.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            sushiStatusLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
-            sushiStatusLabel.trailingAnchor.constraint(lessThanOrEqualTo: sushiActionButton.leadingAnchor, constant: -16),
-            sushiActionButton.trailingAnchor.constraint(equalTo: sushiCardView.trailingAnchor, constant: -20),
-            sushiActionButton.centerYAnchor.constraint(equalTo: sushiCardView.centerYAnchor),
-            sushiActionButton.widthAnchor.constraint(equalToConstant: 156),
-            sushiActionButton.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.actionHeight)
-        ])
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AccountGameCardCell.reuseIdentifier,
+                                                for: indexPath) as! AccountGameCardCell
+        let game = games[indexPath.row]
+        let state = states[game.bundleId] ?? state(for: game)
+        cell.configure(game: game, state: state) { [weak self] in self?.handleAction(for: game.bundleId) }
+        return cell
     }
 
-    private func renderSushiState() {
-        let installed = URL(string: "sushi-dash://launch").map(UIApplication.shared.canOpenURL) ?? false
-        sushiActionButton.isEnabled = installed
-        sushiStatusLabel.text = localized(installed ? "game_status_installed" : "sushi_status_not_installed")
+    private func state(for game: AccountGame) -> AccountGameState {
+        let canQuery = querySchemes.contains(game.urlScheme.lowercased())
+        let installed = canQuery && (game.launchURL.map(UIApplication.shared.canOpenURL) ?? false)
+        return AccountGameState.resolve(game: game, canOpenURL: installed,
+                                        installedVersion: installed ? installedVersion(for: game) : nil,
+                                        catalogUnavailable: catalogUnavailable, canQueryInstallation: canQuery)
     }
 
-    @objc private func handleSushiTap() {
-        guard sushiActionButton.isEnabled else { return }
-        openGame(scheme: "sushi-dash")
+    private func refreshStates() {
+        states = Dictionary(uniqueKeysWithValues: games.map { ($0.bundleId, state(for: $0)) })
+        tableView.reloadData()
+    }
+
+    private func handleAction(for bundleId: String) {
+        guard let game = games.first(where: { $0.bundleId == bundleId }) else { return }
+        // Recheck on tap so an old visible state cannot launch a removed game.
+        let current = state(for: game)
+        states[bundleId] = current
+        tableView.reloadData()
+        switch current.action {
+        case .install(let url), .update(let url):
+            guard let url else {
+                showToast(localized("game_app_store_url_missing"))
+                return
+            }
+            UIApplication.shared.open(url)
+        case .play:
+            openGame(game)
+        case .open:
+            openGame(game, fallbackToStore: true)
+        }
     }
 
     private func loadManifest() {
-        guard let manifestUrl = manifestUrl() else {
-            manifestLoadFailed = true
-            renderState()
+        guard !isLoadingManifest else { return }
+        guard let url = manifestUrl() else {
+            catalogUnavailable = true
+            refreshStates()
             return
         }
-
+        isLoadingManifest = true
         activityIndicator.startAnimating()
-        resolveManifestUrl(manifestUrl) { [weak self] result in
-            switch result {
-            case .success(let url):
-                self?.downloadManifest(from: url)
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    self?.handleManifestFailure(error)
+        resolveManifestUrl(url) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                switch result {
+                case .success(let resolvedURL): self.downloadManifest(from: resolvedURL)
+                case .failure: self.finishManifestLoad(nil)
                 }
             }
         }
     }
 
     private func downloadManifest(from url: URL) {
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            if let error {
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    self?.handleManifestFailure(error)
-                }
-                return
-            }
-
-            guard let data else {
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    self?.handleManifestFailure(URLError(.badServerResponse))
-                }
-                return
-            }
-
-            do {
-                let manifest = try JSONDecoder().decode(GamesManifest.self, from: data)
-                // Accept the legacy catalog ID only when it points to Fluxara.
-                // Old STK version and store metadata must not update this card.
-                let game = manifest.games.first {
-                    ($0.id == Constants.gameId || $0.id == "stk") &&
-                    $0.ios?.bundleId == Constants.fallbackBundleId
-                }
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    self?.remoteGame = game?.ios
-                    // The existing catalog entry may still carry the old name.
-                    self?.titleLabel.text = Constants.fallbackTitle
-                    self?.manifestLoadFailed = false
-                    self?.manifestFailedBecauseOffline = false
-                    self?.renderState()
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    self?.handleManifestFailure(error)
-                }
-            }
-        }.resume()
-    }
-
-    private func handleManifestFailure(_ error: Error) {
-        manifestLoadFailed = true
-        manifestFailedBecauseOffline = (error as? URLError)?.code == .notConnectedToInternet
-        renderState()
-    }
-
-    private func renderState() {
-        renderSushiState()
-        let installed = isGameInstalled()
-        let installedGame = installedGameInfo()
-
-        if installed, let remoteGame, let installedGame, installedGame.versionCode > 0,
-           remoteGame.versionCode > installedGame.versionCode {
-            statusLabel.text = localized("game_status_update_available")
-            if remoteGame.appStoreUrl.isEmpty {
-                setAction(.unavailableInstall)
+        manifestTask = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            let manifest: AccountGamesManifest?
+            if error == nil, let response = response as? HTTPURLResponse,
+               (200..<300).contains(response.statusCode), let data {
+                manifest = try? JSONDecoder().decode(AccountGamesManifest.self, from: data)
             } else {
-                setAction(.update(remoteGame))
+                manifest = nil
             }
-            return
+            DispatchQueue.main.async { self?.finishManifestLoad(manifest) }
         }
-
-        if installed {
-            statusLabel.text = localized("game_status_installed")
-            setAction(.play(Constants.fallbackScheme))
-            return
-        }
-
-        if manifestLoadFailed && manifestFailedBecauseOffline {
-            statusLabel.text = localized("game_status_catalog_unavailable")
-            setAction(.unavailable)
-            return
-        }
-
-        statusLabel.text = localized("game_status_available")
-        if let remoteGame, !remoteGame.appStoreUrl.isEmpty {
-            setAction(.install(remoteGame))
-        } else {
-            setAction(.unavailableInstall)
-        }
+        manifestTask?.resume()
     }
 
-    private func setAction(_ action: GameAction) {
-        currentAction = action
-        activityIndicator.isHidden = true
-        actionButton.isHidden = false
-
-        switch action {
-        case .install:
-            actionButton.setTitle(localized("install_game"), for: .normal)
-            actionButton.isEnabled = true
-        case .update:
-            actionButton.setTitle(localized("update_game"), for: .normal)
-            actionButton.isEnabled = true
-        case .play:
-            actionButton.setTitle(localized("play_game"), for: .normal)
-            actionButton.isEnabled = true
-        case .unavailableInstall:
-            actionButton.setTitle(localized("install_game"), for: .normal)
-            actionButton.isEnabled = false
-        case .unavailable:
-            actionButton.setTitle(localized("install_game"), for: .normal)
-            actionButton.isEnabled = false
-        }
+    private func finishManifestLoad(_ manifest: AccountGamesManifest?) {
+        isLoadingManifest = false
+        manifestTask = nil
+        activityIndicator.stopAnimating()
+        catalogUnavailable = manifest == nil
+        // Keep the last successful metadata during transient network failures.
+        if let manifest { games = manifest.catalog() }
+        refreshStates()
     }
 
-    @objc private func handleActionTap() {
-        switch currentAction {
-        case .install(let game), .update(let game):
-            openAppStore(for: game)
-        case .play(let scheme):
-            openGame(scheme: scheme)
-        case .unavailableInstall:
-            showToast(localized("game_app_store_url_missing"))
-        case .unavailable:
-            break
-        }
+    private func installedVersion(for game: AccountGame) -> Int64? {
+        guard let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup),
+              let marker = defaults.dictionary(forKey: game.installedVersionKey),
+              marker["bundleId"] as? String == game.bundleId else { return nil }
+        if let number = marker["versionCode"] as? NSNumber { return number.int64Value }
+        return (marker["versionCode"] as? String).flatMap(Int64.init)
     }
 
-    private func openAppStore(for game: RemoteIosGame) {
-        guard let url = URL(string: game.appStoreUrl), !game.appStoreUrl.isEmpty else {
-            showToast(localized("game_app_store_url_missing"))
-            return
-        }
-        UIApplication.shared.open(url)
-    }
-
-    private func openGame(scheme: String) {
-        GameControlBroadcaster.shared.start()
-        guard let url = URL(string: "\(scheme)://launch") else {
-            showToast(localized("game_launch_failed"))
-            return
-        }
-        let launchToken = MotoricaGameLaunchRequest.create(scheme: scheme)
-        if scheme == "sushi-dash" && launchToken == nil {
+    private func openGame(_ game: AccountGame, fallbackToStore: Bool = false) {
+        guard let url = game.launchURL else { return }
+        let launchToken = MotoricaGameLaunchRequest.create(scheme: game.urlScheme)
+        if game.requiresLaunchToken && launchToken == nil {
             showToast(localized("game_launch_failed"))
             return
         }
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         if let launchToken { components?.queryItems = [URLQueryItem(name: "token", value: launchToken)] }
-        guard let launchURL = components?.url else { return }
+        guard let launchURL = components?.url else {
+            MotoricaGameLaunchRequest.clear(token: launchToken)
+            return
+        }
+        GameControlBroadcaster.shared.start()
         UIApplication.shared.open(launchURL) { [weak self] opened in
             if !opened {
                 MotoricaGameLaunchRequest.clear(token: launchToken)
-                self?.showToast(self?.localized("game_launch_failed") ?? "")
+                GameControlBroadcaster.shared.stop()
+                self?.refreshStates()
+                if fallbackToStore, let storeURL = game.storeURL {
+                    UIApplication.shared.open(storeURL)
+                } else {
+                    self?.showToast(self?.localized(fallbackToStore ? "game_app_store_url_missing" : "game_launch_failed") ?? "")
+                }
                 return
             }
-            // Fluxara consumes the lease during cold startup or when the
-            // URL reaches a warm process. This cleanup prevents a failed or
-            // interrupted launch from leaving state that a later icon launch
-            // could observe.
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 MotoricaGameLaunchRequest.clear(token: launchToken)
             }
         }
-    }
-
-    private func isGameInstalled() -> Bool {
-        let scheme = Constants.fallbackScheme
-        guard let url = URL(string: "\(scheme)://launch") else {
-            NSLog("\(gameDebugLogPrefix) ios games invalid launch url scheme=\(scheme)")
-            return false
-        }
-
-        let canOpen = UIApplication.shared.canOpenURL(url)
-        let hasMarker = installedGameInfo() != nil
-        NSLog("\(gameDebugLogPrefix) ios games installed check scheme=\(scheme) canOpenURL=\(canOpen ? 1 : 0) appGroupMarker=\(hasMarker ? 1 : 0)")
-        return canOpen || hasMarker
-    }
-
-    private func installedGameInfo() -> InstalledGameInfo? {
-        guard let appGroup = MotoricaGameControlAppGroup.value,
-              let defaults = UserDefaults(suiteName: appGroup) else {
-            NSLog("\(gameDebugLogPrefix) ios games expected exactly one signed app group")
-            return nil
-        }
-
-        guard let dictionary = defaults.dictionary(forKey: Constants.installedGameKey) else {
-            NSLog("\(gameDebugLogPrefix) ios games app group marker missing key=\(Constants.installedGameKey)")
-            return nil
-        }
-
-        let bundleId = dictionary["bundleId"] as? String
-        let expectedBundleId = Constants.fallbackBundleId
-        if let bundleId, bundleId != expectedBundleId {
-            NSLog("\(gameDebugLogPrefix) ios games app group marker bundle mismatch actual=\(bundleId) expected=\(expectedBundleId)")
-            return nil
-        }
-
-        let versionName = dictionary["versionName"] as? String ?? ""
-        let versionCode: Int64
-        if let number = dictionary["versionCode"] as? NSNumber {
-            versionCode = number.int64Value
-        } else if let string = dictionary["versionCode"] as? String {
-            versionCode = Int64(string) ?? 0
-        } else {
-            versionCode = 0
-        }
-        NSLog("\(gameDebugLogPrefix) ios games app group marker found versionName=\(versionName) versionCode=\(versionCode)")
-        return InstalledGameInfo(versionName: versionName, versionCode: versionCode)
     }
 
     private func manifestUrl() -> URL? {
@@ -562,44 +298,101 @@ final class AccountGamesViewController: UIViewController {
         }.resume()
     }
 
-    private func localized(_ key: String) -> String {
-        NSLocalizedString(key, comment: "")
+    private func localized(_ key: String) -> String { NSLocalizedString(key, comment: "") }
+}
+
+private struct YandexDownloadResponse: Decodable { let href: String }
+
+private final class AccountGameCardCell: UITableViewCell {
+    static let reuseIdentifier = "AccountGameCardCell"
+    private let card = UIView()
+    private let backgroundImageView = UIImageView()
+    private let titleLabel = UILabel()
+    private let statusLabel = UILabel()
+    private let actionButton = UIButton(type: .system)
+    private var onAction: (() -> Void)?
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
+        backgroundColor = .clear
+        let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
+        let borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444)
+        let textColor = UIColor.accountColor("ubi4_white", fallback: 0xFCFCFC)
+        let inactiveTextColor = UIColor.accountColor("ubi4_deactivate_text", fallback: 0x838383)
+        card.backgroundColor = cardColor
+        card.layer.cornerRadius = AccountGamesMetrics.cardRadius
+        card.layer.borderWidth = 1
+        card.layer.borderColor = borderColor.cgColor
+        card.layer.masksToBounds = true
+        card.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(card)
+        backgroundImageView.contentMode = .scaleAspectFill
+        let dimView = UIView()
+        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        titleLabel.font = .accountGamesOpenSansSemibold(size: 16)
+        titleLabel.textColor = textColor
+        statusLabel.font = .accountGamesOpenSansRegular(size: 13)
+        statusLabel.textColor = inactiveTextColor
+        statusLabel.numberOfLines = 2
+        actionButton.titleLabel?.font = .accountGamesOpenSansSemibold(size: 13)
+        actionButton.setTitleColor(textColor, for: .normal)
+        actionButton.setTitleColor(inactiveTextColor, for: .disabled)
+        actionButton.backgroundColor = cardColor
+        actionButton.layer.cornerRadius = 10
+        actionButton.layer.borderWidth = 1
+        actionButton.layer.borderColor = borderColor.cgColor
+        actionButton.addTarget(self, action: #selector(tapped), for: .touchUpInside)
+        for subview in [backgroundImageView, dimView, titleLabel, statusLabel, actionButton] {
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            card.addSubview(subview)
+        }
+        NSLayoutConstraint.activate([
+            card.topAnchor.constraint(equalTo: contentView.topAnchor),
+            card.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: AccountGamesMetrics.sideInset),
+            card.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AccountGamesMetrics.sideInset),
+            card.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            backgroundImageView.topAnchor.constraint(equalTo: card.topAnchor),
+            backgroundImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            backgroundImageView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            backgroundImageView.bottomAnchor.constraint(equalTo: card.bottomAnchor),
+            dimView.topAnchor.constraint(equalTo: card.topAnchor),
+            dimView.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            dimView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            dimView.bottomAnchor.constraint(equalTo: card.bottomAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: 28),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: actionButton.leadingAnchor, constant: -16),
+            statusLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            statusLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: actionButton.leadingAnchor, constant: -16),
+            actionButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            actionButton.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            actionButton.widthAnchor.constraint(equalToConstant: 156),
+            actionButton.heightAnchor.constraint(equalToConstant: AccountGamesMetrics.actionHeight)
+        ])
     }
-}
 
-private struct GamesManifest: Decodable {
-    let games: [RemoteGame]
-}
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-private struct RemoteGame: Decodable {
-    let id: String
-    let title: String?
-    let ios: RemoteIosGame?
-}
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onAction = nil
+    }
 
-private struct RemoteIosGame: Decodable {
-    let bundleId: String
-    let urlScheme: String
-    let appStoreUrl: String
-    let versionName: String
-    let versionCode: Int64
-}
+    func configure(game: AccountGame, state: AccountGameState, onAction: @escaping () -> Void) {
+        titleLabel.text = game.title
+        backgroundImageView.image = UIImage(named: game.artwork)
+        statusLabel.text = NSLocalizedString(state.statusKey, comment: "")
+        actionButton.setTitle(NSLocalizedString(state.action.titleKey, comment: ""), for: .normal)
+        actionButton.isEnabled = state.action.isEnabled
+        card.accessibilityIdentifier = game.accessibilityPrefix + (game.accessibilityPrefix.hasSuffix(".") ? "card" : "Card")
+        actionButton.accessibilityIdentifier = game.accessibilityPrefix + (game.accessibilityPrefix.hasSuffix(".") ? "action" : "ActionButton")
+        self.onAction = onAction
+    }
 
-private struct InstalledGameInfo {
-    let versionName: String
-    let versionCode: Int64
-}
-
-private struct YandexDownloadResponse: Decodable {
-    let href: String
-}
-
-private enum GameAction {
-    case install(RemoteIosGame)
-    case update(RemoteIosGame)
-    case play(String)
-    case unavailableInstall
-    case unavailable
+    @objc private func tapped() { onAction?() }
 }
 
 private extension UIFont {

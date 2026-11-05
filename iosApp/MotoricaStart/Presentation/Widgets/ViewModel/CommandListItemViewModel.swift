@@ -113,6 +113,8 @@ extension CommandListItemViewModelV3 {
     private func sendButtonCommand(at index: Int, isPressDown: Bool) {
         guard orderedButtonBindings.indices.contains(index) else { return }
         let binding = orderedButtonBindings[index]
+        // 0F/03 identifies the existing calibration widget; calibration sends only on press.
+        if !isPressDown && binding.parameterID == 0x0F && binding.dataCode == 0x03 { return }
         let subcommand = isPressDown ? binding.dataCode : 0
 
         let data = WidgetCommandBridgeV3.shared.buildSendSubcommand(

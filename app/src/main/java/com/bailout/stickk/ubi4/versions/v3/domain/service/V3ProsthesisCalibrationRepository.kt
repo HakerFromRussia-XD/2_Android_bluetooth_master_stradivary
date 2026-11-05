@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 interface V3ProsthesisCalibrationRepository {
     val interactionEnabled: StateFlow<Boolean>
     fun startCalibration(deviceAddress: String): Boolean
-    /** Release the accepted button press even when interaction becomes locked. */
+    /** Finish the accepted UI press without sending a device command, including while locked. */
     fun releaseCalibrationButton(deviceAddress: String)
 }

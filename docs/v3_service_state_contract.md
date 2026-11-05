@@ -294,16 +294,41 @@ CalibrationButtonReleased с идентификатором касания. V3Se
 хранит принятый идентификатор и адрес. StartProsthesisCalibrationUseCaseV3
 проверяет актуальную блокировку и вызывает V3ProsthesisCalibrationRepository;
 ReleaseProsthesisCalibrationButtonUseCaseV3 завершает принятое нажатие.
-Data использует прежнюю очередь и неизменённый BLECommandsV3:
+Data использует прежнюю очередь и BLECommandsV3.startCalibration(). По результату
+проверки пользователем 2026-11-03 закреплён постоянный пакет запуска
+`00 0E 09 FF 73`:
 
-- DOWN: sendSubcommand(PMCE_START_CALIBRATE_COMMAND, 0), то есть команда 15,
-  подкоманда 3, параметр 0.
-- UP/CANCEL: sendSubcommand(0, 0). Это прежняя команда отпускания, а не
-  подтверждение окончания или отдельная новая отмена калибровки.
+- DOWN: короткий пакет `00`, модуль `BaseCommandsV3.MOVEMENT_CONTROL` (`0E`),
+  подкоманда `MovementControlEnum.CALIBRATE_ALL` (`09`), все адресаты (`FF`),
+  CRC (`73`). CRC рассчитывается штатным BLECommandsV3.sendCommand.
+- UP/CANCEL: только завершение UI-нажатия, без BLE-пакета. Прежняя отправка
+  `00 0F 00 00 5F` удалена из репозитория калибровки.
 - Повторные DOWN и поздние UP/CANCEL не дублируют команды. Rebind/recycle/detach,
   уход с экрана, блокировка или удаление виджета завершают принятое нажатие один
   раз; новое устройство не получает отпускание от старого MAC. Даже если UP
   потерян при блокировке View, ViewModel освобождает принятое нажатие.
+
+Исходный пакет кнопки `00 0F 03 00 0A` использовал
+`BaseCommandsV3.PROSTHESIS_MODULE_CONTROL` и
+`ProsthesisModuleControlEnum.PMCE_START_CALIBRATE_COMMAND`. Метаданные виджета
+`P_KEY_START_CALIBRATE_COMMAND` сохраняют `0F/03` как идентификатор совместимости;
+BLECommandsV3.sendSubcommand переводит этот вызов в startCalibration. Менять
+идентификатор виджета ради изменения транспортного пакета не требуется.
+В iOS CommandListItemViewModelV3 также подавляет отпускание только binding
+калибровки `0F/03`; пакеты отпускания OPEN/CLOSE сохранены.
+
+Значение `09` имеет смысл только вместе с модулем: оно не является
+`ProsthesisModuleControlEnum.PWCE_SET_AXIS_MAX_CURRENT`, который принадлежит `0F`.
+Первоначально упомянутый `00 0F 24 00 A5` относится к
+`PWCE_GET_CURRENT_GESTURE_NUM` (запрос текущего жеста), а не к калибровке.
+
+В локальном исходнике FAM `MovementControlReciever` обрабатывает `CALIBRATE_ALL`:
+параметр `FF` запускает пальцы `20..25` последовательно с таймером 3000 мс,
+иной параметр задаёт один адрес. Старый `ProsthesisStartCalibrateCommand` в этом
+исходнике пуст. Это объяснение по локальному checkout FAM, а не доказательство
+соответствия его точной прошивке подключённого устройства. Число `09` подтверждено
+рабочим пакетом пользователя; декларация firmware enum в пустом submodule
+ubi_sdk недоступна.
 
 Прежний ButtonsDelegateAdapterV3 и WidgetButtonsInfoV3 удалены целиком. Он был
 последним адаптером прямой записи для калибровки. SensorsButtonsDelegateAdapterV3

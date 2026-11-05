@@ -792,4 +792,5 @@
     </string-array>
     <string name="motorica_subway_title">Subway Surf</string>
     <string name="game_status_not_installed">Game is not installed</string>
+    <string name="download_game">Download</string>
 </resources>

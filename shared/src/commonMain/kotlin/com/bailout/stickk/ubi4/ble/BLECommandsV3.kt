@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MovementControlEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_SET_DATE_TIME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
@@ -225,10 +226,17 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
+    /** Calibrate all finger targets; short packet 00 0E 09 FF 73, including CRC. */
+    fun startCalibration(): ByteArray = sendCommand(
+        MOVEMENT_CONTROL.number.toInt(),
+        MovementControlEnum.CALIBRATE_ALL.number.toInt(),
+        0xFF
+    )
+
     fun sendSubcommand(subcommand: Int, parameter: Int): ByteArray {
         if (subcommand == PMCE_START_CALIBRATE_COMMAND.number.toInt() && parameter == 0) {
-            // Temporary calibration override: send these literal bytes without CRC framing.
-            return byteArrayOf(0x00, 0x0E, 0x09, 0xFF.toByte(), 0x73)
+            // Existing shared widgets retain the legacy calibration subcommand as their identifier.
+            return startCalibration()
         }
         val header = byteArrayOf(
             0x00,

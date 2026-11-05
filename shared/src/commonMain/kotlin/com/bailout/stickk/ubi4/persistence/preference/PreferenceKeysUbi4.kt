@@ -730,6 +730,10 @@ object PreferenceKeysUbi4 {
         EMG_MASTER_CONTROL          (0x12),
     }
 
+    enum class MovementControlEnum(val number: Byte) {
+        CALIBRATE_ALL (0x09),
+    }
+
     enum class ProsthesisModuleControlEnum (val number: Byte) {
         PMCE_STOP_COMMAND                 (0x00),
         PMCE_OPEN_COMMAND                 (0x01),

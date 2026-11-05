@@ -33,24 +33,24 @@ class GameCatalogClientTest {
 
     @Test fun `direct manifest retains URL fields and expected package validation`() {
         responses.add(200 to catalog(packageName))
-        val game = client.loadRemoteGame("https://example.invalid/catalog.json?x=1")
+        val game = client.loadRemoteGames("https://example.invalid/catalog.json?x=1").single()
         assertEquals("https://example.invalid/catalog.json?x=1", requests.single().url.toString())
         assertEquals("GET", requests.single().method)
         assertEquals(RemoteGame("stk", "Title", packageName, "$packageName.Main", "", 42), game)
         responses.add(200 to catalog("unexpected.package"))
-        assertThrows(IllegalArgumentException::class.java) { client.loadRemoteGame("https://example.invalid/catalog.json") }
+        assertThrows(IllegalArgumentException::class.java) { client.loadRemoteGames("https://example.invalid/catalog.json") }
     }
 
     @Test fun `HTTP manifest failure retains localized error`() {
         responses.add(503 to "unavailable")
-        val error = assertThrows(IllegalStateException::class.java) { client.loadRemoteGame("https://example.invalid/catalog.json") }
+        val error = assertThrows(IllegalStateException::class.java) { client.loadRemoteGames("https://example.invalid/catalog.json") }
         assertEquals("Localized failure", error.message)
     }
 
     @Test fun `invalid catalog remains a parse error`() {
         responses.add(200 to "{}")
-        val error = assertThrows(IllegalStateException::class.java) { client.loadRemoteGame("https://example.invalid/catalog.json") }
-        assertEquals("STK is missing from games catalog", error.message)
+        val error = assertThrows(IllegalStateException::class.java) { client.loadRemoteGames("https://example.invalid/catalog.json") }
+        assertEquals("Games are missing from games catalog", error.message)
     }
 
     @Test fun `RuStore uses unchanged GET URL and distinguishes success not found and other errors`() {

@@ -154,3 +154,8 @@
 "game_launch_failed" = "Не удалось открыть игру";
 
 "sushi_status_not_installed" = "Игра не установлена";
+
+"download_game" = "Скачать";
+"game_status_not_installed" = "Игра не установлена";
+"open_game" = "Открыть";
+"game_status_unknown" = "Откройте игру или её страницу в магазине";

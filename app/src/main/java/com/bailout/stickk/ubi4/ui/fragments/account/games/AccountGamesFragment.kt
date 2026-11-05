@@ -2,14 +2,12 @@ package com.bailout.stickk.ubi4.ui.fragments.account.games
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -41,7 +39,6 @@ class AccountGamesFragment : Fragment() {
 
     private companion object {
         const val SUBWAY_PACKAGE = "com.motorica.games.subway"
-        const val SUBWAY_ACTIVITY = "com.unity3d.player.UnityPlayerActivity"
         const val SUSHI_PACKAGE = "com.unity.trashdash"
         const val SUSHI_ACTIVITY = "com.unity3d.player.UnityPlayerGameActivity"
     }
@@ -58,21 +55,6 @@ class AccountGamesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val useV3 = UiState.isInterfaceV3Activated
-        binding.subwayGameBackgroundIv.doOnLayout { image ->
-            // Crop the unchanged square source around the faces; use one scale for both axes.
-            val drawable = binding.subwayGameBackgroundIv.drawable ?: return@doOnLayout
-            val scale = maxOf(
-                image.width.toFloat() / drawable.intrinsicWidth,
-                image.height.toFloat() / drawable.intrinsicHeight
-            )
-            val dx = (image.width - drawable.intrinsicWidth * scale) / 2f
-            val dy = (image.height / 2f - drawable.intrinsicHeight * 0.4f * scale)
-                .coerceIn(image.height - drawable.intrinsicHeight * scale, 0f)
-            binding.subwayGameBackgroundIv.imageMatrix = Matrix().apply {
-                setScale(scale, scale)
-                postTranslate(dx, dy)
-            }
-        }
         binding.sushiGameActionBtn.setOnClickListener {
             if (getInstalledGameInfo(SUSHI_PACKAGE) != null) {
                 launchGame(SUSHI_PACKAGE, SUSHI_ACTIVITY) {
@@ -83,18 +65,6 @@ class AccountGamesFragment : Fragment() {
         }
         binding.sushiGameDeleteBtn.setOnClickListener { requestGameUninstall(SUSHI_PACKAGE) }
         renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
-        binding.subwayGameActionBtn.setOnClickListener {
-            if (useV3) {
-                v3ViewModel?.onAction(V3GamesAction.SubwayClicked)
-            } else launchGame(SUBWAY_PACKAGE, SUBWAY_ACTIVITY) {
-                renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
-                showToast(R.string.game_launch_failed)
-            }
-        }
-        binding.subwayGameDeleteBtn.setOnClickListener {
-            if (useV3) v3ViewModel?.onAction(V3GamesAction.SubwayDeleteClicked)
-            else requestGameUninstall(SUBWAY_PACKAGE)
-        }
         binding.gameActionBtn.setOnClickListener {
             if (useV3) {
                 v3ViewModel?.onAction(V3GamesAction.PrimaryClicked)
@@ -111,7 +81,6 @@ class AccountGamesFragment : Fragment() {
             if (useV3) v3ViewModel?.onAction(V3GamesAction.DeleteClicked) else uninstallGame()
         }
         if (useV3) bindV3Games() else {
-            renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
             renderIdleState()
             refreshGameManifest(showErrors = false)
         }
@@ -122,7 +91,6 @@ class AccountGamesFragment : Fragment() {
         renderSushiCard(getInstalledGameInfo(SUSHI_PACKAGE) != null)
         val viewModel = v3ViewModel
         if (viewModel != null) viewModel.onAction(V3GamesAction.ViewResumed) else {
-            renderSubwayCard(getInstalledGameInfo(SUBWAY_PACKAGE) != null)
             renderIdleState()
             refreshGameManifest(showErrors = false)
         }
@@ -150,7 +118,6 @@ class AccountGamesFragment : Fragment() {
     }
 
     private fun renderV3Games(state: V3GamesUiState) {
-        renderSubwayCard(state.subwayInstalled)
         state.availability?.let { availability ->
             renderGame(availability.game.title, GameAction.valueOf(availability.action.name),
                 availability.isInstalled, state.isActionEnabled)
@@ -184,18 +151,6 @@ class AccountGamesFragment : Fragment() {
             if (message == V3GamesMessage.LAUNCH_FAILED) renderIdleState()
             showToast(message.messageRes())
         }
-    }
-
-    private fun renderSubwayCard(installed: Boolean) {
-        binding.subwayGameTitleTv.setText(R.string.motorica_subway_title)
-        binding.subwayGameDescriptionTv.setText(
-            if (installed) R.string.game_status_installed else R.string.game_status_not_installed
-        )
-        binding.subwayGameActionTv.setText(R.string.play)
-        binding.subwayGameActionBtn.isEnabled = installed
-        binding.subwayGameActionBackground.isEnabled = installed
-        binding.subwayGameDeleteBtn.visibility = if (installed) View.VISIBLE else View.GONE
-        binding.subwayGameDeleteIv.visibility = if (installed) View.VISIBLE else View.GONE
     }
 
     private fun renderSushiCard(installed: Boolean) {

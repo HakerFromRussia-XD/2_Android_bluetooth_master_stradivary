@@ -29,6 +29,7 @@ class SettingsProfileSpinnerStateBindingTest {
     private val context = mockk<Context>(relaxed = true)
     private val spinner = mockk<PowerSpinnerView>(relaxed = true)
     private val selections = mutableListOf<Int>()
+    private val deletions = mutableListOf<Int>()
     private var creations = 0
     private val callbacks = mutableListOf<() -> Unit>()
     private lateinit var delegate: SpinnerDelegateAdapterV3
@@ -73,6 +74,7 @@ class SettingsProfileSpinnerStateBindingTest {
         delegate = SpinnerDelegateAdapterV3(
             onDestroyParent = callbacks::add, settingsProfilesFromState = true,
             onSettingsProfileSelected = selections::add, onSettingsProfileCreateRequested = { creations++ },
+            onSettingsProfileDeleteRequested = deletions::add,
         )
     }
 
@@ -128,5 +130,38 @@ class SettingsProfileSpinnerStateBindingTest {
         assertNull(beforeDestroy.onSpinnerItemSelectedListener)
         assertTrue(selections.isEmpty())
         assertEquals(0, creations)
+    }
+
+    @Test fun `baseline has a fixed label no rename action and remains selectable`() = runTest {
+        every { context.getString(any<Int>()) } returns "Base settings"
+        delegate.renderSettingsProfiles(state.copy(
+            profiles = listOf(V3SettingsProfile(0, "Ignored name"), V3SettingsProfile(1, "Everyday")), activeProfileId = 0,
+        ))
+        bind()
+        verify { spinner.setItems(listOf("Base settings", "Everyday", "+")) }
+        @Suppress("UNCHECKED_CAST")
+        val editable = SettingsProfileSpinnerAdapterV3::class.java.getDeclaredField("isEditable")
+            .apply { isAccessible = true }.get(popup) as (Int) -> Boolean
+        assertFalse(editable(0))
+        assertTrue(editable(1))
+        assertFalse(editable(2))
+        popup.notifyItemSelected(0)
+        assertEquals(listOf(0), selections)
+    }
+
+    @Test fun `delete callback targets personal profile without selecting it and rejects recycled callbacks`() = runTest {
+        delegate.renderSettingsProfiles(state.copy(profiles = listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")), activeProfileId = 1))
+        bind()
+        @Suppress("UNCHECKED_CAST")
+        val delete = SettingsProfileSpinnerAdapterV3::class.java.getDeclaredField("onDeleteClick")
+            .apply { isAccessible = true }.get(popup) as (Int) -> Unit
+        delete(0)
+        assertTrue(deletions.isEmpty())
+        delete(1)
+        assertEquals(listOf(1), deletions)
+        assertTrue(selections.isEmpty())
+        delegate.onDestroy()
+        delete(1)
+        assertEquals(listOf(1), deletions)
     }
 }

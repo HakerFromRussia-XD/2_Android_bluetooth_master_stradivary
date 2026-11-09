@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.FakeV3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -54,7 +55,7 @@ class V3SpecialSettingsViewModelTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource).create(V3SpecialSettingsViewModel::class.java)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource, roleRepository = FakeV3DeviceRoleRepository()).create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }
 
@@ -327,7 +328,7 @@ class V3SpecialSettingsViewModelTest {
     fun `new screen restores either saved section before rendering without writing`(section: V3SpecialSettingsSection) = runTest(dispatcher) {
         appSettings.settingsSection = section
         store.clear()
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource, roleRepository = FakeV3DeviceRoleRepository())
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("restored", viewModel)
         assertEquals(section, viewModel.uiState.value.selectedSection)
@@ -406,7 +407,7 @@ class V3SpecialSettingsViewModelTest {
     fun `section read failure uses the default without overwriting preferences and recovers on return`() = runTest(dispatcher) {
         store.clear()
         appSettings.sectionReadError = IllegalStateException("Invalid stored type")
-        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, widgetsSource, repository, repository, NoSettingsProfilesRepository, appSettings, sessionRepository = widgetsSource, roleRepository = FakeV3DeviceRoleRepository())
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("failed-read", viewModel)
         assertEquals(V3SpecialSettingsSection.PROSTHESIS, viewModel.uiState.value.selectedSection)

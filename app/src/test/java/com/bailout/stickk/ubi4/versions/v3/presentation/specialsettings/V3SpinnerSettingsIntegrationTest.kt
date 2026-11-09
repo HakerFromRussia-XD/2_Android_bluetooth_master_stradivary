@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.FakeV3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -114,7 +115,7 @@ class V3SpinnerSettingsIntegrationTest {
                 savedValues.add(value)
             },
         )
-        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository, FakeV3AppSettingsRepository(), sessionRepository = source)
+        viewModel = V3SpecialSettingsViewModelFactory(repository, source, repository, repository, NoSettingsProfilesRepository, FakeV3AppSettingsRepository(), sessionRepository = source, roleRepository = FakeV3DeviceRoleRepository())
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("special-settings", viewModel)
     }

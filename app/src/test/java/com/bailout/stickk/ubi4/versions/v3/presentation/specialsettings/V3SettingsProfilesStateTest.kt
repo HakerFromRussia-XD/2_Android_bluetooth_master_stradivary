@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.FakeV3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -11,6 +12,10 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTI
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
+import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.V3SpinnerAction
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderValue
+import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.V3ToggleSliderAction
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
@@ -46,6 +51,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.CsvSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class V3SettingsProfilesStateTest {
@@ -55,6 +61,7 @@ class V3SettingsProfilesStateTest {
     private val repository = ProfilesRepository()
     private val source = WidgetsSource()
     private val appSettings = FakeV3AppSettingsRepository()
+    private val roles = FakeV3DeviceRoleRepository()
     private val sliders = mockk<V3DeviceSettingsRepository>(relaxed = true) {
         every { sliderInteractionEnabled } returns interaction
         every { getSliderValue(any()) } returns null
@@ -73,11 +80,13 @@ class V3SettingsProfilesStateTest {
     private lateinit var viewModel: V3SpecialSettingsViewModel
     private var expectedToggleSaves = 0
     private var expectedSliderWrites = 0
+    private var expectedToggleSends = 0
+    private var expectedSpinnerWrites = 0
 
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository, appSettings, sessionRepository = source)
+        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, repository, appSettings, sessionRepository = source, roleRepository = roles)
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("screen", viewModel)
     }
@@ -86,10 +95,8 @@ class V3SettingsProfilesStateTest {
     fun tearDown() {
         store.clear()
         Dispatchers.resetMain()
-        verify(exactly = 0) {
-            toggles.sendToggleSliderValue(any(), any())
-            spinners.setSpinnerValue(any(), any())
-        }
+        verify(exactly = expectedToggleSends) { toggles.sendToggleSliderValue(any(), any()) }
+        verify(exactly = expectedSpinnerWrites) { spinners.setSpinnerValue(any(), any()) }
         verify(exactly = expectedSliderWrites) { sliders.setSliderValue(any(), any()) }
         verify(exactly = expectedToggleSaves) { toggles.saveToggleSliderValue(any(), any()) }
     }
@@ -103,6 +110,183 @@ class V3SettingsProfilesStateTest {
     private fun submitName(request: Long, name: String) = viewModel.onAction(V3SpecialSettingsAction.SettingsProfileNameSubmitted(request, name))
     private fun dismissName(request: Long) = viewModel.onAction(V3SpecialSettingsAction.SettingsProfileNameDismissed(request))
     private fun select(id: Int) = viewModel.onAction(V3SpecialSettingsAction.SettingsProfileSelected(id))
+
+    private fun prepareBaseEdit(full: Boolean = false) {
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")) +
+            if (full) listOf(V3SettingsProfile(2, null), V3SettingsProfile(3, null)) else emptyList(), 0)
+        every { sliders.getSliderValue(P_KEY_SPEED_SETTINGS) } returns 30
+        every { toggles.getToggleSliderValue(P_KEY_EMG_MOVEMENT_LOCK) } returns V3ToggleSliderValue(10, true)
+        source.extraWidgets = listOf(
+            V3SpecialSettingsWidget.Slider(V3SpecialSettingsWidgetInfo(P_KEY_SPEED_SETTINGS, "Speed", 1), 0, 100, 1f),
+            V3SpecialSettingsWidget.ToggleSlider(V3SpecialSettingsWidgetInfo(P_KEY_EMG_MOVEMENT_LOCK, "Lock", 2), 10, 100, 0.1f, "s"),
+            V3SpecialSettingsWidget.Spinner(V3SpecialSettingsWidgetInfo(P_KEY_HAND_CONTROL_MODE, "Mode", 3), listOf("First", "Second"), 0),
+        )
+    }
+
+    private fun editAction(control: String): V3SpecialSettingsAction = when (control) {
+        "slider-drag" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 70))
+        "slider-commit" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 70))
+        "slider-step" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderStepClicked(P_KEY_SPEED_SETTINGS, 1))
+        "toggle-drag" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderValueChanged(P_KEY_EMG_MOVEMENT_LOCK, 20))
+        "toggle-commit" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderChangeCommitted(P_KEY_EMG_MOVEMENT_LOCK, 20))
+        "toggle-step" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderStepClicked(P_KEY_EMG_MOVEMENT_LOCK, 1))
+        "toggle-enabled" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderEnabledChanged(P_KEY_EMG_MOVEMENT_LOCK, false))
+        else -> V3SpecialSettingsAction.SpinnerAction(V3SpinnerAction.SpinnerValueSelected(P_KEY_HAND_CONTROL_MODE, 1))
+    }
+
+    @ParameterizedTest
+    @CsvSource("false,slider-drag", "false,slider-commit", "false,slider-step", "false,toggle-drag", "false,toggle-commit", "false,toggle-step", "false,toggle-enabled", "false,spinner",
+        "true,slider-drag", "true,slider-commit", "true,slider-step", "true,toggle-drag", "true,toggle-commit", "true,toggle-step", "true,toggle-enabled", "true,spinner")
+    fun `confirmation copies baseline selects personal profile and applies the requested edit only once`(full: Boolean, control: String) = runTest(dispatcher) {
+        prepareBaseEdit(full)
+        attach(); runCurrent()
+        viewModel.onAction(editAction(control))
+        val prompt = requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        assertEquals(if (full) V3SettingsProfile(1, "Personal") else null, prompt.replacementProfile)
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(prompt.requestId))
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(prompt.requestId))
+        runCurrent()
+        advanceTimeBy(301); runCurrent()
+        assertEquals(listOf("first" to if (full) 1 else null), repository.copies)
+        assertEquals(if (full) 1 else 2, state().activeProfileId)
+        assertNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        when {
+            control.startsWith("slider") -> {
+                expectedSliderWrites = 1
+                verify(exactly = 1) { sliders.setSliderValue(P_KEY_SPEED_SETTINGS, if (control == "slider-step") 31 else 70) }
+            }
+            control.startsWith("toggle") -> {
+                expectedToggleSaves = 1
+                expectedToggleSends = 1
+                val value = when (control) {
+                    "toggle-enabled" -> V3ToggleSliderValue(10, false)
+                    "toggle-step" -> V3ToggleSliderValue(11, true)
+                    else -> V3ToggleSliderValue(20, true)
+                }
+                verify(exactly = 1) { toggles.saveToggleSliderValue(P_KEY_EMG_MOVEMENT_LOCK, value) }
+            }
+            else -> {
+                expectedSpinnerWrites = 1
+                verify(exactly = 1) { spinners.setSpinnerValue(P_KEY_HAND_CONTROL_MODE, 1) }
+            }
+        }
+    }
+
+    @Test fun `old dialog callbacks cannot confirm or dismiss a newer base edit`() = runTest(dispatcher) {
+        prepareBaseEdit()
+        attach(); runCurrent()
+        viewModel.onAction(editAction("slider-commit"))
+        val old = requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed(old.requestId))
+        viewModel.onAction(editAction("slider-step"))
+        val current = requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(old.requestId))
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed(old.requestId))
+        runCurrent()
+        assertEquals(current, viewModel.uiState.value.baseSettingsEditPrompt)
+        assertTrue(repository.copies.isEmpty())
+        assertEquals(0, state().activeProfileId)
+    }
+
+    @Test fun `filling profile slots while dialog is open never overwrites without replacement consent`() = runTest(dispatcher) {
+        prepareBaseEdit()
+        attach(); runCurrent()
+        viewModel.onAction(editAction("slider-commit"))
+        val prompt = requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        repository.snapshot = repository.snapshot.copy(profiles = (0..3).map { V3SettingsProfile(it, null) })
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(prompt.requestId))
+        runCurrent()
+        assertEquals(0, state().activeProfileId)
+        assertEquals(V3SettingsProfileOperation.COPY_BASE, state().failedOperation)
+        assertEquals(listOf("first" to null), repository.copies)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["detached", "device", "locked", "application", "cleared"])
+    fun `late copy completion cannot apply a pending edit after the screen is invalidated`(reason: String) = runTest(dispatcher) {
+        prepareBaseEdit()
+        val finish = CompletableDeferred<Unit>()
+        val originalCopy = repository.copier
+        repository.copier = { serial, replacement ->
+            withContext(NonCancellable) { finish.await(); originalCopy(serial, replacement) }
+        }
+        attach(); runCurrent()
+        viewModel.onAction(editAction("slider-commit"))
+        val prompt = requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt)
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(prompt.requestId))
+        runCurrent()
+        when (reason) {
+            "detached" -> detach()
+            "device" -> { repository.serial = "second"; source.address = "second-device"; source.updates.emit(Unit) }
+            "locked" -> interaction.value = false
+            "application" -> section(V3SpecialSettingsSection.APPLICATION)
+            "cleared" -> store.clear()
+        }
+        runCurrent(); finish.complete(Unit); runCurrent()
+        assertFalse(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+        assertEquals(1, repository.copies.size)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["slider-drag", "slider-commit", "slider-step", "toggle-drag", "toggle-commit", "toggle-step", "toggle-enabled", "spinner"])
+    fun `user attempting a base edit sees a dialog without changing drafts selection or sending values`(control: String) = runTest(dispatcher) {
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")), 0)
+        every { sliders.getSliderValue(P_KEY_SPEED_SETTINGS) } returns 30
+        every { toggles.getToggleSliderValue(P_KEY_EMG_MOVEMENT_LOCK) } returns V3ToggleSliderValue(10, true)
+        source.extraWidgets = listOf(
+            V3SpecialSettingsWidget.Slider(V3SpecialSettingsWidgetInfo(P_KEY_SPEED_SETTINGS, "Speed", 1), 0, 100, 1f),
+            V3SpecialSettingsWidget.ToggleSlider(V3SpecialSettingsWidgetInfo(P_KEY_EMG_MOVEMENT_LOCK, "Lock", 2), 10, 100, 0.1f, "s"),
+            V3SpecialSettingsWidget.Spinner(V3SpecialSettingsWidgetInfo(P_KEY_HAND_CONTROL_MODE, "Mode", 3), listOf("First", "Second"), 0),
+        )
+        attach(); runCurrent()
+        val beforeSlider = viewModel.uiState.value.sliders.getValue(P_KEY_SPEED_SETTINGS).value
+        val beforeToggle = viewModel.uiState.value.toggleSliders.getValue(P_KEY_EMG_MOVEMENT_LOCK).value
+        val beforeSpinner = viewModel.uiState.value.spinners.getValue(P_KEY_HAND_CONTROL_MODE).selectedIndex
+        val action = when (control) {
+            "slider-drag" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(P_KEY_SPEED_SETTINGS, 70))
+            "slider-commit" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 70))
+            "slider-step" -> V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderStepClicked(P_KEY_SPEED_SETTINGS, 1))
+            "toggle-drag" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderValueChanged(P_KEY_EMG_MOVEMENT_LOCK, 20))
+            "toggle-commit" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderChangeCommitted(P_KEY_EMG_MOVEMENT_LOCK, 20))
+            "toggle-step" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderStepClicked(P_KEY_EMG_MOVEMENT_LOCK, 1))
+            "toggle-enabled" -> V3SpecialSettingsAction.ToggleSliderAction(V3ToggleSliderAction.ToggleSliderEnabledChanged(P_KEY_EMG_MOVEMENT_LOCK, false))
+            else -> V3SpecialSettingsAction.SpinnerAction(V3SpinnerAction.SpinnerValueSelected(P_KEY_HAND_CONTROL_MODE, 1))
+        }
+        viewModel.onAction(action)
+        assertTrue(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+        advanceTimeBy(301); runCurrent()
+        assertEquals(0, state().activeProfileId)
+        assertEquals(listOf(0, 1), state().profiles.map { it.profileId })
+        assertTrue(repository.creations.isEmpty())
+        assertTrue(repository.selections.isEmpty())
+        assertEquals(beforeSlider, viewModel.uiState.value.sliders.getValue(P_KEY_SPEED_SETTINGS).value)
+        assertEquals(beforeToggle, viewModel.uiState.value.toggleSliders.getValue(P_KEY_EMG_MOVEMENT_LOCK).value)
+        assertEquals(beforeSpinner, viewModel.uiState.value.spinners.getValue(P_KEY_HAND_CONTROL_MODE).selectedIndex)
+        viewModel.onAction(V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed(requireNotNull(viewModel.uiState.value.baseSettingsEditPrompt).requestId))
+        assertFalse(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+        assertTrue(viewModel.uiState.value.sliders.getValue(P_KEY_SPEED_SETTINGS).isEnabled)
+        viewModel.onAction(action)
+        assertTrue(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+        detach()
+        assertFalse(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `engineer baseline and user personal profile remain editable`(engineer: Boolean) = runTest(dispatcher) {
+        roles.selected = if (engineer) V3DeviceRole.SERVICE_ENGINEER else V3DeviceRole.USER
+        val activeId = if (engineer) 0 else 1
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")), activeId)
+        source.extraWidgets = listOf(V3SpecialSettingsWidget.Slider(
+            V3SpecialSettingsWidgetInfo(P_KEY_SPEED_SETTINGS, "Speed", 1), 0, 100, 1f,
+        ))
+        attach(); runCurrent()
+        viewModel.onAction(V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 70)))
+        expectedSliderWrites = 1
+        verify(exactly = 1) { sliders.setSliderValue(P_KEY_SPEED_SETTINGS, 70) }
+        assertFalse(viewModel.uiState.value.isBaseSettingsReadOnlyDialogVisible)
+        assertEquals(activeId, state().activeProfileId)
+    }
 
     @ParameterizedTest
     @ValueSource(ints = [1, 3])
@@ -441,6 +625,40 @@ class V3SettingsProfilesStateTest {
         assertTrue(repository.creations.isEmpty())
     }
 
+    @Test fun `baseline can be selected but never opens the name editor`() = runTest(dispatcher) {
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, null)), 0)
+        attach(); runCurrent()
+        editName(0)
+        assertNull(state().nameEditor)
+        assertTrue(repository.renames.isEmpty())
+        assertTrue(state().canCreate)
+        select(1); runCurrent()
+        select(0); runCurrent()
+        assertEquals(0, state().activeProfileId)
+    }
+
+    @Test fun `profile deletion requires confirmation and baseline cannot be deleted`() = runTest(dispatcher) {
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")), 1)
+        attach(); runCurrent()
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteRequested(0))
+        assertNull(state().deleteConfirmation)
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteRequested(1))
+        assertEquals(1, state().deleteConfirmation?.profileId)
+        assertTrue(repository.deletions.isEmpty())
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteDismissed(1))
+        assertNull(state().deleteConfirmation)
+        assertTrue(repository.deletions.isEmpty())
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteRequested(1))
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteConfirmed(1))
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileDeleteConfirmed(1))
+        runCurrent()
+        assertEquals(listOf(1), repository.deletions)
+        assertEquals(0, state().activeProfileId)
+        assertEquals(listOf(0), state().profiles.map { it.profileId })
+        assertNull(state().deleteConfirmation)
+        assertTrue(state().canCreate)
+    }
+
     @Test
     fun `callbacks from a closed editor cannot save or close a newly opened editor for the same ID`() = runTest(dispatcher) {
         attach(); runCurrent(); editName(3)
@@ -547,6 +765,27 @@ class V3SettingsProfilesStateTest {
     }
 
     private class ProfilesRepository : V3SettingsProfilesRepository {
+        val copies = mutableListOf<Pair<String, Int?>>()
+        var copier: suspend (String, Int?) -> Unit = { _, replacement ->
+            check(snapshot.activeProfileId == 0)
+            val freeId = (1..3).firstOrNull { id -> snapshot.profiles.none { it.profileId == id } }
+            check((replacement == null) == (freeId != null))
+            val id = replacement ?: requireNotNull(freeId)
+            snapshot = snapshot.copy(
+                profiles = if (replacement == null) snapshot.profiles + V3SettingsProfile(id, null) else snapshot.profiles,
+                activeProfileId = id,
+            )
+        }
+        override suspend fun copyBaseToPersonalProfile(serial: String, replacementProfileId: Int?) {
+            copies += serial to replacementProfileId
+            copier(serial, replacementProfileId)
+        }
+        val deletions = mutableListOf<Int>()
+        override suspend fun deleteProfile(serial: String, profileId: Int) {
+            deletions += profileId
+            snapshot = snapshot.copy(profiles = snapshot.profiles.filter { it.profileId != profileId },
+                activeProfileId = if (snapshot.activeProfileId == profileId) 0 else snapshot.activeProfileId)
+        }
         override val updates = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         var serial = "first"
         var snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(3, "Sport"), V3SettingsProfile(1, null)), 3)

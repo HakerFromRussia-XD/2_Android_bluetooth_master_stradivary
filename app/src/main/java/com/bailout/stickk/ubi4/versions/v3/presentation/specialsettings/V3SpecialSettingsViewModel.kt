@@ -14,6 +14,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingKeys
 import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3SpecialSettingsSection
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_MOVEMENT_LOCK
@@ -39,15 +41,18 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SendToggleSli
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CreateSettingsProfileUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CopyBaseSettingsToPersonalProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.GetSettingsProfilesDeviceSerialUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.LoadSettingsProfilesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.ObserveSettingsProfilesChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.RenameSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.SelectSettingsProfileUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfiles
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileNameEditorUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileOperation
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfilesUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderSettingsStateHolder
+import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.V3SliderAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sliders.toSliderUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidget
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetsSnapshot
@@ -84,12 +89,15 @@ class V3SpecialSettingsViewModel(
     private val loadSettingsProfiles: LoadSettingsProfilesUseCaseV3,
     private val selectSettingsProfile: SelectSettingsProfileUseCaseV3,
     private val createSettingsProfile: CreateSettingsProfileUseCaseV3,
+    private val copyBaseSettingsToPersonalProfile: CopyBaseSettingsToPersonalProfileUseCaseV3,
     private val renameSettingsProfile: RenameSettingsProfileUseCaseV3,
+    private val deleteSettingsProfile: com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.DeleteSettingsProfileUseCaseV3,
     private val getAutoLoginEnabled: GetAutoLoginEnabledUseCaseV3,
     private val observeAutoLoginEnabled: ObserveAutoLoginEnabledUseCaseV3,
     private val getSpecialSettingsSection: GetSpecialSettingsSectionUseCaseV3,
     private val setAutoLoginEnabled: SetAutoLoginEnabledUseCaseV3,
     private val setSpecialSettingsSection: SetSpecialSettingsSectionUseCaseV3,
+    private val getDeviceRole: GetDeviceRoleUseCaseV3,
 ) : ViewModel() {
     companion object {
         val spinnerParameterKeys: Set<String> = setOf(P_KEY_HAND_CONTROL_MODE, P_KEY_GESTURE_CHANGE_MODE)
@@ -102,7 +110,7 @@ class V3SpecialSettingsViewModel(
     private val sliderSettings = V3SliderSettingsStateHolder(
         getSliderSettings(sliderKeys).toSliderUiState(), viewModelScope,
         onWriteRequested = { key, value ->
-            if (viewModelScope.isActive) setSliderValue(key, value)
+            if (viewModelScope.isActive && !blockBaseSettingsEdit(V3SpecialSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, value)))) setSliderValue(key, value)
         },
     )
     private val initialSection = runCatching { getSpecialSettingsSection() }
@@ -137,10 +145,13 @@ class V3SpecialSettingsViewModel(
     private var settingsProfileOperationJob: Job? = null
     private var settingsProfileOperationRequest = 0L
     private var settingsProfileNameRequest = 0L
+    private var baseSettingsEditRequest = 0L
+    private var pendingBaseSettingsEdit: V3SpecialSettingsAction? = null
     private val isApplyingProfile get() = _uiState.value.settingsProfiles?.operation.let {
-        it == V3SettingsProfileOperation.SELECT || it == V3SettingsProfileOperation.CREATE
+        it == V3SettingsProfileOperation.SELECT || it == V3SettingsProfileOperation.CREATE || it == V3SettingsProfileOperation.DELETE || it == V3SettingsProfileOperation.COPY_BASE
     }
     private val isProfileOperationRunning get() = _uiState.value.settingsProfiles?.operation != null
+    private val isParameterEditingBlocked get() = isApplyingProfile || _uiState.value.isBaseSettingsReadOnlyDialogVisible
 
     init {
         viewModelScope.launch {
@@ -163,6 +174,7 @@ class V3SpecialSettingsViewModel(
                         updateSpinnerState()
                     }
                     is V3SpinnerSettingsChange.InteractionChanged -> {
+                        if (!change.enabled) dismissBaseSettingsEdit()
                         if (!change.enabled) cancelSettingsProfileOperation()
                         updateSpinnerState()
                         updateSettingsProfiles()
@@ -205,16 +217,24 @@ class V3SpecialSettingsViewModel(
             }
             V3SpecialSettingsAction.ViewDetached -> {
                 isViewAttached = false
+                dismissBaseSettingsEdit()
                 updateAutoLoginObservation()
                 cancelSettingsProfileOperation()
                 updateParameterControls()
                 updateSettingsProfiles()
             }
+            is V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed -> {
+                if (_uiState.value.baseSettingsEditPrompt?.requestId != action.requestId) return
+                dismissBaseSettingsEdit()
+                updateParameterControls()
+            }
+            is V3SpecialSettingsAction.BaseSettingsCopyConfirmed -> onBaseSettingsCopyConfirmed(action.requestId)
             is V3SpecialSettingsAction.SettingsSectionSelected -> {
                 onSettingsSectionSelected(action.section)
             }
             is V3SpecialSettingsAction.SliderAction -> {
                 if (action.action.parameterKey in visibleSliderKeys(_uiState.value.widgets)) {
+                    if (_uiState.value.sliders[action.action.parameterKey]?.isEnabled != true || blockBaseSettingsEdit(action)) return
                     sliderSettings.setInteractionEnabled(getSliderSettings(sliderKeys).isInteractionEnabled)
                     sliderSettings.onAction(action.action)
                 }
@@ -226,6 +246,21 @@ class V3SpecialSettingsViewModel(
             is V3SpecialSettingsAction.SettingsProfileRenameRequested -> onSettingsProfileRenameRequested(action.profileId)
             is V3SpecialSettingsAction.SettingsProfileNameSubmitted -> onSettingsProfileNameSubmitted(action.requestId, action.name)
             is V3SpecialSettingsAction.SettingsProfileNameDismissed -> dismissSettingsProfileName(action.requestId)
+            is V3SpecialSettingsAction.SettingsProfileDeleteRequested -> {
+                val state = _uiState.value.settingsProfiles ?: return
+                val profile = state.profiles.firstOrNull { it.profileId == action.profileId && it.canRename } ?: return
+                if (!isViewAttached || !state.isEnabled || isProfileOperationRunning) return
+                _uiState.update { it.copy(settingsProfiles = state.copy(deleteConfirmation = profile, nameEditor = null)) }
+            }
+            is V3SpecialSettingsAction.SettingsProfileDeleteConfirmed -> {
+                if (_uiState.value.settingsProfiles?.deleteConfirmation?.profileId != action.profileId) return
+                runSettingsProfileOperation(V3SettingsProfileOperation.DELETE) { serial -> deleteSettingsProfile(serial, action.profileId) }
+            }
+            is V3SpecialSettingsAction.SettingsProfileDeleteDismissed -> _uiState.update { screen ->
+                val state = screen.settingsProfiles
+                if (state?.deleteConfirmation?.profileId != action.profileId) screen
+                else screen.copy(settingsProfiles = state.copy(deleteConfirmation = null))
+            }
         }
     }
 
@@ -258,6 +293,7 @@ class V3SpecialSettingsViewModel(
         val snapshot = readWidgets(section)
         val previous = _uiState.value
         val deviceChanged = snapshot.deviceAddress != deviceAddress || snapshot.deviceProfile != previous.deviceProfile
+        if (deviceChanged || section != V3SpecialSettingsSection.PROSTHESIS) dismissBaseSettingsEdit()
         if (deviceChanged ||
             visibleSliderKeys(snapshot.widgets) != visibleSliderKeys(previous.widgets)
         ) {
@@ -347,7 +383,8 @@ class V3SpecialSettingsViewModel(
         settingsProfilesLoadJob?.cancel()
         settingsProfilesLoadJob = null
         settingsProfilesSerial = null
-        _uiState.update { it.copy(settingsProfiles = null) }
+        pendingBaseSettingsEdit = null
+        _uiState.update { it.copy(settingsProfiles = null, baseSettingsEditPrompt = null) }
     }
 
     private fun updateSettingsProfiles(reload: Boolean = false) {
@@ -373,12 +410,13 @@ class V3SpecialSettingsViewModel(
             settingsProfilesRequest++
             settingsProfilesLoadJob?.cancel()
             settingsProfilesLoadJob = null
-            _uiState.update { it.copy(settingsProfiles = current.copy(isEnabled = false, isLoading = false, nameEditor = null)) }
+            _uiState.update { it.copy(settingsProfiles = current.copy(isEnabled = false, isLoading = false, nameEditor = null, deleteConfirmation = null)) }
             return
         }
         _uiState.update { it.copy(settingsProfiles = current.copy(
             isEnabled = !current.isLoading && !current.loadFailed && current.profiles.isNotEmpty() && getSpinnerSettings(emptySet()).isInteractionEnabled,
             nameEditor = current.nameEditor.takeIf { getSpinnerSettings(emptySet()).isInteractionEnabled },
+            deleteConfirmation = current.deleteConfirmation.takeIf { getSpinnerSettings(emptySet()).isInteractionEnabled },
         )) }
         if (!reload && !missing) return
         settingsProfilesLoadJob?.cancel()
@@ -396,6 +434,11 @@ class V3SpecialSettingsViewModel(
                     isLoading = false,
                     failedOperation = _uiState.value.settingsProfiles?.failedOperation,
                 )) }
+                if (_uiState.value.baseSettingsEditPrompt != null &&
+                    (profiles.activeProfileId != V3SettingsProfiles.BASE_PROFILE_ID || getDeviceRole() != V3DeviceRole.USER)) {
+                    dismissBaseSettingsEdit()
+                    updateParameterControls()
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -426,6 +469,7 @@ class V3SpecialSettingsViewModel(
             return
         }
         val profile = state.profiles.firstOrNull { it.profileId == profileId } ?: return
+        if (!profile.canRename) return
         if (state.nameEditor?.profile?.profileId == profileId) return
         _uiState.update { it.copy(settingsProfiles = state.copy(
             nameEditor = V3SettingsProfileNameEditorUiState(++settingsProfileNameRequest, profile),
@@ -449,6 +493,8 @@ class V3SpecialSettingsViewModel(
 
     private fun runSettingsProfileOperation(
         operation: V3SettingsProfileOperation,
+        reloadProfiles: Boolean = true,
+        afterSuccess: (() -> Unit)? = null,
         execute: suspend (String) -> Unit,
     ) {
         val state = _uiState.value.settingsProfiles ?: return
@@ -461,11 +507,16 @@ class V3SpecialSettingsViewModel(
         settingsProfilesRequest++
         settingsProfilesLoadJob?.cancel()
         val request = ++settingsProfileOperationRequest
-        _uiState.update { it.copy(settingsProfiles = state.copy(operation = operation, isEnabled = false, failedOperation = null, nameEditor = null)) }
+        _uiState.update { it.copy(
+            settingsProfiles = state.copy(operation = operation, isEnabled = false, failedOperation = null, nameEditor = null, deleteConfirmation = null),
+            baseSettingsEditPrompt = null,
+        ) }
         updateParameterControls()
         settingsProfileOperationJob = viewModelScope.launch {
+            var succeeded = false
             try {
                 execute(serial)
+                succeeded = true
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -477,7 +528,8 @@ class V3SpecialSettingsViewModel(
                 if (isActive && request == settingsProfileOperationRequest) {
                     _uiState.update { it.copy(settingsProfiles = it.settingsProfiles?.copy(operation = null)) }
                     updateParameterControls()
-                    updateSettingsProfiles(reload = true)
+                    updateSettingsProfiles(reload = reloadProfiles || !succeeded)
+                    if (succeeded) afterSuccess?.invoke()
                 }
             }
         }
@@ -498,10 +550,71 @@ class V3SpecialSettingsViewModel(
         updateSpinnerState()
     }
 
+    /** Reject before touching UI drafts, local profile storage or the BLE queue. */
+    private fun blockBaseSettingsEdit(action: V3SpecialSettingsAction): Boolean {
+        val screen = _uiState.value
+        if (screen.isBaseSettingsReadOnlyDialogVisible) return true
+        val profiles = screen.settingsProfiles ?: return false
+        if (profiles.isLoading || profiles.loadFailed) return true
+        if (profiles.activeProfileId != V3SettingsProfiles.BASE_PROFILE_ID || getDeviceRole() != V3DeviceRole.USER) return false
+        pendingBaseSettingsEdit = when (action) {
+            is V3SpecialSettingsAction.SliderAction -> {
+                val edit = action.action
+                if (edit is V3SliderAction.SliderValueChanged) V3SpecialSettingsAction.SliderAction(
+                    V3SliderAction.SliderChangeCommitted(edit.parameterKey, edit.value),
+                ) else action
+            }
+            is V3SpecialSettingsAction.ToggleSliderAction -> {
+                val edit = action.action
+                if (edit is V3ToggleSliderAction.ToggleSliderValueChanged) V3SpecialSettingsAction.ToggleSliderAction(
+                    V3ToggleSliderAction.ToggleSliderChangeCommitted(edit.parameterKey, edit.timeTenths),
+                ) else action
+            }
+            else -> action
+        }
+        _uiState.update { it.copy(baseSettingsEditPrompt = V3BaseSettingsEditPromptUiState(
+            ++baseSettingsEditRequest, profiles.profiles.firstOrNull { profile -> profile.profileId == 1 }.takeUnless { profiles.canCreate },
+        )) }
+        updateParameterControls()
+        return true
+    }
+
+    private fun dismissBaseSettingsEdit() {
+        pendingBaseSettingsEdit = null
+        _uiState.update { it.copy(baseSettingsEditPrompt = null) }
+    }
+
+    private fun onBaseSettingsCopyConfirmed(requestId: Long) {
+        val prompt = _uiState.value.baseSettingsEditPrompt ?: return
+        if (prompt.requestId != requestId || !isViewAttached || getDeviceRole() != V3DeviceRole.USER) return
+        val edit = pendingBaseSettingsEdit ?: return
+        val serial = settingsProfilesSerial ?: return
+        val profilesState = _uiState.value.settingsProfiles ?: return
+        if (profilesState.activeProfileId != V3SettingsProfiles.BASE_PROFILE_ID || isProfileOperationRunning) return
+        if (!profilesState.isEnabled || serial != getSettingsProfilesDeviceSerial() || !getSpinnerSettings(emptySet()).isInteractionEnabled) {
+            dismissBaseSettingsEdit()
+            updateParameterControls()
+            updateSettingsProfiles(reload = true)
+            return
+        }
+        pendingBaseSettingsEdit = null
+        runSettingsProfileOperation(V3SettingsProfileOperation.COPY_BASE, reloadProfiles = false, afterSuccess = {
+            if (isViewAttached && serial == getSettingsProfilesDeviceSerial() &&
+                _uiState.value.settingsProfiles?.activeProfileId != V3SettingsProfiles.BASE_PROFILE_ID) onAction(edit)
+        }) { currentSerial ->
+            copyBaseSettingsToPersonalProfile(currentSerial, prompt.replacementProfile?.profileId)
+            val profiles = loadSettingsProfiles(currentSerial)
+            if (currentSerial != getSettingsProfilesDeviceSerial()) throw CancellationException("Settings profile device changed")
+            _uiState.update { it.copy(settingsProfiles = it.settingsProfiles?.copy(
+                profiles = profiles.profiles, activeProfileId = profiles.activeProfileId, canCreate = profiles.canCreate,
+            )) }
+        }
+    }
+
     private fun updateSpinnerState() {
         val state = _uiState.value
         val widgets = state.widgets.filterIsInstance<V3SpecialSettingsWidget.Spinner>().associateBy { it.info.key }
-        val canSelect = !isApplyingProfile && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
+        val canSelect = !isParameterEditingBlocked && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
             state.deviceProfile != V3DeviceProfile.NOT_V3 && getSpinnerSettings(emptySet()).isInteractionEnabled
         val spinners = spinnerParameterKeys.associateWith { key ->
             val widget = widgets[key]
@@ -521,6 +634,7 @@ class V3SpecialSettingsViewModel(
                 val widget = _uiState.value.widgets.filterIsInstance<V3SpecialSettingsWidget.Spinner>()
                     .firstOrNull { it.info.key == action.parameterKey } ?: return
                 if (action.value !in widget.options.indices || action.value !in V3SpinnerSettingsRules.allowedValues(action.parameterKey)) return
+                if (blockBaseSettingsEdit(V3SpecialSettingsAction.SpinnerAction(action))) return
                 setSpinnerValue(action.parameterKey, action.value)
                 spinnerValues = spinnerValues + (action.parameterKey to getSpinnerSettings(setOf(action.parameterKey)).values[action.parameterKey])
                 updateSpinnerState()
@@ -534,7 +648,7 @@ class V3SpecialSettingsViewModel(
     private fun updateSliderActivity() {
         val state = _uiState.value
         setSliderSettingsActive(
-            !isApplyingProfile && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
+            !isParameterEditingBlocked && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
                 state.deviceProfile != V3DeviceProfile.NOT_V3 && visibleSliderKeys(state.widgets).isNotEmpty()
         )
         _uiState.update { it.copy(sliders = sliderSettings.uiState.value.sliders) }
@@ -542,7 +656,7 @@ class V3SpecialSettingsViewModel(
 
     private fun updateToggleSliderActivity() {
         val state = _uiState.value
-        val keys = if (!isApplyingProfile && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
+        val keys = if (!isParameterEditingBlocked && isViewAttached && state.selectedSection == V3SpecialSettingsSection.PROSTHESIS &&
             state.deviceProfile != V3DeviceProfile.NOT_V3
         ) {
             state.widgets.filterIsInstance<V3SpecialSettingsWidget.ToggleSlider>()
@@ -568,6 +682,7 @@ class V3SpecialSettingsViewModel(
     private fun onToggleSliderAction(action: V3ToggleSliderAction) {
         val key = action.parameterKey
         if (!canChangeToggleSlider(key)) return
+        if (blockBaseSettingsEdit(V3SpecialSettingsAction.ToggleSliderAction(action))) return
         val state = _uiState.value.toggleSliders.getValue(key)
         when (action) {
             is V3ToggleSliderAction.ToggleSliderValueChanged -> {
@@ -599,7 +714,9 @@ class V3SpecialSettingsViewModel(
         pendingToggleSliderWrites[key] = viewModelScope.launch {
             delay(300)
             pendingToggleSliderWrites.remove(key)
-            if (canChangeToggleSlider(key)) sendToggleSliderValue(key)
+            if (canChangeToggleSlider(key) && !blockBaseSettingsEdit(V3SpecialSettingsAction.ToggleSliderAction(
+                    V3ToggleSliderAction.ToggleSliderEnabledChanged(key, value.isEnabled),
+                ))) sendToggleSliderValue(key)
         }
     }
 

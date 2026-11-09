@@ -31,7 +31,8 @@ class V3SettingsProfilesRepositoryTest {
         mockkObject(SettingsProfileManager, SettingsProfileRepositoryProvider)
         every { SettingsProfileManager.serial() } returns "current"
         every { SettingsProfileRepositoryProvider.getOrNull() } returns sharedRepository
-        coEvery { sharedRepository.getProfiles(any()) } returns listOf(SettingsProfileInfo(1, null, false), SettingsProfileInfo(3, "Sport", true))
+        coEvery { sharedRepository.ensureBaseProfile(any()) } returns Unit
+        coEvery { sharedRepository.getProfiles(any()) } returns listOf(SettingsProfileInfo(0, null, false), SettingsProfileInfo(1, null, false), SettingsProfileInfo(3, "Sport", true))
         ParameterStoreV3.clear()
         GlobalParameters.baseSubDevicesInfoStructSetV3 = mutableSetOf(BaseSubDeviceInfoStruct(
             deviceAddress = info.deviceAddress, parametersList = arrayListOf(cache),
@@ -52,8 +53,9 @@ class V3SettingsProfilesRepositoryTest {
         assertEquals("Sport", snapshot.profiles.last().customName)
         assertNull(ParameterStoreV3.get(info))
         repository.cacheSelection("current", snapshot)
-        assertEquals(1, (ParameterStoreV3.get(info) as ParameterTypedValueV3.Spinner).value.spinnerValue)
-        assertEquals("{\"spinnerValue\":1}", cache.data)
+        assertEquals(2, (ParameterStoreV3.get(info) as ParameterTypedValueV3.Spinner).value.spinnerValue)
+        assertEquals("{\"spinnerValue\":2}", cache.data)
+        coVerify(exactly = 1) { sharedRepository.ensureBaseProfile("current") }
         coVerify(exactly = 1) { sharedRepository.getProfiles("current") }
         confirmVerified(sharedRepository)
     }
@@ -65,6 +67,7 @@ class V3SettingsProfilesRepositoryTest {
         assertNull(ParameterStoreV3.get(info))
         assertEquals("{}", cache.data)
         coVerify(exactly = 1) { sharedRepository.getProfiles("old") }
+        coVerify(exactly = 1) { sharedRepository.ensureBaseProfile("old") }
         confirmVerified(sharedRepository)
     }
 }

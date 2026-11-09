@@ -33,6 +33,7 @@ class SpinnerDelegateAdapterV3 (
     private val onSettingsProfileSelected: (profileId: Int) -> Unit = {},
     private val onSettingsProfileCreateRequested: () -> Unit = {},
     private val onSettingsProfileRenameRequested: (profileId: Int) -> Unit = {},
+    private val onSettingsProfileDeleteRequested: (profileId: Int) -> Unit = {},
 ) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
 ) {
@@ -53,7 +54,8 @@ class SpinnerDelegateAdapterV3 (
     private fun renderSettingsProfile(info: WidgetSpinnerInfo) {
         val state = settingsProfilesState
         val profiles = state?.profiles.orEmpty()
-        val names = profiles.map { it.customName ?: defaultSettingsProfileName(info.spinner.context, it.profileId) }
+        val names = profiles.map { if (it.isBase) defaultSettingsProfileName(info.spinner.context, it.profileId)
+            else it.customName ?: defaultSettingsProfileName(info.spinner.context, it.profileId) }
         val items = if (state?.canCreate == true) names + SETTINGS_PROFILE_ADD_ITEM else names
         info.settingsProfileIds = profiles.map { it.profileId }
         val adapter = info.spinner.getSpinnerAdapter<CharSequence>()
@@ -170,12 +172,23 @@ class SpinnerDelegateAdapterV3 (
         spinnerPsv.setSpinnerAdapter(
             SettingsProfileSpinnerAdapterV3(
                 spinnerView = spinnerPsv,
-                isEditable = { position -> position in info.settingsProfileIds.indices },
+                isEditable = { position -> settingsProfilesState?.profiles?.getOrNull(position)?.canRename == true },
+                isAddItem = { position ->
+                    settingsProfilesState?.canCreate == true && position == info.settingsProfileIds.size
+                },
                 onEditClick = { position, _ ->
                     if (spinnerInfoList.any { it === info } && settingsProfilesState?.isEnabled == true) {
                         info.settingsProfileIds.getOrNull(position)?.let { profileId ->
                             spinnerPsv.dismiss()
                             onSettingsProfileRenameRequested(profileId)
+                        }
+                    }
+                },
+                onDeleteClick = { position ->
+                    if (spinnerInfoList.any { it === info } && settingsProfilesState?.isEnabled == true) {
+                        info.settingsProfileIds.getOrNull(position)?.takeIf { it > 0 }?.let { profileId ->
+                            spinnerPsv.dismiss()
+                            onSettingsProfileDeleteRequested(profileId)
                         }
                     }
                 },
@@ -265,7 +278,8 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun defaultSettingsProfileName(context: Context, profileId: Int): String =
-        context.getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, profileId)
+        if (profileId == 0) context.getString(SharedRes.strings.ubi4_v3_settings_profile_base.resourceId)
+        else context.getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, profileId)
 
     override fun isForViewType(item: Any): Boolean = item is SpinnerItemV3
     override fun SpinnerItemV3.getItemId(): Any = when (val w = widget) {

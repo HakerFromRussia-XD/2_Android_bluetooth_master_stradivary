@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.
 import com.bailout.stickk.ubi4.versions.v3.presentation.togglesliders.ToggleSliderUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.spinners.SpinnerUiStateV3
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfilesUiState
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfile
 
 data class V3SpecialSettingsUiState(
     val selectedSection: V3SpecialSettingsSection,
@@ -20,5 +21,10 @@ data class V3SpecialSettingsUiState(
     val spinners: Map<String, SpinnerUiStateV3>,
     val autoLogin: V3AutoLoginUiState = V3AutoLoginUiState(),
     val settingsProfiles: V3SettingsProfilesUiState? = null,
+    val baseSettingsEditPrompt: V3BaseSettingsEditPromptUiState? = null,
     val animationsEnabled: Boolean = true,
-)
+) {
+    val isBaseSettingsReadOnlyDialogVisible: Boolean get() = baseSettingsEditPrompt != null
+}
+
+data class V3BaseSettingsEditPromptUiState(val requestId: Long, val replacementProfile: V3SettingsProfile?)

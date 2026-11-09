@@ -9,6 +9,8 @@ sealed interface V3SpecialSettingsAction {
     data class AutoLoginChanged(val enabled: Boolean) : V3SpecialSettingsAction
     data object ViewAttached : V3SpecialSettingsAction
     data object ViewDetached : V3SpecialSettingsAction
+    data class BaseSettingsReadOnlyDismissed(val requestId: Long) : V3SpecialSettingsAction
+    data class BaseSettingsCopyConfirmed(val requestId: Long) : V3SpecialSettingsAction
     data class SettingsSectionSelected(val section: V3SpecialSettingsSection) : V3SpecialSettingsAction
     data class SliderAction(val action: V3SliderAction) : V3SpecialSettingsAction
     data class ToggleSliderAction(val action: V3ToggleSliderAction) : V3SpecialSettingsAction
@@ -18,4 +20,7 @@ sealed interface V3SpecialSettingsAction {
     data class SettingsProfileRenameRequested(val profileId: Int) : V3SpecialSettingsAction
     data class SettingsProfileNameSubmitted(val requestId: Long, val name: String) : V3SpecialSettingsAction
     data class SettingsProfileNameDismissed(val requestId: Long) : V3SpecialSettingsAction
+    data class SettingsProfileDeleteRequested(val profileId: Int) : V3SpecialSettingsAction
+    data class SettingsProfileDeleteConfirmed(val profileId: Int) : V3SpecialSettingsAction
+    data class SettingsProfileDeleteDismissed(val profileId: Int) : V3SpecialSettingsAction
 }

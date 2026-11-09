@@ -71,6 +71,10 @@ import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateDialogHost
+import com.bailout.stickk.ubi4.ui.dialog.BaseSettingsUpdateDialogHost
+import com.bailout.stickk.ubi4.versions.v3.di.V3BaseSettingsUpdatesViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3BaseSettingsUpdatesViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3BaseSettingsUpdatesAction
 import com.bailout.stickk.ubi4.versions.v3.di.V3UserFirmwareViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.firmware.V3UserFirmwareViewModel
@@ -149,6 +153,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         get() = if (UiState.isInterfaceV3Activated) v3MainViewModel.uiState.value.deviceIdentity?.deviceName else ubi4DeviceName
     var mDeviceAddress: String? = null
     private var userFirmwareDialogHost: UserFirmwareUpdateDialogHost? = null
+    private var baseSettingsDialogHost: BaseSettingsUpdateDialogHost? = null
+    private val v3BaseSettingsUpdatesViewModel by lazy {
+        ViewModelProvider(this, V3BaseSettingsUpdatesViewModelFactory(this))[V3BaseSettingsUpdatesViewModel::class.java]
+    }
     private val v3UserFirmwareViewModel by lazy {
         ViewModelProvider(this, V3UserFirmwareViewModelFactory(this))[V3UserFirmwareViewModel::class.java]
     }
@@ -245,6 +253,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         BleDependencies.bindUserFirmwareSession(this, mBLEController)
         v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewCreated)
         userFirmwareDialogHost = UserFirmwareUpdateDialogHost(this, v3UserFirmwareViewModel)
+        v3BaseSettingsUpdatesViewModel.onAction(V3BaseSettingsUpdatesAction.ViewCreated)
+        baseSettingsDialogHost = BaseSettingsUpdateDialogHost(this, v3BaseSettingsUpdatesViewModel, v3UserFirmwareViewModel)
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -394,6 +404,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun onResume() {
         super.onResume()
         v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewResumed)
+        v3BaseSettingsUpdatesViewModel.onAction(V3BaseSettingsUpdatesAction.ViewResumed)
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
         else {
             ubi4AppCloseUploadRequested = false
@@ -447,6 +458,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
         userFirmwareDialogHost?.close()
+        baseSettingsDialogHost?.close()
+        baseSettingsDialogHost = null
+        v3BaseSettingsUpdatesViewModel.onAction(V3BaseSettingsUpdatesAction.ViewDestroyed)
         userFirmwareDialogHost = null
         v3UserFirmwareViewModel.onAction(V3UserFirmwareAction.ViewDestroyed)
         mBLEController.cleanup()

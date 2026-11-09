@@ -49,10 +49,12 @@ class LoadSettingsProfilesUseCaseV3Test {
         var read: suspend () -> V3SettingsProfiles = { profiles }
         val cached = mutableListOf<Pair<String, V3SettingsProfiles>>()
         override fun currentSerial() = serial
+        override suspend fun deleteProfile(serial: String, profileId: Int) = error("Loading must not delete a profile")
         override suspend fun getProfiles(serial: String) = read()
         override fun cacheSelection(serial: String, profiles: V3SettingsProfiles) { cached += serial to profiles }
         override suspend fun selectProfile(serial: String, profileId: Int) = error("Loading must not apply a profile")
         override suspend fun createProfile(serial: String) = error("Loading must not create a profile")
+        override suspend fun copyBaseToPersonalProfile(serial: String, replacementProfileId: Int?) = error("Loading must not copy a profile")
         override suspend fun renameProfile(serial: String, profileId: Int, name: String) = error("Loading must not rename a profile")
     }
 }

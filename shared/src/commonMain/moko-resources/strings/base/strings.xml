@@ -834,6 +834,16 @@
     <string name="ubi4_v3_hand_control_smooth_force_and_speed">Smooth force and speed control</string>
     <string name="ubi4_v3_widget_prosthesis_work_mode">Prosthesis operation mode</string>
     <string name="ubi4_v3_settings_profile_1">Profile #1</string>
+    <string name="ubi4_v3_settings_profile_base">Base settings</string>
+    <string name="settings_profile_delete_title">Delete profile</string>
+    <string name="settings_profile_delete_message" formatted="true">Delete profile “%1$s”?</string>
+    <string name="settings_profile_delete_active_message" formatted="true">Profile “%1$s” will be deleted. Base settings will be applied to the prosthesis.</string>
+    <string name="settings_profile_delete_button">Delete</string>
+    <string name="base_settings_update_title">Base settings updated</string>
+    <string name="base_settings_update_message">A service engineer has changed your prosthesis base settings. Accept to switch to the updated base settings. Skip to keep your current settings.</string>
+    <string name="base_settings_update_accept">Accept</string>
+    <string name="base_settings_update_skip">Skip</string>
+    <string name="base_settings_update_failed">Could not apply the settings. Check the prosthesis connection and try again.</string>
     <string name="ubi4_v3_settings_profile_number" formatted="true">Profile #%1$d</string>
     <string name="ubi4_v3_settings_profile_add">+</string>
     <string name="ubi4_v3_widget_settings_profiles">Settings profiles</string>

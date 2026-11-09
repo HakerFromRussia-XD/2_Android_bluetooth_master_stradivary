@@ -41,6 +41,16 @@ class V3SettingsProfilesRepositoryImpl(
         if (previous.profiles.any { it.profileId == state.activeProfileId }) null else values
     }
 
+    override suspend fun deleteProfile(serial: String, profileId: Int) = updateActiveProfile(serial) { repository, _ ->
+        checkNotNull(repository.deleteProfile(serial, profileId)) { "Settings profile no longer exists" }.second
+    }
+
+    override suspend fun copyBaseToPersonalProfile(serial: String, replacementProfileId: Int?) = updateActiveProfile(serial) { repository, _ ->
+        checkNotNull(repository.copyBaseToPersonalProfile(serial, replacementProfileId)) {
+            "Base settings or available profile slots changed"
+        }.second
+    }
+
     override suspend fun renameProfile(serial: String, profileId: Int, name: String) = withContext(Dispatchers.Main.immediate) {
         val address = WidgetRepoProvider.mac()
         checkDevice(serial, address)
@@ -90,7 +100,9 @@ class V3SettingsProfilesRepositoryImpl(
 
     override suspend fun getProfiles(serial: String): V3SettingsProfiles {
         // Pin this read to its serial, even if the current device changes during the Room query.
-        val profiles = SettingsProfileRepositoryProvider.getOrNull()?.getProfiles(serial).orEmpty()
+        val repository = SettingsProfileRepositoryProvider.getOrNull()
+        repository?.ensureBaseProfile(serial)
+        val profiles = repository?.getProfiles(serial).orEmpty()
         return V3SettingsProfiles(
             profiles.map { V3SettingsProfile(it.profileId, it.customName) },
             profiles.firstOrNull { it.isActive }?.profileId ?: profiles.firstOrNull()?.profileId ?: 1,

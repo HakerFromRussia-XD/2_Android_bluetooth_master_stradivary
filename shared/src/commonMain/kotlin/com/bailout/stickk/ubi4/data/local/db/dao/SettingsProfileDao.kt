@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.bailout.stickk.ubi4.data.local.db.entity.SettingsProfileEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.SettingsProfileValueEntity
 
@@ -37,6 +38,15 @@ interface SettingsProfileDao {
     @Query("DELETE FROM settings_profiles WHERE serial_number = :serial")
     suspend fun deleteProfiles(serial: String)
 
+    @Query("DELETE FROM settings_profiles WHERE serial_number = :serial AND profile_id = :profileId")
+    suspend fun deleteProfile(serial: String, profileId: Int)
+
+    @Transaction
+    suspend fun deleteProfileWithValues(serial: String, profileId: Int) {
+        deleteProfileValues(serial, profileId)
+        deleteProfile(serial, profileId)
+    }
+
     @Query("UPDATE settings_profiles SET is_active = 0, updated_ts_ms = :tsMs WHERE serial_number = :serial")
     suspend fun clearActive(serial: String, tsMs: Long)
 
@@ -52,8 +62,24 @@ interface SettingsProfileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertValue(entity: SettingsProfileValueEntity)
 
+    @Transaction
+    suspend fun upsertProfileValue(profile: SettingsProfileEntity, value: SettingsProfileValueEntity) {
+        upsertValue(value)
+        upsertProfile(profile)
+    }
+
+    @Transaction
+    suspend fun replaceProfileWithValues(profile: SettingsProfileEntity, values: List<SettingsProfileValueEntity>) {
+        deleteProfileValues(profile.serial_number, profile.profile_id)
+        upsertProfile(profile)
+        values.forEach { upsertValue(it) }
+    }
+
     @Query("DELETE FROM settings_profile_values WHERE serial_number = :serial")
     suspend fun deleteValues(serial: String)
+
+    @Query("DELETE FROM settings_profile_values WHERE serial_number = :serial AND profile_id = :profileId")
+    suspend fun deleteProfileValues(serial: String, profileId: Int)
 
     @Query(
         """

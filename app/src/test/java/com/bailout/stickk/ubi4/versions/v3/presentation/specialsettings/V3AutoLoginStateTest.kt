@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings
 
+import com.bailout.stickk.ubi4.versions.v3.presentation.service.FakeV3DeviceRoleRepository
 import com.bailout.stickk.ubi4.versions.v3.di.V3SpecialSettingsViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSession
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
@@ -50,7 +51,7 @@ class V3AutoLoginStateTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, NoSettingsProfilesRepository, appSettings, sessionRepository = source)
+        viewModel = V3SpecialSettingsViewModelFactory(sliders, source, toggles, spinners, NoSettingsProfilesRepository, appSettings, sessionRepository = source, roleRepository = FakeV3DeviceRoleRepository())
             .create(V3SpecialSettingsViewModel::class.java)
         store.put("screen", viewModel)
     }

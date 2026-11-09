@@ -3,6 +3,10 @@ package com.bailout.stickk.ubi4.ui.fragments
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.widget.TextView
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +33,7 @@ import com.bailout.stickk.ubi4.ui.dialog.SettingsProfileNameDialogHost
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfileNameRules
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileNameEditorUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3BaseSettingsEditPromptUiState
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
@@ -85,6 +90,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             onSettingsProfileRenameRequested = {
                 v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileRenameRequested(it))
             },
+            onSettingsProfileDeleteRequested = {
+                v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileDeleteRequested(it))
+            },
         )
     }
     private val v3ToggleSliderAdapter by lazy {
@@ -116,6 +124,10 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var pendingV3Render: Runnable? = null
     private val settingsProfileNameDialogHost = SettingsProfileNameDialogHost()
     private var renderedSettingsProfileNameRequest: Long? = null
+    private var settingsProfileDeleteDialog: Dialog? = null
+    private var renderedDeleteProfileId: Int? = null
+    private var baseSettingsReadOnlyDialog: Dialog? = null
+    private var renderedBaseSettingsEditRequest: Long? = null
 
     protected override fun loadGestureNameList() {
         if (!UiState.isInterfaceV3Activated) super.loadGestureNameList()
@@ -234,6 +246,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
                 } finally {
                     viewModel.onAction(V3SpecialSettingsAction.ViewDetached)
                     dismissSettingsProfileNameDialog()
+                    dismissBaseSettingsReadOnlyDialog()
                 }
             }
         }
@@ -283,12 +296,82 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         renderedSettingsProfileNameRequest = null
     }
 
+    private fun renderSettingsProfileDeleteDialog(state: V3SpecialSettingsUiState) {
+        val profile = state.settingsProfiles?.deleteConfirmation
+        if (renderedDeleteProfileId == profile?.profileId) return
+        settingsProfileDeleteDialog?.dismiss()
+        settingsProfileDeleteDialog = null
+        renderedDeleteProfileId = profile?.profileId
+        if (profile == null) return
+        val model = v3SpecialSettingsViewModel ?: return
+        val content = layoutInflater.inflate(R.layout.ubi4_dialog_disconnection, null)
+        val name = profile.customName ?: getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, profile.profileId)
+        content.findViewById<TextView>(R.id.ubi4DialogConfirmDisconnectionTitleTv).setText(SharedRes.strings.settings_profile_delete_title.resourceId)
+        content.findViewById<TextView>(R.id.ubi4DialogDisconnectionMassageTv).text = getString(
+            if (state.settingsProfiles.activeProfileId == profile.profileId) SharedRes.strings.settings_profile_delete_active_message.resourceId
+            else SharedRes.strings.settings_profile_delete_message.resourceId, name,
+        )
+        content.findViewById<TextView>(R.id.ok_text).setText(SharedRes.strings.settings_profile_delete_button.resourceId)
+        content.findViewById<TextView>(R.id.cancel_text).setText(R.string.cancel)
+        val confirm = View.OnClickListener { model.onAction(V3SpecialSettingsAction.SettingsProfileDeleteConfirmed(profile.profileId)) }
+        val cancel = View.OnClickListener { model.onAction(V3SpecialSettingsAction.SettingsProfileDeleteDismissed(profile.profileId)) }
+        listOf(R.id.ok_text, R.id.ubi4DialogConfirmDisconnectionBtn).forEach { content.findViewById<View>(it).setOnClickListener(confirm) }
+        listOf(R.id.cancel_text, R.id.ubi4DialogCancelDisconnectionBtn).forEach { content.findViewById<View>(it).setOnClickListener(cancel) }
+        settingsProfileDeleteDialog = Dialog(requireContext()).apply {
+            setContentView(content)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCanceledOnTouchOutside(false)
+            setOnCancelListener { model.onAction(V3SpecialSettingsAction.SettingsProfileDeleteDismissed(profile.profileId)) }
+            show()
+        }
+    }
+
+    private fun dismissBaseSettingsReadOnlyDialog() {
+        baseSettingsReadOnlyDialog?.dismiss()
+        baseSettingsReadOnlyDialog = null
+        renderedBaseSettingsEditRequest = null
+    }
+
+    private fun renderBaseSettingsReadOnlyDialog(prompt: V3BaseSettingsEditPromptUiState?) {
+        if (renderedBaseSettingsEditRequest == prompt?.requestId) return
+        dismissBaseSettingsReadOnlyDialog()
+        if (prompt == null) return
+        val model = v3SpecialSettingsViewModel ?: return
+        renderedBaseSettingsEditRequest = prompt.requestId
+        val content = layoutInflater.inflate(R.layout.ubi4_dialog_disconnection, null)
+        content.findViewById<TextView>(R.id.ubi4DialogConfirmDisconnectionTitleTv).setText(R.string.settings_profile_base_read_only_title)
+        val replacement = prompt.replacementProfile
+        content.findViewById<TextView>(R.id.ubi4DialogDisconnectionMassageTv).text = if (replacement == null) {
+            getString(R.string.settings_profile_base_read_only_message)
+        } else {
+            val name = replacement.customName ?: getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, replacement.profileId)
+            getString(R.string.settings_profile_base_replace_message, name)
+        }
+        content.findViewById<TextView>(R.id.ok_text).setText(
+            if (replacement == null) R.string.settings_profile_base_create_action else R.string.settings_profile_base_replace_action,
+        )
+        content.findViewById<TextView>(R.id.cancel_text).setText(R.string.settings_profile_base_keep_action)
+        val confirm = View.OnClickListener { model.onAction(V3SpecialSettingsAction.BaseSettingsCopyConfirmed(prompt.requestId)) }
+        val cancel = View.OnClickListener { model.onAction(V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed(prompt.requestId)) }
+        listOf(R.id.ok_text, R.id.ubi4DialogConfirmDisconnectionBtn).forEach { content.findViewById<View>(it).setOnClickListener(confirm) }
+        listOf(R.id.cancel_text, R.id.ubi4DialogCancelDisconnectionBtn).forEach { content.findViewById<View>(it).setOnClickListener(cancel) }
+        baseSettingsReadOnlyDialog = Dialog(requireContext()).apply {
+            setContentView(content)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCanceledOnTouchOutside(false)
+            setOnCancelListener { model.onAction(V3SpecialSettingsAction.BaseSettingsReadOnlyDismissed(prompt.requestId)) }
+            show()
+        }
+    }
+
     private fun renderV3SpecialSettings(state: V3SpecialSettingsUiState) {
         val currentBinding = _binding ?: return
         v3AnimationsEnabled = state.animationsEnabled
         // Compatibility mirror for the existing shared UI state; preferences are owned by the ViewModel path.
         activeSettingsFragmentFilterFlow.value = if (state.selectedSection == V3SpecialSettingsSection.APPLICATION) 2 else 1
         renderSettingsProfileNameDialog(state.settingsProfiles?.nameEditor)
+        renderSettingsProfileDeleteDialog(state)
+        renderBaseSettingsReadOnlyDialog(state.baseSettingsEditPrompt)
         val recyclerView = currentBinding.settingsRecyclerView
         pendingV3Render?.let(recyclerView::removeCallbacks)
         pendingV3Render = null
@@ -428,6 +511,10 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        dismissBaseSettingsReadOnlyDialog()
+        settingsProfileDeleteDialog?.dismiss()
+        settingsProfileDeleteDialog = null
+        renderedDeleteProfileId = null
         _binding?.appearanceSettingsRow?.spinnerPsv?.apply {
             getSpinnerAdapter<CharSequence>().onSpinnerItemSelectedListener = null
             dismiss()

@@ -28,10 +28,9 @@ class SettingsProfileUploadWorker(
 
         return runCatching {
             ensureSharedStorageInitialized()
-            Ubi4SettingsProfileSender().sendProfile1SettingsForSerial(
-                serial = serial,
-                lang = lang
-            )
+            val sender = Ubi4SettingsProfileSender()
+            if (inputData.getBoolean(KEY_ENGINEER_UPLOAD, inputData.getBoolean("engineer_base_only", false))) sender.sendEngineerSettingsForSerial(serial, lang)
+            else sender.sendProfile1SettingsForSerial(serial, lang)
         }.fold(
             onSuccess = { result ->
                 platformLog(TAG, "payload=${result.settingsPayload}")
@@ -65,6 +64,7 @@ class SettingsProfileUploadWorker(
         const val KEY_SERIAL = "serial"
         const val KEY_LANG = "lang"
         const val KEY_REASON = "reason"
+        const val KEY_ENGINEER_UPLOAD = "engineer_upload"
 
         private const val TAG = "SettingsProfileUploadWorker"
         private const val DEFAULT_LANG = "en"

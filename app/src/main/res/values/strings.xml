@@ -1,4 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="settings_profile_base_read_only_title">Base settings are protected</string>
+    <string name="settings_profile_base_read_only_message">Base settings cannot be changed in User mode. To continue adjusting them, copy them to a new profile.</string>
+    <string name="settings_profile_base_replace_message">Base settings cannot be changed in User mode. All personal profiles are occupied. To continue adjusting them, copy the base settings to “%1$s”. The saved settings in that profile will be replaced.</string>
+    <string name="settings_profile_base_create_action">Create profile</string>
+    <string name="settings_profile_base_replace_action">Replace profile</string>
+    <string name="settings_profile_base_keep_action">Keep unchanged</string>
     <string name="app_name">Motorica Start</string>
     <string name="helloWorld">open</string>
     <string name="helloWorld2">close</string>
@@ -73,6 +79,7 @@
     <string name="settings_profile_name_dialog_cancel">Cancel</string>
     <string name="settings_profile_name_dialog_save">Save</string>
     <string name="settings_profile_rename_action">Rename profile</string>
+    <string name="settings_profile_delete_action">Delete profile</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>
     <string name="number_of_channel">Number of channel:</string>

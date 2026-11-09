@@ -55,6 +55,7 @@ class V3SettingsProfileOperationsTest {
     }
     private val select = SelectSettingsProfileUseCaseV3(repository)
     private val create = CreateSettingsProfileUseCaseV3(repository)
+    private val copyBase = com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CopyBaseSettingsToPersonalProfileUseCaseV3(repository)
     private val rename = RenameSettingsProfileUseCaseV3(repository)
 
     @BeforeEach
@@ -65,6 +66,7 @@ class V3SettingsProfileOperationsTest {
         every { WidgetRepoProvider.mac() } answers { address }
         every { SettingsProfileRepositoryProvider.get() } returns sharedRepository
         every { SettingsProfileRepositoryProvider.getOrNull() } returns sharedRepository
+        coEvery { sharedRepository.ensureBaseProfile(any()) } returns Unit
         coEvery { sharedRepository.getProfiles(any()) } answers {
             profileIds.sorted().map { SettingsProfileInfo(it, if (it == 3) "Sport" else null, activeId == it) }
         }
@@ -106,6 +108,24 @@ class V3SettingsProfileOperationsTest {
     }
 
     @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `profile manager passes the selected role to deferred profile writes`(engineer: Boolean) = runTest(dispatcher) {
+        val previous = UiState.isServiceEngineerRole.value
+        try {
+            UiState.isServiceEngineerRole.value = engineer
+            coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } returns Unit
+            coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any()) } returns Unit
+            SettingsProfileManager.saveBleValue(speedInfo, ParameterTypedValueV3.Slider(SliderV3(80)))
+            SettingsProfileManager.saveMobileBoolean("auto-login", true)
+            SettingsProfileManager.awaitPendingWrites("current")
+            coVerify(exactly = 1) { sharedRepository.saveBleValue("current", any(), any(), engineer) }
+            coVerify(exactly = 1) { sharedRepository.saveMobileBoolean("current", any(), any(), engineer) }
+        } finally {
+            UiState.isServiceEngineerRole.value = previous
+        }
+    }
+
+    @ParameterizedTest
     @ValueSource(ints = [1, 3])
     fun `selection applies stored values once and caches an index rather than an ID`(id: Int) = runTest(dispatcher) {
         select("current", id)
@@ -116,18 +136,45 @@ class V3SettingsProfileOperationsTest {
 
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
+    fun `confirmed base copy applies values and caches the selected personal index once`(replace: Boolean) = runTest(dispatcher) {
+        profileIds.add(0)
+        if (replace) profileIds.add(2)
+        activeId = 0
+        val target = if (replace) 1 else 2
+        coEvery { sharedRepository.copyBaseToPersonalProfile("current", if (replace) 1 else null) } answers {
+            if (!replace) profileIds.add(target)
+            activeId = target
+            order.add("copy:$target")
+            SettingsProfileState(3, target) to values
+        }
+        copyBase("current", if (replace) 1 else null)
+        assertEquals(listOf("copy:$target", "apply"), order)
+        coVerify(exactly = 1) { sharedRepository.copyBaseToPersonalProfile("current", if (replace) 1 else null) }
+    }
+
+    @Test fun `rejected stale base copy never applies values or changes selection cache`() = runTest(dispatcher) {
+        coEvery { sharedRepository.copyBaseToPersonalProfile("current", null) } returns null
+        assertTrue(runCatching { copyBase("current", null) }.isFailure)
+        assertTrue(runCatching { copyBase(" ", null) }.exceptionOrNull() is IllegalArgumentException)
+        assertTrue(runCatching { copyBase("current", 2) }.exceptionOrNull() is IllegalArgumentException)
+        assertTrue(order.isEmpty())
+        assertNull(ParameterStoreV3.get(info))
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
     fun `real manager waits for submitted BLE and mobile saves before changing the active profile`(creating: Boolean) = runTest(dispatcher) {
         val releaseBle = CompletableDeferred<Unit>().also(releases::add)
         val releaseMobile = CompletableDeferred<Unit>().also(releases::add)
         val bleStarted = CompletableDeferred<Unit>()
         val mobileStarted = CompletableDeferred<Unit>()
-        coEvery { sharedRepository.saveBleValue("current", any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } coAnswers {
             bleStarted.complete(Unit)
             releaseBle.await()
             assertEquals(1, activeId)
             order.add("save:ble")
         }
-        coEvery { sharedRepository.saveMobileBoolean("current", any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any()) } coAnswers {
             mobileStarted.complete(Unit)
             releaseMobile.await()
             assertEquals(1, activeId)
@@ -154,7 +201,7 @@ class V3SettingsProfileOperationsTest {
     fun `cancelling a profile operation does not cancel already accepted saving`(creating: Boolean) = runTest(dispatcher) {
         val release = CompletableDeferred<Unit>().also(releases::add)
         val started = CompletableDeferred<Unit>()
-        coEvery { sharedRepository.saveBleValue("current", any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } coAnswers {
             started.complete(Unit); release.await(); order.add("saved")
         }
         SettingsProfileManager.saveBleValue(speedInfo, ParameterTypedValueV3.Slider(SliderV3(80)))
@@ -171,7 +218,7 @@ class V3SettingsProfileOperationsTest {
     fun `pending writes for another serial do not block the current device`() = runTest(dispatcher) {
         val release = CompletableDeferred<Unit>().also(releases::add)
         val started = CompletableDeferred<Unit>()
-        coEvery { sharedRepository.saveBleValue("other", any(), any()) } coAnswers { started.complete(Unit); release.await() }
+        coEvery { sharedRepository.saveBleValue("other", any(), any(), any()) } coAnswers { started.complete(Unit); release.await() }
         serial = "other"
         SettingsProfileManager.saveBleValue(speedInfo, ParameterTypedValueV3.Slider(SliderV3(80)))
         started.await()

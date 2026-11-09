@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import java.util.concurrent.TimeUnit
 
@@ -59,6 +60,35 @@ object SettingsProfileUploadWorkScheduler {
         )
     }
 
+    /** A durable debounced upload independent of app-close cancellation and its connection guard. */
+    fun enqueueEngineerBaseUpload(context: Context, serial: String, lang: String) {
+        enqueueDurableUpload(context, serial, lang, true)
+    }
+
+    fun enqueueUserProfilesUpload(context: Context, serial: String, lang: String) {
+        enqueueDurableUpload(context, serial, lang, false)
+    }
+
+    private fun enqueueDurableUpload(context: Context, serial: String, lang: String, engineer: Boolean) {
+        if (serial.isBlank()) return
+        val reason = if (engineer) "engineer_base_changed" else "user_profiles_sync"
+        val request = OneTimeWorkRequestBuilder<SettingsProfileUploadWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(3, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .setInputData(workDataOf(
+                SettingsProfileUploadWorker.KEY_SERIAL to serial,
+                SettingsProfileUploadWorker.KEY_LANG to lang,
+                SettingsProfileUploadWorker.KEY_REASON to reason,
+                SettingsProfileUploadWorker.KEY_ENGINEER_UPLOAD to engineer,
+            ))
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "settings_profile_${reason}_$serial", ExistingWorkPolicy.REPLACE, request,
+        )
+        platformLog(TAG, "enqueue: reason=$reason serial=$serial workId=${request.id}")
+    }
+
     fun cancelAppCloseUpload(context: Context) {
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork(APP_CLOSE_WORK_NAME)
@@ -103,7 +133,8 @@ object SettingsProfileUploadWorkScheduler {
                 workDataOf(
                     SettingsProfileUploadWorker.KEY_SERIAL to serial,
                     SettingsProfileUploadWorker.KEY_LANG to lang.ifBlank { DEFAULT_LANG },
-                    SettingsProfileUploadWorker.KEY_REASON to reason
+                    SettingsProfileUploadWorker.KEY_REASON to reason,
+                    SettingsProfileUploadWorker.KEY_ENGINEER_UPLOAD to (UiState.isInterfaceV3Activated && UiState.isServiceEngineerRole.value),
                 )
             )
             .build()

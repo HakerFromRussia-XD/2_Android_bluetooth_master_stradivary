@@ -835,6 +835,16 @@
 <string name="ubi4_v3_hand_control_smooth_force_and_speed">Плавное управление силой и скоростью</string>
 <string name="ubi4_v3_widget_prosthesis_work_mode">Режим работы протеза</string>
 <string name="ubi4_v3_settings_profile_1">Профиль №1</string>
+<string name="ubi4_v3_settings_profile_base">Базовые настройки</string>
+<string name="settings_profile_delete_title">Удалить профиль</string>
+<string name="settings_profile_delete_message" formatted="true">Удалить профиль «%1$s»?</string>
+<string name="settings_profile_delete_active_message" formatted="true">Профиль «%1$s» будет удалён. К протезу будут применены базовые настройки.</string>
+<string name="settings_profile_delete_button">Удалить</string>
+<string name="base_settings_update_title">Базовые настройки обновлены</string>
+<string name="base_settings_update_message">Сервисный инженер изменил базовые настройки вашего протеза. Нажмите «Принять», чтобы переключиться на обновлённые базовые настройки, или «Пропустить», чтобы сохранить текущие.</string>
+<string name="base_settings_update_accept">Принять</string>
+<string name="base_settings_update_skip">Пропустить</string>
+<string name="base_settings_update_failed">Не удалось применить настройки. Проверьте подключение протеза и попробуйте ещё раз.</string>
 <string name="ubi4_v3_settings_profile_number" formatted="true">Профиль №%1$d</string>
 <string name="ubi4_v3_settings_profile_add">+</string>
 <string name="ubi4_v3_widget_settings_profiles">Профили настроек</string>

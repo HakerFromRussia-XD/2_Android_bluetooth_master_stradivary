@@ -20,6 +20,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.appsettings.V3AppSettingsRepos
 import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRoleRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ToggleSliderSettingsRepository
@@ -34,6 +36,8 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SendToggleSli
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSliderValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.usecase.SetSpinnerValueUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CreateSettingsProfileUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CopyBaseSettingsToPersonalProfileUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.DeleteSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.GetSettingsProfilesDeviceSerialUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.LoadSettingsProfilesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.GetSettingsProfilesUseCaseV3
@@ -53,6 +57,7 @@ class V3SpecialSettingsViewModelFactory(
     private val settingsProfilesRepository: V3SettingsProfilesRepository,
     private val appSettingsRepository: V3AppSettingsRepository,
     private val sessionRepository: V3DeviceSessionRepository,
+    private val roleRepository: V3DeviceRoleRepository,
 ) : ViewModelProvider.Factory {
     companion object {
         fun create(context: Context): V3SpecialSettingsViewModelFactory = create(context) { packet ->
@@ -71,6 +76,9 @@ class V3SpecialSettingsViewModelFactory(
                     PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
                 )),
                 sessionRepository = V3DeviceSessionRepositoryImpl(),
+                roleRepository = createDeviceRoleRepository(
+                    context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository,
+                ),
             )
         }
     }
@@ -97,12 +105,15 @@ class V3SpecialSettingsViewModelFactory(
             loadSettingsProfiles = LoadSettingsProfilesUseCaseV3(GetSettingsProfilesUseCaseV3(settingsProfilesRepository), settingsProfilesRepository),
             selectSettingsProfile = SelectSettingsProfileUseCaseV3(settingsProfilesRepository),
             createSettingsProfile = CreateSettingsProfileUseCaseV3(settingsProfilesRepository),
+            copyBaseSettingsToPersonalProfile = CopyBaseSettingsToPersonalProfileUseCaseV3(settingsProfilesRepository),
             renameSettingsProfile = RenameSettingsProfileUseCaseV3(settingsProfilesRepository),
+            deleteSettingsProfile = DeleteSettingsProfileUseCaseV3(settingsProfilesRepository),
             getAutoLoginEnabled = GetAutoLoginEnabledUseCaseV3(appSettingsRepository),
             observeAutoLoginEnabled = ObserveAutoLoginEnabledUseCaseV3(appSettingsRepository),
             getSpecialSettingsSection = GetSpecialSettingsSectionUseCaseV3(appSettingsRepository),
             setAutoLoginEnabled = SetAutoLoginEnabledUseCaseV3(appSettingsRepository),
             setSpecialSettingsSection = SetSpecialSettingsSectionUseCaseV3(appSettingsRepository),
+            getDeviceRole = GetDeviceRoleUseCaseV3(roleRepository),
         ) as T
     }
 }

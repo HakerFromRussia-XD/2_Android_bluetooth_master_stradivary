@@ -8,7 +8,9 @@ interface V3SettingsProfilesRepository {
     suspend fun getProfiles(serial: String): V3SettingsProfiles
     suspend fun selectProfile(serial: String, profileId: Int)
     suspend fun createProfile(serial: String)
+    suspend fun copyBaseToPersonalProfile(serial: String, replacementProfileId: Int?)
     suspend fun renameProfile(serial: String, profileId: Int, name: String)
+    suspend fun deleteProfile(serial: String, profileId: Int)
 
     /** Keeps the existing local selection cache in sync; does not apply a profile or send BLE. */
     fun cacheSelection(serial: String, profiles: V3SettingsProfiles)

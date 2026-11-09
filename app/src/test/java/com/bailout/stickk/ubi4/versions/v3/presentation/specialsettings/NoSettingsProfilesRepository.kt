@@ -8,9 +8,11 @@ import kotlinx.coroutines.flow.emptyFlow
 internal object NoSettingsProfilesRepository : V3SettingsProfilesRepository {
     override val updates = emptyFlow<Unit>()
     override fun currentSerial() = ""
+    override suspend fun deleteProfile(serial: String, profileId: Int) = error("Profile deletion is not expected")
     override suspend fun getProfiles(serial: String): V3SettingsProfiles = error("No profile selector in this fixture")
     override suspend fun renameProfile(serial: String, profileId: Int, name: String) = error("Profile rename is not expected")
     override suspend fun createProfile(serial: String) = error("Profile creation is not expected")
+    override suspend fun copyBaseToPersonalProfile(serial: String, replacementProfileId: Int?) = error("Profile copying is not expected")
     override suspend fun selectProfile(serial: String, profileId: Int) = error("No profile selector in this fixture")
     override fun cacheSelection(serial: String, profiles: V3SettingsProfiles) = error("No profile selector in this fixture")
 }

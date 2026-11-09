@@ -132,14 +132,14 @@ class V3SpecialSettingsWidgetsSourceTest {
         val expectedKeys = if (profile == V3DeviceProfile.INDY3) {
             listOf(P_KEY_EMG_MOVEMENT_LOCK, P_KEY_EMG_MAX_GAIN_VALUE, P_KEY_FORCE_SETTINGS, P_KEY_SPEED_SETTINGS, P_KEY_HAND_CONTROL_MODE, P_KEY_SETTINGS_PROFILE)
         } else {
-            listOf(P_KEY_EMG_CHANGE_GESTURE, P_KEY_EMG_MOVEMENT_LOCK, P_KEY_SCREEN_TIMEOUT, P_KEY_EMG_MAX_GAIN_VALUE, P_KEY_FORCE_SETTINGS, P_KEY_SPEED_SETTINGS, P_KEY_HAND_CONTROL_MODE, P_KEY_GESTURE_CHANGE_MODE)
+            listOf(P_KEY_EMG_CHANGE_GESTURE, P_KEY_EMG_MOVEMENT_LOCK, P_KEY_SCREEN_TIMEOUT, P_KEY_EMG_MAX_GAIN_VALUE, P_KEY_FORCE_SETTINGS, P_KEY_SPEED_SETTINGS, P_KEY_HAND_CONTROL_MODE, P_KEY_SETTINGS_PROFILE, P_KEY_GESTURE_CHANGE_MODE)
         }
         assertEquals(expectedKeys, snapshot.widgets.map { it.info.key })
         assertEquals(expectedKeys.indices.toList(), snapshot.widgets.map { it.info.position })
         assertEquals(profile, snapshot.deviceProfile)
         assertEquals("test-v3-device", snapshot.deviceAddress)
         assertTrue(UiState.listWidgets.size > snapshot.widgets.size)
-        assertEquals(profile == V3DeviceProfile.INDY3, snapshot.widgets.any { it is V3SpecialSettingsWidget.SettingsProfile })
+        assertTrue(snapshot.widgets.any { it is V3SpecialSettingsWidget.SettingsProfile })
         val gestureSpinner = snapshot.widgets.filterIsInstance<V3SpecialSettingsWidget.Spinner>()
             .firstOrNull { it.info.key == P_KEY_GESTURE_CHANGE_MODE }
         if (profile == V3DeviceProfile.STANDARD_V3) {

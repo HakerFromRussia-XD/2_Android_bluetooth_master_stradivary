@@ -1,0 +1,75 @@
+{
+  "source_snapshot": "/tmp/motorica-firmware-migration/snapshots/dc713e4d64b7e8e5333bfc67425457253f5bb5dc632c950022835f22f2b1dead",
+  "files": [
+    {
+      "source_path": "FAM/FH-FAM_v0.2.3+20_750k_BLE_00.zip",
+      "board_model": "FAM",
+      "version": "0.2.3",
+      "sha256": "3a59ad17d697bfa0fc6ba4bba874f735e55b639c1bb907d7f717b9a842990174",
+      "size": 63264
+    },
+    {
+      "source_path": "FAM/FH-FAM_v0.2.3_00.zip",
+      "board_model": "FAM",
+      "version": "0.2.3",
+      "sha256": "66fb80551d94ee9f5ef25998ec0dcbc49aa8b70f081ef321571c1303941464a8",
+      "size": 57492
+    },
+    {
+      "source_path": "FAM/FH-FAM_v0.2.4_00.zip",
+      "board_model": "FAM",
+      "version": "0.2.4",
+      "sha256": "394623d8eae2bb5675c1e0462e408ca636ba96c387fd3676388150c76ca3b717",
+      "size": 57712
+    },
+    {
+      "source_path": "FAM/FH_FAM_v0.1.29_старая_проша.zip",
+      "board_model": "FAM",
+      "version": "0.0.0",
+      "sha256": "dd26e5a42c701595c89e0950adb3f5cd447aa97d628d089435a3db64107a16d0",
+      "size": 55669
+    },
+    {
+      "source_path": "FAM/FH_FAM_v0.2.2.zip",
+      "board_model": "FAM",
+      "version": "0.2.2",
+      "sha256": "3f35689a26b56519ae8b520299273ae111b1054c215b090f23a262f1a74ca32b",
+      "size": 59797
+    },
+    {
+      "source_path": "GUI/GUI_Module_boot_v0.5.0+10_09.zip",
+      "board_model": "GUI",
+      "version": "0.5.0",
+      "sha256": "23260d76940d4ae141ca491644820fe1cde03754bb0c784e623cc9d0222d993e",
+      "size": 22532
+    },
+    {
+      "source_path": "GUI/GUI_Module_v0.5.2+1_09.zip",
+      "board_model": "GUI",
+      "version": "0.5.2",
+      "sha256": "6c3c0abfe3bbd5edd620739206c42d526d0d1e7f6574b3ffb49240d779ce1c43",
+      "size": 168953
+    },
+    {
+      "source_path": "BLDC_Driver/DRV_Module_v0.7.2_24.zip",
+      "board_model": "BLDC_Driver",
+      "version": "0.7.2",
+      "sha256": "c7d948a912d8e4bd8282206a8113de22298cb389bda764914c283a9d592c1d57",
+      "size": 47427
+    },
+    {
+      "source_path": "FINGER/FH-MultiBoard_v0.7.2_24.zip",
+      "board_model": "FINGER",
+      "version": "0.7.2",
+      "sha256": "c7d948a912d8e4bd8282206a8113de22298cb389bda764914c283a9d592c1d57",
+      "size": 47427
+    },
+    {
+      "source_path": "FINGER/FH-MultiBoard_v0.7.5_20.zip",
+      "board_model": "FINGER",
+      "version": "0.7.5",
+      "sha256": "d9f045396945fb2e71f5eb686dce4704f32f9ebf8c2be4cfcd4d4b007fab85d8",
+      "size": 47776
+    }
+  ]
+}

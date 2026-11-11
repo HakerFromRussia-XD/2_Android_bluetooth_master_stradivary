@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "kind": "assembly",
+  "created_at": "2026-10-20T13:23:58.313779+00:00",
+  "created_by": "MS firmware VDS catalog repair",
+  "label": "VDS assembly with verified archive hashes",
+  "product": "V3",
+  "config_version": 3,
+  "modules": [
+    {
+      "address": 9,
+      "name": "GUI_Module",
+      "file": "GUI/GUI_Module_v0.5.2+1_09.zip",
+      "sha256": "6c3c0abfe3bbd5edd620739206c42d526d0d1e7f6574b3ffb49240d779ce1c43"
+    },
+    {
+      "address": 36,
+      "name": "FH-MultiBoard",
+      "file": "FINGER/FH-MultiBoard_v0.7.2_24.zip",
+      "sha256": "c7d948a912d8e4bd8282206a8113de22298cb389bda764914c283a9d592c1d57"
+    },
+    {
+      "address": 0,
+      "name": "FH-FAM",
+      "file": "FAM/FH-FAM_v0.2.4_00.zip",
+      "sha256": "394623d8eae2bb5675c1e0462e408ca636ba96c387fd3676388150c76ca3b717"
+    }
+  ],
+  "checksum": "2418c467da743ea4169734576ca6a3795b598896d53136df36947b0944986a2b"
+}

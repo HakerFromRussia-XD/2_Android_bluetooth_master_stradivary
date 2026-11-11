@@ -65,11 +65,11 @@ class V3SliderSettingsViewModelTest {
         assertEquals(17, sliderState().value)
         assertEquals(70, sliderState(P_KEY_FORCE_SETTINGS).value)
         repository.value.value = 63
-        assertEquals(225, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
-        repository.values.getValue(P_KEY_EMG_MAX_GAIN_VALUE).value = 250
+        assertEquals(75, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
+        repository.values.getValue(P_KEY_EMG_MAX_GAIN_VALUE).value = 100
         runCurrent()
         assertEquals(63, sliderState().value)
-        assertEquals(250, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
+        assertEquals(100, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
         viewModel.onAction(V3SliderSettingsAction.ViewDetached)
         attach()
         assertEquals(emptyList<Int>(), repository.writes)
@@ -113,7 +113,7 @@ class V3SliderSettingsViewModelTest {
         step(parameterKey = P_KEY_EMG_MAX_GAIN_VALUE)
         repository.sliderInteractionEnabled.value = false
         viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_SPEED_SETTINGS, 55)))
-        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240)))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 90)))
         runCurrent()
         assertFalse(sliderState().isEnabled)
         assertFalse(sliderState(P_KEY_FORCE_SETTINGS).isEnabled)
@@ -140,7 +140,7 @@ class V3SliderSettingsViewModelTest {
         attach()
         assertEquals(17, sliderState().value)
         assertEquals(70, sliderState(P_KEY_FORCE_SETTINGS).value)
-        assertEquals(225, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
+        assertEquals(75, sliderState(P_KEY_EMG_MAX_GAIN_VALUE).value)
         advanceTimeBy(301)
         runCurrent()
         assertEquals(emptyList<Int>(), repository.writes)
@@ -251,24 +251,24 @@ class V3SliderSettingsViewModelTest {
     }
 
     @Test
-    fun `maximum sensor sensitivity supports values above 100 and clamps drag and steps to 0 through 250`() = runTest(dispatcher) {
+    fun `maximum sensor sensitivity clamps drag and steps to 0 through 100`() = runTest(dispatcher) {
         attach()
         runCurrent()
         val key = P_KEY_EMG_MAX_GAIN_VALUE
-        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(key, 249)))
-        assertEquals(249, sliderState(key).value)
-        assertEquals(225, repository.values.getValue(key).value)
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(key, 99)))
+        assertEquals(99, sliderState(key).value)
+        assertEquals(75, repository.values.getValue(key).value)
         assertEquals(emptyList<Pair<String, Int>>(), repository.writesByParameter)
-        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, 249)))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, 99)))
         runCurrent()
         step(parameterKey = key)
         step(parameterKey = key)
-        assertEquals(250, sliderState(key).value)
+        assertEquals(100, sliderState(key).value)
         advanceTimeBy(300)
         runCurrent()
         viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, 300)))
         runCurrent()
-        assertEquals(250, sliderState(key).value)
+        assertEquals(100, sliderState(key).value)
         viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(key, -1)))
         runCurrent()
         step(value = -1, parameterKey = key)
@@ -276,7 +276,7 @@ class V3SliderSettingsViewModelTest {
         advanceTimeBy(300)
         runCurrent()
 
-        assertEquals(listOf(249, 250, 250, 0, 0).map { key to it }, repository.writesByParameter)
+        assertEquals(listOf(99, 100, 100, 0, 0).map { key to it }, repository.writesByParameter)
         assertEquals(17, sliderState().value)
         assertEquals(70, sliderState(P_KEY_FORCE_SETTINGS).value)
     }
@@ -287,14 +287,14 @@ class V3SliderSettingsViewModelTest {
         runCurrent()
         step()
         step(parameterKey = P_KEY_FORCE_SETTINGS)
-        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 240)))
+        viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 90)))
         runCurrent()
-        assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 240), repository.writesByParameter)
+        assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 90), repository.writesByParameter)
         advanceTimeBy(300)
         runCurrent()
 
         assertEquals(
-            listOf(P_KEY_EMG_MAX_GAIN_VALUE to 240, P_KEY_SPEED_SETTINGS to 18, P_KEY_FORCE_SETTINGS to 71),
+            listOf(P_KEY_EMG_MAX_GAIN_VALUE to 90, P_KEY_SPEED_SETTINGS to 18, P_KEY_FORCE_SETTINGS to 71),
             repository.writesByParameter
         )
     }
@@ -308,17 +308,17 @@ class V3SliderSettingsViewModelTest {
         selectedViewModel.onAction(V3SliderSettingsAction.ViewAttached)
         runCurrent()
         assertEquals(setOf(P_KEY_EMG_MAX_GAIN_VALUE), selectedViewModel.uiState.value.sliders.keys)
-        assertEquals(0..250, selectedViewModel.uiState.value.sliders.getValue(P_KEY_EMG_MAX_GAIN_VALUE).allowedRange)
+        assertEquals(0..100, selectedViewModel.uiState.value.sliders.getValue(P_KEY_EMG_MAX_GAIN_VALUE).allowedRange)
         selectedViewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_FORCE_SETTINGS, 50)))
-        selectedViewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 225)))
-        assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 225), repository.writesByParameter)
+        selectedViewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderChangeCommitted(P_KEY_EMG_MAX_GAIN_VALUE, 75)))
+        assertEquals(listOf(P_KEY_EMG_MAX_GAIN_VALUE to 75), repository.writesByParameter)
     }
 
     private class FakeRepository : V3DeviceSettingsRepository {
         val values = mapOf(
             P_KEY_SPEED_SETTINGS to MutableStateFlow<Int?>(17),
             P_KEY_FORCE_SETTINGS to MutableStateFlow<Int?>(70),
-            P_KEY_EMG_MAX_GAIN_VALUE to MutableStateFlow<Int?>(225),
+            P_KEY_EMG_MAX_GAIN_VALUE to MutableStateFlow<Int?>(75),
         )
         val value get() = values.getValue(P_KEY_SPEED_SETTINGS)
         override val sliderInteractionEnabled = MutableStateFlow(true)

@@ -17,7 +17,7 @@ class SetSliderValueUseCaseV3Test {
     private val parameterLimits = mapOf(
         P_KEY_SPEED_SETTINGS to 100,
         P_KEY_FORCE_SETTINGS to 100,
-        P_KEY_EMG_MAX_GAIN_VALUE to 250,
+        P_KEY_EMG_MAX_GAIN_VALUE to 100,
         P_KEY_EMG_GAIN_OPEN_VALUE to 100,
         P_KEY_EMG_GAIN_CLOSE_VALUE to 100,
         P_KEY_GLOBAL_THUMB_CLOSED_POSITION to 100,
@@ -43,7 +43,7 @@ class SetSliderValueUseCaseV3Test {
     }
 
     @Test
-    fun `domain accepts both boundaries for every slider including sensitivity above 100`() {
+    fun `domain accepts both boundaries for every slider including maximum sensor sensitivity`() {
         parameterLimits.forEach { (key, upper) ->
             useCase(key, 0)
             useCase(key, upper)

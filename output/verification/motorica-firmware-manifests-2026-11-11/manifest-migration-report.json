@@ -1,0 +1,16 @@
+[
+  {
+    "path": "firmware/assembly.json",
+    "size": 915,
+    "sha256": "1eaf8aa911daa4ad99db7429b5d35b0e1b62e1419be2b05409d7609f79603c13",
+    "id": "0b4c760b-f73c-48da-9947-9636f276878e",
+    "verified": true
+  },
+  {
+    "path": "firmware/catalog.json",
+    "size": 2712,
+    "sha256": "752327ea646d12cd645b208c786c3f86afe7b18f6414cfb7ec573c01bdec23ea",
+    "id": "da28d6c4-f7c0-4093-872c-b02f21213eac",
+    "verified": true
+  }
+]

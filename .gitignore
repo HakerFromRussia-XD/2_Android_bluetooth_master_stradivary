@@ -18,6 +18,7 @@ build/
 
 # Local config
 local.properties
+ops/ms-firmware/.panel-runtime/
 
 # Android artifacts
 *.apk

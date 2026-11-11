@@ -11,7 +11,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY
 /** Device parameter limits shared by input presentation and write validation. */
 object V3SliderSettingsRules {
     fun allowedRange(parameterKey: String): IntRange = when (parameterKey) {
-        P_KEY_EMG_MAX_GAIN_VALUE -> 0..250
+        P_KEY_EMG_MAX_GAIN_VALUE -> 0..100
         P_KEY_SPEED_SETTINGS,
         P_KEY_FORCE_SETTINGS,
         P_KEY_EMG_GAIN_OPEN_VALUE,

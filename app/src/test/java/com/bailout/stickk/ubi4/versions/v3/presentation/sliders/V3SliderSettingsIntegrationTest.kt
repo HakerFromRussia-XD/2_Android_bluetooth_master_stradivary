@@ -44,7 +44,7 @@ class V3SliderSettingsIntegrationTest {
     private val initialValues = linkedMapOf(
         P_KEY_SPEED_SETTINGS to 17,
         P_KEY_FORCE_SETTINGS to 70,
-        P_KEY_EMG_MAX_GAIN_VALUE to 225,
+        P_KEY_EMG_MAX_GAIN_VALUE to 75,
         P_KEY_EMG_GAIN_OPEN_VALUE to 20,
         P_KEY_EMG_GAIN_CLOSE_VALUE to 40,
         P_KEY_GLOBAL_THUMB_CLOSED_POSITION to 35,
@@ -235,7 +235,7 @@ class V3SliderSettingsIntegrationTest {
         runCurrent()
         initialValues.keys.forEach { key ->
             val before = packets.size
-            val upper = if (key == P_KEY_EMG_MAX_GAIN_VALUE) 250 else 100
+            val upper = 100
             viewModel.onAction(V3SliderSettingsAction.SliderAction(V3SliderAction.SliderValueChanged(key, upper + 10)))
             assertEquals(upper, stateValues()[key])
             assertEquals(before, packets.size)

@@ -870,7 +870,7 @@ class BLEParserV3(
             ), text(SharedRes.strings.ubi4_v3_widget_screen_timeout))))
         baseParameterWidgetSStruct.add(SliderParameterWidgetSStruct(
             minProgress = 0,
-            maxProgress = 250,
+            maxProgress = 100,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
                 widgetCode = PWCE_SLIDER_V3.number.toInt(),
@@ -1096,7 +1096,7 @@ class BLEParserV3(
         ))
         baseParameterWidgetSStruct.add(SliderParameterWidgetSStruct(
             minProgress = 0,
-            maxProgress = 250,
+            maxProgress = 100,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
                 widgetCode = PWCE_SLIDER_V3.number.toInt(),

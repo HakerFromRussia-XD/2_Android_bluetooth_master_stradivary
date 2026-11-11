@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.util.date.getTimeMillis
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -50,6 +51,7 @@ import kotlin.concurrent.Volatile
 private const val MAX_SETTINGS_PROFILE_COUNT = 3
 private const val BASE_PROFILE_ID = V3SettingsProfiles.BASE_PROFILE_ID
 private const val BASE_SERVER_KEY = "BASE_SETTINGS"
+private const val ENGINEER_UPDATE_KEY = "engineer_update"
 const val SETTINGS_PROFILE_NAME_MAX_LENGTH = 30
 private const val TARGET_BLE = "BLE"
 private const val TARGET_MOBILE = "MOBILE"
@@ -64,7 +66,9 @@ data class SettingsProfileState(
 data class SettingsProfileInfo(
     val profileId: Int,
     val customName: String?,
-    val isActive: Boolean
+    val isActive: Boolean,
+    val personalEngineerRevision: Long = 0,
+    val hasEngineerDraft: Boolean = false,
 )
 
 data class SettingsProfileApplyValue(
@@ -139,7 +143,16 @@ class SettingsProfileRepository(
     suspend fun getProfiles(serial: String): List<SettingsProfileInfo> = withContext(Dispatchers.IO) {
         val normalizedSerial = normalizeSerial(serial) ?: return@withContext emptyList()
         ensureDefaultProfile(normalizedSerial)
-        dao.getProfiles(normalizedSerial).map { it.toProfileInfo() }
+        val drafts = dao.getProfiles(engineerDraftSerial(normalizedSerial)).associateBy { it.profile_id }
+        dao.getProfiles(normalizedSerial).map { profile ->
+            val draft = drafts[profile.profile_id]?.takeIf { it.created_ts_ms == profile.created_ts_ms }
+            profile.toProfileInfo().copy(hasEngineerDraft = draft?.engineer_upload_pending == true)
+        }
+    }
+
+    suspend fun getUpdatedPersonalProfiles(serial: String): List<SettingsProfileInfo> = withStorageLock {
+        dao.getProfiles(serial).filter { it.profile_id > BASE_PROFILE_ID && it.engineer_revision > 0 }
+            .map { it.toProfileInfo() }
     }
 
     /** Adds the V3 baseline once; existing user profiles and their selection are preserved. */
@@ -162,6 +175,7 @@ class SettingsProfileRepository(
             setActiveInternal(serial, BASE_PROFILE_ID, getTimeMillis())
         }
         dao.deleteProfileWithValues(serial, profileId)
+        dao.deleteProfileWithValues(engineerDraftSerial(serial), profileId)
         ensureState(serial) to if (profile.is_active) loadApplyValues(serial, BASE_PROFILE_ID) else emptyList()
     }
 
@@ -189,7 +203,10 @@ class SettingsProfileRepository(
         ).also { dao.upsertProfile(it) }.toProfileInfo()
     }
 
-    suspend fun createProfileFromActive(serial: String): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
+    suspend fun createProfileFromActive(
+        serial: String,
+        includeEngineerDraft: Boolean = false,
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
         withStorageLock {
             val normalizedSerial = normalizeSerial(serial)
                 ?: return@withStorageLock SettingsProfileState(1, 1) to emptyList()
@@ -203,7 +220,9 @@ class SettingsProfileRepository(
                 return@withStorageLock SettingsProfileState(userProfileCount, active.profile_id) to values
             }
 
-            if (active.profile_id != BASE_PROFILE_ID) snapshotCurrentBleValues(normalizedSerial, active.profile_id)
+            if (active.profile_id != BASE_PROFILE_ID && !includeEngineerDraft) {
+                snapshotCurrentBleValues(normalizedSerial, active.profile_id)
+            }
             val newProfileId = (1..MAX_SETTINGS_PROFILE_COUNT).first { id -> profiles.none { it.profile_id == id } }
             val ts = getTimeMillis()
             dao.upsertProfile(
@@ -252,7 +271,11 @@ class SettingsProfileRepository(
             loadApplyValues(normalizedSerial, targetId)
     }
 
-    suspend fun switchToProfile(serial: String, profileId: Int): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
+    suspend fun switchToProfile(
+        serial: String,
+        profileId: Int,
+        includeEngineerDraft: Boolean = false,
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
         withStorageLock {
             val normalizedSerial = normalizeSerial(serial)
                 ?: return@withStorageLock SettingsProfileState(1, 1) to emptyList()
@@ -266,25 +289,214 @@ class SettingsProfileRepository(
                 setActiveInternal(normalizedSerial, profile.profile_id, getTimeMillis())
             }
 
-            ensureState(normalizedSerial) to loadApplyValues(normalizedSerial, profile.profile_id)
+            val values = if (includeEngineerDraft) engineerProfileValues(profile).toApplyValues()
+                else loadApplyValues(normalizedSerial, profile.profile_id)
+            ensureState(normalizedSerial) to values
         }
 
-    suspend fun buildServerSettingsPayload(serial: String): String = withStorageLock {
+    suspend fun buildServerSettingsPayload(serial: String, remotePayload: String? = null): String = withStorageLock {
         val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock settingsProfileServerJson.encodeToString(
             defaultServerProfiles()
         )
         ensureDefaultProfile(normalizedSerial)
+        val remote = remotePayload?.let(::serverProfilesRoot)
         settingsProfileServerJson.encodeToString(
             defaultServerProfiles().toMutableMap().apply {
                 if (dao.getProfile(normalizedSerial, BASE_PROFILE_ID) != null) {
                     this[BASE_SERVER_KEY] = buildServerProfileJson(normalizedSerial, BASE_PROFILE_ID)
                 }
                 for (profileId in 1..MAX_SETTINGS_PROFILE_COUNT) {
-                    this["PROFILE$profileId"] = buildServerProfileJson(normalizedSerial, profileId)
+                    val key = "PROFILE$profileId"
+                    val local = dao.getProfile(normalizedSerial, profileId)
+                    val slot = remote?.get(key)?.toJsonObjectOrNull()
+                    val update = slot?.let { parseEngineerUpdate(it, profileId) }
+                    val updateToKeep = update?.takeIf {
+                        local != null && slot != null && it.revision > local.engineer_revision && matchesServerProfile(local, slot)
+                    }
+                    this[key] = buildServerProfileJson(normalizedSerial, profileId, updateToKeep?.json)
                 }
             }
         )
     }
+
+    /** Publish the engineer's baseline while retaining the user's server snapshot. */
+    suspend fun buildEngineerSettingsPayload(serial: String, remotePayload: String): String = withStorageLock {
+        val remote = serverProfilesRoot(remotePayload)
+        val profiles = serverWireSlots(remote)
+        val base = buildServerProfileJson(serial, BASE_PROFILE_ID).toJsonElementOrString().toJsonObjectOrNull()
+        if (base != null && base.isNotEmpty()) {
+            val remoteBase = remote?.get(BASE_SERVER_KEY)?.toJsonObjectOrNull()
+            val isActive = remoteBase?.get("is_active") ?: JsonPrimitive(profiles.values.none { slot ->
+                (slot.toJsonElementOrString().toJsonObjectOrNull()?.get("is_active") as? JsonPrimitive)?.booleanOrNull == true
+            })
+            profiles[BASE_SERVER_KEY] = JsonObject(base + ("is_active" to isActive)).toString()
+        }
+        settingsProfileServerJson.encodeToString(profiles)
+    }
+
+    /** The user owns the remote personal slots and selection. Local timestamps do not override them. */
+    suspend fun synchronizeEngineerProfiles(
+        serial: String,
+        payload: String,
+        discardDraftsBefore: Long? = null,
+        isCurrentSession: () -> Boolean,
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withStorageLock {
+        if (!isCurrentSession()) throw CancellationException("Settings profile session changed")
+        val root = serverProfilesRoot(payload) ?: return@withStorageLock ensureState(serial) to emptyList()
+        val remote = parseServerProfiles(root).associateBy { it.profileId }
+        val emptySlots = (1..MAX_SETTINGS_PROFILE_COUNT).filter {
+            it !in remote && root["PROFILE$it"]?.toJsonObjectOrNull()?.isEmpty() == true
+        }
+        val local = dao.getProfiles(serial).associateBy { it.profile_id }
+        val localBase = local[BASE_PROFILE_ID]
+        val pendingBase = localBase?.engineer_upload_pending == true
+        val replacement = remote.filterValues { profile ->
+            profile.profileId != BASE_PROFILE_ID ||
+                !pendingBase && profile.engineerRevision >= (localBase?.engineer_revision ?: 0)
+        }
+        val available = (local.keys - emptySlots.toSet()) + replacement.keys
+        val previousActive = local.values.firstOrNull { it.is_active }?.profile_id
+        val remoteActive = remote.values.firstOrNull { it.isActive }?.profileId?.takeIf { it in available }
+        val active = (remoteActive.takeUnless { pendingBase } ?: previousActive?.takeIf { it in available })
+            ?: available.minOrNull()
+        if (active == null || (remote.isEmpty() && emptySlots.isEmpty())) {
+            return@withStorageLock ensureState(serial) to emptyList()
+        }
+        val profiles = available.map { id ->
+            val incoming = replacement[id]
+            val existing = local[id]
+            if (incoming == null) {
+                checkNotNull(existing).copy(is_active = id == active)
+            } else {
+                val created = incoming.createdTsMs ?: existing?.takeIf { id == BASE_PROFILE_ID }?.created_ts_ms ?: incoming.updatedTsMs
+                val revision = if (id == BASE_PROFILE_ID) incoming.engineerRevision
+                    else existing?.takeIf { it.created_ts_ms == created }?.engineer_revision ?: 0
+                SettingsProfileEntity(serial, id,
+                    if (id == BASE_PROFILE_ID) "Базовые настройки" else incoming.name.ifBlank { profileName(id) },
+                    id == active, created, incoming.updatedTsMs, revision)
+            }
+        }
+        val values = replacement.values.flatMap { profile -> profile.values.map { it.copy(serial_number = serial) } }
+        if (!isCurrentSession()) throw CancellationException("Settings profile session changed")
+        dao.applyServerProfiles(serial, profiles, values, replacement.keys.toList(), emptySlots)
+        if (discardDraftsBefore != null) {
+            val refreshedSlots = (replacement.keys + emptySlots) - BASE_PROFILE_ID
+            val draftSerial = engineerDraftSerial(serial)
+            dao.getProfiles(draftSerial).filter {
+                it.profile_id in refreshedSlots && it.engineer_upload_pending && it.updated_ts_ms <= discardDraftsBefore
+            }.forEach { dao.deleteProfileWithValues(draftSerial, it.profile_id) }
+        }
+        for (profile in profiles.filter { it.profile_id > BASE_PROFILE_ID }) {
+            val slot = root["PROFILE${profile.profile_id}"]?.toJsonObjectOrNull()
+            updateEngineerPreview(
+                profile,
+                slot?.let { parseEngineerUpdate(it, profile.profile_id) },
+                remote[profile.profile_id]?.engineerRevision ?: 0,
+            )
+        }
+        val state = ensureState(serial)
+        val apply = if (!pendingBase && remoteActive == active) {
+            engineerProfileValues(profiles.first { it.profile_id == active }).toApplyValues()
+        } else emptyList()
+        state to apply
+    }
+
+    private fun engineerDraftSerial(serial: String) = "engineer-draft:$serial"
+
+    private suspend fun engineerDraft(profile: SettingsProfileEntity): SettingsProfileEntity? =
+        if (profile.profile_id == BASE_PROFILE_ID) null else dao.getProfile(engineerDraftSerial(profile.serial_number), profile.profile_id)
+            ?.takeIf { it.created_ts_ms == profile.created_ts_ms }
+
+    private suspend fun engineerProfileValues(profile: SettingsProfileEntity): List<SettingsProfileValueEntity> {
+        val original = dao.getValues(profile.serial_number, profile.profile_id)
+        val draft = engineerDraft(profile) ?: return original
+        return (original + dao.getValues(draft.serial_number, draft.profile_id)).associateBy { it.setting_key }.values.toList()
+    }
+
+    private suspend fun updateEngineerPreview(profile: SettingsProfileEntity, update: ServerEngineerUpdate?, appliedRevision: Long) {
+        val draft = engineerDraft(profile)
+        if (draft?.engineer_upload_pending == true) return
+        val draftSerial = engineerDraftSerial(profile.serial_number)
+        if (update == null || update.revision <= appliedRevision) {
+            if (draft != null) dao.deleteProfileWithValues(draftSerial, profile.profile_id)
+            return
+        }
+        dao.replaceProfileWithValues(
+            profile.copy(serial_number = draftSerial, is_active = false, engineer_revision = update.revision),
+            update.values.map { it.copy(serial_number = draftSerial) },
+        )
+    }
+
+    suspend fun buildEngineerPersonalUpload(serial: String, profileId: Int, remotePayload: String): Pair<Long, String> = withStorageLock {
+        require(profileId in 1..MAX_SETTINGS_PROFILE_COUNT)
+        val profile = checkNotNull(dao.getProfile(serial, profileId))
+        val draft = checkNotNull(engineerDraft(profile)?.takeIf { it.engineer_upload_pending }) { "No pending changes for this profile" }
+        val root = checkNotNull(serverProfilesRoot(remotePayload)) { "No server profiles" }
+        val key = "PROFILE$profileId"
+        val slot = checkNotNull(root[key]?.toJsonObjectOrNull()?.takeIf { it.isNotEmpty() }) { "Profile no longer exists on the server" }
+        check(matchesServerProfile(profile, slot)) { "Profile was replaced on the server" }
+        val previous = parseEngineerUpdate(slot, profileId)
+        val draftValues = dao.getValues(draft.serial_number, profileId)
+        val slots = serverWireSlots(root)
+        val publishedRevision = previous?.revision ?: slot.profileRevision()
+        val publishedValues = previous?.values ?: slot["settings"]?.runCatchingJsonArray()
+            ?.mapNotNull { it.toProfileValueEntityOrNull(profileId) }.orEmpty()
+        val publishedByKey = publishedValues.associateBy { it.setting_key }
+        if (publishedRevision >= draft.engineer_revision && draftValues.all {
+                publishedByKey[it.setting_key]?.toServerValueJson() == it.toServerValueJson()
+            }) {
+            return@withStorageLock draft.engineer_revision to settingsProfileServerJson.encodeToString(slots)
+        }
+        val changed = (previous?.values.orEmpty() + draftValues)
+            .associateBy { it.setting_key }.values
+        val update = buildJsonObject {
+            put("changed_by_service_engineer", true)
+            put("engineer_revision", maxOf(draft.engineer_revision, publishedRevision + 1))
+            put("settings", buildJsonArray { changed.forEach { add(it.toServerJson()) } })
+        }
+        slots[key] = JsonObject(slot + (ENGINEER_UPDATE_KEY to update)).toString()
+        draft.engineer_revision to settingsProfileServerJson.encodeToString(slots)
+    }
+
+    suspend fun markEngineerPersonalPublished(serial: String, profileId: Int, revision: Long) = withStorageLock {
+        val draft = dao.getProfile(engineerDraftSerial(serial), profileId) ?: return@withStorageLock
+        if (draft.engineer_revision == revision && draft.engineer_upload_pending) {
+            dao.upsertProfile(draft.copy(engineer_upload_pending = false))
+            V3SettingsProfilesUpdates.notifyChanged()
+        }
+    }
+
+    suspend fun synchronizePersonalEngineerUpdates(
+        serial: String,
+        payload: String,
+        isCurrentSession: () -> Boolean,
+    ): Pair<Int?, List<SettingsProfileApplyValue>> = withStorageLock {
+        val root = serverProfilesRoot(payload) ?: return@withStorageLock null to emptyList()
+        val updates = matchingPersonalUpdates(serial, root).filter { (local, update) ->
+            update.revision > local.engineer_revision
+        }
+        val (selected, update) = updates.maxByOrNull { it.second.revision } ?: return@withStorageLock null to emptyList()
+        val selectedId = selected.profile_id
+        val updatedIds = updates.map { it.first.profile_id }.toSet()
+        val previouslyActive = dao.getProfiles(serial).filter { it.is_active && it.profile_id !in updatedIds }
+        val now = getTimeMillis()
+        val profiles = updates.map { (local, incoming) ->
+            local.copy(is_active = local.profile_id == selectedId, engineer_revision = incoming.revision, updated_ts_ms = now)
+        } + previouslyActive.map { it.copy(is_active = false) }
+        val values = updates.flatMap { (_, incoming) -> incoming.values.map { it.copy(serial_number = serial) } }
+        if (!isCurrentSession()) return@withStorageLock null to emptyList()
+        dao.applyServerProfiles(serial, profiles, values, emptyList(), emptyList())
+        // Switching profiles also applies settings that were not part of the engineer's patch.
+        selectedId to if (selected.is_active) update.values.toApplyValues() else loadApplyValues(serial, selectedId)
+    }
+
+    private suspend fun matchingPersonalUpdates(serial: String, root: JsonObject) =
+        (1..MAX_SETTINGS_PROFILE_COUNT).mapNotNull { id ->
+            val slot = root["PROFILE$id"]?.toJsonObjectOrNull() ?: return@mapNotNull null
+            val update = parseEngineerUpdate(slot, id) ?: return@mapNotNull null
+            val local = dao.getProfile(serial, id) ?: return@mapNotNull null
+            if (matchesServerProfile(local, slot)) local to update else null
+        }
 
     /** Seed an offline first connection before attempting any network request. */
     suspend fun captureDeviceSettings(serial: String) = withStorageLock {
@@ -308,7 +520,8 @@ class SettingsProfileRepository(
         payload: String,
         preserveCurrentSettings: Boolean = true,
     ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withStorageLock {
-        val remote = parseServerProfiles(payload, baseSettingsOnly = true).firstOrNull()
+        val root = serverProfilesRoot(payload) ?: return@withStorageLock ensureState(serial) to emptyList()
+        val remote = parseServerProfiles(root, baseSettingsOnly = true).firstOrNull()
             ?: return@withStorageLock ensureState(serial) to emptyList()
         val localBase = dao.getProfile(serial, BASE_PROFILE_ID)
         if (localBase?.engineer_upload_pending == true) return@withStorageLock ensureState(serial) to emptyList()
@@ -324,7 +537,7 @@ class SettingsProfileRepository(
                 val backupId = preservePersonalProfile(serial, previousBase, selectProfile = active?.profile_id == BASE_PROFILE_ID)
                 platformLog("SettingsProfileSync", "backup previous base serial=$serial backup_profile=$backupId new_engineer_revision=${remote.engineerRevision}")
             }
-        } else if (preserveCurrentSettings) {
+        } else if (preserveCurrentSettings && matchingPersonalUpdates(serial, root).isEmpty()) {
             val current = currentDeviceValues(serial) ?: active?.let { dao.getValues(serial, it.profile_id) }.orEmpty()
             if (comparableDeviceSettings(current).isNotEmpty() && !sameDeviceSettings(current, remote.values)) {
                 preservePersonalProfile(serial, current)
@@ -481,14 +694,16 @@ class SettingsProfileRepository(
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         typedValue: ParameterTypedValueV3,
         canEditBaseSettings: Boolean = true,
+        engineerPersonalEdit: Boolean = false,
     ) = withStorageLock {
         val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock
         val meta = metaFor(parameterInfo) ?: return@withStorageLock
         if (!isBleProfileSetting(meta)) return@withStorageLock
         ensureDefaultProfile(normalizedSerial)
         val activeProfileId = profileForWrite(normalizedSerial, canEditBaseSettings) ?: return@withStorageLock
-        upsertBleValue(normalizedSerial, activeProfileId, parameterInfo, meta, typedValue, engineerEdit = activeProfileId == BASE_PROFILE_ID && canEditBaseSettings)
-        if (activeProfileId == BASE_PROFILE_ID) V3SettingsProfilesUpdates.notifyChanged()
+        val entity = bleValueEntity(normalizedSerial, activeProfileId, parameterInfo, meta, typedValue)
+            ?: return@withStorageLock
+        saveEditedValue(entity, engineerPersonalEdit)
     }
 
     suspend fun saveMobileBoolean(
@@ -496,6 +711,7 @@ class SettingsProfileRepository(
         mobileKey: String,
         value: Boolean,
         canEditBaseSettings: Boolean = true,
+        engineerPersonalEdit: Boolean = false,
     ) = withStorageLock {
         val normalizedSerial = normalizeSerial(serial) ?: return@withStorageLock
         if (mobileKey.isBlank()) return@withStorageLock
@@ -518,9 +734,32 @@ class SettingsProfileRepository(
                 value_i3 = null,
                 updated_ts_ms = ts
             )
-        if (activeProfileId == BASE_PROFILE_ID && canEditBaseSettings) dao.upsertProfileValue(engineerEditProfile(normalizedSerial), entity)
-        else dao.upsertValue(entity)
-        if (activeProfileId == BASE_PROFILE_ID) V3SettingsProfilesUpdates.notifyChanged()
+        saveEditedValue(entity, engineerPersonalEdit)
+    }
+
+    private suspend fun saveEditedValue(entity: SettingsProfileValueEntity, engineerPersonalEdit: Boolean) {
+        val serial = entity.serial_number
+        val id = entity.profile_id
+        when {
+            id == BASE_PROFILE_ID -> {
+                dao.upsertProfileValue(engineerEditProfile(serial), entity)
+                V3SettingsProfilesUpdates.notifyChanged()
+            }
+            engineerPersonalEdit -> {
+                val profile = checkNotNull(dao.getProfile(serial, id))
+                val current = engineerProfileValues(profile).firstOrNull { it.setting_key == entity.setting_key }
+                if (current?.toServerValueJson() == entity.toServerValueJson()) return
+                val draft = engineerDraft(profile) ?: profile.copy(serial_number = engineerDraftSerial(serial), is_active = false)
+                val editedAt = getTimeMillis()
+                val revision = maxOf(editedAt, draft.engineer_revision + 1)
+                dao.upsertProfileValue(
+                    draft.copy(engineer_revision = revision, engineer_upload_pending = true, updated_ts_ms = editedAt),
+                    entity.copy(serial_number = draft.serial_number),
+                )
+                V3SettingsProfilesUpdates.notifyChanged()
+            }
+            else -> dao.upsertValue(entity)
+        }
     }
 
     private suspend fun engineerEditProfile(serial: String): SettingsProfileEntity {
@@ -560,8 +799,10 @@ class SettingsProfileRepository(
     private suspend fun loadApplyValues(
         serial: String,
         profileId: Int
-    ): List<SettingsProfileApplyValue> {
-        return dao.getValues(serial, profileId).mapNotNull { entity ->
+    ): List<SettingsProfileApplyValue> = dao.getValues(serial, profileId).toApplyValues()
+
+    private fun List<SettingsProfileValueEntity>.toApplyValues(): List<SettingsProfileApplyValue> =
+        mapNotNull { entity ->
             when (entity.target) {
                 TARGET_BLE -> {
                     val codecId = runCatching { ParameterCodecIdV3.valueOf(entity.codec_id) }.getOrNull()
@@ -594,7 +835,6 @@ class SettingsProfileRepository(
                 else -> null
             }
         }
-    }
 
     private suspend fun snapshotCurrentBleValues(serial: String, profileId: Int) {
         ParameterStoreV3.values.value.forEach { (key, typedValue) ->
@@ -611,11 +851,9 @@ class SettingsProfileRepository(
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         meta: ParameterMetaV3,
         typedValue: ParameterTypedValueV3,
-        engineerEdit: Boolean = false,
     ) {
         val entity = bleValueEntity(serial, profileId, parameterInfo, meta, typedValue) ?: return
-        if (engineerEdit) dao.upsertProfileValue(engineerEditProfile(serial), entity)
-        else dao.upsertValue(entity)
+        dao.upsertValue(entity)
     }
 
     private fun bleValueEntity(
@@ -645,7 +883,8 @@ class SettingsProfileRepository(
                 value_i2 = null,
                 value_i3 = null,
                 updated_ts_ms = ts
-            )
+
+        )
     }
 
     private suspend fun ensureDefaultProfile(serial: String) {
@@ -700,7 +939,8 @@ class SettingsProfileRepository(
     private fun SettingsProfileEntity.toProfileInfo(): SettingsProfileInfo = SettingsProfileInfo(
         profileId = profile_id,
         customName = name.takeUnless { it.isDefaultProfileName(profile_id) },
-        isActive = is_active
+        isActive = is_active,
+        personalEngineerRevision = if (profile_id > BASE_PROFILE_ID) engineer_revision else 0,
     )
 
     private fun String.isDefaultProfileName(profileId: Int): Boolean {
@@ -708,7 +948,7 @@ class SettingsProfileRepository(
         return normalized == "Профиль №$profileId" || normalized == "Profile #$profileId"
     }
 
-    private suspend fun buildServerProfileJson(serial: String, profileId: Int): String {
+    private suspend fun buildServerProfileJson(serial: String, profileId: Int, engineerUpdate: JsonObject? = null): String {
         val profile = dao.getProfile(serial, profileId) ?: return EMPTY_PROFILE_JSON
         val values = dao.getValues(serial, profileId)
         val profileJson = buildJsonObject {
@@ -719,6 +959,10 @@ class SettingsProfileRepository(
             if (profileId == BASE_PROFILE_ID) {
                 put("changed_by_service_engineer", profile.engineer_revision > 0)
                 put("engineer_revision", profile.engineer_revision)
+            } else {
+                put("created_ts_ms", profile.created_ts_ms)
+                if (profile.engineer_revision > 0) put("engineer_revision", profile.engineer_revision)
+                if (engineerUpdate != null) put(ENGINEER_UPDATE_KEY, engineerUpdate)
             }
             put(
                 "settings",
@@ -765,11 +1009,48 @@ class SettingsProfileRepository(
             "PROFILE3" to EMPTY_PROFILE_JSON
         )
 
-    private fun parseServerProfiles(payload: String, baseSettingsOnly: Boolean = false): List<ServerSettingsProfile> {
-        val root = runCatching { settingsProfileServerJson.parseToJsonElement(payload) }.getOrNull()
-            ?: return emptyList()
-        val profilesRoot = root.extractProfilesRoot() ?: return emptyList()
+    private fun serverWireSlots(root: JsonObject?): MutableMap<String, String> {
+        val slots = defaultServerProfiles().toMutableMap()
+        root?.forEach { (key, value) ->
+            slots[key] = (value as? JsonPrimitive)?.contentOrNull ?: value.toString()
+        }
+        return slots
+    }
 
+    private suspend fun matchesServerProfile(profile: SettingsProfileEntity, slot: JsonObject): Boolean {
+        val created = (slot["created_ts_ms"] as? JsonPrimitive)?.contentOrNull?.toLongOrNull()
+        if (created != null) return created == profile.created_ts_ms
+        // Legacy uploads identify a slot by its original name and saved settings.
+        if ((slot["name"] as? JsonPrimitive)?.contentOrNull != profile.name) return false
+        val remoteValues = slot["settings"]?.runCatchingJsonArray() ?: return false
+        val localValues = dao.getValues(profile.serial_number, profile.profile_id)
+        val original = remoteValues.mapNotNull { it.toProfileValueEntityOrNull(profile.profile_id) }
+        return original.size == remoteValues.size &&
+            original.associate { it.setting_key to it.toServerValueJson() } ==
+            localValues.associate { it.setting_key to it.toServerValueJson() }
+    }
+
+    private fun parseEngineerUpdate(slot: JsonObject, profileId: Int): ServerEngineerUpdate? {
+        val update = slot[ENGINEER_UPDATE_KEY] as? JsonObject ?: return null
+        if ((update["changed_by_service_engineer"] as? JsonPrimitive)?.booleanOrNull != true) return null
+        val revision = update.profileRevision().takeIf { it > 0 } ?: return null
+        val array = update["settings"]?.runCatchingJsonArray()?.takeIf { it.isNotEmpty() } ?: return null
+        val values = runCatching { array.mapNotNull { it.toProfileValueEntityOrNull(profileId) } }.getOrNull() ?: return null
+        return ServerEngineerUpdate(revision, update, values).takeIf { values.size == array.size }
+    }
+
+    private fun JsonObject.profileRevision(): Long =
+        (get("engineer_revision") as? JsonPrimitive)?.contentOrNull?.toLongOrNull()?.coerceAtLeast(0) ?: 0
+
+    private fun parseServerProfiles(payload: String, baseSettingsOnly: Boolean = false): List<ServerSettingsProfile> {
+        val root = serverProfilesRoot(payload) ?: return emptyList()
+        return parseServerProfiles(root, baseSettingsOnly)
+    }
+
+    private fun serverProfilesRoot(payload: String): JsonObject? =
+        runCatching { settingsProfileServerJson.parseToJsonElement(payload) }.getOrNull()?.extractProfilesRoot()
+
+    private fun parseServerProfiles(profilesRoot: JsonObject, baseSettingsOnly: Boolean = false): List<ServerSettingsProfile> {
         val ids = if (baseSettingsOnly) BASE_PROFILE_ID..BASE_PROFILE_ID else BASE_PROFILE_ID..MAX_SETTINGS_PROFILE_COUNT
         return ids.mapNotNull { profileId ->
             val key = if (profileId == BASE_PROFILE_ID) BASE_SERVER_KEY else "PROFILE$profileId"
@@ -791,8 +1072,10 @@ class SettingsProfileRepository(
                 name = profileJson["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                 isActive = profileJson["is_active"]?.jsonPrimitive?.booleanOrNull == true,
                 updatedTsMs = updatedTsMs,
-                engineerRevision = if (profileId == BASE_PROFILE_ID && profileJson["changed_by_service_engineer"]?.jsonPrimitive?.booleanOrNull == true)
-                    profileJson["engineer_revision"]?.jsonPrimitive?.contentOrNull?.toLongOrNull()?.coerceAtLeast(0) ?: 0 else 0,
+                createdTsMs = (profileJson["created_ts_ms"] as? JsonPrimitive)?.contentOrNull?.toLongOrNull(),
+                engineerRevision = if (profileId != BASE_PROFILE_ID ||
+                    (profileJson["changed_by_service_engineer"] as? JsonPrimitive)?.booleanOrNull == true
+                ) profileJson.profileRevision() else 0,
                 values = values
             )
         }
@@ -871,8 +1154,15 @@ private data class ServerSettingsProfile(
     val name: String,
     val isActive: Boolean,
     val updatedTsMs: Long,
+    val createdTsMs: Long?,
     val engineerRevision: Long = 0,
     val values: List<SettingsProfileValueEntity>
+)
+
+private data class ServerEngineerUpdate(
+    val revision: Long,
+    val json: JsonObject,
+    val values: List<SettingsProfileValueEntity>,
 )
 
 object SettingsProfileRepositoryProvider {
@@ -890,6 +1180,8 @@ object SettingsProfileRepositoryProvider {
 }
 
 object SettingsProfileManager {
+    @Volatile
+    var profileEngineerRole: (() -> Boolean)? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val pendingWrites = MutableStateFlow<Map<Job, String>>(emptyMap())
 
@@ -957,10 +1249,11 @@ object SettingsProfileManager {
     ) {
         val serial = serial()
         if (serial.isBlank()) return
-        val canEditBase = !UiState.isInterfaceV3Activated || UiState.isServiceEngineerRole.value
+        val engineer = if (UiState.isInterfaceV3Activated) profileEngineerRole?.invoke() else null
+        val canEditBase = !UiState.isInterfaceV3Activated || (engineer ?: UiState.isServiceEngineerRole.value)
         launchProfileWrite(serial) {
             runCatching {
-                SettingsProfileRepositoryProvider.get().saveBleValue(serial, parameterInfo, typedValue, canEditBase)
+                SettingsProfileRepositoryProvider.get().saveBleValue(serial, parameterInfo, typedValue, canEditBase, engineer == true)
             }.onFailure {
                 platformLog("SettingsProfileManager", "saveBleValue failed: ${it.message}")
             }
@@ -970,10 +1263,11 @@ object SettingsProfileManager {
     fun saveMobileBoolean(mobileKey: String, value: Boolean) {
         val serial = serial()
         if (serial.isBlank()) return
-        val canEditBase = !UiState.isInterfaceV3Activated || UiState.isServiceEngineerRole.value
+        val engineer = if (UiState.isInterfaceV3Activated) profileEngineerRole?.invoke() else null
+        val canEditBase = !UiState.isInterfaceV3Activated || (engineer ?: UiState.isServiceEngineerRole.value)
         launchProfileWrite(serial) {
             runCatching {
-                SettingsProfileRepositoryProvider.get().saveMobileBoolean(serial, mobileKey, value, canEditBase)
+                SettingsProfileRepositoryProvider.get().saveMobileBoolean(serial, mobileKey, value, canEditBase, engineer == true)
             }.onFailure {
                 platformLog("SettingsProfileManager", "saveMobileBoolean failed: ${it.message}")
             }

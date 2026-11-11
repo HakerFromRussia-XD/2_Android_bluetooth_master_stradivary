@@ -18,11 +18,16 @@ class V3BaseSettingsUpdatesViewModelTest {
     private val environment = MutableStateFlow(V3BaseSettingsEnvironment("serial", true, true, 10, 0))
     private val responses = mutableListOf<Pair<V3BaseSettingsOffer, Boolean>>()
     private val refreshes = mutableListOf<String>()
+    private val draftCutoffs = mutableListOf<Long?>()
+    private var wallTimeMs = 100L
     private var release: CompletableDeferred<Unit>? = null
     private var failResponse = false
     private val repository = object : V3BaseSettingsUpdatesRepository {
         override fun observeEnvironment() = environment
-        override suspend fun refresh(serial: String) { refreshes += serial }
+        override suspend fun refresh(serial: String, discardEngineerDraftsBefore: Long?) {
+            refreshes += serial
+            draftCutoffs += discardEngineerDraftsBefore
+        }
         override suspend fun respond(offer: V3BaseSettingsOffer, accept: Boolean): Boolean {
             responses += offer to accept
             release?.await()
@@ -34,6 +39,7 @@ class V3BaseSettingsUpdatesViewModelTest {
     private val model = V3BaseSettingsUpdatesViewModel(
         ObserveBaseSettingsUpdatesUseCaseV3(repository), RefreshBaseSettingsUpdatesUseCaseV3(repository),
         RespondToBaseSettingsUpdateUseCaseV3(repository),
+        currentTimeMillis = { wallTimeMs },
     )
     private val store = ViewModelStore()
 
@@ -58,14 +64,61 @@ class V3BaseSettingsUpdatesViewModelTest {
         assertEquals(listOf("serial"), refreshes)
     }
 
+    @Test fun `engineer keeps profiles on resume and after widgets become available again`() = runTest(dispatcher) {
+        environment.value = environment.value.copy(isUser = false, isEngineer = true, isConnected = true)
+        attach(); runCurrent()
+        model.onAction(V3BaseSettingsUpdatesAction.ViewResumed); runCurrent()
+
+        environment.value = environment.value.copy(canApply = false); runCurrent()
+        wallTimeMs = 200
+        model.onAction(V3BaseSettingsUpdatesAction.ViewResumed); runCurrent()
+        environment.value = environment.value.copy(canApply = true); runCurrent()
+
+        assertEquals(listOf("serial"), refreshes)
+        assertEquals(listOf(100L), draftCutoffs)
+        assertNull(model.uiState.value.offer)
+    }
+
+    @Test fun `reconnecting to the same device reloads engineer profiles with a new draft cutoff`() = runTest(dispatcher) {
+        environment.value = environment.value.copy(isUser = false, isEngineer = true, isConnected = true)
+        attach(); runCurrent()
+
+        environment.value = environment.value.copy(isEngineer = false, isConnected = false, canApply = false); runCurrent()
+        wallTimeMs = 200
+        environment.value = environment.value.copy(isEngineer = true, isConnected = true); runCurrent()
+        assertEquals(listOf(100L), draftCutoffs)
+        environment.value = environment.value.copy(canApply = true); runCurrent()
+
+        assertEquals(listOf("serial", "serial"), refreshes)
+        assertEquals(listOf(100L, 200L), draftCutoffs)
+    }
+
+    @Test fun `engineer connecting offline loads once when online with the original cutoff`() = runTest(dispatcher) {
+        environment.value = environment.value.copy(isUser = false, isEngineer = true, isConnected = true, online = false)
+        attach(); runCurrent()
+        assertTrue(refreshes.isEmpty())
+
+        wallTimeMs = 200
+        model.onAction(V3BaseSettingsUpdatesAction.ViewResumed); runCurrent()
+        environment.value = environment.value.copy(online = true); runCurrent()
+        environment.value = environment.value.copy(online = false); runCurrent()
+        environment.value = environment.value.copy(online = true); runCurrent()
+
+        assertEquals(listOf("serial"), refreshes)
+        assertEquals(listOf(100L), draftCutoffs)
+    }
+
     @Test fun `engineer does not see a dialog but switching to user offers the pending baseline`() = runTest(dispatcher) {
-        environment.value = environment.value.copy(isUser = false)
+        environment.value = environment.value.copy(isUser = false, isEngineer = true, isConnected = true)
         attach(); runCurrent()
         assertNull(model.uiState.value.offer)
-        assertTrue(refreshes.isEmpty())
-        environment.value = environment.value.copy(isUser = true); runCurrent()
-        assertNotNull(model.uiState.value.offer)
         assertEquals(listOf("serial"), refreshes)
+        environment.value = environment.value.copy(isUser = true, isEngineer = false); runCurrent()
+        assertNotNull(model.uiState.value.offer)
+        assertEquals(listOf("serial", "serial"), refreshes)
+        environment.value = environment.value.copy(isUser = false, isEngineer = true); runCurrent()
+        assertNull(model.uiState.value.offer)
+        assertEquals(listOf("serial", "serial"), refreshes)
     }
 
     @Test fun `skip is remembered for this revision and the next engineer change is offered`() = runTest(dispatcher) {

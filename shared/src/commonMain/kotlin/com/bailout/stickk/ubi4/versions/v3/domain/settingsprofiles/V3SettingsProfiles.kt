@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles
 
-data class V3SettingsProfile(val profileId: Int, val customName: String?) {
+data class V3SettingsProfile(val profileId: Int, val customName: String?, val hasEngineerDraft: Boolean = false) {
     val isBase: Boolean get() = profileId == V3SettingsProfiles.BASE_PROFILE_ID
     val canRename: Boolean get() = !isBase
 }

@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCase
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.SendEngineerSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3ParameterKeys.P_KEY_EMG_MOVEMENT_LOCK
@@ -92,6 +93,7 @@ class V3SpecialSettingsViewModel(
     private val copyBaseSettingsToPersonalProfile: CopyBaseSettingsToPersonalProfileUseCaseV3,
     private val renameSettingsProfile: RenameSettingsProfileUseCaseV3,
     private val deleteSettingsProfile: com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.DeleteSettingsProfileUseCaseV3,
+    private val sendEngineerSettingsProfile: SendEngineerSettingsProfileUseCaseV3,
     private val getAutoLoginEnabled: GetAutoLoginEnabledUseCaseV3,
     private val observeAutoLoginEnabled: ObserveAutoLoginEnabledUseCaseV3,
     private val getSpecialSettingsSection: GetSpecialSettingsSectionUseCaseV3,
@@ -244,6 +246,9 @@ class V3SpecialSettingsViewModel(
             is V3SpecialSettingsAction.SettingsProfileSelected -> onSettingsProfileSelected(action.profileId)
             V3SpecialSettingsAction.SettingsProfileCreateRequested -> onSettingsProfileCreateRequested()
             is V3SpecialSettingsAction.SettingsProfileRenameRequested -> onSettingsProfileRenameRequested(action.profileId)
+            is V3SpecialSettingsAction.SettingsProfileSendRequested -> onSettingsProfileSendRequested(action.profileId)
+            V3SpecialSettingsAction.SettingsProfileSendConfirmationShown ->
+                _uiState.update { it.copy(profileSendConfirmationPending = false) }
             is V3SpecialSettingsAction.SettingsProfileNameSubmitted -> onSettingsProfileNameSubmitted(action.requestId, action.name)
             is V3SpecialSettingsAction.SettingsProfileNameDismissed -> dismissSettingsProfileName(action.requestId)
             is V3SpecialSettingsAction.SettingsProfileDeleteRequested -> {
@@ -405,7 +410,9 @@ class V3SpecialSettingsViewModel(
         if (isProfileOperationRunning) return
         val missing = _uiState.value.settingsProfiles == null
         settingsProfilesSerial = serial
-        val current = _uiState.value.settingsProfiles ?: V3SettingsProfilesUiState()
+        val current = (_uiState.value.settingsProfiles ?: V3SettingsProfilesUiState()).copy(
+            showSendAction = getDeviceRole() == V3DeviceRole.SERVICE_ENGINEER,
+        )
         if (!isViewAttached) {
             settingsProfilesRequest++
             settingsProfilesLoadJob?.cancel()
@@ -415,7 +422,7 @@ class V3SpecialSettingsViewModel(
         }
         _uiState.update { it.copy(settingsProfiles = current.copy(
             isEnabled = !current.isLoading && !current.loadFailed && current.profiles.isNotEmpty() && getSpinnerSettings(emptySet()).isInteractionEnabled,
-            nameEditor = current.nameEditor.takeIf { getSpinnerSettings(emptySet()).isInteractionEnabled },
+            nameEditor = current.nameEditor.takeIf { !current.showSendAction && getSpinnerSettings(emptySet()).isInteractionEnabled },
             deleteConfirmation = current.deleteConfirmation.takeIf { getSpinnerSettings(emptySet()).isInteractionEnabled },
         )) }
         if (!reload && !missing) return
@@ -433,6 +440,7 @@ class V3SpecialSettingsViewModel(
                     isEnabled = isViewAttached && getSpinnerSettings(emptySet()).isInteractionEnabled,
                     isLoading = false,
                     failedOperation = _uiState.value.settingsProfiles?.failedOperation,
+                    showSendAction = getDeviceRole() == V3DeviceRole.SERVICE_ENGINEER,
                 )) }
                 if (_uiState.value.baseSettingsEditPrompt != null &&
                     (profiles.activeProfileId != V3SettingsProfiles.BASE_PROFILE_ID || getDeviceRole() != V3DeviceRole.USER)) {
@@ -462,6 +470,7 @@ class V3SpecialSettingsViewModel(
     }
 
     private fun onSettingsProfileRenameRequested(profileId: Int) {
+        if (getDeviceRole() == V3DeviceRole.SERVICE_ENGINEER) return
         val state = _uiState.value.settingsProfiles ?: return
         if (!isViewAttached || isProfileOperationRunning || !state.isEnabled || !getSpinnerSettings(emptySet()).isInteractionEnabled) return
         if (settingsProfilesSerial != getSettingsProfilesDeviceSerial()) {
@@ -476,7 +485,17 @@ class V3SpecialSettingsViewModel(
         )) }
     }
 
+    private fun onSettingsProfileSendRequested(profileId: Int) {
+        if (getDeviceRole() != V3DeviceRole.SERVICE_ENGINEER) return
+        val profile = _uiState.value.settingsProfiles?.profiles?.firstOrNull { it.profileId == profileId } ?: return
+        if (profile.isBase || !profile.hasEngineerDraft) return
+        runSettingsProfileOperation(V3SettingsProfileOperation.SEND, afterSuccess = {
+            _uiState.update { it.copy(profileSendConfirmationPending = true) }
+        }) { serial -> sendEngineerSettingsProfile(serial, profileId) }
+    }
+
     private fun onSettingsProfileNameSubmitted(requestId: Long, name: String) {
+        if (getDeviceRole() == V3DeviceRole.SERVICE_ENGINEER) return
         val editor = _uiState.value.settingsProfiles?.nameEditor ?: return
         if (editor.requestId != requestId) return
         runSettingsProfileOperation(V3SettingsProfileOperation.RENAME) { serial ->

@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.widget.TextView
+import android.widget.Toast
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,7 @@ import com.bailout.stickk.ubi4.ui.dialog.SettingsProfileNameDialogHost
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfileNameRules
 import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileNameEditorUiState
+import com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles.V3SettingsProfileOperation
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3BaseSettingsEditPromptUiState
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -66,6 +68,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val display = 2
     private var previousMobileSettings: Boolean? = null
     private var isMobileSettings = false
+    private var profileSendFailureShown = false
     private var selectorIndicatorAnimator: ObjectAnimator? = null
     private var v3SpecialSettingsViewModel: V3SpecialSettingsViewModel? = null
     private val v3AutoLoginAdapter by lazy {
@@ -92,6 +95,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             },
             onSettingsProfileDeleteRequested = {
                 v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileDeleteRequested(it))
+            },
+            onSettingsProfileSendRequested = {
+                v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSendRequested(it))
             },
         )
     }
@@ -366,6 +372,15 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     private fun renderV3SpecialSettings(state: V3SpecialSettingsUiState) {
         val currentBinding = _binding ?: return
+        if (state.profileSendConfirmationPending) {
+            Toast.makeText(currentBinding.root.context, R.string.settings_profile_send_succeeded, Toast.LENGTH_SHORT).show()
+            v3SpecialSettingsViewModel?.onAction(V3SpecialSettingsAction.SettingsProfileSendConfirmationShown)
+        }
+        val sendFailed = state.settingsProfiles?.failedOperation == V3SettingsProfileOperation.SEND
+        if (sendFailed && !profileSendFailureShown) {
+            Toast.makeText(currentBinding.root.context, R.string.settings_profile_send_failed, Toast.LENGTH_LONG).show()
+        }
+        profileSendFailureShown = sendFailed
         v3AnimationsEnabled = state.animationsEnabled
         // Compatibility mirror for the existing shared UI state; preferences are owned by the ViewModel path.
         activeSettingsFragmentFilterFlow.value = if (state.selectedSection == V3SpecialSettingsSection.APPLICATION) 2 else 1

@@ -75,6 +75,20 @@ interface SettingsProfileDao {
         values.forEach { upsertValue(it) }
     }
 
+    @Transaction
+    suspend fun applyServerProfiles(
+        serial: String,
+        profiles: List<SettingsProfileEntity>,
+        values: List<SettingsProfileValueEntity>,
+        replacedIds: List<Int>,
+        deletedIds: List<Int>,
+    ) {
+        deletedIds.forEach { deleteProfileWithValues(serial, it) }
+        replacedIds.forEach { deleteProfileValues(serial, it) }
+        profiles.forEach { upsertProfile(it) }
+        values.forEach { upsertValue(it) }
+    }
+
     @Query("DELETE FROM settings_profile_values WHERE serial_number = :serial")
     suspend fun deleteValues(serial: String)
 

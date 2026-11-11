@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
@@ -14,6 +15,7 @@ class V3BaseSettingsUpdatesViewModel(
     private val observeUpdates: ObserveBaseSettingsUpdatesUseCaseV3,
     private val refreshUpdates: RefreshBaseSettingsUpdatesUseCaseV3,
     private val respondToUpdate: RespondToBaseSettingsUpdateUseCaseV3,
+    private val currentTimeMillis: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
     private val state = MutableStateFlow(V3BaseSettingsUpdatesUiState())
     val uiState = state.asStateFlow()
@@ -23,6 +25,7 @@ class V3BaseSettingsUpdatesViewModel(
     private var response: Job? = null
     private var session = 0L
     private var responseRequest = 0L
+    private var pendingEngineerDraftCutoff: Long? = null
 
     fun onAction(action: V3BaseSettingsUpdatesAction) {
         if (!viewModelScope.isActive) return
@@ -33,9 +36,14 @@ class V3BaseSettingsUpdatesViewModel(
                 observation = viewModelScope.launch {
                     observeUpdates().collect { next ->
                         if (session != currentSession) return@collect
-                        val changed = next.serial != environment.serial || next.isUser != environment.isUser
+                        val changed = next.serial != environment.serial || next.isUser != environment.isUser ||
+                            next.isEngineer != environment.isEngineer
+                        val newConnection = next.isConnected && (!environment.isConnected || next.serial != environment.serial)
+                        if (newConnection) pendingEngineerDraftCutoff = currentTimeMillis()
+                        else if (!next.isConnected) pendingEngineerDraftCutoff = null
                         val becameReady = next.canApply && !environment.canApply
                         val becameOnline = next.online && !environment.online
+                        if (!next.canApply) refresh?.cancel()
                         if (changed) {
                             responseRequest++
                             refresh?.cancel(); response?.cancel()
@@ -50,19 +58,28 @@ class V3BaseSettingsUpdatesViewModel(
                     }
                 }
             }
-            V3BaseSettingsUpdatesAction.ViewResumed -> refreshIfReady()
+            V3BaseSettingsUpdatesAction.ViewResumed -> {
+                if (environment.isUser) refreshIfReady()
+            }
             V3BaseSettingsUpdatesAction.ViewDestroyed -> close()
             is V3BaseSettingsUpdatesAction.Respond -> respond(action)
         }
     }
 
     private fun refreshIfReady() {
-        if (observation == null || !environment.isUser || !environment.canApply || !environment.online || environment.serial.isBlank() || refresh?.isActive == true) return
+        if (observation == null || (!environment.isUser && !environment.isEngineer) ||
+            !environment.canApply || !environment.online || environment.serial.isBlank() || refresh?.isActive == true
+        ) return
         val serial = environment.serial
+        val discardDraftsBefore = if (environment.isEngineer) pendingEngineerDraftCutoff ?: return else null
         refresh = viewModelScope.launch {
-            try { refreshUpdates(serial) }
+            try {
+                refreshUpdates(serial, discardDraftsBefore)
+                ensureActive()
+                if (discardDraftsBefore != null) pendingEngineerDraftCutoff = null
+            }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { /* Keep cached settings and retry on the next resume or role change. */ }
+            catch (_: Exception) { /* Keep cached settings until the next eligible refresh. */ }
         }
     }
 
@@ -93,6 +110,7 @@ class V3BaseSettingsUpdatesViewModel(
         observation?.cancel(); observation = null
         refresh?.cancel(); refresh = null
         response?.cancel(); response = null
+        pendingEngineerDraftCutoff = null
         environment = V3BaseSettingsEnvironment()
         state.value = V3BaseSettingsUpdatesUiState()
     }

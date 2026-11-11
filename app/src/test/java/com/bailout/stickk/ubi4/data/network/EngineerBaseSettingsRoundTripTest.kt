@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.ProfileDao
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3BaseSettingsEnvironment
 import io.mockk.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterEach
@@ -106,15 +107,61 @@ class EngineerBaseSettingsRoundTripTest {
         repeat(2) { sender.downloadProfileSettingsForSerial("serial", "en", true) }
         assertEquals(profiles, user.storage.getProfiles("serial"))
         sender.sendProfile1SettingsForSerial("serial", "en")
-        // The user then chooses personal settings on the prosthesis. Returning to the
-        // engineer phone must neither import those personal profiles nor change its baseline.
         connect(engineer, 55)
-        sender.downloadProfileSettingsForSerial("serial", "en", preserveCurrentSettings = false)
+        val imported = sender.downloadEngineerSettingsForSerial("serial", "en") { true }
         assertEquals(20, saved(engineer, 0))
-        assertEquals(33, saved(engineer, 1))
-        assertEquals(listOf(0, 1), engineer.storage.getProfiles("serial").map { it.profileId })
-        assertEquals(0, engineer.storage.ensureState("serial").activeProfileId)
+        assertEquals(80, saved(engineer, backup))
+        if (personalSelected) {
+            assertEquals(55, saved(engineer, 1))
+            assertEquals("Work", engineer.storage.getProfiles("serial").single { it.profileId == 1 }.customName)
+        }
+        assertEquals(profiles, engineer.storage.getProfiles("serial"))
+        assertEquals(if (personalSelected) 1 else backup, imported.state.activeProfileId)
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(if (personalSelected) 55 else 80)),
+            imported.applyValues.single { it.parameterInfo == speed }.typedValue)
         assertEquals(revision, engineer.storage.getBaseSettingsRevision("serial"))
+    }
+
+    @Test fun `only the engineer restores the uploaded personal names values and active slot`() = runTest {
+        val user = Phone()
+        seed(user, 20)
+        repeat(3) { user.storage.createProfileFromActive("serial") }
+        user.storage.deleteProfile("serial", 2)
+        user.storage.renameProfile("serial", 1, "Работа")
+        user.storage.renameProfile("serial", 3, "Спорт")
+        user.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(65)), false)
+        sender.sendProfile1SettingsForSerial("serial", "en")
+
+        val anotherUser = Phone()
+        seed(anotherUser, 20)
+        anotherUser.storage.createProfileFromActive("serial")
+        anotherUser.storage.renameProfile("serial", 1, "Мой локальный профиль")
+        val local = anotherUser.storage.getProfiles("serial")
+        sender.downloadProfileSettingsForSerial("serial", "en", preserveCurrentSettings = true)
+        assertEquals(local, anotherUser.storage.getProfiles("serial"))
+
+        val engineer = Phone()
+        seed(engineer, 20)
+        repeat(3) { engineer.storage.createProfileFromActive("serial") }
+        engineer.storage.renameProfile("serial", 3, "Более новое локальное имя")
+        engineer.storage.switchToProfile("serial", 2)
+        val beforeImport = engineer.storage.getProfiles("serial")
+        val cancelled = runCatching { sender.downloadEngineerSettingsForSerial("serial", "en") { false } }
+        assertTrue(cancelled.exceptionOrNull() is CancellationException)
+        assertEquals(beforeImport, engineer.storage.getProfiles("serial"))
+        val imported = sender.downloadEngineerSettingsForSerial("serial", "en") { true }
+        assertEquals(3, imported.state.activeProfileId)
+        assertEquals(user.storage.getProfiles("serial"), engineer.storage.getProfiles("serial"))
+        assertEquals(65, saved(engineer, 3))
+
+        engineer.storage.switchToProfile("serial", 0)
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(35)), true)
+        sender.sendEngineerSettingsForSerial("serial", "en")
+        val restored = sender.downloadEngineerSettingsForSerial("serial", "en") { true }
+        assertEquals(3, restored.state.activeProfileId)
+        assertEquals(35, saved(engineer, 0))
+        assertEquals(65, saved(engineer, 3))
+        assertEquals(user.storage.getProfiles("serial"), engineer.storage.getProfiles("serial"))
     }
 
     @Test fun `reconnecting the engineer never moves the prosthesis user values into engineer profiles`() = runTest {
@@ -126,6 +173,96 @@ class EngineerBaseSettingsRoundTripTest {
         assertEquals(0, engineer.storage.ensureState("serial").activeProfileId)
         assertEquals(20, saved(engineer, 0))
         assertEquals(33, saved(engineer, 1))
+    }
+
+    @Test fun `new entry discards unsent personal drafts after a successful download and restores published settings`() = runTest {
+        val user = Phone()
+        seed(user, 20)
+        repeat(2) { user.storage.createProfileFromActive("serial") }
+        user.storage.renameProfile("serial", 1, "Повседневный")
+        user.storage.switchToProfile("serial", 1)
+        sender.sendProfile1SettingsForSerial("serial", "en")
+
+        val engineer = Phone()
+        connect(engineer, 20)
+        sender.downloadEngineerSettingsForSerial("serial", "en") { true }
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(65)), engineerPersonalEdit = true)
+        engineer.storage.switchToProfile("serial", 2)
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(70)), engineerPersonalEdit = true)
+        sender.sendEngineerPersonalSettings("serial", 2, "en") { true }
+        val sameEntry = sender.downloadEngineerSettingsForSerial("serial", "en", 0L) { true }
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(65)), sameEntry.applyValues.single { it.parameterInfo == speed }.typedValue)
+
+        coEvery { api.getProthesisSettingsRaw("9", "token") } returns NetworkResult.Error(503, "offline")
+        val failed = runCatching { sender.downloadEngineerSettingsForSerial("serial", "en", Long.MAX_VALUE) { true } }
+        assertTrue(failed.exceptionOrNull() is SettingsProfileRequestException)
+        assertEquals(listOf(1), engineer.storage.getProfiles("serial").filter { it.hasEngineerDraft }.map { it.profileId })
+
+        coEvery { api.getProthesisSettingsRaw("9", "token") } returns NetworkResult.Success(server)
+        val imported = sender.downloadEngineerSettingsForSerial("serial", "en", Long.MAX_VALUE) { true }
+        assertEquals(1, imported.state.activeProfileId)
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(20)), imported.applyValues.single { it.parameterInfo == speed }.typedValue)
+        val profiles = engineer.storage.getProfiles("serial")
+        assertEquals(listOf(0, 1, 2), profiles.map { it.profileId })
+        assertTrue(profiles.none { it.hasEngineerDraft })
+        assertEquals("Повседневный", profiles.single { it.profileId == 1 }.customName)
+        val published = engineer.storage.switchToProfile("serial", 2, includeEngineerDraft = true).second
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(70)), published.single { it.parameterInfo == speed }.typedValue)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `sending one personal draft updates only its matching user profile`(selected: Boolean) = runTest {
+        val user = Phone()
+        seed(user, 20)
+        repeat(3) { user.storage.createProfileFromActive("serial") }
+        user.storage.renameProfile("serial", 2, "Спорт")
+        user.storage.switchToProfile("serial", 2)
+        user.storage.saveMobileBoolean("serial", "auto-login", true, canEditBaseSettings = false)
+        user.storage.switchToProfile("serial", if (selected) 2 else 1)
+        sender.sendProfile1SettingsForSerial("serial", "en")
+        val original = Json.parseToJsonElement(server).jsonObject
+
+        val engineer = Phone()
+        connect(engineer, 20)
+        sender.downloadEngineerSettingsForSerial("serial", "en") { true }
+        engineer.storage.switchToProfile("serial", 2)
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(20)), engineerPersonalEdit = true)
+        assertFalse(engineer.storage.getProfiles("serial").single { it.profileId == 2 }.hasEngineerDraft)
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(65)), engineerPersonalEdit = true)
+        engineer.storage.switchToProfile("serial", 3)
+        engineer.storage.saveBleValue("serial", speed, ParameterTypedValueV3.Slider(SliderV3(70)), engineerPersonalEdit = true)
+        assertEquals(listOf(2, 3), engineer.storage.getProfiles("serial").filter { it.hasEngineerDraft }.map { it.profileId })
+        assertEquals(20, saved(engineer, 2))
+        assertEquals(20, saved(engineer, 3))
+        sender.downloadEngineerSettingsForSerial("serial", "en") { true }
+        assertEquals(listOf(2, 3), engineer.storage.getProfiles("serial").filter { it.hasEngineerDraft }.map { it.profileId })
+
+        val alreadyPosted = if (selected) engineer.storage.buildEngineerPersonalUpload("serial", 2, server).second else null
+        if (alreadyPosted != null) server = alreadyPosted
+        sender.sendEngineerPersonalSettings("serial", 2, "en") { true }
+        if (alreadyPosted != null) assertEquals(alreadyPosted, server)
+        assertEquals(listOf(3), engineer.storage.getProfiles("serial").filter { it.hasEngineerDraft }.map { it.profileId })
+        val published = Json.parseToJsonElement(server).jsonObject
+        for (key in listOf("BASE_SETTINGS", "PROFILE1", "PROFILE3")) assertEquals(original[key], published[key])
+        val slot = Json.parseToJsonElement(published.getValue("PROFILE2").jsonPrimitive.content).jsonObject
+        assertTrue(slot.getValue("engineer_update").jsonObject.getValue("changed_by_service_engineer").jsonPrimitive.boolean)
+
+        connect(user, 65)
+        sender.sendProfile1SettingsForSerial("serial", "en")
+        assertTrue(server.contains("engineer_update"))
+        val download = sender.downloadProfileSettingsForSerial("serial", "en", true)
+        val (activeId, values) = user.storage.synchronizePersonalEngineerUpdates("serial", download.settingsPayload) { true }
+        assertEquals(2, activeId)
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(65)), values.single { it.parameterInfo == speed }.typedValue)
+        assertEquals(if (selected) emptyList() else listOf(true), values.mapNotNull { it.mobileBoolean })
+        assertEquals(65, saved(user, 2))
+        for (id in listOf(0, 1, 3)) assertEquals(20, saved(user, id))
+        assertEquals(2, user.storage.ensureState("serial").activeProfileId)
+        assertEquals("Спорт", user.storage.getProfiles("serial").single { it.profileId == 2 }.customName)
+        user.storage.switchToProfile("serial", 1)
+        assertTrue(user.storage.synchronizePersonalEngineerUpdates("serial", server) { true }.second.isEmpty())
+        assertEquals(1, user.storage.ensureState("serial").activeProfileId)
     }
 
     @Test fun `all personal slots occupied backs up the old user base into profile one keeping its name and current selection`() = runTest {

@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.local.repository.*
 import com.bailout.stickk.ubi4.data.network.*
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -17,8 +18,10 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3BaseSettingsOffer
 import io.mockk.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +33,7 @@ class V3BaseSettingsUpdatesRepositoryTest {
     private val preferences = mockk<SharedPreferences>(relaxed = true)
     private val editor = mockk<SharedPreferences.Editor>(relaxed = true)
     private val sender = mockk<Ubi4SettingsProfileSender>()
+    private val bleState = MutableStateFlow(BLEState.State.READY)
     private val applied = mutableListOf<List<SettingsProfileApplyValue>>()
     private val scheduled = mutableListOf<String>()
     private val userScheduled = mutableListOf<String>()
@@ -55,7 +59,8 @@ class V3BaseSettingsUpdatesRepositoryTest {
         every { preferences.edit() } returns editor
         every { editor.putLong(any(), any()) } answers { pending = firstArg<String>() to secondArg<Long>(); editor }
         every { editor.commit() } answers { pending?.let { handled[it.first] = it.second }; true }
-        mockkObject(SettingsProfileRepositoryProvider, SettingsProfileManager, WidgetRepoProvider, ParameterProvider)
+        mockkObject(SettingsProfileRepositoryProvider, SettingsProfileManager, WidgetRepoProvider, ParameterProvider, BLEState)
+        every { BLEState.state } returns bleState
         every { SettingsProfileRepositoryProvider.getOrNull() } returns storage
         every { SettingsProfileManager.serial() } answers { serial }
         every { WidgetRepoProvider.mac() } returns "MAC"
@@ -75,7 +80,7 @@ class V3BaseSettingsUpdatesRepositoryTest {
     }
 
     @AfterEach fun tearDown() {
-        unmockkObject(SettingsProfileRepositoryProvider, SettingsProfileManager, WidgetRepoProvider, ParameterProvider)
+        unmockkObject(SettingsProfileRepositoryProvider, SettingsProfileManager, WidgetRepoProvider, ParameterProvider, BLEState)
         UiState.isInterfaceV3Activated = oldV3
         UiState.v3WidgetsInteractionEnabled.value = oldInteraction
         UiState.fullInitInProgress.value = oldInit
@@ -160,5 +165,67 @@ class V3BaseSettingsUpdatesRepositoryTest {
         assertTrue(applied.isEmpty())
         assertEquals(listOf("serial"), userScheduled)
         coVerify(exactly = 1) { sender.downloadProfileSettingsForSerial("serial", any(), true) }
+    }
+
+    @Test fun `saved engineer role refreshes personal profiles and applies the restored selection`() = runBlocking {
+        role = 1
+        val values = listOf(SettingsProfileApplyValue("BLE", speed, null, ParameterTypedValueV3.Slider(SliderV3(80)), null, null))
+        coEvery { sender.downloadEngineerSettingsForSerial("serial", any(), 123L, any()) } coAnswers {
+            assertTrue(arg<() -> Boolean>(3)())
+            SettingsProfileDownloadResult("9", "{}", SettingsProfileState(1, 1), values)
+        }
+        val repository = repository()
+        assertTrue(repository.observeEnvironment().first().isEngineer)
+        repository.refresh("serial", discardEngineerDraftsBefore = 123L)
+        assertEquals(listOf(values), applied)
+        assertTrue(userScheduled.isEmpty())
+        coVerify(exactly = 0) { sender.downloadProfileSettingsForSerial(any(), any(), any()) }
+    }
+
+    @Test fun `engineer remains connected while widgets are blocked but not after BLE disconnects`() = runBlocking {
+        role = 1
+        val repository = repository()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        val paused = repository.observeEnvironment().first()
+        assertTrue(paused.isConnected)
+        assertTrue(paused.isEngineer)
+        assertFalse(paused.canApply)
+
+        bleState.value = BLEState.State.DISCONNECTED
+        val disconnected = repository.observeEnvironment().first()
+        assertFalse(disconnected.isConnected)
+        assertFalse(disconnected.isEngineer)
+    }
+
+    @Test fun `user selects the updated profile before acknowledging its notification`() = runBlocking {
+        val repository = repository()
+        assertTrue(repository.respond(offer, false))
+        storage.renameProfile("serial", 1, "Повседневный")
+        storage.switchToProfile("serial", 0)
+        val payload = Json.parseToJsonElement(storage.buildServerSettingsPayload("serial")).jsonObject
+        val slot = Json.parseToJsonElement(payload.getValue("PROFILE1").jsonPrimitive.content).jsonObject
+        val change = JsonObject(slot.getValue("settings").jsonArray.single().jsonObject +
+            ("value" to buildJsonObject { put("sliderValue", 99) }))
+        val update = buildJsonObject {
+            put("changed_by_service_engineer", true)
+            put("engineer_revision", 123L)
+            put("settings", JsonArray(listOf(change)))
+        }
+        val remote = JsonObject(payload + ("PROFILE1" to JsonPrimitive(JsonObject(slot + ("engineer_update" to update)).toString())))
+        coEvery { sender.downloadProfileSettingsForSerial("serial", any(), true) } returns
+            SettingsProfileDownloadResult("9", remote.toString(), SettingsProfileState(1, 0), emptyList())
+
+        repository.refresh("serial")
+        assertEquals(ParameterTypedValueV3.Slider(SliderV3(99)), applied.single().single().typedValue)
+        assertEquals(1, storage.ensureState("serial").activeProfileId)
+        val selection = ParameterStoreV3.get(ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE)) as ParameterTypedValueV3.Spinner
+        assertEquals(1, selection.value.spinnerValue)
+        val notification = V3BaseSettingsOffer("serial", 123, 1, "Повседневный")
+        assertEquals(notification, repository.observeEnvironment().first().offer)
+        assertTrue(repository.respond(notification, true))
+        repository.refresh("serial")
+        assertEquals(1, applied.size)
+        assertNull(repository.observeEnvironment().first().offer)
+        assertEquals(1, storage.ensureState("serial").activeProfileId)
     }
 }

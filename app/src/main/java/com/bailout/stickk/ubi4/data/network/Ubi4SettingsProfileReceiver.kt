@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.network
 
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileApplyValue
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.V3SettingsProfilesUpdates
 
 class Ubi4SettingsProfileReceiver(
@@ -11,13 +12,17 @@ class Ubi4SettingsProfileReceiver(
         // BLEController keeps its no-argument construction; DI binds this before it connects.
         @Volatile
         internal lateinit var defaultApplyProfileValues: (List<SettingsProfileApplyValue>) -> Unit
+        @Volatile
+        internal var preserveLocalDeviceSettings: () -> Boolean = {
+            UiState.isInterfaceV3Activated && !UiState.isServiceEngineerRole.value
+        }
     }
 
     suspend fun downloadAndApplyForSerial(
         serial: String,
         lang: String
     ): SettingsProfileDownloadResult {
-        val result = sender.downloadProfileSettingsForSerial(serial, lang)
+        val result = sender.downloadProfileSettingsForSerial(serial, lang, preserveLocalDeviceSettings())
         try {
             applyProfileValues(result.applyValues)
         } finally {

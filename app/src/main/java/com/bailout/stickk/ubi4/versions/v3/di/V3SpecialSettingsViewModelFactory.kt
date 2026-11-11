@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.bailout.stickk.ubi4.di.BleDependencies
 import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileApplyValue
+import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileSender
 import com.bailout.stickk.ubi4.versions.v3.data.settingsprofiles.SettingsProfileApplierV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.data.appsettings.V3AppSettingsRepositoryImpl
@@ -21,6 +22,7 @@ import com.bailout.stickk.ubi4.versions.v3.domain.device.GetDeviceSessionUseCase
 import com.bailout.stickk.ubi4.versions.v3.domain.device.ObserveDeviceSessionChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.device.V3DeviceSessionRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRoleRepository
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import com.bailout.stickk.ubi4.versions.v3.domain.service.usecase.GetDeviceRoleUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3DeviceSettingsRepository
 import com.bailout.stickk.ubi4.versions.v3.domain.settings.V3SpinnerSettingsRepository
@@ -43,11 +45,13 @@ import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.LoadSettingsP
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.GetSettingsProfilesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.ObserveSettingsProfilesChangesUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.RenameSettingsProfileUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.SendEngineerSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.SelectSettingsProfileUseCaseV3
 import com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.V3SettingsProfilesRepository
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.V3SpecialSettingsViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.DataFactoryV3SpecialSettingsWidgetsSource
 import com.bailout.stickk.ubi4.versions.v3.presentation.specialsettings.widgets.V3SpecialSettingsWidgetsSource
+import java.util.Locale
 
 class V3SpecialSettingsViewModelFactory(
     private val repository: V3DeviceSettingsRepository,
@@ -66,19 +70,24 @@ class V3SpecialSettingsViewModelFactory(
 
         fun create(context: Context, enqueuePacket: (ByteArray) -> Unit): V3SpecialSettingsViewModelFactory {
             val repository = V3DeviceSettingsRepositoryImpl(enqueuePacket)
+            val preferences = context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+            val role = createDeviceRoleRepository(preferences, repository)
+            val sender = Ubi4SettingsProfileSender()
             return V3SpecialSettingsViewModelFactory(
                 repository = repository,
                 widgetsSource = DataFactoryV3SpecialSettingsWidgetsSource(),
                 toggleSliderRepository = repository,
                 spinnerRepository = repository,
-                settingsProfilesRepository = V3SettingsProfilesRepositoryImpl(createSettingsProfileValueApplier(context, enqueuePacket)),
-                appSettingsRepository = V3AppSettingsRepositoryImpl(context.applicationContext.getSharedPreferences(
-                    PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE,
-                )),
-                sessionRepository = V3DeviceSessionRepositoryImpl(),
-                roleRepository = createDeviceRoleRepository(
-                    context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE), repository,
+                settingsProfilesRepository = V3SettingsProfilesRepositoryImpl(
+                    applyProfileValues = createSettingsProfileValueApplier(context, enqueuePacket),
+                    isServiceEngineer = { role.getSelectedRole() == V3DeviceRole.SERVICE_ENGINEER },
+                    publishEngineerUpdate = { serial, profileId, isCurrentSession ->
+                        sender.sendEngineerPersonalSettings(serial, profileId, Locale.getDefault().language, isCurrentSession)
+                    },
                 ),
+                appSettingsRepository = V3AppSettingsRepositoryImpl(preferences),
+                sessionRepository = V3DeviceSessionRepositoryImpl(),
+                roleRepository = role,
             )
         }
     }
@@ -108,6 +117,7 @@ class V3SpecialSettingsViewModelFactory(
             copyBaseSettingsToPersonalProfile = CopyBaseSettingsToPersonalProfileUseCaseV3(settingsProfilesRepository),
             renameSettingsProfile = RenameSettingsProfileUseCaseV3(settingsProfilesRepository),
             deleteSettingsProfile = DeleteSettingsProfileUseCaseV3(settingsProfilesRepository),
+            sendEngineerSettingsProfile = SendEngineerSettingsProfileUseCaseV3(settingsProfilesRepository),
             getAutoLoginEnabled = GetAutoLoginEnabledUseCaseV3(appSettingsRepository),
             observeAutoLoginEnabled = ObserveAutoLoginEnabledUseCaseV3(appSettingsRepository),
             getSpecialSettingsSection = GetSpecialSettingsSectionUseCaseV3(appSettingsRepository),

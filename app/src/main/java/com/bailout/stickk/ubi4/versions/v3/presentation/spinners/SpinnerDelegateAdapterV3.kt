@@ -34,6 +34,7 @@ class SpinnerDelegateAdapterV3 (
     private val onSettingsProfileCreateRequested: () -> Unit = {},
     private val onSettingsProfileRenameRequested: (profileId: Int) -> Unit = {},
     private val onSettingsProfileDeleteRequested: (profileId: Int) -> Unit = {},
+    private val onSettingsProfileSendRequested: (profileId: Int) -> Unit = {},
 ) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
 ) {
@@ -58,7 +59,11 @@ class SpinnerDelegateAdapterV3 (
             else it.customName ?: defaultSettingsProfileName(info.spinner.context, it.profileId) }
         val items = if (state?.canCreate == true) names + SETTINGS_PROFILE_ADD_ITEM else names
         info.settingsProfileIds = profiles.map { it.profileId }
-        val adapter = info.spinner.getSpinnerAdapter<CharSequence>()
+        val adapter = info.spinner.getSpinnerAdapter<CharSequence>() as SettingsProfileSpinnerAdapterV3
+        val showSend = state?.showSendAction == true
+        adapter.renderActions(showSend, if (showSend) {
+            profiles.indices.filter { profiles[it].hasEngineerDraft }.toSet()
+        } else emptySet())
         if (info.items != items) {
             info.items = items
             info.spinner.setItems(items)
@@ -178,9 +183,12 @@ class SpinnerDelegateAdapterV3 (
                 },
                 onEditClick = { position, _ ->
                     if (spinnerInfoList.any { it === info } && settingsProfilesState?.isEnabled == true) {
-                        info.settingsProfileIds.getOrNull(position)?.let { profileId ->
+                        settingsProfilesState?.profiles?.getOrNull(position)?.takeIf { it.canRename }?.let { profile ->
+                            val send = settingsProfilesState?.showSendAction == true
+                            if (send && !profile.hasEngineerDraft) return@let
                             spinnerPsv.dismiss()
-                            onSettingsProfileRenameRequested(profileId)
+                            if (send) onSettingsProfileSendRequested(profile.profileId)
+                            else onSettingsProfileRenameRequested(profile.profileId)
                         }
                     }
                 },

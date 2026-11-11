@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ItemSettingsProfileSpinnerBinding
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener
 import com.skydoves.powerspinner.PowerSpinnerInterface
@@ -20,6 +21,16 @@ internal class SettingsProfileSpinnerAdapterV3(
     PowerSpinnerInterface<CharSequence> {
 
     private val items = mutableListOf<CharSequence>()
+
+    private var showSendAction = false
+    private var sendablePositions = emptySet<Int>()
+
+    fun renderActions(showSend: Boolean, sendable: Set<Int>) {
+        if (showSendAction == showSend && sendablePositions == sendable) return
+        showSendAction = showSend
+        sendablePositions = sendable
+        notifyDataSetChanged()
+    }
 
     override var index: Int = spinnerView.selectedIndex
     override var onSpinnerItemSelectedListener: OnSpinnerItemSelectedListener<CharSequence>? = null
@@ -38,7 +49,8 @@ internal class SettingsProfileSpinnerAdapterV3(
             name = items[position].toString(),
             selected = position == index,
             editable = isEditable(position),
-            addItem = isAddItem(position)
+            addItem = isAddItem(position),
+            actionEnabled = !showSendAction || position in sendablePositions,
         )
     }
 
@@ -82,17 +94,18 @@ internal class SettingsProfileSpinnerAdapterV3(
             binding.ubi4SettingsProfileItemEdit.setOnClickListener {
                 val position = bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION }
                     ?: return@setOnClickListener
+                if (showSendAction && position !in sendablePositions) return@setOnClickListener
                 val name = items.getOrNull(position)?.toString() ?: return@setOnClickListener
                 onEditClick(position, name)
             }
             binding.ubi4SettingsProfileItemDelete.setOnClickListener {
                 val position = bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION }
                     ?: return@setOnClickListener
-                if (isEditable(position)) onDeleteClick(position)
+                if (!showSendAction && isEditable(position)) onDeleteClick(position)
             }
         }
 
-        fun bind(name: String, selected: Boolean, editable: Boolean, addItem: Boolean) = with(binding) {
+        fun bind(name: String, selected: Boolean, editable: Boolean, addItem: Boolean, actionEnabled: Boolean) = with(binding) {
             root.layoutParams = root.layoutParams.apply {
                 if (spinnerView.spinnerItemHeight != Int.MIN_VALUE) {
                     height = spinnerView.spinnerItemHeight
@@ -109,8 +122,20 @@ internal class SettingsProfileSpinnerAdapterV3(
                 setTextSize(TypedValue.COMPLEX_UNIT_PX, spinnerView.textSize)
                 setTextColor(spinnerView.currentTextColor)
             }
-            ubi4SettingsProfileItemEdit.visibility = if (editable) View.VISIBLE else View.INVISIBLE
-            ubi4SettingsProfileItemDelete.visibility = if (editable) View.VISIBLE else View.INVISIBLE
+            ubi4SettingsProfileItemEdit.apply {
+                visibility = if (editable) View.VISIBLE else View.INVISIBLE
+                isEnabled = editable && actionEnabled
+                alpha = if (actionEnabled) 1f else 0.5f
+                setImageResource(if (showSendAction) R.drawable.ubi4_ic_send else R.drawable.ubi4_ic_edit)
+                contentDescription = context.getString(
+                    if (showSendAction) R.string.settings_profile_send_action else R.string.settings_profile_rename_action,
+                )
+            }
+            ubi4SettingsProfileItemDelete.visibility = when {
+                showSendAction -> View.GONE
+                editable -> View.VISIBLE
+                else -> View.INVISIBLE
+            }
         }
     }
 }

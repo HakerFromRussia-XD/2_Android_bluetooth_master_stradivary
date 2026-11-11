@@ -24,19 +24,23 @@ import kotlinx.coroutines.withContext
 
 class V3SettingsProfilesRepositoryImpl(
     private val applyProfileValues: (List<SettingsProfileApplyValue>) -> Unit,
+    private val isServiceEngineer: () -> Boolean = { false },
+    private val publishEngineerUpdate: suspend (String, Int, () -> Boolean) -> Unit = { _, _, _ ->
+        error("Sending engineer updates is unavailable")
+    },
 ) : V3SettingsProfilesRepository {
     override val updates = V3SettingsProfilesUpdates.updates
     override fun currentSerial() = SettingsProfileManager.serial()
 
     override suspend fun selectProfile(serial: String, profileId: Int) = updateActiveProfile(serial) { repository, _ ->
-        val (state, values) = repository.switchToProfile(serial, profileId)
+        val (state, values) = repository.switchToProfile(serial, profileId, includeEngineerDraft = isServiceEngineer())
         check(state.activeProfileId == profileId) { "Settings profile was not selected" }
         values
     }
 
     override suspend fun createProfile(serial: String) = updateActiveProfile(serial) { repository, previous ->
         if (!previous.canCreate) return@updateActiveProfile null
-        val (state, values) = repository.createProfileFromActive(serial)
+        val (state, values) = repository.createProfileFromActive(serial, includeEngineerDraft = isServiceEngineer())
         // The shared repository can return the existing profile if the limit was reached.
         if (previous.profiles.any { it.profileId == state.activeProfileId }) null else values
     }
@@ -62,6 +66,16 @@ class V3SettingsProfilesRepositoryImpl(
             Unit
         } finally {
             V3SettingsProfilesUpdates.notifyChanged()
+        }
+    }
+
+    override suspend fun sendEngineerUpdate(serial: String, profileId: Int) = withContext(Dispatchers.Main.immediate) {
+        val address = WidgetRepoProvider.mac()
+        checkDevice(serial, address)
+        check(isServiceEngineer())
+        publishEngineerUpdate(serial, profileId) {
+            serial == currentSerial() && address == WidgetRepoProvider.mac() &&
+                UiState.v3WidgetsInteractionEnabled.value && isServiceEngineer()
         }
     }
 
@@ -104,7 +118,7 @@ class V3SettingsProfilesRepositoryImpl(
         repository?.ensureBaseProfile(serial)
         val profiles = repository?.getProfiles(serial).orEmpty()
         return V3SettingsProfiles(
-            profiles.map { V3SettingsProfile(it.profileId, it.customName) },
+            profiles.map { V3SettingsProfile(it.profileId, it.customName, it.hasEngineerDraft) },
             profiles.firstOrNull { it.isActive }?.profileId ?: profiles.firstOrNull()?.profileId ?: 1,
         )
     }

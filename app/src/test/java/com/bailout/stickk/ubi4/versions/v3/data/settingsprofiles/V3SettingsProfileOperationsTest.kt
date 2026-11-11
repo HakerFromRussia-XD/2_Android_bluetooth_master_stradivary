@@ -47,12 +47,12 @@ class V3SettingsProfileOperationsTest {
     private val values = listOf(SettingsProfileApplyValue(
         "BLE", speedInfo, ParameterCodecIdV3.SLIDER, ParameterTypedValueV3.Slider(SliderV3(42)), null, null,
     ))
-    private val repository = V3SettingsProfilesRepositoryImpl {
+    private val repository = V3SettingsProfilesRepositoryImpl(applyProfileValues = {
         assertEquals(values, it)
         val cachedIndex = (ParameterStoreV3.get(info) as ParameterTypedValueV3.Spinner).value.spinnerValue
         assertEquals(profileIds.sorted().indexOf(activeId), cachedIndex)
         order.add("apply")
-    }
+    })
     private val select = SelectSettingsProfileUseCaseV3(repository)
     private val create = CreateSettingsProfileUseCaseV3(repository)
     private val copyBase = com.bailout.stickk.ubi4.versions.v3.domain.settingsprofiles.CopyBaseSettingsToPersonalProfileUseCaseV3(repository)
@@ -111,17 +111,20 @@ class V3SettingsProfileOperationsTest {
     @ValueSource(booleans = [false, true])
     fun `profile manager passes the selected role to deferred profile writes`(engineer: Boolean) = runTest(dispatcher) {
         val previous = UiState.isServiceEngineerRole.value
+        val previousRole = SettingsProfileManager.profileEngineerRole
         try {
             UiState.isServiceEngineerRole.value = engineer
-            coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } returns Unit
-            coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any()) } returns Unit
+            SettingsProfileManager.profileEngineerRole = { engineer }
+            coEvery { sharedRepository.saveBleValue("current", any(), any(), any(), any()) } returns Unit
+            coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any(), any()) } returns Unit
             SettingsProfileManager.saveBleValue(speedInfo, ParameterTypedValueV3.Slider(SliderV3(80)))
             SettingsProfileManager.saveMobileBoolean("auto-login", true)
             SettingsProfileManager.awaitPendingWrites("current")
-            coVerify(exactly = 1) { sharedRepository.saveBleValue("current", any(), any(), engineer) }
-            coVerify(exactly = 1) { sharedRepository.saveMobileBoolean("current", any(), any(), engineer) }
+            coVerify(exactly = 1) { sharedRepository.saveBleValue("current", any(), any(), engineer, engineer) }
+            coVerify(exactly = 1) { sharedRepository.saveMobileBoolean("current", any(), any(), engineer, engineer) }
         } finally {
             UiState.isServiceEngineerRole.value = previous
+            SettingsProfileManager.profileEngineerRole = previousRole
         }
     }
 
@@ -168,13 +171,13 @@ class V3SettingsProfileOperationsTest {
         val releaseMobile = CompletableDeferred<Unit>().also(releases::add)
         val bleStarted = CompletableDeferred<Unit>()
         val mobileStarted = CompletableDeferred<Unit>()
-        coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveBleValue("current", any(), any(), any(), any()) } coAnswers {
             bleStarted.complete(Unit)
             releaseBle.await()
             assertEquals(1, activeId)
             order.add("save:ble")
         }
-        coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveMobileBoolean("current", any(), any(), any(), any()) } coAnswers {
             mobileStarted.complete(Unit)
             releaseMobile.await()
             assertEquals(1, activeId)
@@ -201,7 +204,7 @@ class V3SettingsProfileOperationsTest {
     fun `cancelling a profile operation does not cancel already accepted saving`(creating: Boolean) = runTest(dispatcher) {
         val release = CompletableDeferred<Unit>().also(releases::add)
         val started = CompletableDeferred<Unit>()
-        coEvery { sharedRepository.saveBleValue("current", any(), any(), any()) } coAnswers {
+        coEvery { sharedRepository.saveBleValue("current", any(), any(), any(), any()) } coAnswers {
             started.complete(Unit); release.await(); order.add("saved")
         }
         SettingsProfileManager.saveBleValue(speedInfo, ParameterTypedValueV3.Slider(SliderV3(80)))

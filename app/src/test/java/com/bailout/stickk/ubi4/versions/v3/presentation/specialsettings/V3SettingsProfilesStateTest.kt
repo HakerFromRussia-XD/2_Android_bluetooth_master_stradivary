@@ -111,6 +111,29 @@ class V3SettingsProfilesStateTest {
     private fun dismissName(request: Long) = viewModel.onAction(V3SpecialSettingsAction.SettingsProfileNameDismissed(request))
     private fun select(id: Int) = viewModel.onAction(V3SpecialSettingsAction.SettingsProfileSelected(id))
 
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `profile send confirmation is shown once after success`(success: Boolean) = runTest(dispatcher) {
+        roles.selected = V3DeviceRole.SERVICE_ENGINEER
+        repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(1, "Personal", hasEngineerDraft = true)), 1)
+        val response = CompletableDeferred<Unit>()
+        repository.sender = { _, _ -> response.await() }
+        attach(); runCurrent()
+
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileSendRequested(1))
+        runCurrent()
+        assertFalse(viewModel.uiState.value.profileSendConfirmationPending)
+        if (success) response.complete(Unit) else response.completeExceptionally(IllegalStateException("Offline"))
+        runCurrent()
+        assertEquals(success, viewModel.uiState.value.profileSendConfirmationPending)
+        assertEquals(if (success) null else V3SettingsProfileOperation.SEND, state().failedOperation)
+
+        viewModel.onAction(V3SpecialSettingsAction.SettingsProfileSendConfirmationShown)
+        repository.updates.emit(Unit)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.profileSendConfirmationPending)
+    }
+
     private fun prepareBaseEdit(full: Boolean = false) {
         repository.snapshot = V3SettingsProfiles(listOf(V3SettingsProfile(0, null), V3SettingsProfile(1, "Personal")) +
             if (full) listOf(V3SettingsProfile(2, null), V3SettingsProfile(3, null)) else emptyList(), 0)
@@ -765,6 +788,9 @@ class V3SettingsProfilesStateTest {
     }
 
     private class ProfilesRepository : V3SettingsProfilesRepository {
+        var sender: suspend (String, Int) -> Unit = { _, _ -> }
+        override suspend fun sendEngineerUpdate(serial: String, profileId: Int) = sender(serial, profileId)
+
         val copies = mutableListOf<Pair<String, Int?>>()
         var copier: suspend (String, Int?) -> Unit = { _, replacement ->
             check(snapshot.activeProfileId == 0)

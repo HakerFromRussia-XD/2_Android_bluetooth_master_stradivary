@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryPr
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileSender
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -46,7 +47,9 @@ class V3BaseSettingsUpdatesRepositoryImpl(
     private val selection = V3SettingsProfilesRepositoryImpl(applyValues)
 
     private fun role() = preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, V3DeviceRole.USER.wireValue)
-    private fun handledKey(serial: String) = "base_settings_handled_revision:$serial"
+    private fun handledKey(serial: String, profileId: Int = V3SettingsProfiles.BASE_PROFILE_ID): String =
+        if (profileId == V3SettingsProfiles.BASE_PROFILE_ID) "base_settings_handled_revision:$serial"
+        else "base_settings_handled_revision:$serial:$profileId"
     private fun matchesConnectedDevice(serial: String): Boolean {
         val value = ParameterStoreV3.get(PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER))
             as? ParameterTypedValueV3.Text ?: return false
@@ -76,57 +79,118 @@ class V3BaseSettingsUpdatesRepositoryImpl(
         return merge(
             preferenceChanges, networkChanges, V3SettingsProfilesUpdates.updates,
             ParameterStoreV3.values.map { SettingsProfileManager.serial() to WidgetRepoProvider.mac() }.distinctUntilChanged().map { Unit },
+            BLEState.state.map { Unit },
             UiState.v3WidgetsInteractionEnabled.map { Unit }, UiState.fullInitInProgress.map { Unit }, UiState.startupInProgress.map { Unit },
         ).map {
             val serial = SettingsProfileManager.serial()
-            val revision = SettingsProfileRepositoryProvider.getOrNull()?.getBaseSettingsRevision(serial) ?: 0
-            val pendingRevision = SettingsProfileRepositoryProvider.getOrNull()?.getPendingEngineerRevision(serial) ?: 0
+            val storage = SettingsProfileRepositoryProvider.getOrNull()
+            val revision = storage?.getBaseSettingsRevision(serial) ?: 0
+            val pendingRevision = storage?.getPendingEngineerRevision(serial) ?: 0
+            val matchesV3Device = UiState.isInterfaceV3Activated && matchesConnectedDevice(serial)
+            val isConnected = matchesV3Device && isBleReady()
             val selectedRole = role()
             if (UiState.isInterfaceV3Activated && pendingRevision > 0 && scheduledRevisions[serial] != pendingRevision) {
                 scheduleUpload(serial, Locale.getDefault().language)
                 scheduledRevisions[serial] = pendingRevision
             }
+            val user = matchesV3Device && selectedRole == V3DeviceRole.USER.wireValue
+            val personalOffer = if (user && widgetsReady()) storage?.getUpdatedPersonalProfiles(serial)
+                ?.filter { it.personalEngineerRevision > preferences.getLong(handledKey(serial, it.profileId), 0) }
+                ?.maxByOrNull { it.personalEngineerRevision }
+                ?.let { V3BaseSettingsOffer(serial, it.personalEngineerRevision, it.profileId, it.customName) } else null
             V3BaseSettingsEnvironment(
                 serial = serial,
-                isUser = UiState.isInterfaceV3Activated && selectedRole == V3DeviceRole.USER.wireValue && matchesConnectedDevice(serial),
-                canApply = UiState.v3WidgetsInteractionEnabled.value && !UiState.fullInitInProgress.value && !UiState.startupInProgress.value,
+                isUser = user,
+                isEngineer = isConnected && selectedRole == V3DeviceRole.SERVICE_ENGINEER.wireValue,
+                canApply = widgetsReady(),
                 revision = revision,
                 handledRevision = preferences.getLong(handledKey(serial), 0),
                 online = isOnline(),
+                personalOffer = personalOffer,
+                isConnected = isConnected,
             )
         }.distinctUntilChanged()
     }
 
-    override suspend fun refresh(serial: String) {
-        if (!isCurrentUser(serial)) return
+    override suspend fun refresh(serial: String, discardEngineerDraftsBefore: Long?) {
+        val selectedRole = role()
+        val engineer = selectedRole == V3DeviceRole.SERVICE_ENGINEER.wireValue
+        if (!engineer && selectedRole != V3DeviceRole.USER.wireValue) return
         val address = WidgetRepoProvider.mac()
+        val lang = Locale.getDefault().language
+        fun isCurrentSession() = isCurrentRole(serial, selectedRole) && WidgetRepoProvider.mac() == address &&
+            (!engineer || (isBleReady() && widgetsReady()))
+
         SettingsProfileManager.awaitPendingWrites(serial)
-        if (!isCurrentUser(serial) || WidgetRepoProvider.mac() != address) return
+        if (!isCurrentSession()) {
+            if (engineer) throw CancellationException("Settings profile session changed")
+            return
+        }
         try {
-            sender.downloadProfileSettingsForSerial(serial, Locale.getDefault().language, preserveCurrentSettings = true)
+            if (engineer) {
+                val result = sender.downloadEngineerSettingsForSerial(serial, lang, discardEngineerDraftsBefore, ::isCurrentSession)
+                val profiles = selection.getProfiles(serial).normalized()
+                if (isCurrentSession()) {
+                    selection.cacheSelection(serial, profiles)
+                    if (profiles.activeProfileId == result.state.activeProfileId && result.applyValues.isNotEmpty()) {
+                        applyValues(result.applyValues)
+                    }
+                    platformLog(
+                        "SettingsProfileSync",
+                        "engineer imported serial=$serial profiles=${profiles.profiles.map { it.profileId }} active_profile=${profiles.activeProfileId}",
+                    )
+                }
+            } else {
+                val result = sender.downloadProfileSettingsForSerial(serial, lang, preserveCurrentSettings = true)
+                val storage = SettingsProfileRepositoryProvider.getOrNull()
+                if (storage != null) {
+                    SettingsProfileManager.awaitPendingWrites(serial)
+                    val (selectedId, values) = storage.synchronizePersonalEngineerUpdates(serial, result.settingsPayload) {
+                        isCurrentSession() && widgetsReady()
+                    }
+                    if (selectedId != null) {
+                        val profiles = selection.getProfiles(serial).normalized()
+                        if (selectedId == profiles.activeProfileId && isCurrentSession() && widgetsReady()) {
+                            selection.cacheSelection(serial, profiles)
+                            if (values.isNotEmpty()) applyValues(values)
+                        }
+                    }
+                }
+            }
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (error: Exception) {
-            platformLog("BaseSettingsUpdate", "refresh failed serial=$serial error=${error.message}")
+            platformLog("SettingsProfileSync", "refresh failed serial=$serial error=${error.message}")
             throw error
+        } finally {
+            V3SettingsProfilesUpdates.notifyChanged()
         }
-        // Refresh only imports data. Applying the baseline belongs exclusively to Accept.
-        V3SettingsProfilesUpdates.notifyChanged()
-        if (isCurrentUser(serial) && WidgetRepoProvider.mac() == address &&
+        if (!engineer && isCurrentSession() &&
             SettingsProfileRepositoryProvider.getOrNull()?.getProfiles(serial)?.any { it.profileId > 0 } == true)
-            scheduleUserUpload(serial, Locale.getDefault().language)
+            scheduleUserUpload(serial, lang)
     }
 
-    private fun isCurrentUser(serial: String) = UiState.isInterfaceV3Activated &&
-        role() == V3DeviceRole.USER.wireValue && matchesConnectedDevice(serial)
+    private fun isCurrentRole(serial: String, expectedRole: Int) = UiState.isInterfaceV3Activated &&
+        role() == expectedRole && matchesConnectedDevice(serial)
 
-    private fun canApply(serial: String, address: String) = isCurrentUser(serial) && WidgetRepoProvider.mac() == address &&
-        UiState.v3WidgetsInteractionEnabled.value && !UiState.fullInitInProgress.value && !UiState.startupInProgress.value
+    private fun isCurrentUser(serial: String) = isCurrentRole(serial, V3DeviceRole.USER.wireValue)
+
+    private fun isBleReady() = BLEState.state.value == BLEState.State.READY
+
+    private fun widgetsReady() = UiState.v3WidgetsInteractionEnabled.value &&
+        !UiState.fullInitInProgress.value && !UiState.startupInProgress.value
+
+    private fun canApply(serial: String, address: String) =
+        isCurrentUser(serial) && WidgetRepoProvider.mac() == address && widgetsReady()
 
     override suspend fun respond(offer: V3BaseSettingsOffer, accept: Boolean): Boolean {
         if (!isCurrentUser(offer.serial)) return false
         val address = WidgetRepoProvider.mac()
         val repository = SettingsProfileRepositoryProvider.getOrNull() ?: return false
-        if (accept) {
+        if (offer.isPersonal) {
+            if (!accept || repository.getUpdatedPersonalProfiles(offer.serial).none {
+                    it.profileId == offer.profileId && it.personalEngineerRevision == offer.revision
+                }) return false
+        } else if (accept) {
             if (!canApply(offer.serial, address)) return false
             SettingsProfileManager.awaitPendingWrites(offer.serial)
             if (!canApply(offer.serial, address)) return false
@@ -139,10 +203,10 @@ class V3BaseSettingsUpdatesRepositoryImpl(
         } else if (repository.getBaseSettingsRevision(offer.serial) != offer.revision) return false
         if (!isCurrentUser(offer.serial) || WidgetRepoProvider.mac() != address) return false
         val saved = withContext(Dispatchers.IO) {
-            preferences.edit().putLong(handledKey(offer.serial), offer.revision).commit()
+            preferences.edit().putLong(handledKey(offer.serial, offer.profileId), offer.revision).commit()
         }
         if (!saved) return false
-        platformLog("BaseSettingsUpdate", "${if (accept) "accepted" else "skipped"} serial=${offer.serial} revision=${offer.revision}")
+        platformLog("BaseSettingsUpdate", "${if (accept) "accepted" else "skipped"} serial=${offer.serial} profile=${offer.profileId} revision=${offer.revision}")
         V3SettingsProfilesUpdates.notifyChanged()
         return true
     }

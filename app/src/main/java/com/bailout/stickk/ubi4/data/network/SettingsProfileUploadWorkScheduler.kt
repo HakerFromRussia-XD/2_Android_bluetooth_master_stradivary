@@ -10,7 +10,9 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import java.util.concurrent.TimeUnit
 
 object SettingsProfileUploadWorkScheduler {
@@ -121,6 +123,10 @@ object SettingsProfileUploadWorkScheduler {
         }
         uploadEnqueuedForCurrentConnection = true
 
+        val engineer = UiState.isInterfaceV3Activated && context
+            .getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+            .getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, V3DeviceRole.USER.wireValue) ==
+            V3DeviceRole.SERVICE_ENGINEER.wireValue
         val request = OneTimeWorkRequestBuilder<SettingsProfileUploadWorker>()
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .setConstraints(
@@ -134,7 +140,7 @@ object SettingsProfileUploadWorkScheduler {
                     SettingsProfileUploadWorker.KEY_SERIAL to serial,
                     SettingsProfileUploadWorker.KEY_LANG to lang.ifBlank { DEFAULT_LANG },
                     SettingsProfileUploadWorker.KEY_REASON to reason,
-                    SettingsProfileUploadWorker.KEY_ENGINEER_UPLOAD to (UiState.isInterfaceV3Activated && UiState.isServiceEngineerRole.value),
+                    SettingsProfileUploadWorker.KEY_ENGINEER_UPLOAD to engineer,
                 )
             )
             .build()

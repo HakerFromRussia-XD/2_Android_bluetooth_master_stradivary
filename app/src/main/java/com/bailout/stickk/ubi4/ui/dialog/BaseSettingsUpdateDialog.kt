@@ -67,12 +67,22 @@ class BaseSettingsUpdateDialog : DialogFragment() {
     private fun render(state: V3BaseSettingsUpdatesUiState) {
         val view = content ?: return
         val offer = state.offer ?: return
-        view.findViewById<TextView>(R.id.ubi4DialogConfirmDisconnectionTitleTv).setText(SharedRes.strings.base_settings_update_title.resourceId)
-        view.findViewById<TextView>(R.id.ubi4DialogDisconnectionMassageTv).setText(
+        val personal = offer.isPersonal
+        view.findViewById<TextView>(R.id.ubi4DialogConfirmDisconnectionTitleTv).setText(
+            if (personal) R.string.settings_profile_engineer_update_title else SharedRes.strings.base_settings_update_title.resourceId,
+        )
+        view.findViewById<TextView>(R.id.ubi4DialogDisconnectionMassageTv).text = if (personal) {
+            val name = offer.profileName ?: getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, offer.profileId)
+            if (state.failed) getString(R.string.settings_profile_engineer_update_ack_failed)
+            else getString(R.string.settings_profile_engineer_update_message, name)
+        } else getString(
             if (state.failed) SharedRes.strings.base_settings_update_failed.resourceId else SharedRes.strings.base_settings_update_message.resourceId,
         )
-        view.findViewById<TextView>(R.id.ok_text).setText(SharedRes.strings.base_settings_update_accept.resourceId)
+        view.findViewById<TextView>(R.id.ok_text).setText(
+            if (personal) R.string.ok else SharedRes.strings.base_settings_update_accept.resourceId,
+        )
         view.findViewById<TextView>(R.id.cancel_text).setText(SharedRes.strings.base_settings_update_skip.resourceId)
+        view.findViewById<View>(R.id.view5).visibility = if (personal) View.INVISIBLE else View.VISIBLE
         listOf(R.id.ok_text, R.id.ubi4DialogConfirmDisconnectionBtn).forEach { id ->
             view.findViewById<View>(id).apply {
                 isEnabled = !state.isApplying
@@ -81,6 +91,7 @@ class BaseSettingsUpdateDialog : DialogFragment() {
         }
         listOf(R.id.cancel_text, R.id.ubi4DialogCancelDisconnectionBtn).forEach { id ->
             view.findViewById<View>(id).apply {
+                visibility = if (personal) View.GONE else View.VISIBLE
                 isEnabled = !state.isApplying
                 setOnClickListener { viewModel.onAction(V3BaseSettingsUpdatesAction.Respond(offer, false)) }
             }

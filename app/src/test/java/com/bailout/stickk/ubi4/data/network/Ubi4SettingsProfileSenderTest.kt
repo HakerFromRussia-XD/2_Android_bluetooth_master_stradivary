@@ -3,11 +3,15 @@ package com.bailout.stickk.ubi4.data.network
 import Token
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepository
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileState
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.models.user.ClientDataV2
 import com.bailout.stickk.ubi4.models.user.UserV2
 import io.mockk.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -29,16 +33,43 @@ class Ubi4SettingsProfileSenderTest {
         )
         coEvery { api.getUserInfoV2("second", "en") } returns NetworkResult.Success(UserV2(ClientDataV2(clientId = 7)))
         coEvery { api.getDevicesList(7, "second", "en") } returns NetworkResult.Success(listOf(DeviceInList_DEV(9, serialNumber = "FEST-test")))
-        coEvery { repository.buildServerSettingsPayload("FEST-test") } returns "profiles"
+        coEvery { repository.buildServerSettingsPayload("FEST-test", any()) } returns "profiles"
         coEvery { repository.getPendingEngineerRevision("FEST-test") } returns 0
         coEvery { repository.captureDeviceSettings("FEST-test") } returns Unit
-        coEvery { repository.synchronizeBaseSettings("FEST-test", any()) } returns
-            (com.bailout.stickk.ubi4.data.local.repository.SettingsProfileState(1, 1) to emptyList())
+        coEvery { repository.synchronizeBaseSettings("FEST-test", any(), any()) } returns
+            (SettingsProfileState(1, 1) to emptyList())
         coEvery { api.getProthesisSettingsRaw("9", any()) } returns NetworkResult.Success("server baseline")
         coEvery { api.postProthesisSettings("9", "second", any()) } returns NetworkResult.Success("saved")
     }
 
     @AfterEach fun tearDown() = unmockkObject(SettingsProfileRepositoryProvider)
+
+    @Test fun `engineer refresh waits for startup download before requesting another token`() = runTest {
+        val startupRequest = CompletableDeferred<Unit>()
+        val finishStartup = CompletableDeferred<Unit>()
+        coEvery { api.getUserInfoV2("first", "en") } returns NetworkResult.Success(UserV2(ClientDataV2(clientId = 7)))
+        coEvery { api.getDevicesList(7, "first", "en") } returns NetworkResult.Success(listOf(DeviceInList_DEV(9, serialNumber = "FEST-test")))
+        coEvery { api.getProthesisSettingsRaw("9", "first") } coAnswers {
+            startupRequest.complete(Unit)
+            finishStartup.await()
+            NetworkResult.Success("server baseline")
+        }
+        coEvery { repository.synchronizeEngineerProfiles("FEST-test", "server baseline", isCurrentSession = any()) } returns
+            (SettingsProfileState(3, 2) to emptyList())
+
+        val startup = async { sender.downloadProfileSettingsForSerial("FEST-test", "en", false) }
+        startupRequest.await()
+        val engineerSender = Ubi4SettingsProfileSender(api) { "encrypted:$it" }
+        val refresh = async(start = CoroutineStart.UNDISPATCHED) {
+            engineerSender.downloadEngineerSettingsForSerial("FEST-test", "en") { true }
+        }
+        coVerify(exactly = 1) { api.getToken(any()) }
+
+        finishStartup.complete(Unit)
+        startup.await()
+        assertEquals(SettingsProfileState(3, 2), refresh.await().state)
+        coVerify(exactly = 2) { api.getToken(any()) }
+    }
 
     @Test fun `401 obtains a fresh token and uploads with the replacement token`() = runTest {
         coEvery { api.getUserInfoV2("first", "en") } returns NetworkResult.Error(401, "unauthorized")
@@ -48,16 +79,18 @@ class Ubi4SettingsProfileSenderTest {
         coVerify(exactly = 0) { api.postProthesisSettings(any(), "first", any()) }
     }
 
-    @Test fun `engineer draft uploads full local packet without downloading over its baseline`() = runTest {
+    @Test fun `engineer draft fetches the user snapshot without importing over the draft`() = runTest {
         coEvery { api.getUserInfoV2("first", "en") } returns NetworkResult.Success(UserV2(ClientDataV2(clientId = 7)))
         coEvery { api.getDevicesList(7, "first", "en") } returns NetworkResult.Success(listOf(DeviceInList_DEV(9, serialNumber = "FEST-test")))
         coEvery { repository.getPendingEngineerRevision("FEST-test") } returns 10
+        coEvery { repository.buildEngineerSettingsPayload("FEST-test", "server baseline") } returns "profiles"
         coEvery { repository.markEngineerBasePublished("FEST-test", 10) } returns Unit
         coEvery { api.postProthesisSettings("9", "first", any()) } returns NetworkResult.Error(401, "unauthorized")
         assertEquals("saved", sender.sendEngineerSettingsForSerial("FEST-test", "en").serverResponse)
         coVerify(exactly = 2) { api.getToken(any()) }
         coVerify(exactly = 1) { api.postProthesisSettings("9", "second", match { it.allOptions == "profiles" }) }
-        coVerify(exactly = 0) { api.getProthesisSettingsRaw(any(), any()) }
+        coVerify(exactly = 2) { api.getProthesisSettingsRaw(any(), any()) }
+        coVerify(exactly = 0) { repository.synchronizeBaseSettings(any(), any(), any()) }
         coVerify(exactly = 1) { repository.markEngineerBasePublished("FEST-test", 10) }
     }
 
@@ -69,7 +102,7 @@ class Ubi4SettingsProfileSenderTest {
         coVerifyOrder {
             api.getProthesisSettingsRaw("9", "first")
             repository.synchronizeBaseSettings("FEST-test", "server baseline")
-            repository.buildServerSettingsPayload("FEST-test")
+            repository.buildServerSettingsPayload("FEST-test", "server baseline")
             api.postProthesisSettings("9", "first", any())
         }
     }

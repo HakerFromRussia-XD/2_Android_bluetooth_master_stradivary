@@ -80,6 +80,12 @@
     <string name="settings_profile_name_dialog_cancel">Отмена</string>
     <string name="settings_profile_name_dialog_save">Сохранить</string>
     <string name="settings_profile_rename_action">Переименовать профиль</string>
+    <string name="settings_profile_send_action">Отправить профиль</string>
+    <string name="settings_profile_send_succeeded">Настройки профиля отправлены</string>
+    <string name="settings_profile_send_failed">Не удалось отправить профиль. Изменения сохранены. Повторите отправку.</string>
+    <string name="settings_profile_engineer_update_title">Профиль обновлён</string>
+    <string name="settings_profile_engineer_update_message">Сервисный инженер обновил настройки профиля «%1$s». Изменения уже сохранены в этом профиле.</string>
+    <string name="settings_profile_engineer_update_ack_failed">Не удалось отметить уведомление как прочитанное. Нажмите «Ок», чтобы повторить.</string>
     <string name="settings_profile_delete_action">Удалить профиль</string>
     <string name="password">пароль</string>
     <string name="calibration">Калибровка:</string>

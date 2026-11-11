@@ -3,8 +3,11 @@ package com.bailout.stickk.ubi4.versions.v3.presentation.settingsprofiles
 import android.content.Context
 import android.graphics.Typeface
 import android.util.Log
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import com.bailout.stickk.R
+import com.bailout.stickk.databinding.Ubi4ItemSettingsProfileSpinnerBinding
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
@@ -30,6 +33,7 @@ class SettingsProfileSpinnerStateBindingTest {
     private val spinner = mockk<PowerSpinnerView>(relaxed = true)
     private val selections = mutableListOf<Int>()
     private val deletions = mutableListOf<Int>()
+    private val sends = mutableListOf<Int>()
     private var creations = 0
     private val callbacks = mutableListOf<() -> Unit>()
     private lateinit var delegate: SpinnerDelegateAdapterV3
@@ -75,6 +79,7 @@ class SettingsProfileSpinnerStateBindingTest {
             onDestroyParent = callbacks::add, settingsProfilesFromState = true,
             onSettingsProfileSelected = selections::add, onSettingsProfileCreateRequested = { creations++ },
             onSettingsProfileDeleteRequested = deletions::add,
+            onSettingsProfileSendRequested = sends::add,
         )
     }
 
@@ -163,5 +168,48 @@ class SettingsProfileSpinnerStateBindingTest {
         delegate.onDestroy()
         delete(1)
         assertEquals(listOf(1), deletions)
+    }
+
+    @Test fun `role change rebinds profile action from disabled send back to rename`() = runTest {
+        delegate.renderSettingsProfiles(state.copy(showSendAction = true))
+        bind()
+        val adapter = popup as SettingsProfileSpinnerAdapterV3
+        val constructor = Ubi4ItemSettingsProfileSpinnerBinding::class.java.declaredConstructors.single()
+            .apply { isAccessible = true }
+        val row = constructor.newInstance(*constructor.parameterTypes.map { mockkClass(it.kotlin, relaxed = true) }
+            .toTypedArray()) as Ubi4ItemSettingsProfileSpinnerBinding
+        val action = row.ubi4SettingsProfileItemEdit
+        every { action.context } returns context
+        every { spinner.spinnerItemHeight } returns Int.MIN_VALUE
+        val holder = adapter.ViewHolder(row)
+
+        adapter.onBindViewHolder(holder, 0)
+        verify { action.setImageResource(R.drawable.ubi4_ic_send) }
+        verify { action.isEnabled = false }
+        verify { row.ubi4SettingsProfileItemDelete.visibility = View.GONE }
+
+        every { spinner.selectedIndex } returns adapter.index
+        clearMocks(adapter, answers = false, recordedCalls = true)
+        delegate.renderSettingsProfiles(state)
+        verify(exactly = 1) { adapter.notifyDataSetChanged() }
+        adapter.onBindViewHolder(holder, 0)
+        verify { action.setImageResource(R.drawable.ubi4_ic_edit) }
+        verify { action.isEnabled = true }
+        verify { row.ubi4SettingsProfileItemDelete.visibility = View.VISIBLE }
+    }
+
+    @Test fun `send action routes only the profile with a draft`() = runTest {
+        delegate.renderSettingsProfiles(state.copy(
+            showSendAction = true,
+            profiles = listOf(state.profiles[0], state.profiles[1].copy(hasEngineerDraft = true)),
+        ))
+        bind()
+        @Suppress("UNCHECKED_CAST")
+        val click = SettingsProfileSpinnerAdapterV3::class.java.getDeclaredField("onEditClick")
+            .apply { isAccessible = true }.get(popup) as (Int, String) -> Unit
+        click(0, "Normal")
+        click(1, "Sport")
+        assertEquals(listOf(3), sends)
+        assertTrue(selections.isEmpty())
     }
 }

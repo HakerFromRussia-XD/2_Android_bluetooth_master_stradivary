@@ -79,6 +79,12 @@
     <string name="settings_profile_name_dialog_cancel">Cancel</string>
     <string name="settings_profile_name_dialog_save">Save</string>
     <string name="settings_profile_rename_action">Rename profile</string>
+    <string name="settings_profile_send_action">Send profile</string>
+    <string name="settings_profile_send_succeeded">Profile settings sent</string>
+    <string name="settings_profile_send_failed">Could not send the profile. The changes are saved. Try sending them again.</string>
+    <string name="settings_profile_engineer_update_title">Profile updated</string>
+    <string name="settings_profile_engineer_update_message">A service engineer updated the settings for “%1$s”. The changes have been saved to this profile.</string>
+    <string name="settings_profile_engineer_update_ack_failed">Could not mark this notification as read. Tap OK to try again.</string>
     <string name="settings_profile_delete_action">Delete profile</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>

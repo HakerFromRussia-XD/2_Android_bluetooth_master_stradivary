@@ -12,10 +12,12 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
 import com.bailout.stickk.ubi4.versions.v3.data.telemetry.Ubi4TelemetrySender
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.versions.v3.di.createSettingsProfileValueApplier
 import com.bailout.stickk.ubi4.versions.v3.data.telemetry.V3TelemetryRepositoryImpl
 import com.bailout.stickk.ubi4.versions.v3.domain.telemetry.SendTelemetryUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.service.V3DeviceRole
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.data.device.DeviceConnectionInitializer
@@ -150,6 +152,13 @@ internal object BleDependencies {
     ) {
         bindCommandExecutor(executor, deviceIdentity(owner))
         Ubi4SettingsProfileReceiver.defaultApplyProfileValues = createSettingsProfileValueApplier(context)
+        val preferences = context.applicationContext.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        val isServiceEngineer = {
+            preferences.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, V3DeviceRole.USER.wireValue) ==
+                V3DeviceRole.SERVICE_ENGINEER.wireValue
+        }
+        SettingsProfileManager.profileEngineerRole = isServiceEngineer
+        Ubi4SettingsProfileReceiver.preserveLocalDeviceSettings = { UiState.isInterfaceV3Activated && !isServiceEngineer() }
         DeviceConnectionInitializer.initialize(intent)
         updateLaunchIntent(owner, intent)
         canSendNextChunkFlagFlow = MutableSharedFlow()

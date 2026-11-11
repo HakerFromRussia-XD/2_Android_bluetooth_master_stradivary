@@ -24,7 +24,7 @@ class V3SettingsProfilesRepositoryTest {
     private val info = ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE)
     private val cache = BaseParameterInfoStruct(ID = info.parameterID, dataCode = info.dataCode, data = "{}")
     private val sharedRepository = mockk<SettingsProfileRepository>()
-    private val repository = V3SettingsProfilesRepositoryImpl { error("Reading profiles must not apply values") }
+    private val repository = V3SettingsProfilesRepositoryImpl({ error("Reading profiles must not apply values") })
 
     @BeforeEach
     fun setUp() {

@@ -3,12 +3,16 @@ package com.bailout.stickk.ubi4.data.network
 import SettingsModelV3
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileApplyValue
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepository
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileState
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
 import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.data.state.UiState
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 data class SettingsProfileUploadResult(
     val deviceId: String,
@@ -27,36 +31,72 @@ class Ubi4SettingsProfileSender(
     private val api: Ubi4RequestsApi = Ubi4RequestsApi(),
     private val encryptSerial: (String) -> String? = { EncryptionManagerUtilsUbi4.instance.encrypt(it) },
 ) {
+    private companion object {
+        val profileRequestMutex = Mutex()
+    }
+
     suspend fun sendProfile1SettingsForSerial(
         serial: String,
         lang: String
     ): SettingsProfileUploadResult = withFreshAuthorization {
         val access = resolveDeviceAccess(serial, lang)
-        sendProfile1Settings(access.deviceId, access.token, access.serial)
+        uploadSettings(access.deviceId, access.token, access.serial, engineerUpload = false)
     }
 
     suspend fun sendEngineerSettingsForSerial(serial: String, lang: String): SettingsProfileUploadResult = withFreshAuthorization {
         val access = resolveDeviceAccess(serial, lang)
-        // Upload every local profile, but never turn the user's physical settings into an engineer profile.
-        sendProfile1Settings(access.deviceId, access.token, access.serial, preserveCurrentSettings = false)
+        uploadSettings(access.deviceId, access.token, access.serial, engineerUpload = true)
+    }
+
+    suspend fun sendEngineerPersonalSettings(
+        serial: String,
+        profileId: Int,
+        lang: String,
+        isCurrentSession: () -> Boolean,
+    ): SettingsProfileUploadResult = withFreshAuthorization {
+        if (!isCurrentSession()) throw CancellationException("Settings profile session changed")
+        val repository = SettingsProfileRepositoryProvider.getOrNull()
+            ?: throw Ubi4SettingsProfileSendException.RepositoryUnavailable()
+        val access = resolveDeviceAccess(serial, lang)
+        val remote = getSettingsPayload(access.deviceId, access.token)
+        SettingsProfileManager.awaitPendingWrites(access.serial)
+        val (revision, payload) = repository.buildEngineerPersonalUpload(access.serial, profileId, remote)
+        if (!isCurrentSession()) throw CancellationException("Settings profile session changed")
+        val result = postSettingsPayload(access.deviceId, access.token, payload)
+        repository.markEngineerPersonalPublished(access.serial, profileId, revision)
+        result
     }
 
     suspend fun downloadProfileSettingsForSerial(
         serial: String,
         lang: String,
         preserveCurrentSettings: Boolean = UiState.isInterfaceV3Activated && !UiState.isServiceEngineerRole.value,
+    ): SettingsProfileDownloadResult = downloadSettingsForSerial(serial, lang) { repository, normalizedSerial, payload ->
+        repository.synchronizeBaseSettings(normalizedSerial, payload, preserveCurrentSettings)
+    }
+
+    suspend fun downloadEngineerSettingsForSerial(
+        serial: String,
+        lang: String,
+        discardDraftsBefore: Long? = null,
+        isCurrentSession: () -> Boolean,
+    ): SettingsProfileDownloadResult = downloadSettingsForSerial(serial, lang) { repository, normalizedSerial, payload ->
+        repository.synchronizeEngineerProfiles(normalizedSerial, payload, discardDraftsBefore, isCurrentSession)
+    }
+
+    private suspend fun downloadSettingsForSerial(
+        serial: String,
+        lang: String,
+        synchronize: suspend (SettingsProfileRepository, String, String) -> Pair<SettingsProfileState, List<SettingsProfileApplyValue>>,
     ): SettingsProfileDownloadResult = withFreshAuthorization {
         val repository = SettingsProfileRepositoryProvider.getOrNull()
             ?: throw Ubi4SettingsProfileSendException.RepositoryUnavailable()
         SettingsProfileManager.awaitPendingWrites(serial)
         repository.captureDeviceSettings(serial)
         val access = resolveDeviceAccess(serial, lang)
-        val settingsPayload = when (val result = api.getProthesisSettingsRaw(access.deviceId, access.token)) {
-            is NetworkResult.Success -> result.value
-            is NetworkResult.Error -> throw SettingsProfileRequestException("download", result)
-        }
+        val settingsPayload = getSettingsPayload(access.deviceId, access.token)
         SettingsProfileManager.awaitPendingWrites(access.serial)
-        val (state, applyValues) = repository.synchronizeBaseSettings(access.serial, settingsPayload, preserveCurrentSettings)
+        val (state, applyValues) = synchronize(repository, access.serial, settingsPayload)
         SettingsProfileDownloadResult(
             deviceId = access.deviceId,
             settingsPayload = settingsPayload,
@@ -69,7 +109,15 @@ class Ubi4SettingsProfileSender(
         deviceId: String,
         token: String,
         serial: String = SettingsProfileManager.serial(),
-        preserveCurrentSettings: Boolean = true,
+    ): SettingsProfileUploadResult = profileRequestMutex.withLock {
+        uploadSettings(deviceId, token, serial, engineerUpload = false)
+    }
+
+    private suspend fun uploadSettings(
+        deviceId: String,
+        token: String,
+        serial: String,
+        engineerUpload: Boolean,
     ): SettingsProfileUploadResult {
         val normalizedSerial = serial.trim()
         if (normalizedSerial.isBlank()) {
@@ -79,20 +127,27 @@ class Ubi4SettingsProfileSender(
         val repository = SettingsProfileRepositoryProvider.getOrNull()
             ?: throw Ubi4SettingsProfileSendException.RepositoryUnavailable()
         SettingsProfileManager.awaitPendingWrites(normalizedSerial)
+        val remote = getSettingsPayload(deviceId, token, "download baseline before upload")
+        SettingsProfileManager.awaitPendingWrites(normalizedSerial)
         val engineerRevision = repository.getPendingEngineerRevision(normalizedSerial)
         if (engineerRevision == 0L) {
-            val remote = when (val result = api.getProthesisSettingsRaw(deviceId, token)) {
-                is NetworkResult.Success -> result.value
-                is NetworkResult.Error -> throw SettingsProfileRequestException("download baseline before upload", result)
-            }
-            SettingsProfileManager.awaitPendingWrites(normalizedSerial)
-            repository.synchronizeBaseSettings(normalizedSerial, remote, preserveCurrentSettings)
+            repository.synchronizeBaseSettings(normalizedSerial, remote, preserveCurrentSettings = !engineerUpload)
         }
-        val settingsPayload = repository.buildServerSettingsPayload(normalizedSerial)
+        val settingsPayload = if (engineerUpload) {
+            repository.buildEngineerSettingsPayload(normalizedSerial, remote)
+        } else {
+            repository.buildServerSettingsPayload(normalizedSerial, remote)
+        }
         val result = postSettingsPayload(deviceId, token, settingsPayload)
         if (engineerRevision > 0) repository.markEngineerBasePublished(normalizedSerial, engineerRevision)
         return result
     }
+
+    private suspend fun getSettingsPayload(deviceId: String, token: String, stage: String = "download"): String =
+        when (val result = api.getProthesisSettingsRaw(deviceId, token)) {
+            is NetworkResult.Success -> result.value
+            is NetworkResult.Error -> throw SettingsProfileRequestException(stage, result)
+        }
 
     private suspend fun postSettingsPayload(deviceId: String, token: String, settingsPayload: String): SettingsProfileUploadResult {
         when (val result = api.postProthesisSettings(deviceId, token, SettingsModelV3(settingsPayload))) {
@@ -136,14 +191,15 @@ class Ubi4SettingsProfileSender(
         )
     }
 
-    private suspend fun <T> withFreshAuthorization(request: suspend () -> T): T {
+    // Keep authorization and the settings request together when startup and role refresh overlap.
+    private suspend fun <T> withFreshAuthorization(request: suspend () -> T): T = profileRequestMutex.withLock {
         try {
-            return request()
+            return@withLock request()
         } catch (error: SettingsProfileRequestException) {
             if (error.code != 401) throw error
             platformLog("SettingsProfileAuth", "HTTP 401 at ${error.stage}: requesting a fresh token once")
         }
-        return request()
+        request()
     }
 }
 

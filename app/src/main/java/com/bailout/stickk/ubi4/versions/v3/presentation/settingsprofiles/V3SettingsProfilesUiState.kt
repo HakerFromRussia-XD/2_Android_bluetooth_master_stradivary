@@ -13,8 +13,9 @@ data class V3SettingsProfilesUiState(
     val failedOperation: V3SettingsProfileOperation? = null,
     val nameEditor: V3SettingsProfileNameEditorUiState? = null,
     val deleteConfirmation: V3SettingsProfile? = null,
+    val showSendAction: Boolean = false,
 )
 
-enum class V3SettingsProfileOperation { SELECT, CREATE, RENAME, DELETE, COPY_BASE }
+enum class V3SettingsProfileOperation { SELECT, CREATE, RENAME, DELETE, COPY_BASE, SEND }
 
 data class V3SettingsProfileNameEditorUiState(val requestId: Long, val profile: V3SettingsProfile)

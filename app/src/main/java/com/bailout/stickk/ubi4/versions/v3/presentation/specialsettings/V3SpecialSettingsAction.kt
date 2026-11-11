@@ -18,6 +18,8 @@ sealed interface V3SpecialSettingsAction {
     data class SettingsProfileSelected(val profileId: Int) : V3SpecialSettingsAction
     data object SettingsProfileCreateRequested : V3SpecialSettingsAction
     data class SettingsProfileRenameRequested(val profileId: Int) : V3SpecialSettingsAction
+    data class SettingsProfileSendRequested(val profileId: Int) : V3SpecialSettingsAction
+    data object SettingsProfileSendConfirmationShown : V3SpecialSettingsAction
     data class SettingsProfileNameSubmitted(val requestId: Long, val name: String) : V3SpecialSettingsAction
     data class SettingsProfileNameDismissed(val requestId: Long) : V3SpecialSettingsAction
     data class SettingsProfileDeleteRequested(val profileId: Int) : V3SpecialSettingsAction

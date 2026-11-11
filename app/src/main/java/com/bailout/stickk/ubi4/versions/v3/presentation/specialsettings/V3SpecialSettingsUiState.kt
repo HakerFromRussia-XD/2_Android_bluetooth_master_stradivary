@@ -23,6 +23,7 @@ data class V3SpecialSettingsUiState(
     val settingsProfiles: V3SettingsProfilesUiState? = null,
     val baseSettingsEditPrompt: V3BaseSettingsEditPromptUiState? = null,
     val animationsEnabled: Boolean = true,
+    val profileSendConfirmationPending: Boolean = false,
 ) {
     val isBaseSettingsReadOnlyDialogVisible: Boolean get() = baseSettingsEditPrompt != null
 }

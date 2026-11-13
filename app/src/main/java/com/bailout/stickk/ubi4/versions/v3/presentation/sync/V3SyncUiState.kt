@@ -7,6 +7,10 @@ data class V3SyncUiState(
     val progress: Int = 0,
     // null: synchronization has not requested a change to the surrounding panels.
     val chromeVisible: Boolean? = null,
+    val mode: V3SyncMode = V3SyncMode.Standard,
+    val returnToScanning: Boolean = false,
 )
+
+enum class V3SyncMode { Standard, PhoneConfirmation }
 
 enum class V3SyncAction { ViewCreated, StartupShown, ViewAttached, ViewDetached }

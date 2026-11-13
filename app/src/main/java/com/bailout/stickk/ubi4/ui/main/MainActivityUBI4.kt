@@ -32,11 +32,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.versions.v3.di.V3SyncViewModelFactory
 import com.bailout.stickk.ubi4.versions.v3.di.V3MainViewModelFactory
+import com.bailout.stickk.ubi4.versions.v3.di.V3PhoneSyncDependencies
 import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainUiState
 import com.bailout.stickk.ubi4.versions.v3.presentation.main.V3MainViewModel
 import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncAction
 import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncViewModel
+import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncFragment
+import com.bailout.stickk.ubi4.versions.v3.presentation.sync.V3SyncUiState
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -120,8 +123,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var ubi4Serial: String? = null
     private var syncShownOnce = false
     private var syncObservation: Job? = null
+    private var phoneSyncReturningToScan = false
     private val v3SyncViewModel by lazy {
-        ViewModelProvider(this, V3SyncViewModelFactory)[V3SyncViewModel::class.java]
+        ViewModelProvider(this, V3SyncViewModelFactory(this, !isV3BleEmulatorMode))[V3SyncViewModel::class.java]
     }
     private val v3MainViewModel by lazy {
         ViewModelProvider(this, V3MainViewModelFactory(this, this))[V3MainViewModel::class.java]
@@ -226,25 +230,27 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
         mBLEController = BLEController(bleManager).also { controller ->
+            if (UiState.isInterfaceV3Activated && !isV3BleEmulatorMode) V3PhoneSyncDependencies.bind(this, controller)
             controller.setOnNeedFullInitListener {
                 // этот колбэк всегда будет на main-потоке (мы так сделали в smartInitWithCrc)
                 ensureSyncDialogShown()
             }
         }
+        if (UiState.isInterfaceV3Activated) observeSyncProgress()
         if (UiState.isInterfaceV3Activated) BleDependencies.bindSensorsRefresh(this, mBLEController, ::observeSyncProgress)
         BleDependencies.bindTelemetry(this, lifecycleScope, mSettings!!, mBLEController, executor = this)
         userFirmwareUpdates = com.bailout.stickk.ubi4.ui.dialog.UserFirmwareUpdateController(this)
-        if (!isV3BleEmulatorMode) {
+        if (!isV3BleEmulatorMode && !isPhoneSyncFailed()) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
-        } else {
+        } else if (isV3BleEmulatorMode) {
             lifecycleScope.launch {
                 bleParserV3.generatedHardcodeWidgets()
                 UiState.v3WidgetsInteractionEnabled.value = true
                 V3BleEmulatorTestHooks.injectInitialResponses(bleParserV3)
             }
         }
-        commandQueue.start()
+        if (!isPhoneSyncFailed()) commandQueue.start()
 
 
         if (savedInstanceState == null) {
@@ -351,6 +357,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (UiState.isInterfaceV3Activated && v3SyncViewModel.uiState.value.isShowing) return
         setIntent(intent)
         BleDependencies.updateLaunchIntent(this, intent)
 //        applyDfuDiagnostics(intent)
@@ -382,6 +389,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+        if (isPhoneSyncFailed()) return
         userFirmwareUpdates?.foreground()
         if (UiState.isInterfaceV3Activated) v3MainViewModel.onAction(V3MainAction.ViewResumed)
         else {
@@ -920,6 +928,29 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    private fun isPhoneSyncFailed(): Boolean = UiState.isInterfaceV3Activated &&
+        !isV3BleEmulatorMode && v3SyncViewModel.uiState.value.returnToScanning
+
+    private fun renderV3SyncState(state: V3SyncUiState) {
+        if (isFinishing || isDestroyed) return
+        val fragment = supportFragmentManager.findFragmentByTag(V3SyncFragment.TAG) as? V3SyncFragment
+            ?: V3SyncFragment().also {
+                if (supportFragmentManager.isStateSaved) return
+                supportFragmentManager.beginTransaction()
+                    .add(android.R.id.content, it, V3SyncFragment.TAG)
+                    .commitNow()
+            }
+        fragment.render(state)
+        state.chromeVisible?.let(::setChromeVisible)
+        if (state.returnToScanning && !phoneSyncReturningToScan) {
+            phoneSyncReturningToScan = true
+            commandQueue.stop()
+            binding.root.post {
+                if (!isFinishing && !isDestroyed) openScanActivity()
+            }
+        }
+    }
+
     fun observeSyncProgress() {
         platformLog("SyncProgressDialog","Main observeSyncProgress run ")
         if (UiState.isInterfaceV3Activated) {
@@ -929,7 +960,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                     repeatOnLifecycle(Lifecycle.State.STARTED) {
                         viewModel.onAction(V3SyncAction.ViewAttached)
                         try {
-                            viewModel.uiState.collect { syncDialog.renderV3(it, ::setChromeVisible) }
+                            viewModel.uiState.collect(::renderV3SyncState)
                         } finally {
                             viewModel.onAction(V3SyncAction.ViewDetached)
                         }
@@ -1027,15 +1058,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun showStartupLoaderIfNeeded() {
+        if (isPhoneSyncFailed()) return
         val hasMac = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
         if (!hasMac) return
 
         UiState.startupInProgress.value = true
         // прячем chrome сразу, без ожидания flow-коллекторов
         setChromeVisible(false)
-        // показываем диалог сразу, чтобы не было фликера
-        syncDialog.show()
-        if (UiState.isInterfaceV3Activated) v3SyncViewModel.onAction(V3SyncAction.StartupShown)
+        if (UiState.isInterfaceV3Activated) {
+            v3SyncViewModel.onAction(V3SyncAction.StartupShown)
+            renderV3SyncState(v3SyncViewModel.uiState.value)
+        } else syncDialog.show()
         // подписка на состояние (дальше он сам закроется)
         ensureSyncDialogShown()
     }

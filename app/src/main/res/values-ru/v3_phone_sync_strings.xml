@@ -1,0 +1,4 @@
+<resources>
+    <string name="v3_phone_sync_title">Синхронизация</string>
+    <string name="v3_phone_sync_instruction">Для завершения синхронизации с протезом нажмите одновременно 2 крайние кнопки</string>
+</resources>

@@ -1,0 +1,293 @@
+11-13 17:24:32.790  2460  3092 I ActivityTaskManager: START u0 {cmp=com.bailout.stickk/.intro.StartActivity (has extras)} with LAUNCH_MULTIPLE from uid 10491 from pid 24672 callingPackage com.bailout.stickk (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+11-13 17:24:32.904  2460  4160 I ActivityTaskManager: START u0 {cmp=com.bailout.stickk/.ubi4.ui.main.MainActivityUBI4 (has extras)} with LAUNCH_MULTIPLE from uid 10491 from pid 24672 callingPackage com.bailout.stickk (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+11-13 17:24:32.975 24672 24672 I DFU_V2_DIAG: diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=false version=3.3.1886 type=debug package=com.bailout.stickk
+11-13 17:24:33.135 24672 24672 D SyncProgressDialog: show run
+11-13 17:24:33.149 24672 24672 I input_focus: setView: view:com.android.internal.policy.DecorView{a5d9a33 V.ED..... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog.show:62 
+11-13 17:24:33.165 24672 24672 D SyncProgressDialog: Main observeSyncProgress run 
+11-13 17:24:33.370 24672 24672 I USER_DFU: roleGate enabled=false v3=true role=1
+11-13 17:24:33.370 24672 24672 D USER_DFU: setUserRole enabled=false ble=CONNECTING id=00:80:E1:26:67:30
+11-13 17:24:33.375 24672 24672 I DFU_V2_DIAG: controller reconnect_worker start flag=true connected=false generation=0
+11-13 17:24:33.459 24672 24672 I USER_DFU: roleGate enabled=false v3=true role=1
+11-13 17:24:33.459 24672 24672 D USER_DFU: setUserRole enabled=false ble=CONNECTING id=00:80:E1:26:67:30
+11-13 17:24:33.459 24672 24672 D USER_DFU: check skipped role=false active=false ble=CONNECTING
+11-13 17:24:33.459 24672 24672 I DFU_V2_DIAG: firmware_session active=false generation=0
+11-13 17:24:33.463 24672 24672 I DFU_V2_DIAG: controller reconnect_worker reuse active=true flag=true connected=false generation=0
+11-13 17:24:33.495 24672 24672 D VRI[MainActivityUBI4]: vri.Setup new sync=wmsSync-VRI[MainActivityUBI4]#4
+11-13 17:24:33.556 24672 24672 D VRI[MainActivityUBI4]: vri.Setup new sync=wmsSync-VRI[MainActivityUBI4]#6
+11-13 17:24:33.619 24672 24672 I DFU_V2_DIAG: firmware_session active=false generation=0
+11-13 17:24:33.620 24672 24672 D USER_DFU: check skipped role=false active=false ble=CONNECTING
+11-13 17:24:33.631 24672 24672 D DFU_V2_DIAG: controller reconnect_attempt=1 via=direct connected=false generation=0
+11-13 17:24:33.633 24672 24672 D DFU_V2_DIAG: controller direct_connect dispatched=false address=00:80:E1:26:67:30 generation=0
+11-13 17:24:33.833 24672 24672 D VRI[MainActivityUBI4]: vri.Setup new sync=wmsSync-VRI[MainActivityUBI4]#8
+11-13 17:24:33.996 24672 24672 I DFU_V2_DIAG: gatt close skipped gatt=null
+11-13 17:24:33.996 24672 24672 I DFU_V2_DIAG: gatt close skipped gatt=null
+11-13 17:24:34.041 24672 24672 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=null
+11-13 17:24:34.047 24672 24672 I DFU_V2_DIAG: gatt connect dispatched address=00:80:E1:26:67:30 new_gatt=2575fda
+11-13 17:24:34.663 24672 24672 D DFU_V2_DIAG: controller reconnect_attempt=2 via=direct connected=false generation=0
+11-13 17:24:34.663 24672 24672 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=2575fda
+11-13 17:24:34.663 24672 24672 D DFU_V2_DIAG: gatt connect pending reused address=00:80:E1:26:67:30 gatt=2575fda elapsed_ms=622
+11-13 17:24:34.663 24672 24672 D DFU_V2_DIAG: controller direct_connect dispatched=true address=00:80:E1:26:67:30 generation=0
+11-13 17:24:34.723 24672 24775 I DFU_V2_DIAG: gatt connection_state status=0 status_name=GATT_SUCCESS new_state=2 gatt=2575fda current=true address=00:80:E1:26:67:30
+11-13 17:24:34.724 24672 24775 D BLE_DEBUG11: onConnectionStateChange: STATE_CONNECTED, status: 0
+11-13 17:24:34.729 24672 24672 I DFU_V2_DIAG: controller event=GATT_CONNECTED connected=false generation=0 reconnect_flag=true dfu_active=false
+11-13 17:24:34.731 24672 24775 I DFU_V2_DIAG: gatt request_mtu value=247 accepted=true gatt=2575fda
+11-13 17:24:35.565 24672 24775 D TestSendByteArray: status =0MTU: 512
+11-13 17:24:35.567 24672 24775 I DFU_V2_DIAG: gatt mtu_changed mtu=512 status=0 gatt=2575fda
+11-13 17:24:35.567 24672 24775 W System.err: BLE debug onMtuChanged GATT_SUCCESS
+11-13 17:24:35.572 24672 24775 I DFU_V2_DIAG: gatt discover_services reason=mtu changed started=true gatt=2575fda
+11-13 17:24:35.579 24672 24775 I DFU_V2_DIAG: gatt services_discovered status=0 services=3 serial_present=true serial_properties=24 negotiated_mtu=512 max_wwr=509 gatt=2575fda
+11-13 17:24:35.579 24672 24672 I DFU_V2_DIAG: controller event=SERVICES_DISCOVERED generation=1 services=3 serial_wwr=false max_wwr=509 dfu_active=false
+11-13 17:24:35.579 24672 24672 D BLE_CONN: ▶ ACTION_GATT_SERVICES_DISCOVERED, services count = 3
+11-13 17:24:35.609 24672 24672 D DFU_V2_DIAG: notify subscribe attempt=1/10 uuid=43681000-4d74-1001-726b-526f64696f6e timeout_ms=250 connected=true generation=1
+11-13 17:24:35.610 24672 24672 W System.err: BLE debug попытка подписки на нотификацию
+11-13 17:24:35.610 24672 24672 D BLEController: Устанавливаю уведомления для 43681000-4d74-1001-726b-526f64696f6e, enabled: true
+11-13 17:24:35.611 24672 24672 I DFU_V2_DIAG: gatt serial_notify_local enabled=true accepted=true properties=24 gatt=2575fda
+11-13 17:24:35.613 24672 24672 I DFU_V2_DIAG: gatt serial_cccd_write accepted=true enabled=true gatt=2575fda
+11-13 17:24:35.636 24672 24672 I input_focus: setView: view:com.android.internal.policy.DecorView{bef7e18 V.E...... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.versions.v3.presentation.phonesync.V3PhoneSyncDialog.render:37 
+11-13 17:24:35.681 24672 24672 D VRI[MainActivityUBI4]: vri.Setup new sync=wmsSync-VRI[MainActivityUBI4]#10
+11-13 17:24:35.730 24672 24672 I DFU_V2_DIAG: controller reconnect_worker finish connected=true generation=1 flag=false
+11-13 17:24:35.730 24672 24672 D BLE_RECON: reconnectThread() finished, connected=true
+11-13 17:24:35.731 24672 24672 D VRI[MainActivityUBI4]: vri.Setup new sync=wmsSync-VRI[MainActivityUBI4]#12
+11-13 17:24:35.818 24672 24700 I DFU_V2_DIAG: gatt serial_cccd_callback status=0 enabled=true has_enable_value=true gatt=2575fda
+11-13 17:24:35.821 24672 24672 D BLE_NOTIFY: Notify subscribe result: uuid=43681000-4d74-1001-726b-526f64696f6e enabled=true status=0
+11-13 17:24:35.822 24672 24672 D DFU_V2_DIAG: notify subscribe result attempt=1 success=true uuid=43681000-4d74-1001-726b-526f64696f6e
+11-13 17:24:35.825 24672 24672 W System.err: BLE debug запись 0005000035
+11-13 17:24:35.829 24672 24672 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0005000035 write_type=2 gatt=2575fda
+11-13 17:24:35.954 24672 24698 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0005000035 write_type=2 gatt=2575fda
+11-13 17:24:35.955 24672 24698 D TestSendByteArray: status =0 0005000035
+11-13 17:24:35.957 24672 24698 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=0005000035 gatt=2575fda
+11-13 17:24:35.976 24672 24672 D baseSubDevicesInfoStructSetV3: [0] it: 1 {ParameterInfo(parameterID=1, dataCode=1, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=1, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=47, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=47, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=18, dataCode=1, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=18, dataCode=1, deviceAddress=1, dataOffsets=1)=BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=37, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=37, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=39, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=39, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=54, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=54, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite
+11-13 17:24:35.977 24672 24672 D baseSubDevicesInfoStructSetV3: [1] =0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=21, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=21, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=57, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=57, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=16, dataCode=8, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=16, broadcastID=0, dataCode=8, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=18, dataCode=3, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=3, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=63, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=63, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=61, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=61, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInf
+11-13 17:24:35.977 24672 24672 D baseSubDevicesInfoStructSetV3: [2] o(parameterID=15, dataCode=59, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=59, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=45, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=45, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=68, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=68, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=15, dataCode=70, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=70, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), ParameterInfo(parameterID=18, dataCode=5, deviceAddress=1, dataOffsets=0)=BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=5, dataInstance=0, parameterDataSize=0,… [truncated 2587 chars]
+11-13 17:24:35.977 24672 24672 D baseSubDevicesInfoStructSetV3: it: 5 {ParameterInfo(parameterID=15, dataCode=1, deviceAddress=5, dataOffsets=0)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true)}
+11-13 17:24:35.977 24672 24672 D baseSubDevicesInfoStructSetV3: it: 6 {ParameterInfo(parameterID=15, dataCode=2, deviceAddress=6, dataOffsets=1)=BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=2, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true)}
+11-13 17:24:35.978 24672 24672 D baseSubDevicesInfoStructSetV3: [0] до BaseSubDeviceInfoStruct(deviceType=0, deviceCode=0, deviceRole=0, deviceVersion=0, deviceSubVersion=0, deviceAddress=1, parametersNum=23, subDeviceNum=0, defaultPort=0, parametersList=[BaseParameterInfoStruct(ID=1, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=47, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=37, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=39, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=54, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=21, dataInstance=0, parameterDataSize=0, flagShift=0, optim
+11-13 17:24:35.978 24672 24672 D baseSubDevicesInfoStructSetV3: [1] isation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=57, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=16, broadcastID=0, dataCode=8, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=3, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=63, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=61, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=59, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=45, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=1
+11-13 17:24:35.978 24672 24672 D baseSubDevicesInfoStructSetV3: [2] 5, broadcastID=0, dataCode=68, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=70, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=18, broadcastID=0, dataCode=5, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=16, broadcastID=0, dataCode=14, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=1, broadcastID=0, dataCode=15, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true), BaseParameterInfoStruct(ID=1, broadcastID=0, dataCode=13, dataInstance=0, parameterDataSize=0, flagS… [truncated 1077 chars]
+11-13 17:24:35.978 24672 24672 D baseSubDevicesInfoStructSetV3: до BaseSubDeviceInfoStruct(deviceType=0, deviceCode=0, deviceRole=0, deviceVersion=0, deviceSubVersion=0, deviceAddress=5, parametersNum=1, subDeviceNum=0, defaultPort=0, parametersList=[BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=1, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true)], isBoot=0, fwVersion=)
+11-13 17:24:35.978 24672 24672 D baseSubDevicesInfoStructSetV3: до BaseSubDeviceInfoStruct(deviceType=0, deviceCode=0, deviceRole=0, deviceVersion=0, deviceSubVersion=0, deviceAddress=6, parametersNum=1, subDeviceNum=0, defaultPort=0, parametersList=[BaseParameterInfoStruct(ID=15, broadcastID=0, dataCode=2, dataInstance=0, parameterDataSize=0, flagShift=0, optimisation=0, valueLimit=0, initRead=0, initWrite=0, synchType=0, synchDirection=0, synchPeriod=0, type=0, saveInMaster=0, saveInSlave=0, saveReserv=0, additionalInfoSize=0, relatedParameterID=0, relatedDataCode=0, additionalInfoRefSet=[], data=, firstReceiveDataFlag=true)], isBoot=0, fwVersion=)
+11-13 17:24:35.996 24672 24672 D listWidgets: listWidgets: CommandParameterWidgetSStruct(baseParameterWidgetSStruct=BaseParameterWidgetSStruct(baseParameterWidgetStruct=BaseParameterWidgetStruct(widgetType=0, widgetLabelType=0, widgetCode=18, display=4, widgetPosition=8, deviceId=0, widgetId=22, dataOffset=0, dataSize=0, channelOffset=0, parameterInfoSet=[], keyMobileSettings=BLE_LOG), label=BLE Log), clickCommand=0, pressedCommand=0, releasedCommand=0)
+11-13 17:24:35.996 24672 24672 D DFU_V2_DIAG: notify subscribe attempt=1/10 uuid=43681000-4d74-1001-726b-526f64696f6e timeout_ms=250 connected=true generation=1
+11-13 17:24:35.997 24672 24672 W System.err: BLE debug попытка подписки на нотификацию
+11-13 17:24:35.997 24672 24672 D BLEController: Устанавливаю уведомления для 43681000-4d74-1001-726b-526f64696f6e, enabled: true
+11-13 17:24:35.998 24672 24672 I DFU_V2_DIAG: gatt serial_notify_local enabled=true accepted=true properties=24 gatt=2575fda
+11-13 17:24:35.999 24672 24672 I DFU_V2_DIAG: gatt serial_cccd_write accepted=true enabled=true gatt=2575fda
+11-13 17:24:36.017 24672 24672 D SyncProgressDialog: show run
+11-13 17:24:36.050 24672 24672 I input_focus: setView: view:com.android.internal.policy.DecorView{ab74e90 V.ED..... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog.show:62 
+11-13 17:24:36.134 24672 24700 I DFU_V2_DIAG: gatt serial_cccd_callback status=0 enabled=true has_enable_value=true gatt=2575fda
+11-13 17:24:36.384 24672 24672 D BLE_NOTIFY: Notify subscribe result: uuid=43681000-4d74-1001-726b-526f64696f6e enabled=true status=0
+11-13 17:24:36.384 24672 24672 D DFU_V2_DIAG: notify subscribe result attempt=1 success=true uuid=43681000-4d74-1001-726b-526f64696f6e
+11-13 17:24:36.390 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.392 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.392 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:36.393 24672 24811 W System.err: BLE debug запись 0006010015
+11-13 17:24:36.396 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0006010015 write_type=2 gatt=2575fda
+11-13 17:24:36.396 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:36.411 24672 24672 D USER_DFU: check skipped role=false active=false ble=READY
+11-13 17:24:36.632 24672 24775 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0006010015 write_type=2 gatt=2575fda
+11-13 17:24:36.632 24672 24775 D TestSendByteArray: status =0 0006010015
+11-13 17:24:36.635 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:36.638 24672 24672 W BLEParserV3: Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify
+11-13 17:24:36.639 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=78 hex=80064800e50100010200000208200000000000002100000000000022000000000000230000000000002400000000000025000000000000094406000005051100...(+14) gatt=2575fda
+11-13 17:24:36.642 24672 24672 D DFU_V2_DIAG: notify subscribe attempt=1/10 uuid=43681000-4d74-1001-726b-526f64696f6e timeout_ms=250 connected=true generation=1
+11-13 17:24:36.642 24672 24672 W System.err: BLE debug попытка подписки на нотификацию
+11-13 17:24:36.642 24672 24672 D BLEController: Устанавливаю уведомления для 43681000-4d74-1001-726b-526f64696f6e, enabled: true
+11-13 17:24:36.644 24672 24672 I DFU_V2_DIAG: gatt serial_notify_local enabled=true accepted=true properties=24 gatt=2575fda
+11-13 17:24:36.645 24672 24672 I DFU_V2_DIAG: gatt serial_cccd_write accepted=true enabled=true gatt=2575fda
+11-13 17:24:36.662 24672 24672 D USER_DFU: check skipped role=false active=false ble=READY
+11-13 17:24:36.766 24672 24700 I DFU_V2_DIAG: gatt serial_cccd_callback status=0 enabled=true has_enable_value=true gatt=2575fda
+11-13 17:24:36.767 24672 24672 D BLE_NOTIFY: Notify subscribe result: uuid=43681000-4d74-1001-726b-526f64696f6e enabled=true status=0
+11-13 17:24:36.767 24672 24672 D DFU_V2_DIAG: notify subscribe result attempt=1 success=true uuid=43681000-4d74-1001-726b-526f64696f6e
+11-13 17:24:36.768 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.768 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.769 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:36.769 24672 24811 W System.err: BLE debug запись 0006010015
+11-13 17:24:36.772 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0006010015 write_type=2 gatt=2575fda
+11-13 17:24:36.772 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:36.944 24672 24775 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0006010015 write_type=2 gatt=2575fda
+11-13 17:24:36.944 24672 24775 D TestSendByteArray: status =0 0006010015
+11-13 17:24:36.951 24672 24775 D DFU_V2_DIAG: gatt serial_notify bytes=78 hex=80064800e50100010200000208200000000000002100000000000022000000000000230000000000002400000000000025000000000000094406000005051100...(+14) gatt=2575fda
+11-13 17:24:36.955 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:36.971 24672 24672 D USER_DFU: check skipped role=false active=false ble=READY
+11-13 17:24:36.977 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.978 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=1
+11-13 17:24:36.979 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=15 thread=DefaultDispatcher-worker-2
+11-13 17:24:36.980 24672 24811 W System.err: BLE debug запись 80100900210bea070b0d04111824e7
+11-13 17:24:36.982 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=15 hex=80100900210bea070b0d04111824e7 write_type=2 gatt=2575fda
+11-13 17:24:36.982 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:37.079 24672 24775 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=15 hex=80100900210bea070b0d04111824e7 write_type=2 gatt=2575fda
+11-13 17:24:37.079 24672 24775 D TestSendByteArray: status =0 80100900210bea070b0d04111824e7
+11-13 17:24:37.082 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:37.086 24672 24672 W System.err: BLE debug попытка подписки на нотификацию
+11-13 17:24:37.086 24672 24672 D BLEController: Устанавливаю уведомления для 43680201-4d74-1001-726b-526f64696f6e, enabled: true
+11-13 17:24:37.175 24672 24672 D BLE_NOTIFY: Notify subscribe result: uuid=43680201-4d74-1001-726b-526f64696f6e enabled=true status=0
+11-13 17:24:37.280 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=16
+11-13 17:24:37.280 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=16
+11-13 17:24:37.281 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:37.282 24672 24811 W System.err: BLE debug запись 000f300072
+11-13 17:24:37.284 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f300072 write_type=2 gatt=2575fda
+11-13 17:24:37.284 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:37.441 24672 24698 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f300072 write_type=2 gatt=2575fda
+11-13 17:24:37.441 24672 24698 D TestSendByteArray: status =0 000f300072
+11-13 17:24:37.448 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:37.532 24672 24775 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=800f0300d330323260 gatt=2575fda
+11-13 17:24:37.548 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=15
+11-13 17:24:37.549 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=15
+11-13 17:24:37.549 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:37.549 24672 24811 W System.err: BLE debug запись 0012020094
+11-13 17:24:37.551 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0012020094 write_type=2 gatt=2575fda
+11-13 17:24:37.551 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:37.618 24672 24775 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0012020094 write_type=2 gatt=2575fda
+11-13 17:24:37.618 24672 24775 D TestSendByteArray: status =0 0012020094
+11-13 17:24:37.618 24672 24698 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=8012030089024b3db4 gatt=2575fda
+11-13 17:24:37.619 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:37.633 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=14
+11-13 17:24:37.634 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=14
+11-13 17:24:37.634 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:37.634 24672 24811 W System.err: BLE debug запись 00120600af
+11-13 17:24:37.636 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00120600af write_type=2 gatt=2575fda
+11-13 17:24:37.636 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:37.755 24672 24698 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00120600af write_type=2 gatt=2575fda
+11-13 17:24:37.755 24672 24698 D TestSendByteArray: status =0 00120600af
+11-13 17:24:37.756 24672 24698 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=001206034d gatt=2575fda
+11-13 17:24:37.814 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:37.822 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=13
+11-13 17:24:37.823 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=13
+11-13 17:24:37.823 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:37.823 24672 24811 W System.err: BLE debug запись 001204003e
+11-13 17:24:37.825 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=001204003e write_type=2 gatt=2575fda
+11-13 17:24:37.825 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:37.935 24672 24696 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=001204003e write_type=2 gatt=2575fda
+11-13 17:24:37.936 24672 24696 D TestSendByteArray: status =0 001204003e
+11-13 17:24:37.938 24672 24696 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=0012043c23 gatt=2575fda
+11-13 17:24:37.961 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:37.997 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=12
+11-13 17:24:37.997 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=12
+11-13 17:24:37.997 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:37.998 24672 24811 W System.err: BLE debug запись 000f160019
+11-13 17:24:38.006 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f160019 write_type=2 gatt=2575fda
+11-13 17:24:38.006 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.126 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f160019 gatt=2575fda
+11-13 17:24:38.127 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f160019 write_type=2 gatt=2575fda
+11-13 17:24:38.127 24672 24700 D TestSendByteArray: status =0 000f160019
+11-13 17:24:38.156 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.162 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=11
+11-13 17:24:38.165 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=11
+11-13 17:24:38.165 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.166 24672 24811 W System.err: BLE debug запись 00100d00c3
+11-13 17:24:38.168 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00100d00c3 write_type=2 gatt=2575fda
+11-13 17:24:38.168 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.250 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00100d00c3 write_type=2 gatt=2575fda
+11-13 17:24:38.250 24672 24700 D TestSendByteArray: status =0 00100d00c3
+11-13 17:24:38.250 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00100d2822 gatt=2575fda
+11-13 17:24:38.253 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.258 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=10
+11-13 17:24:38.259 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=10
+11-13 17:24:38.263 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.265 24672 24811 W System.err: BLE debug запись 000f3a0095
+11-13 17:24:38.268 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3a0095 write_type=2 gatt=2575fda
+11-13 17:24:38.268 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.339 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3a0095 write_type=2 gatt=2575fda
+11-13 17:24:38.339 24672 24700 D TestSendByteArray: status =0 000f3a0095
+11-13 17:24:38.339 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.342 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3a9e9b gatt=2575fda
+11-13 17:24:38.358 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=9
+11-13 17:24:38.359 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=9
+11-13 17:24:38.359 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.360 24672 24811 W System.err: BLE debug запись 00100f0052
+11-13 17:24:38.362 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00100f0052 write_type=2 gatt=2575fda
+11-13 17:24:38.362 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.432 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00100f0052 write_type=2 gatt=2575fda
+11-13 17:24:38.432 24672 24700 D TestSendByteArray: status =0 00100f0052
+11-13 17:24:38.433 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.434 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00100f0052 gatt=2575fda
+11-13 17:24:38.451 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=8
+11-13 17:24:38.452 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=8
+11-13 17:24:38.452 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.453 24672 24811 W System.err: BLE debug запись 00101000a6
+11-13 17:24:38.455 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00101000a6 write_type=2 gatt=2575fda
+11-13 17:24:38.455 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.522 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00101000a6 write_type=2 gatt=2575fda
+11-13 17:24:38.522 24672 24700 D TestSendByteArray: status =0 00101000a6
+11-13 17:24:38.522 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=11 hex=801005006c1031000000bb gatt=2575fda
+11-13 17:24:38.526 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.537 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=7
+11-13 17:24:38.538 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=7
+11-13 17:24:38.538 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.539 24672 24811 W System.err: BLE debug запись 000f3c003f
+11-13 17:24:38.541 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3c003f write_type=2 gatt=2575fda
+11-13 17:24:38.541 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.659 24672 24861 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3c003f write_type=2 gatt=2575fda
+11-13 17:24:38.660 24672 24861 D TestSendByteArray: status =0 000f3c003f
+11-13 17:24:38.664 24672 24861 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3c003f gatt=2575fda
+11-13 17:24:38.668 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.683 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=6
+11-13 17:24:38.683 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=6
+11-13 17:24:38.684 24672 24811 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-2
+11-13 17:24:38.684 24672 24811 W System.err: BLE debug запись 000f2e0042
+11-13 17:24:38.686 24672 24811 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f2e0042 write_type=2 gatt=2575fda
+11-13 17:24:38.686 24672 24811 D TestSendByteArray: send!!!!
+11-13 17:24:38.746 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f2e0042 write_type=2 gatt=2575fda
+11-13 17:24:38.746 24672 24700 D TestSendByteArray: status =0 000f2e0042
+11-13 17:24:38.747 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f2e011c gatt=2575fda
+11-13 17:24:38.755 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=5
+11-13 17:24:38.755 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=5
+11-13 17:24:38.755 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:38.756 24672 24812 W System.err: BLE debug запись 000f3e00ae
+11-13 17:24:38.759 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3e00ae write_type=2 gatt=2575fda
+11-13 17:24:38.759 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:38.759 24672 24811 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.759 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:38.879 24672 24779 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3e00ae write_type=2 gatt=2575fda
+11-13 17:24:38.879 24672 24779 D TestSendByteArray: status =0 000f3e00ae
+11-13 17:24:38.923 24672 24779 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3e64aa gatt=2575fda
+11-13 17:24:38.931 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=4
+11-13 17:24:38.931 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=4
+11-13 17:24:38.935 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:38.935 24672 24812 W System.err: BLE debug запись 000f4000c4
+11-13 17:24:38.938 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f4000c4 write_type=2 gatt=2575fda
+11-13 17:24:38.938 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:39.014 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f4000c4 write_type=2 gatt=2575fda
+11-13 17:24:39.014 24672 24700 D TestSendByteArray: status =0 000f4000c4
+11-13 17:24:39.015 24672 24700 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f4064c0 gatt=2575fda
+11-13 17:24:39.021 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:39.024 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=3
+11-13 17:24:39.024 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=3
+11-13 17:24:39.024 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:39.025 24672 24812 W System.err: BLE debug запись 00010a004c
+11-13 17:24:39.027 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00010a004c write_type=2 gatt=2575fda
+11-13 17:24:39.027 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:39.109 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00010a004c write_type=2 gatt=2575fda
+11-13 17:24:39.109 24672 24700 D TestSendByteArray: status =0 00010a004c
+11-13 17:24:39.110 24672 24779 D DFU_V2_DIAG: gatt serial_notify bytes=18 hex=80010c003f0a46544853332d3030303030cf gatt=2575fda
+11-13 17:24:39.111 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:39.121 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=2
+11-13 17:24:39.122 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=2
+11-13 17:24:39.122 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:39.122 24672 24812 W System.err: BLE debug запись 000f45003b
+11-13 17:24:39.126 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f45003b write_type=2 gatt=2575fda
+11-13 17:24:39.126 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:39.196 24672 24779 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f45003b write_type=2 gatt=2575fda
+11-13 17:24:39.196 24672 24779 D TestSendByteArray: status =0 000f45003b
+11-13 17:24:39.197 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:39.197 24672 24779 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f454123 gatt=2575fda
+11-13 17:24:39.204 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=1
+11-13 17:24:39.204 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=1
+11-13 17:24:39.204 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:39.205 24672 24812 W System.err: BLE debug запись 000f4700aa
+11-13 17:24:39.207 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f4700aa write_type=2 gatt=2575fda
+11-13 17:24:39.207 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:39.290 24672 24779 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f4700aa write_type=2 gatt=2575fda
+11-13 17:24:39.290 24672 24779 D TestSendByteArray: status =0 000f4700aa
+11-13 17:24:39.291 24672 24779 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f474631 gatt=2575fda
+11-13 17:24:39.299 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:39.306 24672 24814 D BLE_Q   : DEQ start thread=BLE-Queue-Worker remaining=1
+11-13 17:24:39.307 24672 24814 D BLE_Q   : DEQ done  thread=BLE-Queue-Worker remaining=1
+11-13 17:24:39.307 24672 24812 D BLE_Q   : SEND cmd=WRITE uuid=43681000-4d74-1001-726b-526f64696f6e size=5 thread=DefaultDispatcher-worker-3
+11-13 17:24:39.309 24672 24812 W System.err: BLE debug запись 000f410000
+11-13 17:24:39.311 24672 24812 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f410000 write_type=2 gatt=2575fda
+11-13 17:24:39.311 24672 24812 D TestSendByteArray: send!!!!
+11-13 17:24:39.376 24672 24700 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f410000 write_type=2 gatt=2575fda
+11-13 17:24:39.376 24672 24700 D TestSendByteArray: status =0 000f410000
+11-13 17:24:39.378 24672 24812 D TestSendByteArray: CallBack is BLEService was complete
+11-13 17:24:39.383 24672 24779 D DFU_V2_DIAG: gatt serial_notify bytes=165 hex=800f9f005d41010046544853332d3030303030000000000000000000000000000000000000000000000000007500000000000000000000000000000000000000...(+101) gatt=2575fda

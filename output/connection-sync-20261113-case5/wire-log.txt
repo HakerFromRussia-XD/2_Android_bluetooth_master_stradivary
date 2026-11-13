@@ -1,0 +1,17 @@
+11-13 17:44:17.302 27083 27083 I DFU_V2_DIAG: diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=false version=3.3.1886 type=debug package=com.bailout.stickk
+11-13 17:44:17.590 27083 27083 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=null
+11-13 17:44:18.560 27083 27083 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=1605bb8
+11-13 17:44:19.163 27083 27097 I DFU_V2_DIAG: gatt connection_state status=0 status_name=GATT_SUCCESS new_state=2 gatt=1605bb8 current=true address=00:80:E1:26:67:30
+11-13 17:44:21.399 27083 27097 I DFU_V2_DIAG: gatt mtu_changed mtu=512 status=0 gatt=1605bb8
+11-13 17:44:21.409 27083 27397 I DFU_V2_DIAG: gatt services_discovered status=0 services=3 serial_present=true serial_properties=24 negotiated_mtu=512 max_wwr=509 gatt=1605bb8
+11-13 17:44:21.448 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0005000035 write_type=2 gatt=1605bb8
+11-13 17:44:21.468 27083 27097 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0005000035 write_type=2 gatt=1605bb8
+11-13 17:44:21.753 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000401005a write_type=2 gatt=1605bb8
+11-13 17:44:21.837 27083 27097 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000401005a write_type=2 gatt=1605bb8
+11-13 17:44:21.841 27083 27097 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000401005a gatt=1605bb8
+11-13 17:44:21.852 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000402000f write_type=2 gatt=1605bb8
+11-13 17:44:21.925 27083 27097 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000402000f write_type=2 gatt=1605bb8
+11-13 17:44:21.926 27083 27097 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00040202b3 gatt=1605bb8
+11-13 17:44:27.508 27083 27097 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000402000f gatt=1605bb8
+11-13 17:44:27.516 27083 27083 I DFU_V2_DIAG: gatt disconnect request gatt=1605bb8 tracked_notifications=1
+11-13 17:44:27.520 27083 27083 I DFU_V2_DIAG: gatt close request gatt=1605bb8

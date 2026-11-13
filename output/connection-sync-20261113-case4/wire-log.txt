@@ -1,0 +1,16 @@
+11-13 17:42:37.011 27083 27083 I DFU_V2_DIAG: diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=false version=3.3.1886 type=debug package=com.bailout.stickk
+11-13 17:42:37.313 27083 27083 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=null
+11-13 17:42:37.875 27083 27397 I DFU_V2_DIAG: gatt connection_state status=0 status_name=GATT_SUCCESS new_state=2 gatt=e4b5c0e current=true address=00:80:E1:26:67:30
+11-13 17:42:38.493 27083 27098 I DFU_V2_DIAG: gatt mtu_changed mtu=512 status=0 gatt=e4b5c0e
+11-13 17:42:38.498 27083 27398 I DFU_V2_DIAG: gatt services_discovered status=0 services=3 serial_present=true serial_properties=24 negotiated_mtu=512 max_wwr=509 gatt=e4b5c0e
+11-13 17:42:38.535 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0005000035 write_type=2 gatt=e4b5c0e
+11-13 17:42:38.563 27083 27097 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0005000035 write_type=2 gatt=e4b5c0e
+11-13 17:42:38.839 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000401005a write_type=2 gatt=e4b5c0e
+11-13 17:42:38.921 27083 27398 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000401005a write_type=2 gatt=e4b5c0e
+11-13 17:42:38.923 27083 27398 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000401005a gatt=e4b5c0e
+11-13 17:42:38.929 27083 27083 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000402000f write_type=2 gatt=e4b5c0e
+11-13 17:42:39.011 27083 27398 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000402000f write_type=2 gatt=e4b5c0e
+11-13 17:42:39.013 27083 27098 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00040202b3 gatt=e4b5c0e
+11-13 17:42:43.671 27083 27097 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000402000f gatt=e4b5c0e
+11-13 17:42:43.683 27083 27083 I DFU_V2_DIAG: gatt disconnect request gatt=e4b5c0e tracked_notifications=1
+11-13 17:42:43.688 27083 27083 I DFU_V2_DIAG: gatt close request gatt=e4b5c0e

@@ -1,0 +1,21 @@
+11-13 17:34:48.221 25061 25061 I DFU_V2_DIAG: diagnostic_build=v2-link-params-control-20260904-1 entry_probe_only=false version=3.3.1886 type=debug package=com.bailout.stickk
+11-13 17:34:48.595 25061 25061 I DFU_V2_DIAG: gatt connect start address=00:80:E1:26:67:30 old_gatt=null
+11-13 17:34:49.011 25061 25187 I DFU_V2_DIAG: gatt connection_state status=0 status_name=GATT_SUCCESS new_state=2 gatt=7e7364f current=true address=00:80:E1:26:67:30
+11-13 17:34:49.662 25061 25121 I DFU_V2_DIAG: gatt mtu_changed mtu=512 status=0 gatt=7e7364f
+11-13 17:34:49.673 25061 25076 I DFU_V2_DIAG: gatt services_discovered status=0 services=3 serial_present=true serial_properties=24 negotiated_mtu=512 max_wwr=509 gatt=7e7364f
+11-13 17:34:49.703 25061 25061 I input_focus: setView: view:com.android.internal.policy.DecorView{87b895e V.E...... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.versions.v3.presentation.phonesync.V3PhoneSyncDialog.render:37 
+11-13 17:34:49.722 25061 25061 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0005000035 write_type=2 gatt=7e7364f
+11-13 17:34:49.888 25061 25200 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0005000035 write_type=2 gatt=7e7364f
+11-13 17:34:50.026 25061 25061 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000401005a write_type=2 gatt=7e7364f
+11-13 17:34:50.113 25061 25121 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000401005a write_type=2 gatt=7e7364f
+11-13 17:34:50.115 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000401005a gatt=7e7364f
+11-13 17:34:50.119 25061 25061 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000402000f write_type=2 gatt=7e7364f
+11-13 17:34:50.202 25061 25121 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000402000f write_type=2 gatt=7e7364f
+11-13 17:34:50.203 25061 25121 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00040202b3 gatt=7e7364f
+11-13 17:34:58.510 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=801203008902554702 gatt=7e7364f
+11-13 17:35:00.180 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=800f0300d330505072 gatt=7e7364f
+11-13 17:35:02.112 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=800f0300d3306e6e22 gatt=7e7364f
+11-13 17:35:04.988 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=800f0300d3308c8c93 gatt=7e7364f
+11-13 17:35:06.521 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=8012030089025f51a5 gatt=7e7364f
+11-13 17:35:08.874 25061 25200 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000402000f gatt=7e7364f
+11-13 17:35:08.927 25061 25061 I input_focus: setView: view:com.android.internal.policy.DecorView{b7805b3 V.E...... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.versions.v3.presentation.phonesync.V3PhoneSyncDialog.render:37 

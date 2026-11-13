@@ -86,7 +86,48 @@ import okhttp3.internal.notifyAll
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 
+import com.bailout.stickk.ubi4.versions.v3.data.phonesync.V3PhoneSyncRepositoryImpl
+import com.bailout.stickk.ubi4.versions.v3.data.phonesync.V3PhoneSyncProtocol
+import com.bailout.stickk.ubi4.versions.v3.domain.phonesync.AuthorizePhoneUseCaseV3
+import com.bailout.stickk.ubi4.versions.v3.domain.phonesync.V3PhoneSyncState
+
 class BLEController(private val bleManager: BleManagerKmm) {
+    private var phoneSync: V3PhoneSyncRepositoryImpl? = null
+    private var authorizePhone: AuthorizePhoneUseCaseV3? = null
+    private var phoneSyncFailureJob: Job? = null
+    private var v3StartupJob: Job? = null
+
+    internal fun bindV3PhoneSync(
+        repository: V3PhoneSyncRepositoryImpl,
+        authorize: AuthorizePhoneUseCaseV3,
+    ) {
+        phoneSync = repository
+        authorizePhone = authorize
+        BLEState.publishConnecting()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        phoneSyncFailureJob = bleScope.launch {
+            repository.state.first { it == V3PhoneSyncState.Failed }
+            blockPhoneSyncConnection()
+        }
+    }
+
+    internal fun sendV3PhoneSyncPacket(packet: ByteArray): Boolean =
+        mConnected && !mDisconnected && !dfuReconnectActive && !firmwareUpdateSessionActive &&
+            bleCommand(packet, SERIALPORTCHAR_UUID, WRITE)
+
+    private fun blockPhoneSyncConnection() {
+        mDisconnected = true
+        reconnectThreadFlag = false
+        reconnectJob?.cancel()
+        v3StartupJob?.cancel()
+        ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
+        phoneSync?.endSession()
+        UiState.v3WidgetsInteractionEnabled.value = false
+        BLEState.publishError()
+        runCatching { mBluetoothLeService?.disconnect() }
+        runCatching { mBluetoothLeService?.close() }
+        mConnected = false
+    }
     private data class V3InitRequest(
         val packet: ByteArray,
         val expectedResponseCommand: Int,
@@ -178,6 +219,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
         override fun onServiceDisconnected(componentName: ComponentName) {
             mBluetoothLeService = null
+            phoneSync?.endSession()
+            if (phoneSync != null) v3StartupJob?.cancel()
         }
     }
 
@@ -220,6 +263,12 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     SettingsProfileUploadWorkScheduler.onConnected(mContext)
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    phoneSync?.endSession()
+                    if (phoneSync != null) v3StartupJob?.cancel()
+                    if (phoneSync?.state?.value == V3PhoneSyncState.Failed) {
+                        blockPhoneSyncConnection()
+                        return
+                    }
                     Log.i(
                         DFU_TRACE_TAG,
                         "controller event=GATT_DISCONNECTED connected_before=$mConnected generation=$gattServicesGeneration " +
@@ -259,6 +308,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    if (phoneSync?.state?.value == V3PhoneSyncState.Failed) {
+                        blockPhoneSyncConnection()
+                        return
+                    }
                     gattServicesGeneration++
                     Log.i(
                         DFU_TRACE_TAG,
@@ -292,7 +345,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 )
                             }
                         } else if (!dfuReconnectActive && (!supportsBulkWrite || UiState.isInterfaceV3Activated)) {
-                            main.lifecycleScope.launch {
+                            if (phoneSync != null) v3StartupJob?.cancel()
+                            v3StartupJob = main.lifecycleScope.launch {
+                            if (UiState.isInterfaceV3Activated && phoneSync != null) {
+                                phoneSync?.beginSession()
+                                if (!enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)) {
+                                    phoneSync?.cancel()
+                                    return@launch
+                                }
+                                if (authorizePhone?.invoke() != true) return@launch
+                            }
                             // FAM main also exposes WWR to bridge GUI DFU. Read its actual mode.
                             if (UiState.isInterfaceV3Activated && supportsBulkWrite) {
                                 val programType = readConnectedProgramTypeV3()
@@ -341,9 +403,14 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                     if (UiState.isInterfaceV3Activated) {
                         if (intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3) != null) {//стрим сенсоров, полностью совпадает с FEST-X
-                            parseReceivedSensorsDataV3(intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3))
+                            if (phoneSync == null || phoneSync?.accessGranted == true || dfuReconnectActive || firmwareUpdateSessionActive)
+                                parseReceivedSensorsDataV3(intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3))
                         }
                         if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR) != null) {//используем как порт в UBIv4
+                            val packet = intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR)!!
+                            if (!dfuReconnectActive && !firmwareUpdateSessionActive && phoneSync != null) {
+                                if (phoneSync?.onPacket(packet) == true || phoneSync?.accessGranted != true) return
+                            }
                             pendingDeviceDataResponseAck?.complete(true)
                             parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR))
                         }
@@ -638,6 +705,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         if (mScanning) { scanLeDevice(false) }
     }
     fun connectToSavedDeviceNow() {
+        if (phoneSync?.state?.value == V3PhoneSyncState.Failed) return
         val hasTarget = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
         if (!hasTarget) {
             platformLog("connectToSavedDeviceNow", "scanLeDevice")
@@ -650,6 +718,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         reconnectThread()
     }
     fun reconnectThread() {
+        if (phoneSync?.state?.value == V3PhoneSyncState.Failed) return
         if (reconnectJob?.isActive == true) {
             Log.i(
                 DFU_TRACE_TAG,
@@ -831,6 +900,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String): Boolean  {
+        if (phoneSync?.state?.value == V3PhoneSyncState.Failed) return false
+        if (phoneSync != null && !dfuReconnectActive && !firmwareUpdateSessionActive) {
+            if (typeCommand == WRITE && phoneSync?.accessGranted != true &&
+                byteArray?.let { V3PhoneSyncProtocol.isControlPacket(it) } != true) return false
+        }
         Log.d("bleCommand", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         var commandDispatched = false
         val characteristicsSnapshot = mGattCharacteristics
@@ -892,6 +966,9 @@ class BLEController(private val bleManager: BleManagerKmm) {
         return commandDispatched
     }
     fun cleanup() {
+        phoneSync?.endSession()
+        phoneSyncFailureJob?.cancel()
+        if (phoneSync != null) v3StartupJob?.cancel()
         reconnectThreadFlag = false
         reconnectJob?.cancel()
         if (mScanning) scanLeDevice(false)

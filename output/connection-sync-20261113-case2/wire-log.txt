@@ -1,0 +1,66 @@
+11-13 17:27:21.855 25061 25121 I DFU_V2_DIAG: gatt connection_state status=0 status_name=GATT_SUCCESS new_state=2 gatt=d00282 current=true address=00:80:E1:26:67:30
+11-13 17:27:22.499 25061 25121 I DFU_V2_DIAG: gatt mtu_changed mtu=512 status=0 gatt=d00282
+11-13 17:27:22.518 25061 25121 I DFU_V2_DIAG: gatt services_discovered status=0 services=3 serial_present=true serial_properties=24 negotiated_mtu=512 max_wwr=509 gatt=d00282
+11-13 17:27:22.587 25061 25061 I input_focus: setView: view:com.android.internal.policy.DecorView{8a6cf00 V.E...... R.....I. 0,0-0,0}[MainActivityUBI4] calllers:android.view.WindowManagerGlobal.addView:556 android.view.WindowManagerGlobal.addView:426 android.view.WindowManagerImpl.addView:178 android.app.Dialog.show:366 com.bailout.stickk.ubi4.versions.v3.presentation.phonesync.V3PhoneSyncDialog.render:37 
+11-13 17:27:22.707 25061 25061 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0005000035 write_type=2 gatt=d00282
+11-13 17:27:22.768 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=0005000035 gatt=d00282
+11-13 17:27:22.774 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0005000035 write_type=2 gatt=d00282
+11-13 17:27:22.981 25061 25141 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0006010015 write_type=2 gatt=d00282
+11-13 17:27:23.052 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0006010015 write_type=2 gatt=d00282
+11-13 17:27:23.053 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=78 hex=80064800e50100010200000208200000000000002100000000000022000000000000230000000000002400000000000025000000000000094406000005051121...(+14) gatt=d00282
+11-13 17:27:23.238 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=15 hex=80100900210bea070b0d04111b17ee write_type=2 gatt=d00282
+11-13 17:27:23.309 25061 25187 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=15 hex=80100900210bea070b0d04111b17ee write_type=2 gatt=d00282
+11-13 17:27:23.644 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f300072 write_type=2 gatt=d00282
+11-13 17:27:23.764 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f300072 write_type=2 gatt=d00282
+11-13 17:27:23.765 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=800f0300d330323260 gatt=d00282
+11-13 17:27:23.793 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=0012020094 write_type=2 gatt=d00282
+11-13 17:27:23.848 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=0012020094 write_type=2 gatt=d00282
+11-13 17:27:23.849 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=9 hex=8012030089024b3db4 gatt=d00282
+11-13 17:27:23.874 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00120600af write_type=2 gatt=d00282
+11-13 17:27:23.940 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00120600af write_type=2 gatt=d00282
+11-13 17:27:23.941 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=001206034d gatt=d00282
+11-13 17:27:24.009 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=001204003e write_type=2 gatt=d00282
+11-13 17:27:24.075 25061 25187 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=001204003e write_type=2 gatt=d00282
+11-13 17:27:24.075 25061 25187 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=0012043c23 gatt=d00282
+11-13 17:27:24.113 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f160019 write_type=2 gatt=d00282
+11-13 17:27:24.163 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f160019 write_type=2 gatt=d00282
+11-13 17:27:24.165 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f160019 gatt=d00282
+11-13 17:27:24.223 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00100d00c3 write_type=2 gatt=d00282
+11-13 17:27:24.299 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00100d00c3 write_type=2 gatt=d00282
+11-13 17:27:24.300 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00100d2822 gatt=d00282
+11-13 17:27:24.348 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3a0095 write_type=2 gatt=d00282
+11-13 17:27:24.433 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3a0095 write_type=2 gatt=d00282
+11-13 17:27:24.434 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3a9e9b gatt=d00282
+11-13 17:27:24.450 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00100f0052 write_type=2 gatt=d00282
+11-13 17:27:24.524 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00100f0052 write_type=2 gatt=d00282
+11-13 17:27:24.529 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=00100f0052 gatt=d00282
+11-13 17:27:24.547 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00101000a6 write_type=2 gatt=d00282
+11-13 17:27:24.615 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00101000a6 write_type=2 gatt=d00282
+11-13 17:27:24.616 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=11 hex=801005006c103200000033 gatt=d00282
+11-13 17:27:24.628 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3c003f write_type=2 gatt=d00282
+11-13 17:27:24.705 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3c003f write_type=2 gatt=d00282
+11-13 17:27:24.707 25061 25075 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3c003f gatt=d00282
+11-13 17:27:24.721 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f2e0042 write_type=2 gatt=d00282
+11-13 17:27:24.793 25061 25075 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f2e0042 write_type=2 gatt=d00282
+11-13 17:27:24.794 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f2e011c gatt=d00282
+11-13 17:27:24.807 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f3e00ae write_type=2 gatt=d00282
+11-13 17:27:24.884 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f3e00ae write_type=2 gatt=d00282
+11-13 17:27:24.886 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f3e64aa gatt=d00282
+11-13 17:27:24.903 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f4000c4 write_type=2 gatt=d00282
+11-13 17:27:24.978 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f4064c0 gatt=d00282
+11-13 17:27:24.980 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f4064c0 write_type=2 gatt=d00282
+11-13 17:27:24.997 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=00010a004c write_type=2 gatt=d00282
+11-13 17:27:25.064 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=00010a004c write_type=2 gatt=d00282
+11-13 17:27:25.066 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=18 hex=80010c003f0a46544853332d3030303030cf gatt=d00282
+11-13 17:27:25.079 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f45003b write_type=2 gatt=d00282
+11-13 17:27:25.161 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f45003b write_type=2 gatt=d00282
+11-13 17:27:25.164 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f454123 gatt=d00282
+11-13 17:27:25.185 25061 25139 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f4700aa write_type=2 gatt=d00282
+11-13 17:27:25.246 25061 25076 D DFU_V2_DIAG: gatt serial_notify bytes=5 hex=000f474631 gatt=d00282
+11-13 17:27:25.249 25061 25076 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f474631 write_type=2 gatt=d00282
+11-13 17:27:25.253 25061 25061 D TelemetryV3: TX PWCE_GET_TELEMETRY_DATA packet=000f410000
+11-13 17:27:25.256 25061 25141 D DFU_V2_DIAG: gatt control_write_submit accepted=true bytes=5 hex=000f410000 write_type=2 gatt=d00282
+11-13 17:27:25.339 25061 25187 D DFU_V2_DIAG: gatt control_write_callback status=0 bytes=5 hex=000f410000 write_type=2 gatt=d00282
+11-13 17:27:25.347 25061 25187 D DFU_V2_DIAG: gatt serial_notify bytes=165 hex=800f9f005d41010046544853332d3030303030000000000000000000000000000000000000000000000000007600000000000000000000000000000000000000...(+101) gatt=d00282
+11-13 17:27:25.359 25061 25061 D TelemetryV3: RX telemetry parsed: dataCode=30 name=DTCE_TELEMETRY_DATA version=1.0 size=158/158 DeviceUUID="FTHS3-00000" gesture_movement_count=[0,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0] user_gesture_movement_count=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+11-13 17:27:27.217 25061 25061 D TelemetryV3: Telemetry upload failed: Telemetry upload failed 502: HTTP 502

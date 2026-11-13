@@ -1,0 +1,4 @@
+<resources>
+    <string name="v3_phone_sync_title">Synchronization</string>
+    <string name="v3_phone_sync_instruction">To complete synchronization with the prosthesis, press the 2 outer buttons simultaneously</string>
+</resources>

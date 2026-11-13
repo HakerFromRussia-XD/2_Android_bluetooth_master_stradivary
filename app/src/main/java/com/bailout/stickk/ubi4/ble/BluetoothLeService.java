@@ -574,6 +574,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated() && gatt != mBluetoothGatt) return;
             platformLog("onConnectionStateChangeTAG", "onServicesDiscovered: status=" + status);
             platformLog("SERVICES_DISCOVERED", "status=" + status + " (" + gattStatusToName(status) + ")");
             final BluetoothGattCharacteristic serial = findCharacteristicByUuid(
@@ -584,7 +585,9 @@ public class BluetoothLeService extends Service {
                     " negotiated_mtu=" + negotiatedMtu + " max_wwr=" + maximumWriteWithoutResponseSize() +
                     " gatt=" + gattId(gatt));
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                BLEState.INSTANCE.publishReady();
+                if (!com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated()) {
+                    BLEState.INSTANCE.publishReady();
+                }
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
                 requestStablePhy(gatt);
                 startLinkMaintenance();
@@ -606,6 +609,7 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
+            if (com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated() && gatt != mBluetoothGatt) return;
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 BleLogStore.INSTANCE.logIncoming(characteristic.getValue());
                 broadcastUpdate(characteristic, SampleGattAttributes.READ);
@@ -615,6 +619,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+            if (com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated() && gatt != mBluetoothGatt) return;
             final byte[] value = characteristic.getValue();
             if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
                     com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
@@ -643,6 +648,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            if (com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated() && gatt != mBluetoothGatt) return;
             byte[] d   = characteristic.getValue();
             if (String.valueOf(characteristic.getUuid()).equalsIgnoreCase(
                     com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)) {
@@ -664,6 +670,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
+            if (com.bailout.stickk.ubi4.data.state.UiState.INSTANCE.isInterfaceV3Activated() && gatt != mBluetoothGatt) return;
 
             final BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
             final boolean isCccdDescriptor = UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG)

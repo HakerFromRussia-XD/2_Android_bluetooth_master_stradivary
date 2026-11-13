@@ -1,0 +1,33 @@
+[Unit]
+Description=Motorica firmware WebClient and API adapter
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=motorica-panel
+Group=motorica-panel
+WorkingDirectory=/opt/motorica-firmware-panel
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+EnvironmentFile=/etc/motorica-firmware-panel/api.env
+ExecStart=/usr/bin/python3 /opt/motorica-firmware-panel/firmware_panel.py --port 8092 --adapter-port 8093 --runtime /var/lib/motorica-firmware-panel --binary /usr/bin/sftpgo --resources /usr/share/sftpgo --base-config /opt/motorica-firmware-panel/base-config.json --password-file /etc/motorica-firmware-panel/webclient.password
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/motorica-firmware-panel
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryHigh=512M
+MemoryMax=768M
+TasksMax=96
+
+[Install]
+WantedBy=multi-user.target

@@ -21,8 +21,8 @@ def private_json(path, value):
     path.chmod(0o600)
 
 
-def configure(runtime, resources, port, adapter_port, token, password_file):
-    config = json.loads((resources / "sftpgo.json").read_text())
+def configure(runtime, resources, port, adapter_port, token, password_file, base_config=None):
+    config = json.loads((base_config or resources / "sftpgo.json").read_text())
     config["common"]["upload_mode"] = 0
     config["common"]["temp_path"] = str(runtime / "tmp")
     config["common"]["max_total_connections"] = 20
@@ -79,13 +79,15 @@ def main():
     parser.add_argument("--runtime", type=Path, default=RUNTIME)
     parser.add_argument("--resources", type=Path, default=RUNTIME / "sftpgo")
     parser.add_argument("--binary", type=Path, default=RUNTIME / "sftpgo" / "sftpgo")
+    parser.add_argument("--base-config", type=Path, help="Base sftpgo.json when resources are installed separately")
     parser.add_argument("--password-file", type=Path, default=RUNTIME / "webclient.password")
     args = parser.parse_args()
     key = os.environ.get("MOTORICA_WRITE_KEY") or api.WRITE_KEY
     if not key:
         parser.error("Set MOTORICA_WRITE_KEY or WRITE_KEY in migrate_to_motorica.py")
     runtime, resources = args.runtime.resolve(), args.resources.resolve()
-    if not args.binary.is_file() or not (resources / "sftpgo.json").is_file():
+    base_config = args.base_config.resolve() if args.base_config else resources / "sftpgo.json"
+    if not args.binary.is_file() or not base_config.is_file():
         parser.error("SFTPGo 2.7.6 is required; see README.md for installation")
     if not args.password_file.is_file():
         parser.error("Provide the existing WebClient password in --password-file")
@@ -94,13 +96,15 @@ def main():
     filesystem = FirmwareFS(key, runtime / "state")
     token = secrets.token_urlsafe(48)
     with HTTPFSServer(("127.0.0.1", args.adapter_port), filesystem, token) as adapter:
-        configure(runtime, resources, args.port, adapter.server_port, token, args.password_file)
+        configure(runtime, resources, args.port, adapter.server_port, token, args.password_file, base_config)
         thread = threading.Thread(target=adapter.serve_forever, daemon=True)
         thread.start()
         command = [str(args.binary.resolve()), "serve", "--config-dir", str(runtime),
                    "--loaddata-from", str(runtime / "users.json"), "--loaddata-clean",
                    "--log-file-path", str(runtime / "sftpgo.log"), "--log-level", "info"]
-        child = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        child_env = {name: value for name, value in os.environ.items()
+                     if name not in {"MOTORICA_WRITE_KEY", "MOTORICA_READ_KEY"}}
+        child = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=child_env)
         print(f"MS Firmware Files: http://127.0.0.1:{args.port}/web/client/", flush=True)
         print("Login: ms-firmware; password: same as FVDS. Storage: Motorica API.", flush=True)
         try:

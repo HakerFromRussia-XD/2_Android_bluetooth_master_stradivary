@@ -1,0 +1,13 @@
+{
+  "automatic_recovery_verified": true,
+  "pid_changed": true,
+  "restarts": 1,
+  "boot_autostart": "enabled",
+  "source_write_key_empty": true,
+  "password_import_removed": true,
+  "existing_services": {
+    "ms-firmware-files": "active",
+    "ms-firmware-catalog": "active",
+    "nginx": "active"
+  }
+}

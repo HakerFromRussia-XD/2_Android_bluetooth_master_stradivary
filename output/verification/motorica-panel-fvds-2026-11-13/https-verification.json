@@ -1,0 +1,82 @@
+{
+  "url": "https://motorica-firmware.157.22.203.6.nip.io/web/client/",
+  "verified_at_utc": "2026-11-13T00:46:25.569026+00:00",
+  "https_valid": true,
+  "password_login_verified": true,
+  "root_entries": 7,
+  "files": [
+    {
+      "path": "catalog.json",
+      "id": "da28d6c4-f7c0-4093-872c-b02f21213eac",
+      "size": 2712,
+      "sha256": "752327ea646d12cd645b208c786c3f86afe7b18f6414cfb7ec573c01bdec23ea"
+    },
+    {
+      "path": "assembly.json",
+      "id": "0b4c760b-f73c-48da-9947-9636f276878e",
+      "size": 915,
+      "sha256": "1eaf8aa911daa4ad99db7429b5d35b0e1b62e1419be2b05409d7609f79603c13"
+    },
+    {
+      "path": "BLDC_Driver/DRV_Module_v0.7.2_24.zip",
+      "id": "20baa2eb-5985-4729-92a2-4bff1ff8e96b",
+      "size": 47427,
+      "sha256": "c7d948a912d8e4bd8282206a8113de22298cb389bda764914c283a9d592c1d57"
+    },
+    {
+      "path": "GUI/GUI_Module_v0.5.2+1_09.zip",
+      "id": "9b3c5cdc-4e69-47eb-8520-2396203b88f5",
+      "size": 168953,
+      "sha256": "6c3c0abfe3bbd5edd620739206c42d526d0d1e7f6574b3ffb49240d779ce1c43"
+    },
+    {
+      "path": "GUI/GUI_Module_boot_v0.5.0+10_09.zip",
+      "id": "d7a079b2-17f4-42e0-b862-235de528024f",
+      "size": 22532,
+      "sha256": "23260d76940d4ae141ca491644820fe1cde03754bb0c784e623cc9d0222d993e"
+    },
+    {
+      "path": "FINGER/FH-MultiBoard_v0.7.5_20.zip",
+      "id": "fa01b42d-3aea-42e1-90f2-0af48347bf1b",
+      "size": 47776,
+      "sha256": "d9f045396945fb2e71f5eb686dce4704f32f9ebf8c2be4cfcd4d4b007fab85d8"
+    },
+    {
+      "path": "FINGER/FH-MultiBoard_v0.7.2_24.zip",
+      "id": "f907793c-0033-4205-b582-bec6121e7d95",
+      "size": 47427,
+      "sha256": "c7d948a912d8e4bd8282206a8113de22298cb389bda764914c283a9d592c1d57"
+    },
+    {
+      "path": "FAM/FH_FAM_v0.1.29_старая_проша.zip",
+      "id": "f2ce66f4-7eae-4f44-87ac-cc868a312c4a",
+      "size": 55669,
+      "sha256": "dd26e5a42c701595c89e0950adb3f5cd447aa97d628d089435a3db64107a16d0"
+    },
+    {
+      "path": "FAM/FH-FAM_v0.2.3_00.zip",
+      "id": "b82df471-f26f-41fc-9719-a78a639e404b",
+      "size": 57492,
+      "sha256": "66fb80551d94ee9f5ef25998ec0dcbc49aa8b70f081ef321571c1303941464a8"
+    },
+    {
+      "path": "FAM/FH_FAM_v0.2.2.zip",
+      "id": "d10fe212-894e-43fa-b92c-928d0012d8ab",
+      "size": 59797,
+      "sha256": "3f35689a26b56519ae8b520299273ae111b1054c215b090f23a262f1a74ca32b"
+    },
+    {
+      "path": "FAM/FH-FAM_v0.2.3+20_750k_BLE_00.zip",
+      "id": "0e92fb11-e963-492a-85de-70c5a2c6da58",
+      "size": 63264,
+      "sha256": "3a59ad17d697bfa0fc6ba4bba874f735e55b639c1bb907d7f717b9a842990174"
+    },
+    {
+      "path": "FAM/FH-FAM_v0.2.4_00.zip",
+      "id": "0a2f591a-2e02-4ab7-b585-88c3ea666846",
+      "size": 57712,
+      "sha256": "394623d8eae2bb5675c1e0462e408ca636ba96c387fd3676388150c76ca3b717"
+    }
+  ],
+  "verified_count": 12
+}

@@ -1,5 +1,42 @@
 # MS firmware hosting
 
+## Постоянная панель Motorica на FVDS
+
+Адрес: `https://motorica-firmware.157.22.203.6.nip.io/web/client/`.
+Логин `ms-firmware`, пароль прежней панели FVDS. Хранилище файлов — API Motorica;
+панель размещена на личном сервере и доступна с других компьютеров через браузер.
+Прежняя панель `firmware-admin-ms.157.22.203.6.nip.io` и выдача файлов FVDS работают отдельно.
+
+Установка:
+
+- Python-код и базовый конфиг SFTPGo: `/opt/motorica-firmware-panel`;
+- служба: `motorica-firmware-panel.service`, включена в автозапуск,
+  `Restart=always`, повторный запуск через 5 секунд; остановка через `systemctl stop`
+  остаётся остановкой до ручного запуска либо перезагрузки сервера;
+- отдельный системный пользователь `motorica-panel`, состояние и журналы
+  SFTPGo: `/var/lib/motorica-firmware-panel`;
+- ключ API в `/etc/motorica-firmware-panel/api.env` (`root:root`, `0600`),
+  пароль в `/etc/motorica-firmware-panel/webclient.password` (`root:motorica-panel`, `0640`);
+- исходный Python-файл миграции на сервере содержит пустой `WRITE_KEY`;
+- панель слушает только `127.0.0.1:8092`, адаптер — `127.0.0.1:8093`;
+  снаружи доступен HTTPS через отдельный nginx virtual host;
+- сертификат Let's Encrypt обновляется Certbot, deploy hook перезагружает nginx.
+
+Проверка и управление на FVDS:
+
+```bash
+systemctl status motorica-firmware-panel
+systemctl restart motorica-firmware-panel
+journalctl -u motorica-firmware-panel -n 50
+nginx -t
+```
+
+Для обновления копировать Python-файлы в `/opt/motorica-firmware-panel`, сохраняя
+`WRITE_KEY` пустым, затем перезапускать только `motorica-firmware-panel`.
+Ключ и пароль не переносить в исходники и не печатать в журналах. Пустые папки
+и состояние панели хранятся в `/var/lib/motorica-firmware-panel/state`;
+этот каталог вместе с закрытой конфигурацией нужно включать в серверные бэкапы.
+
 ## Motorica WebClient (тот же интерфейс, что на FVDS)
 
 Локальная панель использует **SFTPGo 2.7.6**, как существующая панель FVDS.
